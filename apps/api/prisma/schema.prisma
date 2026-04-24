@@ -1,0 +1,322 @@
+// TradeEdge Pro — Schema Prisma
+// Source de vérité du modèle de données
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// ORGANISATIONS (Multi-tenant)
+// ─────────────────────────────────────────────
+model Organization {
+  id               String   @id @default(uuid())
+  slug             String   @unique
+  name             String
+  plan             Plan     @default(STARTER)
+  stripeCustomerId String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  users         User[]
+  subscriptions Subscription[]
+
+  @@map("organizations")
+}
+
+// ─────────────────────────────────────────────
+// UTILISATEURS
+// ─────────────────────────────────────────────
+model User {
+  id           String   @id @default(uuid())
+  orgId        String
+  email        String   @unique
+  passwordHash String
+  firstName    String?
+  lastName     String?
+  role         UserRole @default(TRADER)
+  onboarded    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  organization    Organization   @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  profile         TraderProfile?
+  brokerAccounts  BrokerAccount[]
+  trades          Trade[]
+  kpiSnapshots    KpiSnapshot[]
+  alerts          Alert[]
+  aiJournalEntries AiJournalEntry[]
+  refreshTokens   RefreshToken[]
+
+  @@index([orgId])
+  @@map("users")
+}
+
+model TraderProfile {
+  userId          String    @id
+  style           TraderStyle?
+  riskAppetite    RiskAppetite?
+  markets         String[]
+  experienceYears Int?
+  updatedAt       DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("trader_profiles")
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  userId      String
+  tokenHash   String   @unique  // On stocke le hash, pas le token brut
+  fingerprint String?            // User-agent + IP hash
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// ─────────────────────────────────────────────
+// COMPTES BROKERS
+// ─────────────────────────────────────────────
+model BrokerAccount {
+  id              String     @id @default(uuid())
+  userId          String
+  brokerType      BrokerType
+  accountId       String                  // ID externe chez le broker
+  label           String
+  credentialsEnc  Bytes?                  // AES-256-GCM via pgcrypto
+  isActive        Boolean    @default(true)
+  lastSyncAt      DateTime?
+  syncStatus      SyncStatus @default(PENDING)
+  syncError       String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trades  Trade[]
+
+  @@unique([userId, brokerType, accountId])
+  @@index([userId])
+  @@map("broker_accounts")
+}
+
+// ─────────────────────────────────────────────
+// TRADES
+// ─────────────────────────────────────────────
+model Trade {
+  id              String        @id @default(uuid())
+  brokerAccountId String
+  userId          String        // Dénormalisé pour perf queries
+  externalId      String?       // ID du trade chez le broker
+  symbol          String
+  direction       Direction
+  openTime        DateTime
+  closeTime       DateTime?
+  openPrice       Decimal       @db.Decimal(18, 8)
+  closePrice      Decimal?      @db.Decimal(18, 8)
+  lotSize         Decimal       @db.Decimal(12, 4)
+  pnl             Decimal?      @db.Decimal(18, 4)
+  pnlPct          Decimal?      @db.Decimal(10, 6)
+  swap            Decimal       @default(0) @db.Decimal(12, 4)
+  commission      Decimal       @default(0) @db.Decimal(12, 4)
+  strategyTag     String?
+  status          TradeStatus   @default(OPEN)
+  rawData         Json?         // Données brutes broker
+  createdAt       DateTime      @default(now())
+
+  brokerAccount BrokerAccount @relation(fields: [brokerAccountId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id])
+
+  @@unique([brokerAccountId, externalId])
+  @@index([userId, closeTime(sort: Desc)])
+  @@index([brokerAccountId])
+  @@index([userId, symbol])
+  @@map("trades")
+}
+
+// ─────────────────────────────────────────────
+// KPIs SNAPSHOTS (pré-calculés)
+// ─────────────────────────────────────────────
+model KpiSnapshot {
+  id           String   @id @default(uuid())
+  userId       String
+  date         DateTime @db.Date
+  balance      Decimal? @db.Decimal(18, 4)
+  equity       Decimal? @db.Decimal(18, 4)
+  totalPnl     Decimal? @db.Decimal(18, 4)
+  winRate      Decimal? @db.Decimal(6, 4)
+  profitFactor Decimal? @db.Decimal(8, 4)
+  sharpeRatio  Decimal? @db.Decimal(8, 4)
+  maxDrawdown  Decimal? @db.Decimal(8, 4)
+  nbTrades     Int?
+  avgRr        Decimal? @db.Decimal(8, 4)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@map("kpi_snapshots")
+}
+
+// ─────────────────────────────────────────────
+// STRATEGIES
+// ─────────────────────────────────────────────
+model Strategy {
+  id          String   @id @default(uuid())
+  userId      String
+  name        String
+  description String?
+  tags        String[]
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@map("strategies")
+}
+
+// ─────────────────────────────────────────────
+// ALERTES
+// ─────────────────────────────────────────────
+model Alert {
+  id          String      @id @default(uuid())
+  userId      String
+  type        AlertType
+  severity    Severity    @default(INFO)
+  title       String
+  body        String?
+  isRead      Boolean     @default(false)
+  triggeredAt DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@map("alerts")
+}
+
+// ─────────────────────────────────────────────
+// JOURNAL IA
+// ─────────────────────────────────────────────
+model AiJournalEntry {
+  id          String   @id @default(uuid())
+  userId      String
+  date        DateTime @db.Date
+  userInput   String?
+  aiAnalysis  String?
+  score       Int?     // 0-100
+  insights    Json?    // { strengths: [], improvements: [], actions: [] }
+  inputTokens  Int?
+  outputTokens Int?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("ai_journal_entries")
+}
+
+// ─────────────────────────────────────────────
+// SUBSCRIPTIONS (Stripe)
+// ─────────────────────────────────────────────
+model Subscription {
+  id                 String             @id @default(uuid())
+  orgId              String
+  stripeSubscriptionId String?          @unique
+  plan               Plan               @default(STARTER)
+  status             SubscriptionStatus @default(ACTIVE)
+  currentPeriodEnd   DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@map("subscriptions")
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+enum Plan {
+  STARTER
+  PRO
+  ELITE
+  INSTITUTIONAL
+}
+
+enum UserRole {
+  TRADER
+  ADMIN
+  MANAGER
+}
+
+enum TraderStyle {
+  SCALPER
+  DAYTRADER
+  SWINGTRADER
+  INVESTOR
+}
+
+enum RiskAppetite {
+  LOW
+  MEDIUM
+  HIGH
+  AGGRESSIVE
+}
+
+enum BrokerType {
+  MT4
+  MT5
+  BINANCE
+  IB
+  CTRADER
+}
+
+enum SyncStatus {
+  PENDING
+  SYNCING
+  SUCCESS
+  ERROR
+}
+
+enum Direction {
+  LONG
+  SHORT
+}
+
+enum TradeStatus {
+  OPEN
+  CLOSED
+}
+
+enum AlertType {
+  DRAWDOWN
+  LOTSIZE
+  NEWS
+  PNL_LIMIT
+  AI_RECOMMENDATION
+  SYNC_ERROR
+}
+
+enum Severity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+  UNPAID
+}

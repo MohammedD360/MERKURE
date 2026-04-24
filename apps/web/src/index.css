@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-profit: 34 197 94;   /* green-500 */
+    --color-loss: 239 68 68;     /* red-500 */
+    --color-neutral: 100 116 139; /* slate-500 */
+  }
+
+  * {
+    @apply border-gray-800;
+  }
+
+  body {
+    @apply bg-gray-950 text-gray-100;
+  }
+
+  /* Scrollbar personnalisé dark */
+  ::-webkit-scrollbar {
+    @apply w-1.5 h-1.5;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-900;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-700 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-600;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-gray-900 border border-gray-800 rounded-xl p-6;
+  }
+
+  .kpi-value {
+    @apply font-mono text-2xl font-semibold tabular-nums;
+  }
+
+  .text-profit {
+    @apply text-green-500;
+  }
+
+  .text-loss {
+    @apply text-red-500;
+  }
+
+  .badge-profit {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/10 text-green-400;
+  }
+
+  .badge-loss {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-400;
+  }
+}
