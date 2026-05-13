@@ -5,7 +5,7 @@ from .core.config import settings
 from .core.security import verify_service_secret
 
 app = FastAPI(
-    title="TradeEdge AI Service",
+    title="MERKURE AI Service",
     version="0.1.0",
     docs_url="/docs" if settings.APP_ENV == "development" else None,
     redoc_url=None,
@@ -22,7 +22,7 @@ app.add_middleware(
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "tradeedge-ai"}
+    return {"status": "ok", "service": "merkure-ai"}
 
 
 # Routes — activées module par module

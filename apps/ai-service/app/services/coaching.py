@@ -8,7 +8,7 @@ from ..core.config import settings
 
 client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
 
-SYSTEM_PROMPT = """Tu es TradeEdge AI, un coach de trading expert, précis et bienveillant.
+SYSTEM_PROMPT = """Tu es MERKURE AI, un coach de trading expert, précis et bienveillant.
 Tu analyses les performances d'un trader et fournis des conseils actionnables et personnalisés.
 
 Règles absolues :

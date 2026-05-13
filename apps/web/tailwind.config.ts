@@ -1,15 +1,17 @@
 import type { Config } from 'tailwindcss'
+import forms from '@tailwindcss/forms'
 
 const config: Config = {
   content: [
-    './index.html',
-    './src/**/*.{ts,tsx}',
+    './src/app/**/*.{ts,tsx}',
+    './src/features/**/*.{ts,tsx}',
+    './src/shared/**/*.{ts,tsx}',
     './node_modules/@tremor/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
       colors: {
-        // TradeEdge brand colors
+        // MERKURE brand colors
         brand: {
           50: '#f0f9ff',
           100: '#e0f2fe',
@@ -28,9 +30,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [
-    require('@tailwindcss/forms'),
-  ],
+  plugins: [forms],
 }
 
 export default config
