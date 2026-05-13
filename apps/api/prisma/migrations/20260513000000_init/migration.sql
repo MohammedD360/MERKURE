@@ -63,6 +63,7 @@ CREATE TABLE "users" (
     "riskPerTrade" DECIMAL(5,2) NOT NULL DEFAULT 1.00,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "stripeCustomerId" TEXT,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -201,11 +202,13 @@ CREATE TABLE "ai_journal_entries" (
 -- CreateTable
 CREATE TABLE "subscriptions" (
     "id" TEXT NOT NULL,
-    "orgId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
     "stripeSubscriptionId" TEXT,
+    "stripeCustomerId" TEXT,
     "plan" "Plan" NOT NULL DEFAULT 'FREE',
     "status" "SubscriptionStatus" NOT NULL DEFAULT 'ACTIVE',
     "currentPeriodEnd" TIMESTAMP(3),
+    "cancelAtPeriodEnd" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -220,6 +223,9 @@ CREATE UNIQUE INDEX "users_clerkId_key" ON "users"("clerkId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_stripeCustomerId_key" ON "users"("stripeCustomerId");
 
 -- CreateIndex
 CREATE INDEX "users_orgId_idx" ON "users"("orgId");
@@ -267,10 +273,10 @@ CREATE INDEX "alerts_userId_isRead_idx" ON "alerts"("userId", "isRead");
 CREATE INDEX "ai_journal_entries_userId_idx" ON "ai_journal_entries"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "subscriptions_stripeSubscriptionId_key" ON "subscriptions"("stripeSubscriptionId");
+CREATE UNIQUE INDEX "subscriptions_userId_key" ON "subscriptions"("userId");
 
 -- CreateIndex
-CREATE INDEX "subscriptions_orgId_idx" ON "subscriptions"("orgId");
+CREATE UNIQUE INDEX "subscriptions_stripeSubscriptionId_key" ON "subscriptions"("stripeSubscriptionId");
 
 -- AddForeignKey
 ALTER TABLE "users" ADD CONSTRAINT "users_orgId_fkey" FOREIGN KEY ("orgId") REFERENCES "organizations"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -300,5 +306,5 @@ ALTER TABLE "alerts" ADD CONSTRAINT "alerts_userId_fkey" FOREIGN KEY ("userId") 
 ALTER TABLE "ai_journal_entries" ADD CONSTRAINT "ai_journal_entries_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_orgId_fkey" FOREIGN KEY ("orgId") REFERENCES "organizations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 

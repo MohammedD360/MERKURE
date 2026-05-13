@@ -22,8 +22,7 @@ model Organization {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  users         User[]
-  subscriptions Subscription[]
+  users User[]
 
   @@map("organizations")
 }
@@ -47,14 +46,17 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  organization    Organization?  @relation(fields: [orgId], references: [id], onDelete: SetNull)
-  profile         TraderProfile?
-  brokerAccounts  BrokerAccount[]
-  trades          Trade[]
-  kpiSnapshots    KpiSnapshot[]
-  alerts          Alert[]
+  stripeCustomerId String?        @unique
+
+  organization     Organization?  @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  profile          TraderProfile?
+  brokerAccounts   BrokerAccount[]
+  trades           Trade[]
+  kpiSnapshots     KpiSnapshot[]
+  alerts           Alert[]
   aiJournalEntries AiJournalEntry[]
-  refreshTokens   RefreshToken[]
+  refreshTokens    RefreshToken[]
+  subscription     Subscription?
 
   @@index([orgId])
   @@index([clerkId])
@@ -234,18 +236,19 @@ model AiJournalEntry {
 // SUBSCRIPTIONS (Stripe)
 // ─────────────────────────────────────────────
 model Subscription {
-  id                 String             @id @default(uuid())
-  orgId              String
-  stripeSubscriptionId String?          @unique
-  plan               Plan               @default(FREE)
-  status             SubscriptionStatus @default(ACTIVE)
-  currentPeriodEnd   DateTime?
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
+  id                   String             @id @default(uuid())
+  userId               String             @unique
+  stripeSubscriptionId String?            @unique
+  stripeCustomerId     String?
+  plan                 Plan               @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
 
-  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([orgId])
   @@map("subscriptions")
 }
 
