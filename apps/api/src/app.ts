@@ -5,6 +5,7 @@ import fastifyHelmet from '@fastify/helmet'
 import fastifyJwt from '@fastify/jwt'
 import fastifyRateLimit from '@fastify/rate-limit'
 import fastifyWebsocket from '@fastify/websocket'
+import fastifyRawBody from 'fastify-raw-body'
 import { verifyToken } from '@clerk/backend'
 import type { FastifyInstance, FastifyRequest } from 'fastify'
 
@@ -13,6 +14,7 @@ import { getDemoUser } from './modules/auth/demo-user.js'
 import { accountsRoutes } from './modules/accounts/accounts.routes.js'
 import { tradesRoutes } from './modules/trades/trades.routes.js'
 import { registerWsHandler } from './websocket/ws.handler.js'
+import { clerkWebhookRoutes } from './modules/webhooks/clerk-webhook.routes.js'
 
 function getBearerToken(request: FastifyRequest): string | null {
   const auth = request.headers.authorization
@@ -27,6 +29,9 @@ function buildLoggerConfig() {
 
 export function buildApp(): FastifyInstance {
   const app = Fastify({ logger: buildLoggerConfig() })
+
+  // ─── Raw body (required for webhook signature verification) ─────────────────
+  void app.register(fastifyRawBody, { global: false, encoding: 'utf8', runFirst: true })
 
   // ─── Security & transport plugins ────────────────────────────────────────────
   void app.register(fastifyHelmet, { contentSecurityPolicy: false })
@@ -75,6 +80,9 @@ export function buildApp(): FastifyInstance {
       return reply.code(401).send({ error: 'invalid_token' })
     }
   })
+
+  // ─── Webhooks (public — no auth) ─────────────────────────────────────────────
+  void app.register(clerkWebhookRoutes)
 
   // ─── API modules ──────────────────────────────────────────────────────────────
   void app.register(accountsRoutes, { prefix: '/api/v1/accounts' })

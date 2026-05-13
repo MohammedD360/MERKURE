@@ -2,6 +2,7 @@ import type { FastifyRequest, FastifyReply } from 'fastify'
 import { verifyToken } from '@clerk/backend'
 import { env } from '../config/env.js'
 import { getDemoUser } from '../modules/auth/demo-user.js'
+import { prisma } from '../infrastructure/database/client.js'
 
 export type AuthUser = {
   id: string
@@ -38,11 +39,17 @@ export async function authenticate(
   const token = auth.slice(7)
   try {
     const payload = await verifyToken(token, { secretKey: env.CLERK_SECRET_KEY })
-    request.user = {
-      id: payload.sub,
-      email: typeof payload['email'] === 'string' ? payload['email'] : null,
-      plan: 'FREE',
+
+    const user = await prisma.user.findUnique({
+      where: { clerkId: payload.sub },
+      select: { id: true, email: true },
+    })
+
+    if (!user) {
+      return reply.code(401).send({ error: 'user_not_found' })
     }
+
+    request.user = { id: user.id, email: user.email, plan: 'FREE' }
   } catch {
     return reply.code(401).send({ error: 'invalid_token' })
   }
