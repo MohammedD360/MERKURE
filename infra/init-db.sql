@@ -7,7 +7,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";        -- Chiffrement credentials bro
 CREATE EXTENSION IF NOT EXISTS "pg_trgm";         -- Recherche textuelle fuzzy (pour symboles)
 
 -- Schéma applicatif dédié
-CREATE SCHEMA IF NOT EXISTS tradeedge;
+CREATE SCHEMA IF NOT EXISTS merkure;
 
 -- Commentaire sur la base
-COMMENT ON DATABASE tradeedge_db IS 'TradeEdge Pro — Dashboard Intelligent de Gestion de Compte Trader';
+COMMENT ON DATABASE merkure_db IS 'MERKURE — Dashboard Intelligent de Gestion de Compte Trader';

@@ -14,7 +14,11 @@
   }
 
   body {
-    @apply bg-gray-950 text-gray-100;
+    @apply bg-[#02070f] text-gray-100;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   /* Scrollbar personnalisé dark */

@@ -10,6 +10,7 @@ venv/
 dist/
 build/
 .next/
+*.tsbuildinfo
 *.egg-info/
 
 # Environment files — JAMAIS commiter le .env
@@ -53,3 +54,6 @@ prisma/dev.db-journal
 
 # Docker volumes (si montés localement)
 data/
+
+# Documents confidentiels
+*.pdf

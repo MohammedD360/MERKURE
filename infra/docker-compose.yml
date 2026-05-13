@@ -4,12 +4,12 @@ services:
   # ─────────────────────────────────────────────
   postgres:
     image: postgres:16-alpine
-    container_name: tradeedge_postgres
+    container_name: merkure_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-tradeedge}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tradeedge_dev_password}
-      POSTGRES_DB: ${POSTGRES_DB:-tradeedge_db}
+      POSTGRES_USER: ${POSTGRES_USER:-merkure}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-merkure_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-merkure_db}
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
     ports:
       - "5432:5432"
@@ -17,19 +17,19 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-tradeedge} -d ${POSTGRES_DB:-tradeedge_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-merkure} -d ${POSTGRES_DB:-merkure_db}"]
       interval: 5s
       timeout: 5s
       retries: 10
     networks:
-      - tradeedge_network
+      - merkure_network
 
   # ─────────────────────────────────────────────
   # Redis — Cache + Queues BullMQ
   # ─────────────────────────────────────────────
   redis:
     image: redis:7-alpine
-    container_name: tradeedge_redis
+    container_name: merkure_redis
     restart: unless-stopped
     command: >
       redis-server
@@ -47,14 +47,14 @@ services:
       timeout: 3s
       retries: 10
     networks:
-      - tradeedge_network
+      - merkure_network
 
   # ─────────────────────────────────────────────
   # Redis Commander — UI pour inspecter Redis (dev uniquement)
   # ─────────────────────────────────────────────
   redis-commander:
     image: rediscommander/redis-commander:latest
-    container_name: tradeedge_redis_ui
+    container_name: merkure_redis_ui
     restart: unless-stopped
     environment:
       REDIS_HOSTS: "local:redis:6379"
@@ -64,7 +64,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - tradeedge_network
+      - merkure_network
     profiles:
       - tools  # Lancé seulement avec --profile tools
 
@@ -73,23 +73,23 @@ services:
   # ─────────────────────────────────────────────
   mailhog:
     image: mailhog/mailhog:latest
-    container_name: tradeedge_mailhog
+    container_name: merkure_mailhog
     restart: unless-stopped
     ports:
       - "1025:1025"   # SMTP
       - "8025:8025"   # UI web
     networks:
-      - tradeedge_network
+      - merkure_network
     profiles:
       - tools
 
 volumes:
   postgres_data:
-    name: tradeedge_postgres_data
+    name: merkure_postgres_data
   redis_data:
-    name: tradeedge_redis_data
+    name: merkure_redis_data
 
 networks:
-  tradeedge_network:
-    name: tradeedge_network
+  merkure_network:
+    name: merkure_network
     driver: bridge
