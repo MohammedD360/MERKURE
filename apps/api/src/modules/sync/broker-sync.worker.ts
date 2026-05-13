@@ -6,6 +6,7 @@ import { decrypt } from '../../infrastructure/crypto/encryption.js'
 import { accountsRepository } from '../accounts/accounts.repository.js'
 import { DemoAdapter } from '../brokers/adapters/demo-adapter.js'
 import { MtAdapter } from '../brokers/adapters/mt-adapter.js'
+import { BinanceAdapter } from '../brokers/adapters/binance-adapter.js'
 import type { BrokerAdapter } from '../brokers/adapters/broker-adapter.js'
 import { wsNotify } from '../../websocket/ws.handler.js'
 
@@ -14,6 +15,8 @@ function resolveAdapter(brokerType: BrokerSyncJob['brokerType']): BrokerAdapter 
     case 'mt4':
     case 'mt5':
       return new MtAdapter()
+    case 'binance':
+      return new BinanceAdapter()
     default:
       return new DemoAdapter()
   }
