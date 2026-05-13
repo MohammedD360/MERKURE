@@ -31,6 +31,9 @@ const envSchema = z.object({
   // MetaAPI (broker MT4/MT5)
   META_API_TOKEN: z.string().optional(),
 
+  // Clerk Webhook
+  CLERK_WEBHOOK_SECRET: z.string().optional(),
+
   // Stripe
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
