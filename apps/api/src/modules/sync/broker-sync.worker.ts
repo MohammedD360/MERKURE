@@ -2,15 +2,30 @@ import { createWorker, brokerSyncQueue } from '../../infrastructure/queue/queues
 import type { BrokerSyncJob } from '../../infrastructure/queue/queues.js'
 import { prisma } from '../../infrastructure/database/client.js'
 import { cache, CacheKeys } from '../../infrastructure/cache/redis.js'
+import { decrypt } from '../../infrastructure/crypto/encryption.js'
 import { accountsRepository } from '../accounts/accounts.repository.js'
 import { DemoAdapter } from '../brokers/adapters/demo-adapter.js'
+import { MtAdapter } from '../brokers/adapters/mt-adapter.js'
 import type { BrokerAdapter } from '../brokers/adapters/broker-adapter.js'
 import { wsNotify } from '../../websocket/ws.handler.js'
 
-// Resolve the right adapter per broker type
-// TODO: add MetaAPI (MT4/MT5), Binance REST, cTrader OAuth adapters in Sprint 2
-function resolveAdapter(_brokerType: BrokerSyncJob['brokerType']): BrokerAdapter {
-  return new DemoAdapter()
+function resolveAdapter(brokerType: BrokerSyncJob['brokerType']): BrokerAdapter {
+  switch (brokerType) {
+    case 'mt4':
+    case 'mt5':
+      return new MtAdapter()
+    default:
+      return new DemoAdapter()
+  }
+}
+
+async function loadCredentials(accountId: string): Promise<Record<string, string>> {
+  const row = await prisma.brokerAccount.findUnique({
+    where: { id: accountId },
+    select: { credentialsEnc: true },
+  })
+  if (!row?.credentialsEnc) return {}
+  return decrypt(row.credentialsEnc)
 }
 
 export function startBrokerSyncWorker() {
@@ -51,7 +66,8 @@ export function startBrokerSyncWorker() {
 
       try {
         // ─── Step 2: Fetch trade history from broker ─────────────────────────────
-        await adapter.connect({}) // real adapter decrypts credentialsEnc here
+        const credentials = await loadCredentials(accountId)
+        await adapter.connect(credentials)
 
         const syncFrom = fullSync
           ? new Date(Date.now() - 365 * 24 * 3_600_000) // full year on first sync
