@@ -15,6 +15,8 @@ import { accountsRoutes } from './modules/accounts/accounts.routes.js'
 import { tradesRoutes } from './modules/trades/trades.routes.js'
 import { registerWsHandler } from './websocket/ws.handler.js'
 import { clerkWebhookRoutes } from './modules/webhooks/clerk-webhook.routes.js'
+import { stripeWebhookRoutes } from './modules/webhooks/stripe-webhook.routes.js'
+import { billingRoutes } from './modules/billing/billing.routes.js'
 
 function getBearerToken(request: FastifyRequest): string | null {
   const auth = request.headers.authorization
@@ -83,10 +85,12 @@ export function buildApp(): FastifyInstance {
 
   // ─── Webhooks (public — no auth) ─────────────────────────────────────────────
   void app.register(clerkWebhookRoutes)
+  void app.register(stripeWebhookRoutes)
 
   // ─── API modules ──────────────────────────────────────────────────────────────
   void app.register(accountsRoutes, { prefix: '/api/v1/accounts' })
   void app.register(tradesRoutes, { prefix: '/api/v1/trades' })
+  void app.register(billingRoutes, { prefix: '/api/v1/billing' })
 
   // ─── WebSocket ────────────────────────────────────────────────────────────────
   void app.register(registerWsHandler)
