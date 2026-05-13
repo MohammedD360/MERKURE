@@ -1,4 +1,4 @@
-// TradeEdge Pro — Schema Prisma
+// MERKURE — Schema Prisma
 // Source de vérité du modèle de données
 
 generator client {
@@ -17,7 +17,7 @@ model Organization {
   id               String   @id @default(uuid())
   slug             String   @unique
   name             String
-  plan             Plan     @default(STARTER)
+  plan             Plan     @default(FREE)
   stripeCustomerId String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -34,12 +34,16 @@ model Organization {
 model User {
   id           String   @id @default(uuid())
   orgId        String
+  clerkId      String?  @unique
   email        String   @unique
-  passwordHash String
+  passwordHash String?
   firstName    String?
   lastName     String?
   role         UserRole @default(TRADER)
   onboarded    Boolean  @default(false)
+  timezone     String   @default("Europe/Paris")
+  currency     String   @default("EUR")
+  riskPerTrade Decimal  @default(1.00) @db.Decimal(5, 2)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -53,6 +57,7 @@ model User {
   refreshTokens   RefreshToken[]
 
   @@index([orgId])
+  @@index([clerkId])
   @@map("users")
 }
 
@@ -91,6 +96,7 @@ model BrokerAccount {
   id              String     @id @default(uuid())
   userId          String
   brokerType      BrokerType
+  accountType     AccountType @default(DEMO)
   accountId       String                  // ID externe chez le broker
   label           String
   credentialsEnc  Bytes?                  // AES-256-GCM via pgcrypto
@@ -231,7 +237,7 @@ model Subscription {
   id                 String             @id @default(uuid())
   orgId              String
   stripeSubscriptionId String?          @unique
-  plan               Plan               @default(STARTER)
+  plan               Plan               @default(FREE)
   status             SubscriptionStatus @default(ACTIVE)
   currentPeriodEnd   DateTime?
   createdAt          DateTime           @default(now())
@@ -247,6 +253,7 @@ model Subscription {
 // ENUMS
 // ─────────────────────────────────────────────
 enum Plan {
+  FREE
   STARTER
   PRO
   ELITE
@@ -279,6 +286,13 @@ enum BrokerType {
   BINANCE
   IB
   CTRADER
+}
+
+enum AccountType {
+  LIVE
+  DEMO
+  PROP_FUNDED
+  PROP_CHALLENGE
 }
 
 enum SyncStatus {
