@@ -1,5 +1,7 @@
-import { CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react'
-import { mockAiScore } from '@/lib/mock-data'
+'use client'
+
+import { CheckCircle2, AlertTriangle, ArrowRight, RefreshCw } from 'lucide-react'
+import { useLatestAiAnalysis, useGenerateAiAnalysis } from '@/lib/hooks/use-ai-journal'
 
 function ScoreCircle({ score }: { score: number }) {
   const r = 38
@@ -27,10 +29,21 @@ function ScoreCircle({ score }: { score: number }) {
   )
 }
 
+function Skeleton({ className = '' }: { className?: string }) {
+  return <div className={`animate-pulse bg-gray-800/60 rounded ${className}`} />
+}
+
 export function AiAnalysisBanner() {
+  const { data: entry, isLoading } = useLatestAiAnalysis()
+  const { mutate: generate, isPending } = useGenerateAiAnalysis()
+
+  const score     = entry?.score ?? null
+  const strengths = entry?.insights?.strengths    ?? []
+  const improv    = entry?.insights?.improvements ?? []
+  const scoreLabel = score == null ? null : score >= 70 ? 'Bon travail !' : score >= 50 ? 'Peut mieux faire' : 'À améliorer'
+
   return (
     <div className="relative bg-gradient-to-r from-indigo-950/60 via-[#111827] to-[#111827] border border-indigo-500/20 rounded-xl p-5 overflow-hidden">
-      {/* Glow décoratif */}
       <div className="absolute left-0 top-0 w-32 h-full bg-indigo-600/5 blur-2xl pointer-events-none" />
 
       <div className="flex items-start gap-6">
@@ -48,43 +61,82 @@ export function AiAnalysisBanner() {
             <h3 className="text-sm font-bold text-white">Analyse IA de votre performance</h3>
             <span className="text-[9px] font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-1.5 py-0.5 rounded">BETA</span>
           </div>
+          {entry && (
+            <p className="text-[10px] text-gray-500">
+              {new Date(entry.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
+            </p>
+          )}
         </div>
 
         {/* Points forts */}
         <div className="flex-1 min-w-0">
           <p className="text-[11px] font-semibold text-gray-400 mb-2 uppercase tracking-wider">Points forts</p>
-          <div className="space-y-1.5">
-            {mockAiScore.strengths.map((s) => (
-              <div key={s} className="flex items-start gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
-                <span className="text-xs text-gray-300">{s}</span>
-              </div>
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-3/4" />
+            </div>
+          ) : strengths.length > 0 ? (
+            <div className="space-y-1.5">
+              {strengths.map((s, i) => (
+                <div key={i} className="flex items-start gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs text-gray-300">{s}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-gray-600">Aucune analyse disponible</p>
+          )}
         </div>
 
         {/* Axes d'amélioration */}
         <div className="flex-1 min-w-0">
           <p className="text-[11px] font-semibold text-gray-400 mb-2 uppercase tracking-wider">Axes d'amélioration</p>
-          <div className="space-y-1.5">
-            {mockAiScore.improvements.map((s) => (
-              <div key={s} className="flex items-start gap-1.5">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
-                <span className="text-xs text-gray-300">{s}</span>
-              </div>
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-2/3" />
+            </div>
+          ) : improv.length > 0 ? (
+            <div className="space-y-1.5">
+              {improv.map((s, i) => (
+                <div key={i} className="flex items-start gap-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs text-gray-300">{s}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-gray-600">—</p>
+          )}
         </div>
 
         {/* Score */}
         <div className="flex-shrink-0 flex flex-col items-center gap-2">
           <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Score de performance</p>
-          <ScoreCircle score={mockAiScore.score} />
-          <p className="text-xs font-semibold text-green-400">{mockAiScore.label}</p>
-          <p className="text-[10px] text-gray-500 text-center max-w-[140px]">{mockAiScore.sub}</p>
-          <button className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors mt-1">
-            Voir l'analyse complète <ArrowRight className="w-3 h-3" />
-          </button>
+          {isLoading ? (
+            <Skeleton className="w-24 h-24 rounded-full" />
+          ) : score != null ? (
+            <ScoreCircle score={score} />
+          ) : (
+            <div className="w-24 h-24 rounded-full bg-gray-800/60 flex items-center justify-center text-gray-600 text-xs text-center px-2">
+              Non analysé
+            </div>
+          )}
+          {scoreLabel && <p className="text-xs font-semibold text-green-400">{scoreLabel}</p>}
+          <div className="flex flex-col items-center gap-1 mt-1">
+            <button
+              onClick={() => generate({})}
+              disabled={isPending}
+              className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors disabled:opacity-50"
+            >
+              {isPending
+                ? <><RefreshCw className="w-3 h-3 animate-spin" />Analyse en cours…</>
+                : <><ArrowRight className="w-3 h-3" />{entry ? 'Actualiser' : "Générer l'analyse"}</>
+              }
+            </button>
+          </div>
         </div>
       </div>
     </div>
