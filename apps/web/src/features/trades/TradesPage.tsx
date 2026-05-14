@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowUpRight, ArrowDownRight, Clock, ChevronLeft, ChevronRight } from 'lucide-react'
-import { useTrades, type TradesFilters } from '@/lib/hooks/use-trades'
+import { ArrowUpRight, ArrowDownRight, Clock, ChevronLeft, ChevronRight, Download } from 'lucide-react'
+import { useTrades, type TradesFilters, buildQs } from '@/lib/hooks/use-trades'
 import { useAccounts } from '@/lib/hooks/use-accounts'
 import { TradesFilters as FiltersBar } from './components/TradesFilters'
 import { TradeDetailModal } from './components/TradeDetailModal'
@@ -39,6 +39,22 @@ export function TradesPage() {
     setFilters(prev => ({ ...prev, ...partial }))
   }
 
+  const handleExport = () => {
+    const { page: _page, limit: _limit, ...exportFilters } = filters
+    const qs    = buildQs(exportFilters)
+    const token = (window as unknown as Record<string, unknown>).__clerkToken as string | undefined
+    const url   = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'}/api/v1/trades/export?${qs}`
+    fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+      .then(r => r.blob())
+      .then(blob => {
+        const a     = document.createElement('a')
+        a.href      = URL.createObjectURL(blob)
+        a.download  = `trades-${new Date().toISOString().slice(0, 10)}.csv`
+        a.click()
+      })
+      .catch(console.error)
+  }
+
   const fmtDate = (d: string | null) =>
     d ? new Date(d).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : null
 
@@ -55,6 +71,13 @@ export function TradesPage() {
             {isLoading ? '…' : `${data?.total ?? 0} trade${(data?.total ?? 0) > 1 ? 's' : ''}`}
           </p>
         </div>
+        <button
+          onClick={handleExport}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#111827] border border-gray-800/60 hover:border-gray-700 text-gray-300 hover:text-white text-xs font-medium rounded-lg transition-colors"
+        >
+          <Download className="w-3.5 h-3.5" />
+          Export CSV
+        </button>
       </div>
 
       {/* Filtres */}

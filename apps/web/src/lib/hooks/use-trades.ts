@@ -41,7 +41,7 @@ export interface TradesFilters {
   dateTo?:    string
 }
 
-function buildQs(filters: TradesFilters): string {
+export function buildQs(filters: TradesFilters): string {
   const params = new URLSearchParams()
   if (filters.page)      params.set('page',      String(filters.page))
   if (filters.limit)     params.set('limit',     String(filters.limit))

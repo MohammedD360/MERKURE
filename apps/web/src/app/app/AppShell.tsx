@@ -12,9 +12,10 @@ const pageToPath: Partial<Record<Page, string>> = {
   dashboard:    '/app/dashboard',
   comptes:      '/app/accounts',
   transactions: '/app/trades',
+  performance:  '/app/performance',
 }
 
-type KnownPage = 'dashboard' | 'comptes' | 'transactions'
+type KnownPage = 'dashboard' | 'comptes' | 'transactions' | 'performance'
 
 const headerCopy: Record<KnownPage, { title: string; description: string }> = {
   dashboard: {
@@ -29,11 +30,16 @@ const headerCopy: Record<KnownPage, { title: string; description: string }> = {
     title:       'Transactions',
     description: 'Historique des trades, filtres et annotations',
   },
+  performance: {
+    title:       'Performance',
+    description: 'Analyse détaillée de vos résultats de trading',
+  },
 }
 
 function getCurrentPage(pathname: string): KnownPage {
-  if (pathname.startsWith('/app/accounts')) return 'comptes'
-  if (pathname.startsWith('/app/trades'))   return 'transactions'
+  if (pathname.startsWith('/app/accounts'))    return 'comptes'
+  if (pathname.startsWith('/app/trades'))      return 'transactions'
+  if (pathname.startsWith('/app/performance')) return 'performance'
   return 'dashboard'
 }
 
