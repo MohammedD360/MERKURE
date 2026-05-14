@@ -84,7 +84,96 @@ async function computeSnapshotsFromTrades(userId: string, from: Date | null, to:
   })
 }
 
+const PALETTE = ['#6366f1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#f97316']
+
 export const kpisRepository = {
+  async getDetailedStats(userId: string, period: Period, accountId?: string) {
+    const from = periodToDate(period)
+    const where = {
+      userId,
+      status: 'CLOSED' as const,
+      ...(accountId ? { brokerAccountId: accountId } : {}),
+      ...(from ? { closeTime: { gte: from } } : {}),
+    }
+
+    const trades = await prisma.trade.findMany({
+      where,
+      select: { pnl: true, openTime: true, closeTime: true },
+    })
+
+    if (trades.length === 0) {
+      return { winTrades: 0, lossTrades: 0, bestTrade: 0, worstTrade: 0, avgWin: 0, avgLoss: 0 }
+    }
+
+    const pnls    = trades.map(t => Number(t.pnl ?? 0))
+    const winners = pnls.filter(p => p > 0)
+    const losers  = pnls.filter(p => p < 0)
+
+    return {
+      winTrades:  winners.length,
+      lossTrades: losers.length,
+      bestTrade:  winners.length > 0 ? Math.max(...winners) : 0,
+      worstTrade: losers.length  > 0 ? Math.min(...losers)  : 0,
+      avgWin:  winners.length > 0 ? winners.reduce((s, p) => s + p, 0) / winners.length : 0,
+      avgLoss: losers.length  > 0 ? losers.reduce((s, p) => s + p, 0)  / losers.length  : 0,
+    }
+  },
+
+  async getBreakdown(userId: string, period: Period, accountId?: string) {
+    const from = periodToDate(period)
+    const where = {
+      userId,
+      status: 'CLOSED' as const,
+      ...(accountId ? { brokerAccountId: accountId } : {}),
+      ...(from ? { closeTime: { gte: from } } : {}),
+    }
+
+    const [bySymbolRaw, byStrategyRaw] = await Promise.all([
+      prisma.trade.groupBy({
+        by: ['symbol'],
+        where,
+        _count: true,
+        _sum: { pnl: true },
+        orderBy: { _sum: { pnl: 'desc' } },
+        take: 8,
+      }),
+      prisma.trade.groupBy({
+        by: ['strategyTag'],
+        where: { ...where, strategyTag: { not: null } },
+        _count: true,
+        _sum: { pnl: true },
+        orderBy: { _sum: { pnl: 'desc' } },
+        take: 8,
+      }),
+    ])
+
+    const totalTrades = bySymbolRaw.reduce((s, r) => s + r._count, 0) || 1
+
+    const bySymbol = bySymbolRaw.map((r, i) => ({
+      label:    r.symbol,
+      pct:      Math.round((r._count / totalTrades) * 100),
+      pnl:      Number(r._sum.pnl ?? 0),
+      nbTrades: r._count,
+      color:    PALETTE[i % PALETTE.length]!,
+    }))
+
+    const byStrategy = byStrategyRaw
+      .filter(r => r.strategyTag != null)
+      .map(r => {
+        const pnl = Number(r._sum.pnl ?? 0)
+        return {
+          name:     r.strategyTag!,
+          pnl,
+          pct:      pnl,
+          positive: pnl >= 0,
+          nbTrades: r._count,
+        }
+      })
+
+    return { bySymbol, byStrategy }
+  },
+
+
   async getSummary(userId: string, period: Period, accountId?: string) {
     const from = periodToDate(period)
 

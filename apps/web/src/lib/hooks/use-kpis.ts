@@ -67,4 +67,18 @@ export function useKpiSnapshots(chartPeriod: ChartPeriod = '1M', accountId?: str
   })
 }
 
+export function useKpiDetailedStats(period: KpiPeriod = '30d', accountId?: string) {
+  return useQuery({
+    queryKey: ['kpis', 'stats', period, accountId],
+    queryFn:  () => api.kpis.stats(period, accountId),
+  })
+}
+
+export function useKpiBreakdown(period: KpiPeriod = '30d', accountId?: string) {
+  return useQuery({
+    queryKey: ['kpis', 'breakdown', period, accountId],
+    queryFn:  () => api.kpis.breakdown(period, accountId),
+  })
+}
+
 export { chartPeriodToApiPeriod }

@@ -45,6 +45,32 @@ export interface KpiSnapshot {
   equity:       string | null
 }
 
+export interface KpiDetailedStats {
+  winTrades:  number
+  lossTrades: number
+  bestTrade:  number
+  worstTrade: number
+  avgWin:     number
+  avgLoss:    number
+}
+
+export interface KpiBreakdown {
+  bySymbol: {
+    label:    string
+    pct:      number
+    pnl:      number
+    nbTrades: number
+    color:    string
+  }[]
+  byStrategy: {
+    name:     string
+    pnl:      number
+    pct:      number
+    positive: boolean
+    nbTrades: number
+  }[]
+}
+
 export interface AiJournalEntry {
   id:         string
   date:       string
@@ -65,6 +91,18 @@ export const api = {
       const qs = new URLSearchParams({ from, to })
       if (accountId) qs.set('accountId', accountId)
       return apiFetch<KpiSnapshot[]>(`/api/v1/kpis/snapshots?${qs.toString()}`)
+    },
+
+    stats: (period = '30d', accountId?: string) => {
+      const qs = new URLSearchParams({ period })
+      if (accountId) qs.set('accountId', accountId)
+      return apiFetch<KpiDetailedStats>(`/api/v1/kpis/stats?${qs.toString()}`)
+    },
+
+    breakdown: (period = '30d', accountId?: string) => {
+      const qs = new URLSearchParams({ period })
+      if (accountId) qs.set('accountId', accountId)
+      return apiFetch<KpiBreakdown>(`/api/v1/kpis/breakdown?${qs.toString()}`)
     },
   },
 

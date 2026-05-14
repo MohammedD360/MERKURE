@@ -28,6 +28,46 @@ export async function kpisRoutes(app: FastifyInstance) {
   )
 
   /**
+   * GET /api/v1/kpis/stats?period=30d&accountId=uuid
+   */
+  app.get<{ Querystring: { period?: string; accountId?: string } }>(
+    '/stats',
+    { preHandler: [authenticate] },
+    async (req) => {
+      const period    = (VALID_PERIODS.has(req.query.period ?? '') ? req.query.period : '30d') as Period
+      const accountId = req.query.accountId
+      const cacheKey  = `kpis:stats:${req.user.id}:${period}:${accountId ?? ''}`
+
+      const cached = await cache.get<object>(cacheKey)
+      if (cached) return cached
+
+      const data = await kpisRepository.getDetailedStats(req.user.id, period, accountId)
+      await cache.set(cacheKey, data, CACHE_TTL)
+      return data
+    },
+  )
+
+  /**
+   * GET /api/v1/kpis/breakdown?period=30d&accountId=uuid
+   */
+  app.get<{ Querystring: { period?: string; accountId?: string } }>(
+    '/breakdown',
+    { preHandler: [authenticate] },
+    async (req) => {
+      const period    = (VALID_PERIODS.has(req.query.period ?? '') ? req.query.period : '30d') as Period
+      const accountId = req.query.accountId
+      const cacheKey  = `kpis:breakdown:${req.user.id}:${period}:${accountId ?? ''}`
+
+      const cached = await cache.get<object>(cacheKey)
+      if (cached) return cached
+
+      const data = await kpisRepository.getBreakdown(req.user.id, period, accountId)
+      await cache.set(cacheKey, data, CACHE_TTL)
+      return data
+    },
+  )
+
+  /**
    * GET /api/v1/kpis/snapshots?from=2026-01-01&to=2026-05-14&accountId=uuid
    */
   app.get<{ Querystring: { from?: string; to?: string; accountId?: string } }>(
