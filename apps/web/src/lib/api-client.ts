@@ -61,8 +61,11 @@ export const api = {
     summary: (period = '30d') =>
       apiFetch<KpiSummary>(`/api/v1/kpis/summary?period=${period}`),
 
-    snapshots: (from: string, to: string) =>
-      apiFetch<KpiSnapshot[]>(`/api/v1/kpis/snapshots?from=${from}&to=${to}`),
+    snapshots: (from: string, to: string, accountId?: string) => {
+      const qs = new URLSearchParams({ from, to })
+      if (accountId) qs.set('accountId', accountId)
+      return apiFetch<KpiSnapshot[]>(`/api/v1/kpis/snapshots?${qs.toString()}`)
+    },
   },
 
   ai: {

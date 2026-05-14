@@ -5,8 +5,8 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine,
 } from 'recharts'
-import { ChevronDown } from 'lucide-react'
 import { useKpiSnapshots, type ChartPeriod } from '@/lib/hooks/use-kpis'
+import { useAccounts } from '@/lib/hooks/use-accounts'
 
 const PERIODS = ['1J', '7J', '1M', '3M', '6M', 'YTD', '1Y', 'ALL'] as const
 
@@ -35,19 +35,33 @@ function Skeleton() {
 }
 
 export function EquityChart() {
-  const [period, setPeriod] = useState<ChartPeriod>('1M')
-  const { data, isLoading } = useKpiSnapshots(period)
+  const [period,    setPeriod]    = useState<ChartPeriod>('1M')
+  const [accountId, setAccountId] = useState<string | undefined>()
+
+  const { data, isLoading }         = useKpiSnapshots(period, accountId)
+  const { data: accounts = [] }     = useAccounts()
 
   const isEmpty = !isLoading && (!data || data.length === 0)
 
   return (
     <div className="bg-[#111827] border border-gray-800/60 rounded-xl p-5">
+      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-white">Évolution de la performance</h3>
-        <button className="flex items-center gap-1.5 text-xs text-gray-400 bg-gray-800/60 border border-gray-700/60 rounded-lg px-3 py-1.5 hover:bg-gray-700/60 transition-colors">
-          P&amp;L cumulé
-          <ChevronDown className="w-3 h-3" />
-        </button>
+
+        {/* Sélecteur compte */}
+        {accounts.length > 0 && (
+          <select
+            value={accountId ?? ''}
+            onChange={e => setAccountId(e.target.value || undefined)}
+            className="text-xs text-gray-400 bg-gray-800/60 border border-gray-700/60 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-indigo-500 hover:bg-gray-700/60 transition-colors"
+          >
+            <option value="">Tous les comptes</option>
+            {accounts.map(a => (
+              <option key={a.id} value={a.id}>{a.label}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       {isLoading ? (
@@ -95,6 +109,7 @@ export function EquityChart() {
         </ResponsiveContainer>
       )}
 
+      {/* Sélecteur période */}
       <div className="flex gap-0.5 mt-3">
         {PERIODS.map((p) => (
           <button

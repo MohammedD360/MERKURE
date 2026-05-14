@@ -48,12 +48,12 @@ export function useKpiSummary(period: KpiPeriod = '30d') {
   })
 }
 
-export function useKpiSnapshots(chartPeriod: ChartPeriod = '1M') {
+export function useKpiSnapshots(chartPeriod: ChartPeriod = '1M', accountId?: string) {
   const { from, to } = chartPeriodToDates(chartPeriod)
 
   return useQuery({
-    queryKey: ['kpis', 'snapshots', from, to],
-    queryFn:  () => api.kpis.snapshots(from, to),
+    queryKey: ['kpis', 'snapshots', from, to, accountId],
+    queryFn:  () => api.kpis.snapshots(from, to, accountId),
     select:   (data) => {
       // Calcule la courbe PnL cumulé depuis le début de la période
       let cumul = 0
