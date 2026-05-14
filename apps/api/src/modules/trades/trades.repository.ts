@@ -39,8 +39,8 @@ export const tradesRepository = {
     return prisma.trade.update({
       where: { id, userId },
       data: {
-        ...(input.note !== undefined && { strategyTag: input.note }),
-        ...(input.strategyTag !== undefined && { strategyTag: input.strategyTag }),
+        ...(input.strategyTag !== undefined ? { strategyTag: input.strategyTag } : {}),
+        ...(input.note        !== undefined ? { note:        input.note        } : {}),
       },
     })
   },

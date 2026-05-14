@@ -137,6 +137,7 @@ model Trade {
   swap            Decimal       @default(0) @db.Decimal(12, 4)
   commission      Decimal       @default(0) @db.Decimal(12, 4)
   strategyTag     String?
+  note            String?       // Annotation libre du trader
   status          TradeStatus   @default(OPEN)
   rawData         Json?         // Données brutes broker
   createdAt       DateTime      @default(now())

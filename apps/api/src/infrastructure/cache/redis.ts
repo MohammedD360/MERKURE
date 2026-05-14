@@ -46,9 +46,16 @@ export const cache = {
 
 // Cache key factories
 export const CacheKeys = {
-  kpis: (userId: string, period: string) => `kpis:${userId}:${period}`,
+  // kpis:userId:summary:period[:accountId]
+  kpiSummary:    (userId: string, period: string, accountId?: string) =>
+    accountId ? `kpis:${userId}:summary:${period}:${accountId}` : `kpis:${userId}:summary:${period}`,
+  // kpis:userId:snapshots:from:to[:accountId]
+  kpiSnapshots:  (userId: string, from: string, to: string, accountId?: string) =>
+    accountId ? `kpis:${userId}:snapshots:${from}:${to}:${accountId}` : `kpis:${userId}:snapshots:${from}:${to}`,
+  // trades:userId:<hash de query>
+  trades:        (userId: string, queryHash: string) => `trades:${userId}:${queryHash}`,
   livePositions: (accountId: string) => `trades:live:${accountId}`,
-  session: (token: string) => `session:${token}`,
-  brokerSyncLock: (accountId: string) => `broker:sync:${accountId}`,
-  aiScore: (userId: string, date: string) => `ai:score:${userId}:${date}`,
+  session:       (token: string) => `session:${token}`,
+  brokerSyncLock:(accountId: string) => `broker:sync:${accountId}`,
+  aiScore:       (userId: string, date: string) => `ai:score:${userId}:${date}`,
 } as const

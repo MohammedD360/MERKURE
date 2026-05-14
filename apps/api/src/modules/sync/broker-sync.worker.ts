@@ -130,6 +130,7 @@ export function startBrokerSyncWorker() {
 
         // ─── Step 5: Invalidate Redis cache ──────────────────────────────────────
         await cache.delPattern(`kpis:${userId}:*`)
+        await cache.delPattern(`trades:${userId}:*`)
         await cache.del(CacheKeys.livePositions(accountId))
         await cache.del(lockKey)
 
