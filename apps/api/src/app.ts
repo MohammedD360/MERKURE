@@ -20,6 +20,9 @@ import { stripeWebhookRoutes } from './modules/webhooks/stripe-webhook.routes.js
 import { billingRoutes } from './modules/billing/billing.routes.js'
 import { onboardingRoutes } from './modules/onboarding/onboarding.routes.js'
 import { csvImportRoutes } from './modules/trades/csv-import/csv-import.routes.js'
+import { kpisRoutes } from './modules/kpis/kpis.routes.js'
+import { alertsRoutes } from './modules/alerts/alerts.routes.js'
+import { aiRoutes } from './modules/ai/ai.routes.js'
 
 function getBearerToken(request: FastifyRequest): string | null {
   const auth = request.headers.authorization
@@ -95,7 +98,10 @@ export function buildApp(): FastifyInstance {
   void app.register(accountsRoutes, { prefix: '/api/v1/accounts' })
   void app.register(tradesRoutes, { prefix: '/api/v1/trades' })
   void app.register(csvImportRoutes, { prefix: '/api/v1/trades' })
-  void app.register(billingRoutes, { prefix: '/api/v1/billing' })
+  void app.register(kpisRoutes,     { prefix: '/api/v1/kpis' })
+  void app.register(alertsRoutes,   { prefix: '/api/v1/alerts' })
+  void app.register(aiRoutes,       { prefix: '/api/v1/ai' })
+  void app.register(billingRoutes,  { prefix: '/api/v1/billing' })
   void app.register(onboardingRoutes, { prefix: '/api/v1/onboarding' })
 
   // ─── WebSocket ────────────────────────────────────────────────────────────────
