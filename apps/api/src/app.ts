@@ -23,6 +23,8 @@ import { csvImportRoutes } from './modules/trades/csv-import/csv-import.routes.j
 import { kpisRoutes } from './modules/kpis/kpis.routes.js'
 import { alertsRoutes } from './modules/alerts/alerts.routes.js'
 import { aiRoutes } from './modules/ai/ai.routes.js'
+import { performanceRoutes } from './modules/performance/performance.routes.js'
+import { reportsRoutes } from './modules/reports/reports.routes.js'
 
 function getBearerToken(request: FastifyRequest): string | null {
   const auth = request.headers.authorization
@@ -101,8 +103,10 @@ export function buildApp(): FastifyInstance {
   void app.register(kpisRoutes,     { prefix: '/api/v1/kpis' })
   void app.register(alertsRoutes,   { prefix: '/api/v1/alerts' })
   void app.register(aiRoutes,       { prefix: '/api/v1/ai' })
-  void app.register(billingRoutes,  { prefix: '/api/v1/billing' })
-  void app.register(onboardingRoutes, { prefix: '/api/v1/onboarding' })
+  void app.register(billingRoutes,      { prefix: '/api/v1/billing' })
+  void app.register(onboardingRoutes,   { prefix: '/api/v1/onboarding' })
+  void app.register(performanceRoutes,  { prefix: '/api/v1/performance' })
+  void app.register(reportsRoutes,      { prefix: '/api/v1/reports' })
 
   // ─── WebSocket ────────────────────────────────────────────────────────────────
   void app.register(registerWsHandler)

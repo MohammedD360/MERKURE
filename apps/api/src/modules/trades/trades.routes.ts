@@ -4,10 +4,88 @@ import { authenticate } from '../../middleware/auth.js'
 import { cache, CacheKeys } from '../../infrastructure/cache/redis.js'
 import { tradesRepository } from './trades.repository.js'
 import { TradesQuerySchema, AnnotateTradeSchema } from './trades.types.js'
+import { prisma } from '../../infrastructure/database/client.js'
+import type { Direction, TradeStatus } from '@prisma/client'
 
 const CACHE_TTL = 60 * 2 // 2 minutes (trades changent plus souvent que les KPIs)
 
+function escapeCsv(value: unknown): string {
+  if (value == null) return ''
+  const str = String(value)
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return `"${str.replace(/"/g, '""')}"`
+  }
+  return str
+}
+
 export async function tradesRoutes(app: FastifyInstance) {
+  /**
+   * GET /api/v1/trades/export?symbol=...&direction=...&status=...&accountId=...&dateFrom=...&dateTo=...
+   */
+  app.get<{
+    Querystring: {
+      symbol?: string
+      direction?: string
+      status?: string
+      accountId?: string
+      dateFrom?: string
+      dateTo?: string
+    }
+  }>('/export', { preHandler: [authenticate] }, async (req, reply) => {
+    const { symbol, direction, status, accountId, dateFrom, dateTo } = req.query
+
+    const where = {
+      userId: req.user.id,
+      ...(symbol    ? { symbol:          symbol.toUpperCase() }  : {}),
+      ...(direction ? { direction:        direction as Direction } : {}),
+      ...(status    ? { status:           status    as TradeStatus } : {}),
+      ...(accountId ? { brokerAccountId: accountId }              : {}),
+      ...((dateFrom ?? dateTo) ? {
+        closeTime: {
+          ...(dateFrom ? { gte: new Date(dateFrom) } : {}),
+          ...(dateTo   ? { lte: new Date(dateTo)   } : {}),
+        },
+      } : {}),
+    }
+
+    const trades = await prisma.trade.findMany({
+      where,
+      orderBy: { closeTime: 'desc' },
+      select: {
+        id: true, symbol: true, direction: true, status: true,
+        openTime: true, closeTime: true, openPrice: true, closePrice: true,
+        lotSize: true, pnl: true, swap: true, commission: true,
+        strategyTag: true, note: true,
+      },
+    })
+
+    const today    = new Date().toISOString().slice(0, 10)
+    const header   = 'id,symbol,direction,status,openTime,closeTime,openPrice,closePrice,lotSize,pnl,swap,commission,strategyTag,note'
+    const lines    = trades.map(t =>
+      [
+        t.id,
+        t.symbol,
+        t.direction,
+        t.status,
+        t.openTime.toISOString(),
+        t.closeTime?.toISOString() ?? '',
+        t.openPrice.toString(),
+        t.closePrice?.toString() ?? '',
+        t.lotSize.toString(),
+        t.pnl?.toString()        ?? '',
+        t.swap.toString(),
+        t.commission.toString(),
+        t.strategyTag,
+        t.note,
+      ].map(escapeCsv).join(','),
+    )
+    const csv = [header, ...lines].join('\n')
+
+    void reply.header('Content-Type', 'text/csv')
+    void reply.header('Content-Disposition', `attachment; filename="trades-${today}.csv"`)
+    return reply.send(csv)
+  })
+
   app.get<{ Querystring: unknown }>('/', { preHandler: [authenticate] }, async (req, reply) => {
     try {
       const query    = TradesQuerySchema.parse(req.query)
