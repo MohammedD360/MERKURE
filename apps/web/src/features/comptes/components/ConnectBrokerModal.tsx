@@ -1,17 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import { X, ChevronRight, ArrowLeft, Eye, EyeOff, Check, Lock } from 'lucide-react'
-import { brokerMeta, type BrokerType } from '@/lib/mock-comptes'
+import { X, ChevronRight, ArrowLeft, Eye, EyeOff, Check, Lock, AlertCircle } from 'lucide-react'
+import { brokerMeta } from '@/lib/mock-comptes'
+import { useCreateAccount, type BrokerType, type AccountType } from '@/lib/hooks/use-accounts'
 
 interface Props {
-  open: boolean
+  open:    boolean
   onClose: () => void
 }
 
 type Step = 'choose' | 'form' | 'success'
 
-const brokers: BrokerType[] = ['MT5', 'MT4', 'BINANCE', 'IB', 'CTRADER']
+const BROKERS: BrokerType[] = ['MT5', 'MT4', 'BINANCE', 'IB', 'CTRADER']
 
 function BrokerIcon({ broker }: { broker: BrokerType }) {
   const meta = brokerMeta[broker]
@@ -25,27 +26,48 @@ function BrokerIcon({ broker }: { broker: BrokerType }) {
   )
 }
 
-// Champs de formulaire selon le broker choisi
-function BrokerForm({ broker }: { broker: BrokerType }) {
-  const [show, setShow] = useState(false)
+interface FormState {
+  label:       string
+  accountId:   string
+  accountType: AccountType
+  password:    string
+  server:      string
+  apiKey:      string
+  apiSecret:   string
+  port:        string
+  clientId:    string
+  clientSecret:string
+}
 
-  const Field = ({
-    label, placeholder, type = 'text', hint,
-  }: { label: string; placeholder: string; type?: string; hint?: string }) => (
+const DEFAULT_FORM: FormState = {
+  label: '', accountId: '', accountType: 'LIVE',
+  password: '', server: '',
+  apiKey: '', apiSecret: '',
+  port: '7497',
+  clientId: '', clientSecret: '',
+}
+
+function Field({
+  label, value, onChange, placeholder, type = 'text', hint, showToggle,
+}: {
+  label: string; value: string; onChange: (v: string) => void
+  placeholder: string; type?: string; hint?: string; showToggle?: boolean
+}) {
+  const [show, setShow] = useState(false)
+  return (
     <div>
       <label className="block text-xs font-medium text-gray-400 mb-1.5">{label}</label>
       <div className="relative">
         <input
-          type={type === 'password' ? (show ? 'text' : 'password') : type}
+          type={showToggle ? (show ? 'text' : 'password') : type}
+          value={value}
+          onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
           className="w-full bg-gray-800/60 border border-gray-700/60 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/30 transition-all"
         />
-        {type === 'password' && (
-          <button
-            type="button"
-            onClick={() => setShow((s) => !s)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
-          >
+        {showToggle && (
+          <button type="button" onClick={() => setShow(s => !s)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
             {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         )}
@@ -53,163 +75,209 @@ function BrokerForm({ broker }: { broker: BrokerType }) {
       {hint && <p className="text-[10px] text-gray-600 mt-1">{hint}</p>}
     </div>
   )
+}
 
-  if (broker === 'MT4' || broker === 'MT5') {
-    return (
-      <div className="space-y-4">
-        <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-lg p-3">
-          <p className="text-xs text-indigo-300 leading-relaxed">
-            MERKURE se connecte à {brokerMeta[broker].name} via{' '}
-            <span className="font-semibold">MetaAPI</span>. Renseigne tes identifiants MetaTrader
-            — ils sont chiffrés et ne servent qu'à lire ton historique.
-          </p>
-        </div>
-        <Field label="Libellé du compte" placeholder="Ex : Compte Principal Forex" />
-        <Field label="Numéro de compte MT" placeholder="Ex : 1234567" />
-        <Field
-          label="Mot de passe (lecture seule recommandé)"
-          placeholder="••••••••"
-          type="password"
-          hint="Utilise le mot de passe en lecture seule de ton compte MT pour plus de sécurité."
-        />
-        <Field label="Serveur MetaTrader" placeholder="Ex : Pepperstone-MT5" />
-      </div>
-    )
-  }
-
-  if (broker === 'BINANCE') {
-    return (
-      <div className="space-y-4">
-        <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-3">
-          <p className="text-xs text-amber-300 leading-relaxed">
-            Crée une clé API Binance en <span className="font-semibold">lecture seule</span> depuis{' '}
-            Paramètres → Gestion des API. N'active jamais les permissions de trading.
-          </p>
-        </div>
-        <Field label="Libellé du compte" placeholder="Ex : Compte Crypto Binance" />
-        <Field label="API Key" placeholder="Colle ta clé API ici" />
-        <Field label="API Secret" placeholder="Colle ton secret API ici" type="password" />
-      </div>
-    )
-  }
-
-  if (broker === 'IB') {
-    return (
-      <div className="space-y-4">
-        <div className="bg-green-500/5 border border-green-500/20 rounded-lg p-3">
-          <p className="text-xs text-green-300 leading-relaxed">
-            Connexion via l'API TWS d'Interactive Brokers. Assure-toi que TWS ou IB Gateway
-            est ouvert et que l'accès API est activé.
-          </p>
-        </div>
-        <Field label="Libellé du compte" placeholder="Ex : Compte IB Principale" />
-        <Field label="Numéro de compte IB" placeholder="Ex : U1234567" />
-        <Field label="Port TWS" placeholder="7497 (live) ou 7496 (paper)" />
-      </div>
-    )
-  }
-
+function AccountTypeSelect({ value, onChange }: { value: AccountType; onChange: (v: AccountType) => void }) {
+  const options: { value: AccountType; label: string }[] = [
+    { value: 'LIVE',           label: 'Live' },
+    { value: 'DEMO',           label: 'Demo' },
+    { value: 'PROP_FUNDED',    label: 'Prop Funded' },
+    { value: 'PROP_CHALLENGE', label: 'Prop Challenge' },
+  ]
   return (
-    <div className="space-y-4">
-      <Field label="Libellé du compte" placeholder="Ex : Compte cTrader" />
-      <Field label="Client ID" placeholder="Ton identifiant cTrader Open API" />
-      <Field label="Client Secret" placeholder="••••••••" type="password" />
+    <div>
+      <label className="block text-xs font-medium text-gray-400 mb-1.5">Type de compte</label>
+      <div className="grid grid-cols-2 gap-1.5">
+        {options.map(opt => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => onChange(opt.value)}
+            className={`py-2 rounded-lg text-xs font-medium transition-all border ${
+              value === opt.value
+                ? 'bg-indigo-600/20 border-indigo-500/40 text-indigo-300'
+                : 'bg-gray-800/40 border-gray-700/40 text-gray-500 hover:text-gray-300'
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
 
+function BrokerFormFields({ broker, form, setForm }: {
+  broker: BrokerType
+  form: FormState
+  setForm: React.Dispatch<React.SetStateAction<FormState>>
+}) {
+  const set = (key: keyof FormState) => (v: string) => setForm(f => ({ ...f, [key]: v }))
+
+  const common = (
+    <>
+      <Field label="Libellé du compte"   value={form.label}     onChange={set('label')}     placeholder="Ex : Compte Principal Forex" />
+      <AccountTypeSelect value={form.accountType} onChange={v => setForm(f => ({ ...f, accountType: v }))} />
+    </>
+  )
+
+  if (broker === 'MT4' || broker === 'MT5') return (
+    <div className="space-y-4">
+      <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-lg p-3">
+        <p className="text-xs text-indigo-300 leading-relaxed">
+          MERKURE se connecte via <span className="font-semibold">MetaAPI</span>. Tes identifiants sont chiffrés
+          et ne servent qu'à lire ton historique.
+        </p>
+      </div>
+      {common}
+      <Field label="Numéro de compte MT" value={form.accountId}  onChange={set('accountId')} placeholder="Ex : 1234567" />
+      <Field label="Mot de passe (lecture seule recommandé)" value={form.password} onChange={set('password')} placeholder="••••••••" showToggle hint="Utilise le mot de passe lecture seule de ton compte MT." />
+      <Field label="Serveur MetaTrader"  value={form.server}     onChange={set('server')}    placeholder="Ex : Pepperstone-MT5" />
+    </div>
+  )
+
+  if (broker === 'BINANCE') return (
+    <div className="space-y-4">
+      <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-3">
+        <p className="text-xs text-amber-300 leading-relaxed">
+          Crée une clé API Binance en <span className="font-semibold">lecture seule</span> depuis Paramètres → Gestion des API.
+        </p>
+      </div>
+      {common}
+      <Field label="Account ID / UID"   value={form.accountId} onChange={set('accountId')} placeholder="Ton UID Binance" />
+      <Field label="API Key"            value={form.apiKey}    onChange={set('apiKey')}    placeholder="Colle ta clé API ici" />
+      <Field label="API Secret"         value={form.apiSecret} onChange={set('apiSecret')} placeholder="Colle ton secret API ici" showToggle />
+    </div>
+  )
+
+  if (broker === 'IB') return (
+    <div className="space-y-4">
+      <div className="bg-green-500/5 border border-green-500/20 rounded-lg p-3">
+        <p className="text-xs text-green-300 leading-relaxed">
+          Connexion via l'API TWS. Assure-toi que TWS ou IB Gateway est ouvert et que l'accès API est activé.
+        </p>
+      </div>
+      {common}
+      <Field label="Numéro de compte IB" value={form.accountId} onChange={set('accountId')} placeholder="Ex : U1234567" />
+      <Field label="Port TWS"            value={form.port}      onChange={set('port')}       placeholder="7497 (live) ou 7496 (paper)" />
+    </div>
+  )
+
+  return (
+    <div className="space-y-4">
+      {common}
+      <Field label="Account ID"    value={form.accountId}    onChange={set('accountId')}    placeholder="Ton identifiant cTrader" />
+      <Field label="Client ID"     value={form.clientId}     onChange={set('clientId')}     placeholder="Open API Client ID" />
+      <Field label="Client Secret" value={form.clientSecret} onChange={set('clientSecret')} placeholder="••••••••" showToggle />
+    </div>
+  )
+}
+
+function buildCredentials(broker: BrokerType, form: FormState): Record<string, string> {
+  if (broker === 'MT4' || broker === 'MT5') {
+    return { password: form.password, server: form.server }
+  }
+  if (broker === 'BINANCE') {
+    return { apiKey: form.apiKey, apiSecret: form.apiSecret }
+  }
+  if (broker === 'IB') {
+    return { port: form.port }
+  }
+  return { clientId: form.clientId, clientSecret: form.clientSecret }
+}
+
 export function ConnectBrokerModal({ open, onClose }: Props) {
-  const [step, setStep] = useState<Step>('choose')
+  const [step,     setStep]     = useState<Step>('choose')
   const [selected, setSelected] = useState<BrokerType | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [form,     setForm]     = useState<FormState>(DEFAULT_FORM)
+
+  const { mutate: createAccount, isPending, error } = useCreateAccount()
 
   if (!open) return null
 
   const handleClose = () => {
-    setStep('choose')
-    setSelected(null)
-    onClose()
+    setStep('choose'); setSelected(null); setForm(DEFAULT_FORM); onClose()
+  }
+
+  const isFormValid = (): boolean => {
+    if (!selected) return false
+    if (!form.label.trim() || !form.accountId.trim()) return false
+    if ((selected === 'MT4' || selected === 'MT5') && !form.password.trim()) return false
+    if (selected === 'BINANCE' && (!form.apiKey.trim() || !form.apiSecret.trim())) return false
+    return true
   }
 
   const handleConnect = () => {
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      setStep('success')
-    }, 1800)
+    if (!selected || !isFormValid()) return
+    createAccount(
+      {
+        brokerType:  selected,
+        accountType: form.accountType,
+        accountId:   form.accountId.trim(),
+        label:       form.label.trim(),
+        credentials: buildCredentials(selected, form),
+      },
+      { onSuccess: () => setStep('success') },
+    )
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Overlay */}
-      <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-        onClick={handleClose}
-      />
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={handleClose} />
 
-      {/* Modal */}
       <div className="relative w-full max-w-md bg-[#111827] border border-gray-700/60 rounded-2xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800/60">
           <div className="flex items-center gap-2">
             {step === 'form' && (
-              <button
-                onClick={() => setStep('choose')}
-                className="w-7 h-7 rounded-lg hover:bg-gray-800 flex items-center justify-center text-gray-500 hover:text-white transition-colors"
-              >
+              <button onClick={() => setStep('choose')}
+                className="w-7 h-7 rounded-lg hover:bg-gray-800 flex items-center justify-center text-gray-500 hover:text-white transition-colors">
                 <ArrowLeft className="w-4 h-4" />
               </button>
             )}
             <div>
               <h2 className="text-sm font-bold text-white">
-                {step === 'choose' && 'Connecter un broker'}
-                {step === 'form' && selected && `Connexion ${brokerMeta[selected].name}`}
+                {step === 'choose'  && 'Connecter un broker'}
+                {step === 'form'    && selected && `Connexion ${brokerMeta[selected].name}`}
                 {step === 'success' && 'Compte connecté !'}
               </h2>
               <p className="text-[11px] text-gray-500 mt-0.5">
-                {step === 'choose' && 'Choisis ton broker pour commencer'}
-                {step === 'form' && 'Renseigne tes identifiants'}
+                {step === 'choose'  && 'Choisis ton broker pour commencer'}
+                {step === 'form'    && 'Renseigne tes identifiants'}
                 {step === 'success' && 'La synchronisation démarre…'}
               </p>
             </div>
           </div>
-          <button
-            onClick={handleClose}
-            className="w-7 h-7 rounded-lg hover:bg-gray-800 flex items-center justify-center text-gray-500 hover:text-white transition-colors"
-          >
+          <button onClick={handleClose}
+            className="w-7 h-7 rounded-lg hover:bg-gray-800 flex items-center justify-center text-gray-500 hover:text-white transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Corps */}
-        <div className="px-6 py-5">
-          {/* Étape 1 — Choix du broker */}
+        <div className="px-6 py-5 max-h-[70vh] overflow-y-auto">
+          {/* Étape 1 */}
           {step === 'choose' && (
             <div className="space-y-2">
-              {brokers.map((broker) => {
-                const meta = brokerMeta[broker]
-                return (
-                  <button
-                    key={broker}
-                    onClick={() => { setSelected(broker); setStep('form') }}
-                    className="w-full flex items-center gap-4 p-3.5 rounded-xl border border-gray-700/40 hover:border-indigo-500/30 hover:bg-indigo-500/5 transition-all group text-left"
-                  >
-                    <BrokerIcon broker={broker} />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold text-white">{meta.name}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">{meta.desc}</div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-indigo-400 transition-colors" />
-                  </button>
-                )
-              })}
+              {BROKERS.map(broker => (
+                <button key={broker}
+                  onClick={() => { setSelected(broker); setStep('form') }}
+                  className="w-full flex items-center gap-4 p-3.5 rounded-xl border border-gray-700/40 hover:border-indigo-500/30 hover:bg-indigo-500/5 transition-all group text-left"
+                >
+                  <BrokerIcon broker={broker} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-white">{brokerMeta[broker].name}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">{brokerMeta[broker].desc}</div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-indigo-400 transition-colors" />
+                </button>
+              ))}
             </div>
           )}
 
-          {/* Étape 2 — Formulaire */}
+          {/* Étape 2 */}
           {step === 'form' && selected && (
             <div className="space-y-5">
-              {/* Broker sélectionné */}
               <div className="flex items-center gap-3 p-3 bg-gray-800/40 rounded-xl border border-gray-700/40">
                 <BrokerIcon broker={selected} />
                 <div>
@@ -218,18 +286,25 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
                 </div>
               </div>
 
-              <BrokerForm broker={selected} />
+              <BrokerFormFields broker={selected} form={form} setForm={setForm} />
 
-              {/* Sécurité */}
+              {error && (
+                <div className="flex items-start gap-2 rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2">
+                  <AlertCircle className="w-3.5 h-3.5 text-red-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-red-300">
+                    {error instanceof Error ? error.message : 'Erreur lors de la connexion.'}
+                  </p>
+                </div>
+              )}
+
               <div className="flex items-start gap-2 text-[11px] text-gray-600">
                 <Lock className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-green-500" />
-                Tes identifiants sont chiffrés avec AES-256. MERKURE ne peut
-                jamais placer d'ordres en ton nom.
+                Tes identifiants sont chiffrés AES-256. MERKURE ne peut jamais placer d'ordres.
               </div>
             </div>
           )}
 
-          {/* Étape 3 — Succès */}
+          {/* Étape 3 */}
           {step === 'success' && (
             <div className="flex flex-col items-center gap-4 py-6 text-center">
               <div className="w-16 h-16 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center">
@@ -252,33 +327,22 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
         {/* Footer */}
         {step === 'form' && (
           <div className="px-6 py-4 border-t border-gray-800/60 flex gap-3">
-            <button
-              onClick={() => setStep('choose')}
-              className="flex-1 py-2.5 rounded-xl text-sm font-medium text-gray-400 bg-gray-800/60 hover:bg-gray-700/60 border border-gray-700/40 transition-colors"
-            >
+            <button onClick={() => setStep('choose')}
+              className="flex-1 py-2.5 rounded-xl text-sm font-medium text-gray-400 bg-gray-800/60 hover:bg-gray-700/60 border border-gray-700/40 transition-colors">
               Annuler
             </button>
-            <button
-              onClick={handleConnect}
-              disabled={loading}
-              className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Connexion…
-                </>
+            <button onClick={handleConnect} disabled={isPending || !isFormValid()}
+              className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2">
+              {isPending ? (
+                <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Connexion…</>
               ) : 'Connecter le compte'}
             </button>
           </div>
         )}
-
         {step === 'success' && (
           <div className="px-6 py-4 border-t border-gray-800/60">
-            <button
-              onClick={handleClose}
-              className="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors"
-            >
+            <button onClick={handleClose}
+              className="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors">
               Voir mes comptes
             </button>
           </div>

@@ -1,26 +1,19 @@
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const MetaApi = require('metaapi.cloud-sdk').default as new (token: string) => {
+import { createRequire } from 'module'
+import { env } from '../../../config/env.js'
+
+interface MetaApiInstance {
   metatraderAccountApi: {
     getAccount(accountId: string): Promise<{
       state: string
       deploy(): Promise<void>
       waitDeployed(timeoutSeconds: number): Promise<void>
-      getRPCConnection(): {
-        connect(): Promise<void>
-        waitSynchronized(timeoutSeconds: number): Promise<void>
-        getAccountInformation(): Promise<{ balance: number; equity: number; currency: string }>
-        getDealsByTimeRange(
-          startTime: Date,
-          endTime: Date,
-          offset?: number,
-          limit?: number,
-        ): Promise<{ deals: MetatraderDeal[] }>
-        close(): Promise<void>
-      }
+      getRPCConnection(): RpcConnection
     }>
   }
 }
-import { env } from '../../../config/env.js'
+
+const _require = createRequire(import.meta.url)
+const MetaApi = (_require('metaapi.cloud-sdk') as { default: new (token: string) => MetaApiInstance }).default
 import type { BrokerAdapter, TradeData, AccountInfo } from './broker-adapter.js'
 
 // Subset of MetatraderDeal we actually use
@@ -50,7 +43,7 @@ type RpcConnection = {
 }
 
 export class MtAdapter implements BrokerAdapter {
-  private api: InstanceType<typeof MetaApi> | null = null
+  private api: MetaApiInstance | null = null
   private connection: RpcConnection | null = null
 
   async connect(credentials: Record<string, string>): Promise<void> {

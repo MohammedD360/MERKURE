@@ -11,7 +11,7 @@ import { verifyToken } from '@clerk/backend'
 import type { FastifyInstance, FastifyRequest } from 'fastify'
 
 import { env } from './config/env.js'
-import { getDemoUser } from './modules/auth/demo-user.js'
+
 import { accountsRoutes } from './modules/accounts/accounts.routes.js'
 import { tradesRoutes } from './modules/trades/trades.routes.js'
 import { registerWsHandler } from './websocket/ws.handler.js'
@@ -25,6 +25,7 @@ import { alertsRoutes } from './modules/alerts/alerts.routes.js'
 import { aiRoutes } from './modules/ai/ai.routes.js'
 import { performanceRoutes } from './modules/performance/performance.routes.js'
 import { reportsRoutes } from './modules/reports/reports.routes.js'
+import { authRoutes } from './modules/auth/auth.routes.js'
 
 function getBearerToken(request: FastifyRequest): string | null {
   const auth = request.headers.authorization
@@ -69,9 +70,21 @@ export function buildApp(): FastifyInstance {
   app.get('/health', healthHandler)
   app.get('/api/health', healthHandler)
 
-  // ─── Current user (no preHandler — used by Clerk middleware on the frontend) ──
+  void app.register(authRoutes, { prefix: '/api/v1/auth' })
+
+  // ─── Current user ─────────────────────────────────────────────────────────────
   app.get('/api/v1/me', async (request, reply) => {
-    if (env.AUTH_MODE === 'demo') return getDemoUser()
+    if (env.AUTH_MODE === 'demo') {
+      const auth = request.headers.authorization
+      if (!auth?.startsWith('Bearer ')) return reply.code(401).send({ error: 'not_authenticated' })
+      try {
+        await request.jwtVerify()
+        const u = request.user
+        return { id: u.id, email: u.email, firstName: null, lastName: null, plan: u.plan, authMode: 'demo' }
+      } catch {
+        return reply.code(401).send({ error: 'invalid_token' })
+      }
+    }
     if (!env.CLERK_SECRET_KEY) return reply.code(500).send({ error: 'clerk_not_configured' })
 
     const token = getBearerToken(request)

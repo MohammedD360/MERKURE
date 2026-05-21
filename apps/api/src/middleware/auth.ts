@@ -1,7 +1,6 @@
 import type { FastifyRequest, FastifyReply } from 'fastify'
 import { verifyToken } from '@clerk/backend'
 import { env } from '../config/env.js'
-import { getDemoUser } from '../modules/auth/demo-user.js'
 import { prisma } from '../infrastructure/database/client.js'
 
 export type AuthUser = {
@@ -22,8 +21,15 @@ export async function authenticate(
   reply: FastifyReply,
 ): Promise<void> {
   if (env.AUTH_MODE === 'demo') {
-    const demo = getDemoUser()
-    request.user = { id: demo.id, email: demo.email, plan: demo.plan }
+    const auth = request.headers.authorization
+    if (!auth?.startsWith('Bearer ')) {
+      return reply.code(401).send({ error: 'not_authenticated' })
+    }
+    try {
+      await request.jwtVerify()
+    } catch {
+      return reply.code(401).send({ error: 'invalid_token' })
+    }
     return
   }
 
