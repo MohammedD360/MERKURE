@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import { format, subDays, startOfYear } from 'date-fns'
+import { FileDown, Loader2 } from 'lucide-react'
 import type { KpiPeriod } from '@/lib/hooks/use-kpis'
 import { useAccounts } from '@/lib/hooks/use-accounts'
+import { api } from '@/lib/api-client'
 import { DetailedStats }       from './components/DetailedStats'
 import { PnlDrawdownChart }    from './components/PnlDrawdownChart'
 import { SessionStats }        from './components/SessionStats'
@@ -34,12 +36,33 @@ function kpiPeriodToDates(p: KpiPeriod): { from: string; to: string } {
   }
 }
 
+async function downloadWeeklyPdf() {
+  const monday = new Date()
+  const day = monday.getDay()
+  monday.setDate(monday.getDate() - (day === 0 ? 6 : day - 1))
+  const weekStart = format(monday, 'yyyy-MM-dd')
+
+  const blob = await api.reports.weekly(weekStart)
+  const url  = URL.createObjectURL(blob)
+  const a    = document.createElement('a')
+  a.href     = url
+  a.download = `rapport-MERKURE-${weekStart}.pdf`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 export function PerformancePage() {
-  const [period,    setPeriod]    = useState<KpiPeriod>('30d')
-  const [accountId, setAccountId] = useState<string | undefined>(undefined)
+  const [period,         setPeriod]         = useState<KpiPeriod>('30d')
+  const [accountId,      setAccountId]      = useState<string | undefined>(undefined)
+  const [downloading,    setDownloading]    = useState(false)
 
   const { data: accounts = [] } = useAccounts()
   const { from, to } = kpiPeriodToDates(period)
+
+  const handleDownload = async () => {
+    setDownloading(true)
+    try { await downloadWeeklyPdf() } finally { setDownloading(false) }
+  }
 
   return (
     <div className="px-5 py-4 space-y-4">
@@ -81,6 +104,19 @@ export function PerformancePage() {
               ))}
             </select>
           )}
+
+          {/* Export PDF */}
+          <button
+            onClick={handleDownload}
+            disabled={downloading}
+            className="flex items-center gap-2 rounded-lg border border-[#1e2f4a] bg-[#0b1527] px-3 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:border-[#263a5b] hover:text-white disabled:opacity-60"
+          >
+            {downloading
+              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              : <FileDown className="h-3.5 w-3.5" />
+            }
+            Rapport PDF
+          </button>
         </div>
       </div>
 

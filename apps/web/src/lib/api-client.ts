@@ -35,6 +35,21 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   return res.json() as Promise<T>
 }
 
+export async function apiFetchBlob(path: string): Promise<Blob> {
+  const headers: Record<string, string> = {}
+  const token = getToken()
+  if (token) headers['Authorization'] = `Bearer ${token}`
+
+  const res = await fetch(`${API}${path}`, { headers })
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '')
+    throw new Error(`${res.status} ${path}: ${body}`)
+  }
+
+  return res.blob()
+}
+
 // ── Types des réponses API ────────────────────────────────────────────────────
 
 export interface KpiSummary {
@@ -149,5 +164,12 @@ export const api = {
     subscription: () => apiFetch<Subscription>('/api/v1/billing/subscription'),
     checkout: (plan: string) => apiFetch<{ url: string }>('/api/v1/billing/checkout', { method: 'POST', body: JSON.stringify({ plan }) }),
     portal: () => apiFetch<{ url: string }>('/api/v1/billing/portal', { method: 'POST', body: JSON.stringify({}) }),
+  },
+
+  reports: {
+    weekly: (weekStart?: string) => {
+      const qs = weekStart ? `?weekStart=${weekStart}` : ''
+      return apiFetchBlob(`/api/v1/reports/weekly${qs}`)
+    },
   },
 }
