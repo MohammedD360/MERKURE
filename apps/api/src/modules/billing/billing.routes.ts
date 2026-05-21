@@ -78,7 +78,7 @@ export async function billingRoutes(app: FastifyInstance) {
         mode: 'subscription',
         customer: customerId,
         line_items: [{ price: planConfig.stripePriceId, quantity: 1 }],
-        success_url: `${env.FRONTEND_URL}/dashboard?checkout=success`,
+        success_url: `${env.FRONTEND_URL}/app/dashboard?checkout=success`,
         cancel_url: `${env.FRONTEND_URL}/pricing?checkout=cancelled`,
         metadata: { userId: request.user.id, plan: body.data.plan },
         subscription_data: {

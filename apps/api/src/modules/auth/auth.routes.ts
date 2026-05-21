@@ -9,7 +9,49 @@ const LoginSchema = z.object({
   password: z.string().min(1),
 })
 
+const RegisterSchema = z.object({
+  email:     z.string().email(),
+  password:  z.string().min(8),
+  firstName: z.string().min(1).max(50).optional(),
+  lastName:  z.string().min(1).max(50).optional(),
+})
+
 export async function authRoutes(app: FastifyInstance) {
+  app.post('/register', async (req, reply) => {
+    const parsed = RegisterSchema.safeParse(req.body)
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_body' })
+
+    const { email, password, firstName, lastName } = parsed.data
+
+    const existing = await prisma.user.findFirst({ where: { email } })
+    if (existing) return reply.code(409).send({ error: 'email_already_exists' })
+
+    const passwordHash = await bcrypt.hash(password, 10)
+
+    const user = await prisma.$transaction(async (tx) => {
+      const created = await tx.user.create({
+        data: {
+          email,
+          passwordHash,
+          firstName: firstName ?? null,
+          lastName:  lastName ?? null,
+          clerkId:   `local_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+        },
+      })
+      await tx.subscription.create({
+        data: { userId: created.id, plan: 'FREE', status: 'ACTIVE' },
+      })
+      return created
+    })
+
+    const token = app.jwt.sign(
+      { id: user.id, email: user.email ?? '', plan: 'FREE' },
+      { expiresIn: '7d' },
+    )
+
+    return reply.code(201).send({ token, user: { id: user.id, email: user.email, plan: 'FREE' } })
+  })
+
   app.post<{ Body: { email: string; password: string } }>(
     '/login',
     async (req, reply) => {
@@ -32,12 +74,18 @@ export async function authRoutes(app: FastifyInstance) {
         return reply.code(401).send({ error: 'invalid_credentials' })
       }
 
+      const subscription = await prisma.subscription.findUnique({
+        where: { userId: user.id },
+        select: { plan: true },
+      })
+      const plan = subscription?.plan ?? 'FREE'
+
       const token = app.jwt.sign(
-        { id: user.id, email: user.email ?? '', plan: 'FREE' },
+        { id: user.id, email: user.email ?? '', plan },
         { expiresIn: '7d' },
       )
 
-      return { token, user: { id: user.id, email: user.email, plan: 'FREE' } }
+      return { token, user: { id: user.id, email: user.email, plan } }
     },
   )
 
