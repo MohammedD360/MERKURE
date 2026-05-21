@@ -10,6 +10,37 @@ import { BinanceAdapter } from '../brokers/adapters/binance-adapter.js'
 import type { BrokerAdapter } from '../brokers/adapters/broker-adapter.js'
 import { wsNotify } from '../../websocket/ws.handler.js'
 
+async function createAlertIfNew(
+  userId: string,
+  type: string,
+  severity: string,
+  title: string,
+  body?: string,
+): Promise<void> {
+  try {
+    const yesterday = new Date(Date.now() - 24 * 3_600_000)
+    const existing = await prisma.alert.findFirst({
+      where: {
+        userId,
+        type: type as never,
+        triggeredAt: { gte: yesterday },
+      },
+    })
+    if (existing) return
+    await prisma.alert.create({
+      data: {
+        userId,
+        type: type as never,
+        severity: severity as never,
+        title,
+        body: body ?? null,
+      },
+    })
+  } catch {
+    // ne jamais faire crasher le worker si Prisma échoue
+  }
+}
+
 function resolveAdapter(brokerType: BrokerSyncJob['brokerType']): BrokerAdapter {
   switch (brokerType) {
     case 'mt4':
@@ -128,6 +159,34 @@ export function startBrokerSyncWorker() {
         // ─── Step 4: Recalculate KPI snapshots for affected dates ─────────────────
         await recalculateKpiSnapshots(userId, syncFrom)
 
+        // ─── Step 4b: Trigger drawdown alerts based on latest KPI snapshot ────────
+        const latestSnapshot = await prisma.kpiSnapshot.findFirst({
+          where: { userId },
+          orderBy: { date: 'desc' },
+        })
+
+        if (latestSnapshot?.maxDrawdown != null) {
+          const drawdownPct = Math.abs(Number(latestSnapshot.maxDrawdown) * 100)
+
+          if (drawdownPct >= 20) {
+            await createAlertIfNew(
+              userId,
+              'DRAWDOWN',
+              'CRITICAL',
+              'Drawdown critique détecté',
+              `Votre drawdown maximum atteint ${drawdownPct.toFixed(1)}% — réduisez votre exposition immédiatement.`,
+            )
+          } else if (drawdownPct >= 10) {
+            await createAlertIfNew(
+              userId,
+              'DRAWDOWN',
+              'WARNING',
+              'Drawdown élevé',
+              `Votre drawdown maximum est de ${drawdownPct.toFixed(1)}% — surveillez votre gestion du risque.`,
+            )
+          }
+        }
+
         // ─── Step 5: Invalidate Redis cache ──────────────────────────────────────
         await cache.delPattern(`kpis:${userId}:*`)
         await cache.delPattern(`trades:${userId}:*`)
@@ -142,6 +201,13 @@ export function startBrokerSyncWorker() {
         await cache.del(lockKey)
         const message = err instanceof Error ? err.message : 'unknown_error'
         await accountsRepository.updateSyncStatus(accountId, 'ERROR', message)
+        await createAlertIfNew(
+          userId,
+          'SYNC_ERROR',
+          'WARNING',
+          'Erreur de synchronisation',
+          `La synchronisation du compte a échoué : ${message}`,
+        ).catch(() => {})
         wsNotify(userId, { type: 'sync:error', data: { accountId, error: message } })
         throw err // BullMQ will retry with exponential backoff
       }
