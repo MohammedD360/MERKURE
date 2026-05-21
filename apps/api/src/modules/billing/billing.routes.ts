@@ -49,6 +49,7 @@ export async function billingRoutes(app: FastifyInstance) {
       if (!body.success) return reply.code(400).send({ error: 'invalid_plan' })
 
       const planConfig = PLANS[body.data.plan]
+      console.log('[checkout] plan=%s priceId=%s', body.data.plan, planConfig.stripePriceId)
       if (!planConfig.stripePriceId) {
         return reply.code(400).send({ error: 'plan_not_available' })
       }
@@ -64,7 +65,7 @@ export async function billingRoutes(app: FastifyInstance) {
       let customerId = user.stripeCustomerId
       if (!customerId) {
         const customer = await stripe.customers.create({
-          email: user.email,
+          email: user.email ?? undefined,
           metadata: { userId: request.user.id },
         })
         customerId = customer.id
@@ -74,19 +75,24 @@ export async function billingRoutes(app: FastifyInstance) {
         })
       }
 
-      const session = await stripe.checkout.sessions.create({
-        mode: 'subscription',
-        customer: customerId,
-        line_items: [{ price: planConfig.stripePriceId, quantity: 1 }],
-        success_url: `${env.FRONTEND_URL}/app/dashboard?checkout=success`,
-        cancel_url: `${env.FRONTEND_URL}/pricing?checkout=cancelled`,
-        metadata: { userId: request.user.id, plan: body.data.plan },
-        subscription_data: {
+      try {
+        const session = await stripe.checkout.sessions.create({
+          mode: 'subscription',
+          customer: customerId,
+          line_items: [{ price: planConfig.stripePriceId, quantity: 1 }],
+          success_url: `${env.FRONTEND_URL}/app/dashboard?checkout=success`,
+          cancel_url: `${env.FRONTEND_URL}/pricing?checkout=cancelled`,
           metadata: { userId: request.user.id, plan: body.data.plan },
-        },
-      })
-
-      return { url: session.url }
+          subscription_data: {
+            metadata: { userId: request.user.id, plan: body.data.plan },
+          },
+        })
+        console.log('[checkout] session created url=%s', session.url)
+        return { url: session.url }
+      } catch (err) {
+        console.error('[checkout] Stripe error:', err)
+        return reply.code(502).send({ error: 'stripe_error', detail: err instanceof Error ? err.message : String(err) })
+      }
     },
   )
 

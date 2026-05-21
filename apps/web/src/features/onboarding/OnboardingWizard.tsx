@@ -74,9 +74,9 @@ export function OnboardingWizard() {
           headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
           body: JSON.stringify({ plan: planId }),
         })
-        const data = await res.json() as { url?: string; error?: string }
+        const data = await res.json() as { url?: string; error?: string; detail?: string }
         if (data.url) window.location.href = data.url
-        else setError('Erreur lors de la redirection vers le paiement.')
+        else setError(`Erreur paiement: ${data.detail ?? data.error ?? 'inconnu'}`)
       }
     } catch {
       setError('Erreur. Réessaie.')

@@ -15,10 +15,26 @@ export async function accountsRoutes(app: FastifyInstance) {
     try {
       const body = CreateAccountSchema.parse(req.body)
       const account = await accountsService.create(req.user.id, body)
+
+      // Déclenche une sync complète immédiatement après la création
+      await brokerSyncQueue.add(
+        `initial-${account.id}`,
+        {
+          accountId: account.id,
+          userId: req.user.id,
+          brokerType: body.brokerType.toLowerCase() as BrokerSyncJob['brokerType'],
+          fullSync: true,
+        },
+        { priority: 1, jobId: `initial-${account.id}` },
+      )
+
       return reply.code(201).send(account)
     } catch (err) {
       if (err instanceof ZodError) {
         return reply.code(400).send({ error: 'validation_error', details: err.errors })
+      }
+      if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2002') {
+        return reply.code(409).send({ error: 'account_already_exists' })
       }
       throw err
     }

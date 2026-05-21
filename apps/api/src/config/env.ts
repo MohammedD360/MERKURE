@@ -28,8 +28,12 @@ const envSchema = z.object({
   // Anthropic
   ANTHROPIC_API_KEY: z.string().startsWith('sk-ant-').optional(),
 
-  // MetaAPI (broker MT4/MT5)
+  // MetaAPI (broker MT4/MT5) — legacy
   META_API_TOKEN: z.string().optional(),
+
+  // MTConnectAPI (MT4 broker sync)
+  MTCONNECT_API_KEY: z.string().optional(),
+  MTCONNECT_UID:     z.string().optional(),
 
   // Clerk Webhook
   CLERK_WEBHOOK_SECRET: z.string().optional(),

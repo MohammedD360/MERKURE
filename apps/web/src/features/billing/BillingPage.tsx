@@ -194,8 +194,8 @@ function PlanCard({ plan, currentPlan, onCheckout, isCheckoutPending }: PlanCard
 export function BillingPage() {
   const { data: subscription, isLoading: subLoading, error: subError } = useSubscription()
   const { data: plans,        isLoading: plansLoading }                = usePlans()
-  const { mutate: checkout,   isPending: checkoutPending }             = useCheckout()
-  const { mutate: portal,     isPending: portalPending }               = usePortal()
+  const { mutate: checkout,   isPending: checkoutPending, error: checkoutError }  = useCheckout()
+  const { mutate: portal,     isPending: portalPending }                            = usePortal()
 
   const isLoading = subLoading || plansLoading
   const hasError  = subError !== null && subError !== undefined
@@ -246,6 +246,12 @@ export function BillingPage() {
           <p className="text-sm text-red-300">
             Impossible de charger les informations de facturation. Vérifiez que l'API est disponible.
           </p>
+        </div>
+      )}
+      {checkoutError && (
+        <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3">
+          <ShieldAlert className="h-4 w-4 flex-shrink-0 text-red-400" />
+          <p className="text-sm text-red-300">{checkoutError.message}</p>
         </div>
       )}
 

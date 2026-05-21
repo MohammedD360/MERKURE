@@ -51,7 +51,7 @@ export function useSyncAccount() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) =>
-      apiFetch<{ queued: boolean }>(`/api/v1/accounts/${id}/sync`, { method: 'POST' }),
+      apiFetch<{ queued: boolean }>(`/api/v1/accounts/${id}/sync`, { method: 'POST', body: '{}' }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['accounts'] }),
   })
 }

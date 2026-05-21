@@ -21,7 +21,26 @@ export const accountsRepository = {
     })
   },
 
-  create(userId: string, input: CreateAccountInput, credentialsEnc?: Buffer) {
+  async create(userId: string, input: CreateAccountInput, credentialsEnc?: Buffer) {
+    // Si un compte soft-deleted existe déjà, on le réactive avec les nouvelles credentials
+    const existing = await prisma.brokerAccount.findFirst({
+      where: { userId, brokerType: input.brokerType as BrokerType, accountId: input.accountId },
+    })
+
+    if (existing) {
+      return prisma.brokerAccount.update({
+        where: { id: existing.id },
+        data: {
+          isActive: true,
+          label: input.label,
+          accountType: input.accountType as AccountType,
+          credentialsEnc: credentialsEnc ?? null,
+          syncStatus: 'PENDING',
+          syncError: null,
+        },
+      })
+    }
+
     return prisma.brokerAccount.create({
       data: {
         userId,

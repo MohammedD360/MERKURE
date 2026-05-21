@@ -145,9 +145,21 @@ export function Sidebar({ currentPage, onNavigate }: Props) {
             </div>
             <span className="text-sm font-bold text-white/80">{planLabel}</span>
           </div>
-          <button className="w-full rounded-xl border border-[#7c5cff]/25 bg-[#7c5cff]/10 py-2 text-xs font-bold text-[#b9a8ff] transition-colors hover:bg-[#7c5cff]/20">
-            Passer à Pro →
-          </button>
+          {user?.plan === 'FREE' || !user ? (
+            <button
+              onClick={() => onNavigate('billing')}
+              className="w-full rounded-xl border border-[#7c5cff]/25 bg-[#7c5cff]/10 py-2 text-xs font-bold text-[#b9a8ff] transition-colors hover:bg-[#7c5cff]/20"
+            >
+              Passer à Pro →
+            </button>
+          ) : (
+            <button
+              onClick={() => onNavigate('billing')}
+              className="w-full rounded-xl border border-[#263a5b] bg-transparent py-2 text-xs font-semibold text-slate-500 transition-colors hover:text-slate-300"
+            >
+              Gérer l'abonnement →
+            </button>
+          )}
         </div>
       </div>
     </aside>

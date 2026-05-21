@@ -22,8 +22,13 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   const token = getToken()
   if (token) headers['Authorization'] = `Bearer ${token}`
 
+  const method = init?.method?.toUpperCase()
+  const needsBody = method === 'POST' || method === 'PUT' || method === 'PATCH'
+  const body: BodyInit | null = init?.body != null ? init.body as BodyInit : needsBody ? '{}' : null
+
   const res = await fetch(`${API}${path}`, {
     ...init,
+    ...(body !== null ? { body } : {}),
     headers: { ...headers, ...init?.headers },
   })
 

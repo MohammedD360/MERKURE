@@ -125,14 +125,14 @@ function BrokerFormFields({ broker, form, setForm }: {
     <div className="space-y-4">
       <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-lg p-3">
         <p className="text-xs text-indigo-300 leading-relaxed">
-          MERKURE se connecte via <span className="font-semibold">MetaAPI</span>. Tes identifiants sont chiffrés
-          et ne servent qu'à lire ton historique.
+          MERKURE se connecte via <span className="font-semibold">MTConnectAPI</span>. Tes identifiants sont chiffrés
+          et ne servent qu'à lire ton historique (mot de passe investisseur recommandé).
         </p>
       </div>
       {common}
-      <Field label="Numéro de compte MT" value={form.accountId}  onChange={set('accountId')} placeholder="Ex : 1234567" />
-      <Field label="Mot de passe (lecture seule recommandé)" value={form.password} onChange={set('password')} placeholder="••••••••" showToggle hint="Utilise le mot de passe lecture seule de ton compte MT." />
-      <Field label="Serveur MetaTrader"  value={form.server}     onChange={set('server')}    placeholder="Ex : Pepperstone-MT5" />
+      <Field label="Numéro de compte MT4" value={form.accountId} onChange={set('accountId')} placeholder="Ex : 1234567" />
+      <Field label="Mot de passe investisseur" value={form.password} onChange={set('password')} placeholder="••••••••" showToggle hint="Utilise le mot de passe investisseur (lecture seule) de ton compte MT4." />
+      <Field label="Serveur du broker" value={form.server} onChange={set('server')} placeholder="Ex : PepperstoneUK-Demo03" hint="Nom du serveur MT4 tel qu'il apparaît dans ton terminal (ex: PepperstoneUK-Demo03, ICMarkets-Demo)." />
     </div>
   )
 
@@ -175,7 +175,7 @@ function BrokerFormFields({ broker, form, setForm }: {
 
 function buildCredentials(broker: BrokerType, form: FormState): Record<string, string> {
   if (broker === 'MT4' || broker === 'MT5') {
-    return { password: form.password, server: form.server }
+    return { accountId: form.accountId, upass: form.password, tradeserver: form.server }
   }
   if (broker === 'BINANCE') {
     return { apiKey: form.apiKey, apiSecret: form.apiSecret }
@@ -292,7 +292,9 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
                 <div className="flex items-start gap-2 rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2">
                   <AlertCircle className="w-3.5 h-3.5 text-red-400 flex-shrink-0 mt-0.5" />
                   <p className="text-xs text-red-300">
-                    {error instanceof Error ? error.message : 'Erreur lors de la connexion.'}
+                    {error instanceof Error && error.message.includes('account_already_exists')
+                      ? 'Ce compte existe déjà. Supprime-le depuis la page Comptes avant de le recréer.'
+                      : error instanceof Error ? error.message : 'Erreur lors de la connexion.'}
                   </p>
                 </div>
               )}

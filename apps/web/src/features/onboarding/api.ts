@@ -1,24 +1,12 @@
 'use client'
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
-
-async function getToken(): Promise<string | null> {
-  if (typeof window === 'undefined') return null
-  try {
-    const { useAuth } = await import('@clerk/nextjs')
-    void useAuth
-  } catch { /* demo mode */ }
-  return null
-}
-
 async function apiFetch(path: string, init?: RequestInit) {
+  const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-
   if (typeof window !== 'undefined') {
-    const token = (window as unknown as Record<string, unknown>).__clerkToken as string | undefined
+    const token = localStorage.getItem('merkure_token')
     if (token) headers['Authorization'] = `Bearer ${token}`
   }
-
   return fetch(`${API}${path}`, { ...init, headers: { ...headers, ...init?.headers } })
 }
 
@@ -57,6 +45,6 @@ export async function connectBroker(payload: BrokerPayload) {
 }
 
 export async function completeOnboarding() {
-  const res = await apiFetch('/api/v1/onboarding/complete', { method: 'POST' })
+  const res = await apiFetch('/api/v1/onboarding/complete', { method: 'POST', body: '{}' })
   if (!res.ok) throw new Error('complete_failed')
 }
