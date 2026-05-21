@@ -5,22 +5,33 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import * as THREE from 'three'
 import {
+  Activity,
   ArrowRight,
+  ArrowUpRight,
   BarChart3,
   Bot,
   Brain,
   Check,
   ChevronRight,
   CircleDollarSign,
+  Command,
   Database,
   Eye,
+  Gauge,
   Layers3,
+  LineChart,
   Lock,
+  Network,
+  PanelTop,
   PlayCircle,
+  Radar,
   ShieldCheck,
+  SlidersHorizontal,
   Sparkles,
+  Target,
   TrendingUp,
   Zap,
+  type LucideIcon,
 } from 'lucide-react'
 
 import { setToken } from '@/lib/api-client'
@@ -38,7 +49,12 @@ function MarketConstellationScene() {
     const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 120)
     camera.position.set(0, 1.4, 10.4)
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
+      preserveDrawingBuffer: process.env.NODE_ENV !== 'production',
+    })
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     renderer.outputColorSpace = THREE.SRGBColorSpace
 
@@ -267,8 +283,130 @@ function DemoButton({ variant = 'primary' }: { variant?: 'primary' | 'ghost' }) 
   )
 }
 
+const sectionLinks = [
+  { id: 'platform', label: 'Plateforme' },
+  { id: 'workflow', label: 'Workflow' },
+  { id: 'pricing', label: 'Offres' },
+  { id: 'security', label: 'Sécurité' },
+]
+const sectionIds = sectionLinks.map((link) => link.id)
+
+const heroSignals = [
+  { icon: Network, label: 'Broker sync' },
+  { icon: Gauge, label: 'Risk lens' },
+  { icon: Brain, label: 'Coach IA' },
+  { icon: Radar, label: 'Alertes' },
+]
+
+const platformModules: Array<{
+  id: string
+  icon: LucideIcon
+  title: string
+  kicker: string
+  text: string
+  points: string[]
+}> = [
+  {
+    id: 'performance',
+    icon: LineChart,
+    title: 'Performance lisible',
+    kicker: 'Clarté opérationnelle',
+    text: 'Les indicateurs critiques restent visibles sans transformer le dashboard en tableau de chiffres illisible.',
+    points: ['P&L et drawdown contextualisés', 'Vue portefeuille et actifs', 'Historique exploitable'],
+  },
+  {
+    id: 'discipline',
+    icon: Target,
+    title: 'Discipline mesurable',
+    kicker: 'Comportements de trading',
+    text: 'MERKURE isole les habitudes qui reviennent dans vos sessions pour rendre le travail de progression plus concret.',
+    points: ['Journal structuré', 'Revenge trading repéré', 'Routines comparables'],
+  },
+  {
+    id: 'automation',
+    icon: SlidersHorizontal,
+    title: 'Pilotage sans friction',
+    kicker: 'Flux de données',
+    text: 'Les comptes, transactions et snapshots alimentent la lecture produit sans vous forcer à recopier votre activité.',
+    points: ['Import broker', 'Synchronisation continue', 'Segmentation par compte'],
+  },
+  {
+    id: 'coach',
+    icon: Bot,
+    title: 'Coach contextualisé',
+    kicker: 'IA utile',
+    text: 'Le coach part de vos trades réels pour produire une lecture exploitable, pas un conseil générique détaché de vos décisions.',
+    points: ['Feedback journalier', 'Axes de travail', 'Synthèse lisible'],
+  },
+]
+
+const differentiators: Array<{
+  icon: LucideIcon
+  title: string
+  text: string
+}> = [
+  {
+    icon: Layers3,
+    title: 'Unifier au lieu d’empiler',
+    text: 'Comptes, trades, journal, KPIs et abonnement restent dans un parcours unique.',
+  },
+  {
+    icon: BarChart3,
+    title: 'Décider au lieu de subir',
+    text: 'Les vues privilégient la lecture rapide, les écarts de comportement et les signaux d’action.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Séparer contrôle et sécurité',
+    text: 'Lecture seule, chiffrement côté API et logique d’accès par plan restent clairement séparés.',
+  },
+]
+
+function useActiveSection(sectionIds: string[]) {
+  const [activeSection, setActiveSection] = useState(sectionIds[0] ?? '')
+
+  useEffect(() => {
+    const onScroll = () => {
+      let next = ''
+      for (let index = sectionIds.length - 1; index >= 0; index -= 1) {
+        const id = sectionIds[index]
+        if (!id) continue
+        const section = document.getElementById(id)
+        if (section && section.getBoundingClientRect().top <= 140) {
+          next = id
+          break
+        }
+      }
+
+      if (next) setActiveSection(next)
+    }
+
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [sectionIds])
+
+  return activeSection
+}
+
+function BrandMark({ small = false }: { small?: boolean }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div
+        className={`flex items-center justify-center rounded-lg bg-gradient-to-br from-[#7c5cff] via-[#5f77ff] to-[#18c7ff] font-black text-white shadow-[0_12px_30px_rgba(124,92,255,0.35)] ${
+          small ? 'h-7 w-7 text-sm' : 'h-8 w-8 text-base'
+        }`}
+      >
+        M
+      </div>
+      <span className="font-black text-white">MERKURE</span>
+    </div>
+  )
+}
+
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const activeSection = useActiveSection(sectionIds)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16)
@@ -284,16 +422,27 @@ function Navbar() {
     >
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-6">
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#7c5cff] via-[#5f77ff] to-[#18c7ff] text-base font-black text-white shadow-[0_12px_30px_rgba(124,92,255,0.35)]">
-            M
-          </div>
-          <span className="text-base font-black text-white">MERKURE</span>
+          <BrandMark />
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">
-          <a href="#platform" className="text-sm font-medium text-slate-400 transition-colors hover:text-white">Plateforme</a>
-          <a href="#workflow" className="text-sm font-medium text-slate-400 transition-colors hover:text-white">Workflow</a>
-          <a href="#security" className="text-sm font-medium text-slate-400 transition-colors hover:text-white">Sécurité</a>
+          {sectionLinks.map((link) => (
+            <a
+              key={link.id}
+              href={`#${link.id}`}
+              className={`relative py-2 text-sm font-medium transition-colors ${
+                activeSection === link.id ? 'text-white' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {link.label}
+              {activeSection === link.id && (
+                <motion.span
+                  layoutId="nav-active"
+                  className="absolute inset-x-0 -bottom-0.5 h-px bg-[#7c5cff]"
+                />
+              )}
+            </a>
+          ))}
         </div>
 
         <div className="flex items-center gap-2">
@@ -307,14 +456,103 @@ function Navbar() {
   )
 }
 
+function SectionRail() {
+  const activeSection = useActiveSection(sectionIds)
+
+  return (
+    <div className="fixed right-5 top-1/2 z-40 hidden -translate-y-1/2 flex-col gap-3 xl:flex" aria-label="Navigation sections">
+      {sectionLinks.map((link) => (
+        <a
+          key={link.id}
+          href={`#${link.id}`}
+          className="group flex items-center justify-end gap-3"
+          aria-label={link.label}
+        >
+          <span
+            className={`translate-x-2 rounded-md border border-[#243957] bg-[#07101f]/90 px-2 py-1 text-xs font-semibold opacity-0 shadow-[0_14px_40px_rgba(0,0,0,0.28)] backdrop-blur-md transition-all group-hover:translate-x-0 group-hover:opacity-100 ${
+              activeSection === link.id ? 'text-white' : 'text-slate-500'
+            }`}
+          >
+            {link.label}
+          </span>
+          <span
+            className={`h-2.5 w-2.5 rounded-full border transition-all ${
+              activeSection === link.id
+                ? 'border-[#7c5cff] bg-[#7c5cff] shadow-[0_0_20px_rgba(124,92,255,0.65)]'
+                : 'border-[#314767] bg-[#0b1527] group-hover:border-[#7c5cff]'
+            }`}
+          />
+        </a>
+      ))}
+    </div>
+  )
+}
+
+function HeroControlDeck() {
+  const modules = [
+    { icon: Command, title: 'Importer', text: 'Comptes et transactions' },
+    { icon: Activity, title: 'Lire', text: 'Performance et risque' },
+    { icon: Brain, title: 'Comprendre', text: 'Coach et journal IA' },
+  ]
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 32, y: 18 }}
+      animate={{ opacity: 1, x: 0, y: 0 }}
+      transition={{ duration: 0.7, delay: 0.35 }}
+      className="pointer-events-none absolute bottom-14 right-8 z-10 hidden w-[380px] rounded-lg border border-[#263a66] bg-[#0b1527]/72 p-4 shadow-[0_24px_90px_rgba(0,0,0,0.34)] backdrop-blur-xl xl:block 2xl:right-[calc((100vw-80rem)/2)]"
+    >
+      <div className="mb-4 flex items-center justify-between border-b border-[#243957] pb-3">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#a798ff]">Couche opérationnelle</p>
+          <p className="mt-1 text-sm font-semibold text-white">Cockpit de décision</p>
+        </div>
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#18c7ff]/25 bg-[#18c7ff]/10 text-[#18c7ff]">
+          <PanelTop className="h-4 w-4" />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        {modules.map((module, index) => {
+          const Icon = module.icon
+          return (
+            <motion.div
+              key={module.title}
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.35, delay: 0.5 + index * 0.08 }}
+              className="flex items-center gap-3 rounded-lg border border-[#1e2f4a] bg-[#07101f]/80 p-3"
+            >
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#7c5cff]/10 text-[#b9a8ff]">
+                <Icon className="h-4 w-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-white">{module.title}</p>
+                <p className="text-xs text-slate-500">{module.text}</p>
+              </div>
+              <ArrowUpRight className="h-4 w-4 text-slate-600" />
+            </motion.div>
+          )
+        })}
+      </div>
+
+      <div className="mt-4 flex items-center justify-between rounded-lg border border-[#38e476]/20 bg-[#38e476]/10 px-3 py-2 text-xs font-semibold text-[#8ef0b0]">
+        <span>Mode lecture seule</span>
+        <span className="h-2 w-2 rounded-full bg-[#38e476]" />
+      </div>
+    </motion.div>
+  )
+}
+
 function Hero() {
   return (
-    <section className="relative min-h-[92svh] overflow-hidden bg-[#050b16]">
+    <section className="relative min-h-[82vh] overflow-hidden bg-[#050b16] sm:min-h-[86vh]">
       <MarketConstellationScene />
       <div className="absolute inset-0 bg-gradient-to-r from-[#050b16] via-[#050b16]/68 to-[#050b16]/15" />
       <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#050b16] to-transparent" />
+      <HeroControlDeck />
 
-      <div className="relative z-10 mx-auto flex min-h-[92svh] max-w-7xl items-center px-5 pb-16 pt-28 sm:px-6">
+      <div className="relative z-10 mx-auto flex min-h-[82vh] max-w-7xl items-center px-5 pb-8 pt-24 sm:min-h-[86vh] sm:px-6 sm:pb-14 sm:pt-28">
         <div className="max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 14 }}
@@ -330,7 +568,7 @@ function Hero() {
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.08 }}
-            className="text-5xl font-black leading-[1.02] text-white sm:text-6xl lg:text-7xl"
+            className="text-4xl font-black leading-[1.03] text-white sm:text-6xl lg:text-7xl"
           >
             MERKURE, le cockpit 3D de votre performance trading.
           </motion.h1>
@@ -364,14 +602,23 @@ function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.65, delay: 0.42 }}
-            className="mt-8 grid max-w-2xl gap-3 sm:grid-cols-3"
+            className="mt-8 grid max-w-3xl gap-3 sm:grid-cols-4"
           >
-            {['Lecture seule broker', 'KPIs synchronisés', 'Coach IA contextualisé'].map((item) => (
-              <div key={item} className="flex items-center gap-2 text-sm text-slate-400">
-                <Check className="h-4 w-4 text-[#38e476]" />
-                {item}
-              </div>
-            ))}
+            {heroSignals.map((signal, index) => {
+              const Icon = signal.icon
+              return (
+                <motion.div
+                  key={signal.label}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, delay: 0.48 + index * 0.06 }}
+                  className="flex items-center gap-2 rounded-lg border border-[#1e2f4a] bg-[#0b1527]/62 px-3 py-2 text-sm text-slate-300 backdrop-blur-sm"
+                >
+                  <Icon className="h-4 w-4 text-[#38e476]" />
+                  {signal.label}
+                </motion.div>
+              )
+            })}
           </motion.div>
         </div>
       </div>
@@ -417,25 +664,114 @@ function FeatureCard({
 }
 
 function PlatformSection() {
+  const [activeModuleId, setActiveModuleId] = useState(platformModules[0]?.id ?? '')
+  const activeModule = platformModules.find((module) => module.id === activeModuleId) ?? platformModules[0]!
+  const ActiveIcon = activeModule.icon
+
   return (
-    <section id="platform" className="bg-[#050b16] px-5 py-24 sm:px-6">
+    <section id="platform" className="scroll-mt-20 bg-[#050b16] px-5 py-24 sm:px-6">
       <div className="mx-auto max-w-7xl">
         <SectionTitle
-          eyebrow="Plateforme"
-          title="Une présentation claire de ce qui se passe vraiment dans vos trades."
+          eyebrow="Plateforme OS"
+          title="Une interface qui ressemble à un cockpit, pas à un tableur."
           text="MERKURE rassemble vos comptes, vos métriques et vos signaux comportementaux dans une interface pensée pour décider plus vite."
         />
 
-        <div className="grid gap-4 lg:grid-cols-3">
-          <FeatureCard icon={<BarChart3 className="h-5 w-5" />} title="Performance lisible">
-            P&L, drawdown, win rate, profit factor et répartition par actif sont pensés pour être scannés rapidement, sans surcharge visuelle.
-          </FeatureCard>
-          <FeatureCard icon={<Brain className="h-5 w-5" />} title="Coaching contextualisé">
-            L&apos;IA analyse votre historique de trading et transforme vos comportements répétitifs en axes de travail actionnables.
-          </FeatureCard>
-          <FeatureCard icon={<Layers3 className="h-5 w-5" />} title="Vue multi-comptes">
-            Les comptes broker deviennent une couche unifiée pour comparer vos résultats, isoler un compte, ou suivre la synchronisation.
-          </FeatureCard>
+        <div className="grid gap-5 lg:grid-cols-[0.86fr_1.14fr]">
+          <div className="space-y-3">
+            {platformModules.map((module) => {
+              const Icon = module.icon
+              const active = module.id === activeModule.id
+
+              return (
+                <button
+                  key={module.id}
+                  type="button"
+                  onClick={() => setActiveModuleId(module.id)}
+                  className={`group flex w-full items-start gap-4 rounded-lg border p-4 text-left transition-all ${
+                    active
+                      ? 'border-[#7c5cff]/70 bg-[#101a32] shadow-[0_18px_60px_rgba(0,0,0,0.22)]'
+                      : 'border-[#1e2f4a] bg-[#0b1527] hover:border-[#314767] hover:bg-[#0e1a2e]'
+                  }`}
+                >
+                  <div
+                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border transition-colors ${
+                      active
+                        ? 'border-[#7c5cff]/35 bg-[#7c5cff]/15 text-[#c4b7ff]'
+                        : 'border-[#243957] bg-[#07101f] text-slate-500 group-hover:text-slate-300'
+                    }`}
+                  >
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#a798ff]">{module.kicker}</p>
+                    <h3 className="mt-1 text-lg font-bold text-white">{module.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-400">{module.text}</p>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+
+          <motion.div
+            key={activeModule.id}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+            className="relative overflow-hidden rounded-lg border border-[#263a66] bg-[#07101f] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_24px_90px_rgba(0,0,0,0.3)]"
+          >
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#18c7ff] to-transparent" />
+            <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
+              <div>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-[#18c7ff]/25 bg-[#18c7ff]/10 text-[#18c7ff]">
+                    <ActiveIcon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#7ddcff]">{activeModule.kicker}</p>
+                    <h3 className="mt-1 text-2xl font-black text-white">{activeModule.title}</h3>
+                  </div>
+                </div>
+
+                <p className="mt-6 max-w-xl text-sm leading-7 text-slate-400">{activeModule.text}</p>
+
+                <div className="mt-8 divide-y divide-[#243957] border-y border-[#243957]">
+                  {activeModule.points.map((point) => (
+                    <div key={point} className="flex items-center gap-3 py-4 text-sm font-medium text-slate-300">
+                      <Check className="h-4 w-4 text-[#38e476]" />
+                      {point}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="relative min-h-[320px] overflow-hidden rounded-lg border border-[#1e2f4a] bg-[#050b16]">
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(24,199,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(124,92,255,0.04)_1px,transparent_1px)] bg-[size:34px_34px]" />
+                <div className="absolute inset-x-6 top-6 flex items-center justify-between text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
+                  <span>Carte des signaux</span>
+                  <span>Lecture seule</span>
+                </div>
+                <div className="absolute left-8 right-8 top-20 h-px bg-[#243957]" />
+                <div className="absolute left-8 right-8 top-1/2 h-px bg-[#243957]" />
+                <div className="absolute bottom-20 left-8 right-8 h-px bg-[#243957]" />
+
+                {['Broker', 'KPIs', 'Journal', 'Coach'].map((label, index) => (
+                  <motion.div
+                    key={label}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: index * 0.08 }}
+                    className="absolute left-8 right-8 flex items-center gap-3 rounded-lg border border-[#263a66] bg-[#0b1527]/86 px-4 py-3 text-sm font-semibold text-slate-300 backdrop-blur-sm"
+                    style={{ top: 64 + index * 58 }}
+                  >
+                    <span className="h-2 w-2 rounded-full bg-[#38e476]" />
+                    {label}
+                    <span className="ml-auto h-px w-12 bg-[#18c7ff]/40" />
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>
@@ -451,7 +787,7 @@ function WorkflowSection() {
   ]
 
   return (
-    <section id="workflow" className="relative overflow-hidden bg-[#07101f] px-5 py-24 sm:px-6">
+    <section id="workflow" className="relative scroll-mt-20 overflow-hidden bg-[#07101f] px-5 py-24 sm:px-6">
       <div className="relative mx-auto max-w-7xl">
         <SectionTitle
           eyebrow="Workflow"
@@ -488,6 +824,145 @@ function WorkflowSection() {
   )
 }
 
+function DifferentiatorSection() {
+  return (
+    <section className="bg-[#07101f] px-5 py-24 sm:px-6">
+      <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
+        <div className="lg:sticky lg:top-28">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[#a798ff]">Edge produit</p>
+          <h2 className="text-3xl font-black leading-tight text-white sm:text-4xl">
+            Une salle de contrôle personnelle pour votre discipline de trading.
+          </h2>
+          <p className="mt-5 text-sm leading-7 text-slate-400">
+            MERKURE réduit le bruit, hiérarchise les signaux et garde la prochaine décision au centre.
+          </p>
+        </div>
+
+        <div className="rounded-lg border border-[#263a66] bg-[#0b1527] shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_24px_90px_rgba(0,0,0,0.26)]">
+          {differentiators.map((item, index) => {
+            const Icon = item.icon
+            return (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-80px' }}
+                transition={{ duration: 0.35, delay: index * 0.08 }}
+                className={`grid gap-4 p-6 sm:grid-cols-[auto_1fr_auto] sm:items-center ${
+                  index < differentiators.length - 1 ? 'border-b border-[#243957]' : ''
+                }`}
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-[#18c7ff]/25 bg-[#18c7ff]/10 text-[#18c7ff]">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-7 text-slate-400">{item.text}</p>
+                </div>
+                <ArrowRight className="hidden h-5 w-5 text-[#314767] sm:block" />
+              </motion.div>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+const planOffers = [
+  {
+    id: 'STARTER',
+    name: 'Starter',
+    price: '19 €',
+    description: 'Pour poser une base propre et suivre vos performances sans friction.',
+    features: ['Trades illimités', 'Sync broker (1)', 'KPIs avancés', 'Journal IA'],
+  },
+  {
+    id: 'PRO',
+    name: 'Pro',
+    price: '49 €',
+    description: 'Pour analyser plus finement plusieurs comptes et accélérer la progression.',
+    features: ['Sync broker (3)', 'Analytics avancés', 'Alertes', 'Coach IA illimité'],
+    highlighted: true,
+  },
+  {
+    id: 'ELITE',
+    name: 'Elite',
+    price: '129 €',
+    description: 'Pour les traders qui veulent automatiser leur suivi et produire des rapports.',
+    features: ['Sync broker illimité', 'Rapports PDF', 'API access', 'Support prioritaire'],
+  },
+]
+
+function PricingSection() {
+  return (
+    <section id="pricing" className="scroll-mt-20 bg-[#050b16] px-5 py-24 sm:px-6">
+      <div className="mx-auto max-w-7xl">
+        <SectionTitle
+          eyebrow="Offres"
+          title="Trois niveaux pour accompagner votre progression."
+          text="Chaque plan débloque un niveau d'analyse adapté à votre rythme, du suivi individuel aux rapports et accès avancés."
+        />
+
+        <div className="grid gap-4 lg:grid-cols-3">
+          {planOffers.map((plan, index) => (
+            <motion.article
+              key={plan.id}
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.35, delay: index * 0.06 }}
+              className={`relative flex min-h-[420px] flex-col rounded-lg border p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_18px_60px_rgba(0,0,0,0.22)] ${
+                plan.highlighted
+                  ? 'border-[#7c5cff]/70 bg-[#101a32]'
+                  : 'border-[#1e2f4a] bg-[#0b1527]'
+              }`}
+            >
+              {plan.highlighted && (
+                <div className="absolute right-5 top-5 rounded-full border border-[#7c5cff]/35 bg-[#7c5cff]/10 px-3 py-1 text-xs font-bold text-[#c4b7ff]">
+                  Recommandé
+                </div>
+              )}
+
+              <div>
+                <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#a798ff]">{plan.name}</p>
+                <div className="mt-5 flex items-end gap-2">
+                  <span className="text-5xl font-black text-white">{plan.price}</span>
+                  <span className="pb-2 text-sm font-semibold text-slate-500">/ mois</span>
+                </div>
+                <p className="mt-5 text-sm leading-7 text-slate-400">{plan.description}</p>
+              </div>
+
+              <div className="my-7 h-px bg-[#243957]" />
+
+              <ul className="space-y-3">
+                {plan.features.map((feature) => (
+                  <li key={feature} className="flex items-center gap-3 text-sm text-slate-300">
+                    <Check className="h-4 w-4 shrink-0 text-[#38e476]" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/sign-up"
+                className={`mt-auto inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-bold transition-colors ${
+                  plan.highlighted
+                    ? 'bg-[#7c5cff] text-white hover:bg-[#8d72ff]'
+                    : 'border border-[#243957] bg-[#0b1527]/80 text-slate-200 hover:bg-[#142139]'
+                }`}
+              >
+                Choisir {plan.name}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </motion.article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function SecuritySection() {
   const items = [
     { icon: <Lock className="h-5 w-5" />, title: 'Identifiants chiffrés', text: 'Les accès broker sont chiffrés côté API avant stockage.' },
@@ -497,7 +972,7 @@ function SecuritySection() {
   ]
 
   return (
-    <section id="security" className="bg-[#050b16] px-5 py-24 sm:px-6">
+    <section id="security" className="scroll-mt-20 bg-[#050b16] px-5 py-24 sm:px-6">
       <div className="mx-auto max-w-7xl">
         <SectionTitle
           eyebrow="Sécurité"
@@ -545,10 +1020,7 @@ function Footer() {
     <footer className="border-t border-[#172842] bg-[#050b16] px-5 py-8 sm:px-6">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 text-sm text-slate-500 md:flex-row">
         <div className="flex items-center gap-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-[#7c5cff] via-[#5f77ff] to-[#18c7ff] text-sm font-black text-white">
-            M
-          </div>
-          <span className="font-black text-white">MERKURE</span>
+          <BrandMark small />
         </div>
         <p>© 2026 MERKURE. Tous droits réservés.</p>
         <div className="flex gap-5">
@@ -564,10 +1036,13 @@ export default function App() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#050b16] text-white">
       <Navbar />
+      <SectionRail />
       <main>
         <Hero />
         <PlatformSection />
         <WorkflowSection />
+        <DifferentiatorSection />
+        <PricingSection />
         <SecuritySection />
         <FinalCTA />
       </main>

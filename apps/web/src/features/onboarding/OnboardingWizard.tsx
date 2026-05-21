@@ -4,16 +4,18 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { StepProfile } from './steps/StepProfile'
 import { StepBroker } from './steps/StepBroker'
+import { StepPlan } from './steps/StepPlan'
 import { StepDone } from './steps/StepDone'
 import { saveProfile, connectBroker, completeOnboarding } from './api'
 import type { ProfilePayload, BrokerPayload } from './api'
 
-type Step = 'profile' | 'broker' | 'done'
+type Step = 'profile' | 'broker' | 'plan' | 'done'
 
 const STEPS: { id: Step; label: string; num: number }[] = [
   { id: 'profile', label: 'Profil', num: 1 },
   { id: 'broker', label: 'Broker', num: 2 },
-  { id: 'done', label: 'Terminé', num: 3 },
+  { id: 'plan', label: 'Plan', num: 3 },
+  { id: 'done', label: 'Terminé', num: 4 },
 ]
 
 export function OnboardingWizard() {
@@ -45,7 +47,7 @@ export function OnboardingWizard() {
     try {
       await connectBroker(payload)
       setBrokerConnected(true)
-      setStep('done')
+      setStep('plan')
     } catch {
       setError('Connexion broker échouée. Vérifie tes identifiants.')
       setLoading(false)
@@ -54,7 +56,33 @@ export function OnboardingWizard() {
 
   const handleBrokerSkip = () => {
     setBrokerConnected(false)
-    setStep('done')
+    setStep('plan')
+  }
+
+  const handlePlanSelect = async (planId?: string) => {
+    setError(null)
+    setLoading(true)
+    try {
+      await completeOnboarding()
+      if (!planId || planId === 'FREE') {
+        router.push('/app/dashboard')
+      } else {
+        const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+        const token = typeof window !== 'undefined' ? localStorage.getItem('merkure_token') : null
+        const res = await fetch(`${API}/api/v1/billing/checkout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+          body: JSON.stringify({ plan: planId }),
+        })
+        const data = await res.json() as { url?: string; error?: string }
+        if (data.url) window.location.href = data.url
+        else setError('Erreur lors de la redirection vers le paiement.')
+      }
+    } catch {
+      setError('Erreur. Réessaie.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleFinish = async () => {
@@ -78,7 +106,7 @@ export function OnboardingWizard() {
       </div>
 
       {/* Card */}
-      <div className="w-full max-w-lg bg-[#111827] border border-gray-800/60 rounded-2xl shadow-2xl overflow-hidden">
+      <div className={`w-full bg-[#111827] border border-gray-800/60 rounded-2xl shadow-2xl overflow-hidden ${step === 'plan' ? 'max-w-4xl' : 'max-w-lg'}`}>
         {/* Stepper */}
         <div className="px-6 pt-6 pb-5 border-b border-gray-800/60">
           <div className="flex items-center gap-0">
@@ -124,6 +152,12 @@ export function OnboardingWizard() {
               <p className="text-xs text-gray-500 mt-1">Synchronise tes trades automatiquement</p>
             </>
           )}
+          {step === 'plan' && (
+            <>
+              <h2 className="text-base font-bold text-white">Choisissez votre plan</h2>
+              <p className="text-xs text-gray-500 mt-1">Commencez gratuitement, upgradez à tout moment.</p>
+            </>
+          )}
           {step === 'done' && (
             <>
               <h2 className="text-base font-bold text-white">C'est parti !</h2>
@@ -145,6 +179,13 @@ export function OnboardingWizard() {
           )}
           {step === 'broker' && (
             <StepBroker onConnect={handleBrokerConnect} onSkip={handleBrokerSkip} />
+          )}
+          {step === 'plan' && (
+            <StepPlan
+              onSelectFree={() => handlePlanSelect(undefined)}
+              onSelectPaid={(planId) => handlePlanSelect(planId)}
+              loading={loading}
+            />
           )}
           {step === 'done' && (
             <StepDone brokerConnected={brokerConnected} onFinish={handleFinish} loading={loading} />

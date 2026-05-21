@@ -3,9 +3,7 @@ import forms from '@tailwindcss/forms'
 
 const config: Config = {
   content: [
-    './src/app/**/*.{ts,tsx}',
-    './src/features/**/*.{ts,tsx}',
-    './src/shared/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}',
     './node_modules/@tremor/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {

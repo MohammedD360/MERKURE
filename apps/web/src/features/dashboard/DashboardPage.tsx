@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Settings } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Settings, Check, X } from 'lucide-react'
 import type { KpiPeriod } from '@/lib/hooks/use-kpis'
 import { KpiCards }                         from './components/KpiCards'
 import { EquityChart }                       from './components/EquityChart'
@@ -20,9 +20,40 @@ const PERIODS: { label: string; value: KpiPeriod }[] = [
 
 export function DashboardPage() {
   const [period, setPeriod] = useState<KpiPeriod>('30d')
+  const [showCheckoutBanner, setShowCheckoutBanner] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('checkout') === 'success') {
+        setShowCheckoutBanner(true)
+        window.history.replaceState({}, '', '/app/dashboard')
+      }
+    }
+  }, [])
 
   return (
     <div className="space-y-4 px-6 py-5">
+      {showCheckoutBanner && (
+        <div className="mx-6 mt-4 flex items-center justify-between rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/20">
+              <Check className="h-4 w-4 text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-emerald-300">Abonnement activé !</p>
+              <p className="text-xs text-emerald-500">Votre plan est maintenant actif. Profitez de toutes les fonctionnalités.</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowCheckoutBanner(false)}
+            className="text-emerald-600 hover:text-emerald-400 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#1b2a42] pt-4">
         <div className="inline-flex rounded-xl border border-[#20314d] bg-[#07101f] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
           {PERIODS.map(p => (
