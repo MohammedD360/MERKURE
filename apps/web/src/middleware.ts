@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   const session = request.cookies.get('merkure_session')?.value
   const { pathname } = request.nextUrl
 
-  if (pathname.startsWith('/app') && !session) {
+  if ((pathname.startsWith('/app') || pathname.startsWith('/onboarding')) && !session) {
     const signIn = new URL('/sign-in', request.url)
     return NextResponse.redirect(signIn)
   }
@@ -14,5 +14,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/app/:path*'],
+  matcher: ['/app/:path*', '/onboarding/:path*'],
 }
