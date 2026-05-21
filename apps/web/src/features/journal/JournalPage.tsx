@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Bot, ChevronDown, ChevronUp, Loader2, Sparkles } from 'lucide-react'
 import { useAiJournal, useAiAnalyze } from '@/lib/hooks/use-ai-journal'
 import type { AiJournalEntry } from '@/lib/api-client'
+import { PlanGateBanner } from '@/shared/components/PlanGateBanner'
 
 function getTodayDate(): string {
   return new Date().toISOString().slice(0, 10)
@@ -294,44 +295,46 @@ export function JournalPage() {
   const { data: entries, isLoading } = useAiJournal()
 
   return (
-    <div className="space-y-5 px-6 py-5">
-      <div className="flex flex-wrap items-start justify-between gap-4 border-t border-[#1b2a42] pt-4">
-        <div>
-          <h1 className="text-lg font-black text-white">Journal IA</h1>
-          <p className="mt-0.5 text-xs text-slate-500">Analyse quotidienne de vos trades par l'IA</p>
+    <PlanGateBanner required="STARTER" featureName="Journal IA">
+      <div className="space-y-5 px-6 py-5">
+        <div className="flex flex-wrap items-start justify-between gap-4 border-t border-[#1b2a42] pt-4">
+          <div>
+            <h1 className="text-lg font-black text-white">Journal IA</h1>
+            <p className="mt-0.5 text-xs text-slate-500">Analyse quotidienne de vos trades par l'IA</p>
+          </div>
+
+          {!showPanel && (
+            <button
+              type="button"
+              onClick={() => setShowPanel(true)}
+              className="inline-flex items-center gap-2 rounded-xl border border-[#7c5cff]/40 bg-[#7c5cff]/15 px-4 py-2.5 text-sm font-semibold text-[#b9a8ff] transition-colors hover:bg-[#7c5cff]/25"
+            >
+              <Sparkles className="h-4 w-4" />
+              Analyser aujourd'hui
+            </button>
+          )}
         </div>
 
-        {!showPanel && (
-          <button
-            type="button"
-            onClick={() => setShowPanel(true)}
-            className="inline-flex items-center gap-2 rounded-xl border border-[#7c5cff]/40 bg-[#7c5cff]/15 px-4 py-2.5 text-sm font-semibold text-[#b9a8ff] transition-colors hover:bg-[#7c5cff]/25"
-          >
-            <Sparkles className="h-4 w-4" />
-            Analyser aujourd'hui
-          </button>
+        {showPanel && (
+          <AnalyzePanel onClose={() => setShowPanel(false)} />
+        )}
+
+        {isLoading ? (
+          <div className="space-y-4">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
+        ) : !entries || entries.length === 0 ? (
+          <EmptyState onAnalyze={() => setShowPanel(true)} />
+        ) : (
+          <div className="space-y-4">
+            {entries.map((entry) => (
+              <JournalEntryCard key={entry.id} entry={entry} />
+            ))}
+          </div>
         )}
       </div>
-
-      {showPanel && (
-        <AnalyzePanel onClose={() => setShowPanel(false)} />
-      )}
-
-      {isLoading ? (
-        <div className="space-y-4">
-          <SkeletonCard />
-          <SkeletonCard />
-          <SkeletonCard />
-        </div>
-      ) : !entries || entries.length === 0 ? (
-        <EmptyState onAnalyze={() => setShowPanel(true)} />
-      ) : (
-        <div className="space-y-4">
-          {entries.map((entry) => (
-            <JournalEntryCard key={entry.id} entry={entry} />
-          ))}
-        </div>
-      )}
-    </div>
+    </PlanGateBanner>
   )
 }

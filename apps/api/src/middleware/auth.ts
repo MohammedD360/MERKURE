@@ -55,7 +55,12 @@ export async function authenticate(
       return reply.code(401).send({ error: 'user_not_found' })
     }
 
-    request.user = { id: user.id, email: user.email, plan: 'FREE' }
+    const sub = await prisma.subscription.findUnique({
+      where: { userId: user.id },
+      select: { plan: true },
+    })
+
+    request.user = { id: user.id, email: user.email, plan: sub?.plan ?? 'FREE' }
   } catch {
     return reply.code(401).send({ error: 'invalid_token' })
   }

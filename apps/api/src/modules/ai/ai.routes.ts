@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import { authenticate } from '../../middleware/auth.js'
+import { requirePlan } from '../../middleware/require-plan.js'
 import { prisma } from '../../infrastructure/database/client.js'
 import { analyzeTradesForDay } from './ai.service.js'
 
@@ -11,7 +12,7 @@ export async function aiRoutes(app: FastifyInstance) {
    */
   app.post<{ Body: { date?: string; context?: string } }>(
     '/analysis',
-    { preHandler: [authenticate] },
+    { preHandler: [authenticate, requirePlan('STARTER')] },
     async (req, reply) => {
       const date = req.body?.date ? new Date(req.body.date) : new Date()
       if (isNaN(date.getTime())) {

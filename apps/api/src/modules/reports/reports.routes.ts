@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import { authenticate } from '../../middleware/auth.js'
+import { requirePlan } from '../../middleware/require-plan.js'
 import { generateWeeklyReport, currentWeekStart } from './weekly-report.service.js'
 
 export async function reportsRoutes(app: FastifyInstance) {
@@ -9,7 +10,7 @@ export async function reportsRoutes(app: FastifyInstance) {
    */
   app.get<{ Querystring: { weekStart?: string } }>(
     '/weekly',
-    { preHandler: [authenticate] },
+    { preHandler: [authenticate, requirePlan('ELITE')] },
     async (req, reply) => {
       let weekStart: Date
 
