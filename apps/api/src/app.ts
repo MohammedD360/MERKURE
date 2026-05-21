@@ -26,6 +26,7 @@ import { aiRoutes } from './modules/ai/ai.routes.js'
 import { performanceRoutes } from './modules/performance/performance.routes.js'
 import { reportsRoutes } from './modules/reports/reports.routes.js'
 import { authRoutes } from './modules/auth/auth.routes.js'
+import { riskRoutes } from './modules/risk/risk.routes.js'
 
 function getBearerToken(request: FastifyRequest): string | null {
   const auth = request.headers.authorization
@@ -120,6 +121,7 @@ export function buildApp(): FastifyInstance {
   void app.register(onboardingRoutes,   { prefix: '/api/v1/onboarding' })
   void app.register(performanceRoutes,  { prefix: '/api/v1/performance' })
   void app.register(reportsRoutes,      { prefix: '/api/v1/reports' })
+  void app.register(riskRoutes,         { prefix: '/api/v1/risk' })
 
   // ─── WebSocket ────────────────────────────────────────────────────────────────
   void app.register(registerWsHandler)

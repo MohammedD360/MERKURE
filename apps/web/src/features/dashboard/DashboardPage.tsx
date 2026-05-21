@@ -8,6 +8,7 @@ import { EquityChart }                       from './components/EquityChart'
 import { AssetBreakdown }                    from './components/AssetBreakdown'
 import { StatsCles, StrategyPerformance }    from './components/StatsAndStrategy'
 import { EconomicCalendar }                  from './components/EconomicCalendar'
+import { RiskPanel }                          from './components/RiskPanel'
 
 const PERIODS: { label: string; value: KpiPeriod }[] = [
   { label: '7J',   value: '7d'  },
@@ -64,6 +65,8 @@ export function DashboardPage() {
         <StrategyPerformance period={period} />
         <EconomicCalendar />
       </div>
+
+      <RiskPanel />
     </div>
   )
 }
