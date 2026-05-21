@@ -1,193 +1,262 @@
 'use client'
 
-import { LineChart, Line, ResponsiveContainer } from 'recharts'
-import { TrendingUp, TrendingDown } from 'lucide-react'
-import { useKpiSummary } from '@/lib/hooks/use-kpis'
+import {
+  Activity,
+  CalendarDays,
+  Info,
+  Target,
+  TrendingDown,
+  TrendingUp,
+} from 'lucide-react'
+import type { ReactNode } from 'react'
+import { useKpiSummary, type KpiPeriod } from '@/lib/hooks/use-kpis'
 
-function Spark({ data, color }: { data: { v: number }[]; color: string }) {
-  return (
-    <ResponsiveContainer width={80} height={36}>
-      <LineChart data={data}>
-        <Line type="monotone" dataKey="v" stroke={color} strokeWidth={1.5} dot={false} />
-      </LineChart>
-    </ResponsiveContainer>
-  )
+const PERIOD_LABELS: Record<KpiPeriod, string> = {
+  '7d':  '7 jours',
+  '30d': '30 jours',
+  '90d': '90 jours',
+  '1y':  '1 an',
+  all:   'total',
 }
 
-function CircleProgress({ value, max, label, color = '#06b6d4' }: {
-  value: number; max: number; label: string; color?: string
-}) {
-  const r = 24
-  const circ = 2 * Math.PI * r
-  const filled = Math.min((value / max) * circ, circ)
-
-  return (
-    <div className="flex items-center gap-3">
-      <svg width="64" height="64" className="flex-shrink-0">
-        <circle cx="32" cy="32" r={r} fill="none" stroke="#1f2937" strokeWidth="5" />
-        <circle
-          cx="32" cy="32" r={r} fill="none"
-          stroke={color} strokeWidth="5"
-          strokeDasharray={`${filled} ${circ - filled}`}
-          strokeLinecap="round"
-          transform="rotate(-90 32 32)"
-        />
-        <text x="32" y="36" textAnchor="middle" className="fill-gray-500 text-[9px] font-semibold">
-          {label}
-        </text>
-      </svg>
-    </div>
-  )
+function formatMoney(value: number, signed = false) {
+  const formatted = value.toLocaleString('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+  return signed && value > 0 ? `+${formatted}` : formatted
 }
 
-function Delta({ value }: { value: number }) {
-  const up = value >= 0
-  return (
-    <div className={`flex items-center gap-1 text-xs font-medium ${up ? 'text-green-400' : 'text-red-400'}`}>
-      {up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-      {up ? '+' : ''}{value.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-    </div>
-  )
+function formatPct(value: number) {
+  return `${value.toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`
 }
 
 function Skeleton({ className = '' }: { className?: string }) {
-  return <div className={`animate-pulse bg-gray-800 rounded ${className}`} />
+  return <div className={`animate-pulse rounded-md bg-white/[0.06] ${className}`} />
 }
 
-const cardBase = 'bg-[#111827] border border-gray-800/60 rounded-xl p-4 flex flex-col gap-2 min-w-0'
-
-export function KpiCards() {
-  const { data, isLoading } = useKpiSummary('30d')
-
-  const fmt = (n: number) =>
-    n.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
-
-  const winRatePct  = data ? data.winRate * 100 : 0
-  const drawdownPct = data ? (data.maxDrawdown ?? 0) * 100 : 0
-
-  // Sparkline synthétique à partir des valeurs disponibles (sera remplacé par snapshots réels)
-  const pnlSpark = data
-    ? [{ v: 0 }, { v: data.totalPnl * 0.2 }, { v: data.totalPnl * 0.5 }, { v: data.totalPnl * 0.8 }, { v: data.totalPnl }]
-    : []
-
+function KpiCard({
+  title,
+  icon,
+  accent,
+  children,
+}: {
+  title: string
+  icon: ReactNode
+  accent: string
+  children: ReactNode
+}) {
   return (
-    <div className="grid grid-cols-6 gap-3">
-      {/* 1 — P&L 30 jours */}
-      <div className={cardBase}>
-        <div className="flex items-start justify-between">
-          <span className="text-[11px] text-gray-500 font-medium">P&amp;L (30 jours)</span>
-          <TrendingUp className="w-3.5 h-3.5 text-gray-600" />
-        </div>
-        {isLoading ? (
-          <Skeleton className="h-7 w-28" />
-        ) : (
-          <div className={`text-xl font-bold font-mono leading-tight ${(data?.totalPnl ?? 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-            {data ? fmt(data.totalPnl) : '—'}
+    <div className="group relative min-h-[132px] overflow-hidden rounded-2xl border border-[#1e2f4a] bg-[#0b1527] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_18px_60px_rgba(0,0,0,0.22)]">
+      <div
+        className="pointer-events-none absolute inset-0 opacity-70"
+        style={{ background: `radial-gradient(circle at 100% 0%, ${accent}20, transparent 42%)` }}
+      />
+      <div className="relative flex h-full flex-col">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <p className="truncate text-xs font-medium text-slate-300">{title}</p>
+            <Info className="h-3.5 w-3.5 flex-shrink-0 text-slate-500" />
           </div>
-        )}
-        <div className="flex items-center justify-between">
-          {data ? <Delta value={data.totalPnl} /> : <span />}
-          {pnlSpark.length > 0 && (
-            <Spark data={pnlSpark} color={(data?.totalPnl ?? 0) >= 0 ? '#22c55e' : '#ef4444'} />
-          )}
-        </div>
-        <p className="text-[10px] text-gray-600">30 derniers jours</p>
-      </div>
-
-      {/* 2 — Nombre de trades */}
-      <div className={cardBase}>
-        <div className="flex items-start justify-between">
-          <span className="text-[11px] text-gray-500 font-medium">Trades</span>
-          <BarChartIcon />
-        </div>
-        {isLoading ? (
-          <Skeleton className="h-7 w-16" />
-        ) : (
-          <div className="text-xl font-bold text-white font-mono leading-tight">
-            {data?.nbTrades ?? '—'}
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.035] text-slate-300">
+            {icon}
           </div>
-        )}
-        <span className="text-[10px] text-gray-600">trades clôturés</span>
-      </div>
-
-      {/* 3 — Drawdown Max */}
-      <div className={cardBase}>
-        <div className="flex items-start justify-between">
-          <span className="text-[11px] text-gray-500 font-medium">Drawdown Max</span>
-          <TrendingDown className="w-3.5 h-3.5 text-red-500" />
         </div>
-        {isLoading ? (
-          <Skeleton className="h-7 w-20" />
-        ) : (
-          <div className="text-xl font-bold text-red-400 font-mono leading-tight">
-            {data?.maxDrawdown != null ? `-${drawdownPct.toFixed(2)}%` : '—'}
-          </div>
-        )}
-        {data?.worstDay && (
-          <span className="text-[10px] text-gray-600">
-            Pire jour : {fmt(data.worstDay.pnl)}
-          </span>
-        )}
-      </div>
-
-      {/* 4 — Sharpe (non calculé pour l'instant) */}
-      <div className={`${cardBase} flex-row items-center gap-3`}>
-        <CircleProgress value={0} max={3} label="Sharpe" />
-        <div className="min-w-0">
-          <span className="text-[11px] text-gray-500 font-medium block">Ratio de Sharpe</span>
-          <div className="text-xl font-bold text-white font-mono mt-1">—</div>
-          <span className="text-xs text-gray-600">Prochainement</span>
-        </div>
-      </div>
-
-      {/* 5 — Win Rate */}
-      <div className={`${cardBase} flex-row items-center gap-3`}>
-        <CircleProgress value={winRatePct} max={100} label="Win" color="#06b6d4" />
-        <div className="min-w-0">
-          <span className="text-[11px] text-gray-500 font-medium block">Trades Gagnants</span>
-          {isLoading ? (
-            <Skeleton className="h-7 w-16 mt-1" />
-          ) : (
-            <div className="text-xl font-bold text-white font-mono mt-1">
-              {winRatePct.toFixed(1)}%
-            </div>
-          )}
-          {data && (
-            <span className="text-xs text-gray-500">
-              {Math.round(data.winRate * data.nbTrades)} / {data.nbTrades}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* 6 — Profit Factor */}
-      <div className={cardBase}>
-        <div className="flex items-start justify-between">
-          <span className="text-[11px] text-gray-500 font-medium">Profit Factor</span>
-        </div>
-        {isLoading ? (
-          <Skeleton className="h-7 w-16" />
-        ) : (
-          <div className="text-xl font-bold text-white font-mono leading-tight">
-            {data?.profitFactor != null ? data.profitFactor.toFixed(2) : '—'}
-          </div>
-        )}
-        {data?.profitFactor != null && (
-          <span className={`text-xs font-medium ${data.profitFactor >= 2 ? 'text-green-400' : data.profitFactor >= 1 ? 'text-amber-400' : 'text-red-400'}`}>
-            {data.profitFactor >= 2 ? 'Très bon' : data.profitFactor >= 1.5 ? 'Bon' : data.profitFactor >= 1 ? 'Neutre' : 'Mauvais'}
-          </span>
-        )}
+        <div className="relative flex flex-1 flex-col justify-end">{children}</div>
       </div>
     </div>
   )
 }
 
-function BarChartIcon() {
+function Donut({ value }: { value: number | null }) {
+  const radius = 25
+  const circumference = 2 * Math.PI * radius
+  const safeValue = value == null ? 0 : Math.max(0, Math.min(value, 100))
+  const filled = (safeValue / 100) * circumference
+
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600">
-      <line x1="18" y1="20" x2="18" y2="10" />
-      <line x1="12" y1="20" x2="12" y2="4" />
-      <line x1="6" y1="20" x2="6" y2="14" />
+    <svg width="72" height="72" viewBox="0 0 72 72" className="shrink-0">
+      <circle cx="36" cy="36" r={radius} fill="none" stroke="#1d2b44" strokeWidth="7" />
+      <circle
+        cx="36"
+        cy="36"
+        r={radius}
+        fill="none"
+        stroke="url(#winrate-gradient)"
+        strokeWidth="7"
+        strokeDasharray={`${filled} ${circumference - filled}`}
+        strokeLinecap="round"
+        transform="rotate(-90 36 36)"
+      />
+      <defs>
+        <linearGradient id="winrate-gradient" x1="10" y1="10" x2="62" y2="62">
+          <stop stopColor="#7c5cff" />
+          <stop offset="1" stopColor="#18c7ff" />
+        </linearGradient>
+      </defs>
     </svg>
+  )
+}
+
+export function KpiCards({ period = '30d' }: { period?: KpiPeriod }) {
+  const { data, isLoading } = useKpiSummary(period)
+
+  const totalPnl = data?.totalPnl
+  const drawdownPct = data?.maxDrawdown != null ? Math.abs(data.maxDrawdown * 100) : null
+  const winRatePct = data ? data.winRate * 100 : null
+  const winningTrades = data ? Math.round(data.winRate * data.nbTrades) : null
+  const pnlPositive = totalPnl == null || totalPnl >= 0
+  const profitLabel = data?.profitFactor == null
+    ? null
+    : data.profitFactor >= 1.5
+      ? 'Solide'
+      : data.profitFactor >= 1
+        ? 'Neutre'
+        : 'Faible'
+
+  return (
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-6">
+      <KpiCard
+        title={`P&L ${PERIOD_LABELS[period]}`}
+        icon={pnlPositive ? <TrendingUp className="h-4 w-4 text-[#38e476]" /> : <TrendingDown className="h-4 w-4 text-[#ff5e70]" />}
+        accent={pnlPositive ? '#38e476' : '#ff5e70'}
+      >
+        {isLoading ? (
+          <>
+            <Skeleton className="mb-3 h-8 w-32" />
+            <Skeleton className="h-4 w-16" />
+          </>
+        ) : totalPnl == null ? (
+          <p className="font-mono text-2xl font-black text-slate-500">—</p>
+        ) : (
+          <>
+            <p className={`font-mono text-2xl font-black tracking-normal ${pnlPositive ? 'text-[#38e476]' : 'text-[#ff5e70]'}`}>
+              {formatMoney(totalPnl, true)}
+            </p>
+            <p className="mt-3 text-xs font-semibold text-slate-500">Données synchronisées</p>
+          </>
+        )}
+      </KpiCard>
+
+      <KpiCard
+        title="Trades"
+        icon={<Activity className="h-4 w-4 text-[#9b7cff]" />}
+        accent="#9b7cff"
+      >
+        {isLoading ? (
+          <>
+            <Skeleton className="mb-3 h-8 w-16" />
+            <Skeleton className="h-4 w-24" />
+          </>
+        ) : data ? (
+          <>
+            <p className="font-mono text-2xl font-black text-white">{data.nbTrades}</p>
+            <p className="mt-3 text-xs font-semibold text-slate-500">Trades clôturés</p>
+          </>
+        ) : (
+          <p className="font-mono text-2xl font-black text-slate-500">—</p>
+        )}
+      </KpiCard>
+
+      <KpiCard
+        title="Drawdown Max"
+        icon={<TrendingDown className="h-4 w-4 text-[#ff5e70]" />}
+        accent="#ff5e70"
+      >
+        {isLoading ? (
+          <>
+            <Skeleton className="mb-3 h-8 w-24" />
+            <Skeleton className="h-4 w-20" />
+          </>
+        ) : drawdownPct == null ? (
+          <p className="font-mono text-2xl font-black text-slate-500">—</p>
+        ) : (
+          <>
+            <p className="font-mono text-2xl font-black tracking-normal text-[#ff5e70]">
+              -{formatPct(drawdownPct)}
+            </p>
+            <p className="mt-3 text-xs font-semibold text-slate-500">Maximum observé</p>
+          </>
+        )}
+      </KpiCard>
+
+      <KpiCard
+        title="Win Rate"
+        icon={<Target className="h-4 w-4 text-[#18c7ff]" />}
+        accent="#18c7ff"
+      >
+        {isLoading ? (
+          <div className="flex items-end gap-3">
+            <Skeleton className="h-[72px] w-[72px] rounded-full" />
+            <div>
+              <Skeleton className="mb-3 h-7 w-20" />
+              <Skeleton className="h-4 w-20" />
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-4">
+            <Donut value={winRatePct} />
+            <div className="min-w-0">
+              <p className="font-mono text-2xl font-black text-white">
+                {winRatePct == null ? '—' : formatPct(winRatePct)}
+              </p>
+              {data && winningTrades != null && (
+                <p className="mt-2 text-xs font-medium text-slate-500">
+                  {winningTrades} / {data.nbTrades} trades
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      </KpiCard>
+
+      <KpiCard
+        title="Profit Factor"
+        icon={<Target className="h-4 w-4 text-[#38e476]" />}
+        accent="#38e476"
+      >
+        {isLoading ? (
+          <>
+            <Skeleton className="mb-3 h-8 w-20" />
+            <Skeleton className="h-4 w-16" />
+          </>
+        ) : data?.profitFactor == null ? (
+          <p className="font-mono text-2xl font-black text-slate-500">—</p>
+        ) : (
+          <>
+            <p className="font-mono text-2xl font-black text-white">
+              {data.profitFactor.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+            {profitLabel && <p className="mt-3 text-xs font-semibold text-[#38e476]">{profitLabel}</p>}
+          </>
+        )}
+      </KpiCard>
+
+      <KpiCard
+        title="Meilleur jour"
+        icon={<CalendarDays className="h-4 w-4 text-[#38e476]" />}
+        accent="#38e476"
+      >
+        {isLoading ? (
+          <>
+            <Skeleton className="mb-3 h-8 w-28" />
+            <Skeleton className="h-4 w-20" />
+          </>
+        ) : data?.bestDay == null ? (
+          <p className="font-mono text-2xl font-black text-slate-500">—</p>
+        ) : (
+          <>
+            <p className="font-mono text-2xl font-black tracking-normal text-[#38e476]">
+              {formatMoney(data.bestDay.pnl, true)}
+            </p>
+            <p className="mt-3 text-xs font-medium text-slate-500">
+              {new Date(data.bestDay.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </p>
+          </>
+        )}
+      </KpiCard>
+    </div>
   )
 }

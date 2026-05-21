@@ -2,50 +2,57 @@
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { ChevronDown } from 'lucide-react'
-import { useKpiBreakdown } from '@/lib/hooks/use-kpis'
+import { useKpiBreakdown, type KpiPeriod } from '@/lib/hooks/use-kpis'
 
 function CustomTooltip({ active, payload }: { active?: boolean; payload?: { payload: { label: string; pct: number } }[] }) {
   if (!active || !payload?.length) return null
   const d = payload[0]!.payload
   return (
-    <div className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs shadow-xl">
+    <div className="rounded-lg border border-[#243957] bg-[#0b1527] px-3 py-2 text-xs shadow-2xl">
       <div className="font-medium text-white">{d.label}</div>
-      <div className="text-gray-400 mt-0.5">{d.pct}% des trades</div>
+      <div className="mt-0.5 text-slate-400">{d.pct}% des trades</div>
     </div>
   )
 }
 
-export function AssetBreakdown() {
-  const { data, isLoading } = useKpiBreakdown('30d')
+export function AssetBreakdown({ period = '30d' }: { period?: KpiPeriod }) {
+  const { data, isLoading } = useKpiBreakdown(period)
   const assets = data?.bySymbol ?? []
 
   return (
-    <div className="bg-[#111827] border border-gray-800/60 rounded-xl p-5 h-full">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-white">Répartition des actifs</h3>
-        <button className="flex items-center gap-1 text-xs text-gray-400 bg-gray-800/60 border border-gray-700/60 rounded-lg px-2.5 py-1.5 hover:bg-gray-700/60 transition-colors">
-          Par volume
+    <div className="h-full rounded-2xl border border-[#1e2f4a] bg-[#0b1527] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_18px_60px_rgba(0,0,0,0.22)]">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h3 className="text-base font-bold text-white">Répartition des actifs</h3>
+        <button className="flex items-center gap-2 rounded-lg border border-[#243957] bg-[#111b2d] px-3 py-2 text-xs font-medium text-slate-300 transition-colors hover:bg-[#16233a]">
+          Par valeur
           <ChevronDown className="w-3 h-3" />
         </button>
       </div>
 
       {isLoading ? (
-        <div className="animate-pulse bg-gray-800 rounded-full w-[200px] h-[200px] mx-auto mb-4" />
+        <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
+          <div className="mx-auto h-[220px] w-[220px] animate-pulse rounded-full bg-white/[0.04]" />
+          <div className="space-y-4 pt-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="h-5 animate-pulse rounded bg-white/[0.04]" />
+            ))}
+          </div>
+        </div>
       ) : assets.length === 0 ? (
-        <div className="flex items-center justify-center h-[200px] text-gray-600 text-sm">
+        <div className="flex h-[310px] items-center justify-center rounded-xl border border-dashed border-[#223653] bg-[#081220] text-sm text-slate-500">
           Aucun trade sur cette période
         </div>
       ) : (
-        <>
-          <div className="relative flex justify-center mb-4">
-            <ResponsiveContainer width={200} height={200}>
+        <div className="grid min-h-[310px] items-center gap-6 lg:grid-cols-[240px_1fr]">
+          <div className="relative flex justify-center">
+            <ResponsiveContainer width={230} height={230}>
               <PieChart>
                 <Pie
                   data={assets}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
+                  innerRadius={64}
+                  outerRadius={100}
                   paddingAngle={2}
                   dataKey="pct"
                   strokeWidth={0}
@@ -58,28 +65,30 @@ export function AssetBreakdown() {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <div className="text-base font-bold text-white font-mono">
+              <div className="text-xs text-slate-500">Total</div>
+              <div className="mt-1 font-mono text-2xl font-black text-white">
                 {assets.reduce((s, a) => s + a.nbTrades, 0)}
               </div>
-              <div className="text-[10px] text-gray-500 mt-0.5">trades</div>
+              <div className="mt-1 text-[10px] text-slate-500">trades</div>
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-4">
             {assets.map((asset) => (
-              <div key={asset.label} className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: asset.color }} />
-                <span className="text-xs text-gray-400 flex-1">{asset.label}</span>
-                <span className="text-xs font-semibold text-white font-mono">{asset.pct}%</span>
+              <div key={asset.label} className="grid grid-cols-[1fr_auto_auto] items-center gap-4 text-sm">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full" style={{ backgroundColor: asset.color }} />
+                  <span className="truncate text-slate-300">{asset.label}</span>
+                </div>
+                <span className="font-mono text-xs text-slate-300">{asset.pct}%</span>
+                <span className={`min-w-20 text-right font-mono text-xs ${asset.pnl >= 0 ? 'text-slate-400' : 'text-[#ff5e70]'}`}>
+                  {asset.pnl.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+                </span>
               </div>
             ))}
           </div>
-        </>
+        </div>
       )}
-
-      <button className="mt-4 w-full text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors text-left">
-        Voir le portefeuille →
-      </button>
     </div>
   )
 }

@@ -1,39 +1,17 @@
-import { mockCalendar } from '@/lib/mock-data'
-
-const impactColor: Record<string, string> = {
-  'Élevé': 'bg-red-500/15 text-red-400 border-red-500/30',
-  'Moyen': 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-  'Faible': 'bg-green-500/15 text-green-400 border-green-500/30',
-}
+import { CalendarClock } from 'lucide-react'
 
 export function EconomicCalendar() {
   return (
-    <div className="bg-[#111827] border border-gray-800/60 rounded-xl p-5">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-white">Calendrier économique</h3>
-        <button className="text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors">Voir tout</button>
+    <div className="flex flex-col rounded-2xl border border-[#1e2f4a] bg-[#0b1527] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_18px_60px_rgba(0,0,0,0.22)]">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-base font-bold text-white">Calendrier économique</h3>
       </div>
-
-      {/* En-têtes */}
-      <div className="grid grid-cols-4 gap-2 mb-2 px-1">
-        {['Heure', 'Curd', 'Événement', 'Impact'].map((h) => (
-          <span key={h} className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider">{h}</span>
-        ))}
-      </div>
-
-      <div className="space-y-2">
-        {mockCalendar.map((item, i) => (
-          <div key={i} className="grid grid-cols-4 gap-2 items-center px-1 py-1.5 rounded-lg hover:bg-gray-800/30 transition-colors">
-            <span className="text-xs font-mono text-gray-400">{item.time}</span>
-            <span className={`text-xs font-bold ${item.currency === 'USD' ? 'text-green-400' : 'text-blue-400'}`}>
-              {item.currency}
-            </span>
-            <span className="text-xs text-gray-300 truncate">{item.event}</span>
-            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border w-fit ${impactColor[item.impact] ?? 'text-gray-400'}`}>
-              {item.impact}
-            </span>
-          </div>
-        ))}
+      <div className="flex min-h-32 flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[#223653] bg-[#081220] py-8 text-center">
+        <CalendarClock className="h-8 w-8 text-slate-600" />
+        <div>
+          <p className="text-xs font-medium text-slate-500">Aucun événement chargé</p>
+          <p className="mt-1 text-[11px] text-slate-600">Connectez une source calendrier pour alimenter ce panneau.</p>
+        </div>
       </div>
     </div>
   )

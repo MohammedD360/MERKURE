@@ -1,14 +1,16 @@
 'use client'
 
+import { motion } from 'framer-motion'
 import {
   LayoutDashboard, Wallet, BriefcaseBusiness, TrendingUp, ArrowLeftRight,
   BarChart2, PieChart, FileText,
   Bot, Lightbulb, FlaskConical, ScanLine,
   BookOpen, NotebookPen,
-  ChevronRight,
+  Zap, CreditCard,
 } from 'lucide-react'
 import type { ElementType } from 'react'
 import type { Page } from '@/lib/navigation'
+import { useCurrentUser } from '@/lib/hooks/use-current-user'
 
 interface Props {
   currentPage: Page
@@ -17,15 +19,16 @@ interface Props {
 
 const sections: Array<{
   label: string
-  items: Array<{ icon: ElementType; label: string; page: Page; badge?: string }>
+  items: Array<{ icon: ElementType; label: string; page: Page; badge?: string; soon?: boolean }>
 }> = [
   {
     label: 'GESTION',
     items: [
       { icon: LayoutDashboard,   label: 'Dashboard',    page: 'dashboard' },
       { icon: Wallet,            label: 'Comptes',      page: 'comptes' },
-      { icon: BriefcaseBusiness, label: 'Portefeuille', page: 'portefeuille' },
-      { icon: TrendingUp,        label: 'Positions',    page: 'positions' },
+      { icon: CreditCard,        label: 'Abonnement',   page: 'billing' },
+      { icon: BriefcaseBusiness, label: 'Portefeuille', page: 'portefeuille', soon: true },
+      { icon: TrendingUp,        label: 'Positions',    page: 'positions',    soon: true },
       { icon: ArrowLeftRight,    label: 'Transactions', page: 'transactions' },
     ],
   },
@@ -33,72 +36,99 @@ const sections: Array<{
     label: 'ANALYSE',
     items: [
       { icon: BarChart2, label: 'Performance',  page: 'performance' },
-      { icon: PieChart,  label: 'Statistiques', page: 'statistiques' },
+      { icon: PieChart,  label: 'Statistiques', page: 'statistiques', soon: true },
       { icon: FileText,  label: 'Rapports',     page: 'rapports' },
     ],
   },
   {
     label: 'IA & STRATÉGIE',
     items: [
-      { icon: Bot,         label: 'Assistant IA',   page: 'assistant',   badge: 'NOUVEAU' },
-      { icon: Lightbulb,   label: 'Stratégies',     page: 'strategies' },
-      { icon: FlaskConical,label: 'Backtesting',    page: 'backtesting' },
-      { icon: ScanLine,    label: 'Market Scanner', page: 'scanner' },
+      { icon: Bot,         label: 'Assistant IA',   page: 'assistant',   badge: 'BETA' },
+      { icon: Lightbulb,   label: 'Stratégies',     page: 'strategies',  soon: true },
+      { icon: FlaskConical,label: 'Backtesting',    page: 'backtesting', soon: true },
+      { icon: ScanLine,    label: 'Market Scanner', page: 'scanner',     soon: true },
     ],
   },
   {
     label: 'APPRENTISSAGE',
     items: [
-      { icon: BookOpen,    label: 'Conseils personnalisés', page: 'conseils' },
-      { icon: NotebookPen, label: 'Journal de trading',     page: 'journal' },
+      { icon: BookOpen,    label: 'Conseils',        page: 'conseils', soon: true },
+      { icon: NotebookPen, label: 'Journal',         page: 'journal',  badge: 'NEW' },
     ],
   },
 ]
 
+const PLAN_LABELS: Record<string, string> = {
+  FREE: 'Plan Gratuit',
+  STARTER: 'Plan Starter',
+  PRO: 'Plan Pro',
+  ELITE: 'Plan Elite',
+  INSTITUTIONAL: 'Plan Institutionnel',
+}
+
 export function Sidebar({ currentPage, onNavigate }: Props) {
+  const { data: user } = useCurrentUser()
+  const planLabel = user?.plan ? (PLAN_LABELS[user.plan] ?? `Plan ${user.plan}`) : 'Plan —'
+
   return (
-    <aside className="fixed left-0 top-0 h-screen w-56 bg-[#0d1117] border-r border-gray-800/60 flex flex-col z-20 overflow-y-auto">
-      {/* Logo */}
-      <div className="px-4 py-4 border-b border-gray-800/60 flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-md bg-indigo-600 flex items-center justify-center">
-            <TrendingUp className="w-3.5 h-3.5 text-white" />
+    <aside className="fixed left-0 top-0 z-20 flex h-screen w-64 flex-col overflow-hidden">
+      <div className="absolute inset-0 border-r border-[#172842] bg-[#07101f]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(124,92,255,0.12),transparent_36%)]" />
+
+      <div className="relative flex-shrink-0 border-b border-[#172842] px-6 py-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#7c5cff] via-[#5f77ff] to-[#18c7ff] text-base font-black text-white shadow-[0_12px_30px_rgba(124,92,255,0.35)]">
+            M
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="font-bold text-white text-sm">MERKURE</span>
-            <span className="text-[9px] font-bold bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 px-1.5 py-0.5 rounded">APP</span>
-          </div>
+          <span className="text-base font-black tracking-normal text-white">MERKURE</span>
         </div>
       </div>
 
-      {/* Nav sections */}
-      <nav className="flex-1 px-2 py-3 space-y-4">
+      <nav className="scrollbar-none relative flex-1 space-y-7 overflow-y-auto px-3 py-5">
         {sections.map((section) => (
           <div key={section.label}>
-            <p className="text-[10px] font-semibold text-gray-600 tracking-widest px-2 mb-1.5">
+            <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
               {section.label}
             </p>
-            <div className="space-y-0.5">
-              {section.items.map(({ icon: Icon, label, page, badge }) => {
+            <div className="space-y-1">
+              {section.items.map(({ icon: Icon, label, page, badge, soon }) => {
                 const active = currentPage === page
                 return (
                   <button
                     key={page}
-                    onClick={() => onNavigate(page)}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-all group ${
+                    onClick={() => !soon && onNavigate(page)}
+                    disabled={soon}
+                    className={`group relative flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition-all duration-150 ${
                       active
-                        ? 'bg-indigo-600/15 text-indigo-400'
-                        : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                        ? 'bg-[#7c5cff]/20 text-white'
+                        : soon
+                          ? 'cursor-default text-slate-700'
+                          : 'text-slate-400 hover:bg-white/[0.04] hover:text-white'
                     }`}
                   >
-                    <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${active ? 'text-indigo-400' : 'text-gray-500 group-hover:text-gray-300'}`} />
-                    <span className="truncate">{label}</span>
+                    {active && (
+                      <motion.div
+                        layoutId="nav-active"
+                        className="absolute inset-0 rounded-xl border border-[#7c5cff]/25 bg-[#7c5cff]/10"
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                      />
+                    )}
+
+                    <Icon className={`relative z-10 h-4 w-4 flex-shrink-0 transition-colors ${
+                      active ? 'text-[#a798ff]' : soon ? 'text-slate-700' : 'text-slate-500 group-hover:text-slate-300'
+                    }`} />
+                    <span className="relative z-10 truncate">{label}</span>
+
                     {badge && (
-                      <span className="ml-auto text-[9px] font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-1.5 py-0.5 rounded">
+                      <span className="relative z-10 ml-auto rounded-full border border-[#7c5cff]/30 bg-[#7c5cff]/20 px-2 py-0.5 text-[9px] font-bold text-[#b9a8ff]">
                         {badge}
                       </span>
                     )}
-                    {active && !badge && <ChevronRight className="w-3 h-3 ml-auto text-indigo-500/50" />}
+                    {soon && (
+                      <span className="relative z-10 ml-auto rounded-full bg-white/[0.05] px-2 py-0.5 text-[9px] font-bold text-slate-600">
+                        SOON
+                      </span>
+                    )}
                   </button>
                 )
               })}
@@ -107,15 +137,16 @@ export function Sidebar({ currentPage, onNavigate }: Props) {
         ))}
       </nav>
 
-      {/* Plan */}
-      <div className="px-3 pb-4 flex-shrink-0">
-        <div className="bg-gray-800/40 border border-gray-700/40 rounded-xl p-3">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold text-white">Plan Free</span>
+      <div className="relative flex-shrink-0 border-t border-[#172842] p-4">
+        <div className="rounded-2xl border border-[#263a5b] bg-[#0b1527] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#fbbf24]/20 bg-[#fbbf24]/10">
+              <Zap className="h-4 w-4 text-[#fbbf24]" />
+            </div>
+            <span className="text-sm font-bold text-white/80">{planLabel}</span>
           </div>
-          <p className="text-[11px] text-gray-500 mb-2.5">Mode local-first actif</p>
-          <button className="w-full text-[11px] font-medium text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-lg py-1.5 transition-colors">
-            Gérer mon abonnement
+          <button className="w-full rounded-xl border border-[#7c5cff]/25 bg-[#7c5cff]/10 py-2 text-xs font-bold text-[#b9a8ff] transition-colors hover:bg-[#7c5cff]/20">
+            Passer à Pro →
           </button>
         </div>
       </div>

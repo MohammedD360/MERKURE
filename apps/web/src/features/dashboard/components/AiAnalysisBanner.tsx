@@ -78,7 +78,7 @@ export function AiAnalysisBanner() {
             </div>
           ) : strengths.length > 0 ? (
             <div className="space-y-1.5">
-              {strengths.map((s, i) => (
+              {strengths.map((s: string, i: number) => (
                 <div key={i} className="flex items-start gap-1.5">
                   <CheckCircle2 className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
                   <span className="text-xs text-gray-300">{s}</span>
@@ -100,7 +100,7 @@ export function AiAnalysisBanner() {
             </div>
           ) : improv.length > 0 ? (
             <div className="space-y-1.5">
-              {improv.map((s, i) => (
+              {improv.map((s: string, i: number) => (
                 <div key={i} className="flex items-start gap-1.5">
                   <AlertTriangle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
                   <span className="text-xs text-gray-300">{s}</span>
