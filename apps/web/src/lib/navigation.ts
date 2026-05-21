@@ -13,3 +13,4 @@ export type Page =
   | 'scanner'
   | 'conseils'
   | 'journal'
+  | 'billing'

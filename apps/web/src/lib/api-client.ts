@@ -1,13 +1,25 @@
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
-function getClerkToken(): string | undefined {
-  if (typeof window === 'undefined') return undefined
-  return (window as unknown as Record<string, unknown>).__clerkToken as string | undefined
+const TOKEN_KEY = 'merkure_token'
+
+export function getToken(): string | null {
+  if (typeof window === 'undefined') return null
+  return localStorage.getItem(TOKEN_KEY)
+}
+
+export function setToken(token: string): void {
+  localStorage.setItem(TOKEN_KEY, token)
+  document.cookie = 'merkure_session=1; path=/; max-age=604800; SameSite=Lax'
+}
+
+export function clearToken(): void {
+  localStorage.removeItem(TOKEN_KEY)
+  document.cookie = 'merkure_session=; path=/; max-age=0'
 }
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-  const token = getClerkToken()
+  const token = getToken()
   if (token) headers['Authorization'] = `Bearer ${token}`
 
   const res = await fetch(`${API}${path}`, {
@@ -80,6 +92,21 @@ export interface AiJournalEntry {
   createdAt:  string
 }
 
+export interface BillingPlan {
+  id: string
+  name: string
+  priceMonthly: number
+  currency: string
+  features: string[]
+}
+
+export interface Subscription {
+  plan: string
+  status: string
+  currentPeriodEnd: string | null
+  cancelAtPeriodEnd: boolean
+}
+
 // ── API methods ───────────────────────────────────────────────────────────────
 
 export const api = {
@@ -115,5 +142,12 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ date, context }),
       }),
+  },
+
+  billing: {
+    plans: () => apiFetch<BillingPlan[]>('/api/v1/billing/plans'),
+    subscription: () => apiFetch<Subscription>('/api/v1/billing/subscription'),
+    checkout: (plan: string) => apiFetch<{ url: string }>('/api/v1/billing/checkout', { method: 'POST', body: JSON.stringify({ plan }) }),
+    portal: () => apiFetch<{ url: string }>('/api/v1/billing/portal', { method: 'POST', body: JSON.stringify({}) }),
   },
 }

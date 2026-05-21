@@ -13,9 +13,11 @@ const pageToPath: Partial<Record<Page, string>> = {
   comptes:      '/app/accounts',
   transactions: '/app/trades',
   performance:  '/app/performance',
+  journal:      '/app/journal',
+  billing:      '/app/billing',
 }
 
-type KnownPage = 'dashboard' | 'comptes' | 'transactions' | 'performance'
+type KnownPage = 'dashboard' | 'comptes' | 'transactions' | 'performance' | 'journal' | 'billing'
 
 const headerCopy: Record<KnownPage, { title: string; description: string }> = {
   dashboard: {
@@ -34,12 +36,22 @@ const headerCopy: Record<KnownPage, { title: string; description: string }> = {
     title:       'Performance',
     description: 'Analyse détaillée de vos résultats de trading',
   },
+  journal: {
+    title:       'Journal IA',
+    description: "Analyse quotidienne de vos trades par l'IA",
+  },
+  billing: {
+    title:       'Abonnement',
+    description: 'Gérez votre plan et votre facturation',
+  },
 }
 
 function getCurrentPage(pathname: string): KnownPage {
   if (pathname.startsWith('/app/accounts'))    return 'comptes'
   if (pathname.startsWith('/app/trades'))      return 'transactions'
   if (pathname.startsWith('/app/performance')) return 'performance'
+  if (pathname.startsWith('/app/journal'))     return 'journal'
+  if (pathname.startsWith('/app/billing'))     return 'billing'
   return 'dashboard'
 }
 
@@ -58,10 +70,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#090d14] text-gray-100">
+    <div className="min-h-screen bg-[#050b16] text-slate-100">
       <WebSocketProvider />
       <Sidebar currentPage={currentPage} onNavigate={navigate} />
-      <div className="min-h-screen pl-56">
+      <div className="min-h-screen pl-64">
         <Header {...headerCopy[currentPage]} />
         <main>{children}</main>
       </div>
