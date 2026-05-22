@@ -4,7 +4,7 @@ export interface TradeData {
   direction: 'LONG' | 'SHORT'
   openTime: Date
   closeTime: Date | null
-  openPrice: number
+  openPrice: number | null
   closePrice: number | null
   lotSize: number
   pnl: number | null

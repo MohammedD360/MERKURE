@@ -125,8 +125,8 @@ function BrokerFormFields({ broker, form, setForm }: {
     <div className="space-y-4">
       <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-lg p-3">
         <p className="text-xs text-indigo-300 leading-relaxed">
-          MERKURE se connecte via <span className="font-semibold">MTConnectAPI</span>. Tes identifiants sont chiffrés
-          et ne servent qu'à lire ton historique (mot de passe investisseur recommandé).
+          Tes identifiants sont chiffrés AES-256 et servent uniquement à lire ton historique.
+          Utilise le <span className="font-semibold">mot de passe investisseur</span> (lecture seule) de préférence.
         </p>
       </div>
       {common}
@@ -175,7 +175,12 @@ function BrokerFormFields({ broker, form, setForm }: {
 
 function buildCredentials(broker: BrokerType, form: FormState): Record<string, string> {
   if (broker === 'MT4' || broker === 'MT5') {
-    return { accountId: form.accountId, upass: form.password, tradeserver: form.server }
+    return {
+      accountId:   form.accountId,
+      upass:       form.password,
+      tradeserver: form.server,
+      platform:    broker.toLowerCase(),
+    }
   }
   if (broker === 'BINANCE') {
     return { apiKey: form.apiKey, apiSecret: form.apiSecret }

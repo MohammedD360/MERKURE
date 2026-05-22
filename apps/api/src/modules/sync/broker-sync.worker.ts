@@ -5,7 +5,7 @@ import { cache, CacheKeys } from '../../infrastructure/cache/redis.js'
 import { decrypt } from '../../infrastructure/crypto/encryption.js'
 import { accountsRepository } from '../accounts/accounts.repository.js'
 import { DemoAdapter } from '../brokers/adapters/demo-adapter.js'
-import { MtConnectAdapter } from '../brokers/adapters/mt-connect-adapter.js'
+import { MetaApiAdapter } from '../brokers/adapters/meta-api-adapter.js'
 import { BinanceAdapter } from '../brokers/adapters/binance-adapter.js'
 import type { BrokerAdapter } from '../brokers/adapters/broker-adapter.js'
 import { wsNotify } from '../../websocket/ws.handler.js'
@@ -45,7 +45,7 @@ function resolveAdapter(brokerType: BrokerSyncJob['brokerType']): BrokerAdapter 
   switch (brokerType) {
     case 'mt4':
     case 'mt5':
-      return new MtConnectAdapter()
+      return new MetaApiAdapter()
     case 'binance':
       return new BinanceAdapter()
     default:
@@ -137,7 +137,7 @@ export function startBrokerSyncWorker() {
               direction: trade.direction,
               openTime: trade.openTime,
               closeTime: trade.closeTime,
-              openPrice: trade.openPrice,
+              openPrice: trade.openPrice ?? 0,
               closePrice: trade.closePrice,
               lotSize: trade.lotSize,
               pnl: trade.pnl,

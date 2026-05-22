@@ -88,7 +88,7 @@ export async function csvImportRoutes(app: FastifyInstance) {
             direction:       trade.direction,
             openTime:        trade.openTime,
             ...(trade.closeTime  ? { closeTime:  trade.closeTime }  : {}),
-            openPrice:       trade.openPrice,
+            openPrice:       trade.openPrice ?? 0,
             ...(trade.closePrice !== null ? { closePrice: trade.closePrice } : {}),
             lotSize:         trade.lotSize,
             ...(trade.pnl !== null ? { pnl: trade.pnl } : {}),
