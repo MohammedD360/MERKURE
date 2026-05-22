@@ -21,6 +21,10 @@ const envSchema = z.object({
   // CORS
   FRONTEND_URL: z.string().url().default('http://localhost:3000'),
 
+  // Email (Resend)
+  RESEND_API_KEY: z.string().optional(),
+  RESEND_FROM: z.string().email().default('MERKURE <noreply@merkure.app>'),
+
   // AI Service
   AI_SERVICE_URL: z.string().url().default('http://localhost:8000'),
   AI_SERVICE_SECRET: z.string().min(16).default('merkure_dev_ai_secret'),

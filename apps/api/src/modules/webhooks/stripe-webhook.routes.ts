@@ -4,6 +4,7 @@ import { getStripe } from '../billing/stripe.client.js'
 import { priceIdToPlan } from '../billing/billing.config.js'
 import { prisma } from '../../infrastructure/database/client.js'
 import { env } from '../../config/env.js'
+import { emailService } from '../../infrastructure/email/email.service.js'
 
 export async function stripeWebhookRoutes(app: FastifyInstance) {
   app.post(
@@ -135,13 +136,24 @@ async function handleStripeEvent(event: Stripe.Event) {
       const userId = sub.metadata['userId']
       if (!userId) break
 
-      await prisma.subscription.update({
+      const updatedSub = await prisma.subscription.update({
         where: { userId },
         data: {
           status: 'ACTIVE',
           ...(invoice.period_end ? { currentPeriodEnd: new Date(invoice.period_end * 1000) } : {}),
         },
       })
+
+      // Email de confirmation de paiement (fire & forget)
+      const paidUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true },
+      }).catch(() => null)
+      if (paidUser?.email) {
+        const amountEuros = (invoice.amount_paid ?? 0) / 100
+        const planName = updatedSub.plan ?? 'Pro'
+        emailService.sendPaymentConfirmation(paidUser.email, planName, amountEuros).catch(() => {})
+      }
       break
     }
 

@@ -38,6 +38,7 @@
     "ioredis": "^5.4.1",
     "metaapi.cloud-sdk": "^29.3.3",
     "pdfkit": "^0.18.0",
+    "resend": "^6.12.3",
     "stripe": "^22.1.1",
     "svix": "^1.93.0",
     "zod": "^3.23.8"

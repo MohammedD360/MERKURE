@@ -1,8 +1,10 @@
 import type { FastifyInstance } from 'fastify'
+import crypto from 'node:crypto'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { prisma } from '../../infrastructure/database/client.js'
 import { env } from '../../config/env.js'
+import { emailService } from '../../infrastructure/email/email.service.js'
 
 const LoginSchema = z.object({
   email:    z.string().email(),
@@ -49,6 +51,9 @@ export async function authRoutes(app: FastifyInstance) {
       { expiresIn: '7d' },
     )
 
+    // Email de bienvenue (fire & forget)
+    emailService.sendWelcome(user.email!, user.firstName).catch(() => {})
+
     return reply.code(201).send({ token, user: { id: user.id, email: user.email, plan: 'FREE' } })
   })
 
@@ -90,6 +95,72 @@ export async function authRoutes(app: FastifyInstance) {
   )
 
   app.post('/logout', async () => ({ ok: true }))
+
+  // POST /api/v1/auth/forgot-password
+  app.post<{ Body: { email: string } }>('/forgot-password', async (req, reply) => {
+    const { email } = req.body ?? {}
+    if (!email || typeof email !== 'string') {
+      return reply.code(400).send({ error: 'invalid_body' })
+    }
+
+    // Toujours répondre 200 même si l'email n'existe pas (sécurité anti-enumération)
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase().trim() },
+      select: { id: true, email: true, firstName: true },
+    })
+
+    if (user) {
+      const rawToken = crypto.randomBytes(32).toString('hex')
+      const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex')
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000) // 1h
+
+      // Invalider les anciens tokens
+      await prisma.passwordResetToken.deleteMany({ where: { userId: user.id } })
+
+      await prisma.passwordResetToken.create({
+        data: { userId: user.id, tokenHash, expiresAt },
+      })
+
+      const resetUrl = `${env.FRONTEND_URL}/reset-password?token=${rawToken}`
+      await emailService.sendResetPassword(user.email!, resetUrl)
+    }
+
+    return reply.code(200).send({ ok: true })
+  })
+
+  // POST /api/v1/auth/reset-password
+  app.post<{ Body: { token: string; password: string } }>('/reset-password', async (req, reply) => {
+    const { token, password } = req.body ?? {}
+    if (!token || !password || password.length < 8) {
+      return reply.code(400).send({ error: 'invalid_body' })
+    }
+
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
+
+    const resetToken = await prisma.passwordResetToken.findUnique({
+      where: { tokenHash },
+      include: { user: { select: { id: true } } },
+    })
+
+    if (!resetToken || resetToken.usedAt || resetToken.expiresAt < new Date()) {
+      return reply.code(400).send({ error: 'token_invalid_or_expired' })
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10)
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: resetToken.userId },
+        data: { passwordHash },
+      }),
+      prisma.passwordResetToken.update({
+        where: { id: resetToken.id },
+        data: { usedAt: new Date() },
+      }),
+    ])
+
+    return { ok: true }
+  })
 
   // Accès démo instantané — signe un JWT démo sans passer par la DB
   app.post('/demo', async (req, reply) => {
