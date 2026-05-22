@@ -10,25 +10,6 @@ import { useAccounts } from '@/lib/hooks/use-accounts'
 
 const PERIODS = ['1J', '7J', '1M', '3M', '6M', 'YTD', '1Y', 'ALL'] as const
 
-function CustomTooltip({ active, payload, label }: {
-  active?: boolean
-  payload?: { value: number }[]
-  label?: string
-}) {
-  if (!active || !payload?.length) return null
-  const val: number = payload[0]!.value
-  return (
-    <div className="rounded-lg border border-[#243957] bg-[#0b1527] px-3 py-2 text-xs shadow-2xl">
-      <div className="mb-1 text-slate-400">{label}</div>
-      <div className="font-semibold text-white">
-        P&amp;L cumulé :{' '}
-        <span className={val >= 0 ? 'text-[#9b7cff]' : 'text-[#ff5e70]'}>
-          {val >= 0 ? '+' : ''}{val.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
-        </span>
-      </div>
-    </div>
-  )
-}
 
 function Skeleton() {
   return <div className="h-[310px] w-full animate-pulse rounded-xl bg-white/[0.04]" />
@@ -37,18 +18,33 @@ function Skeleton() {
 export function EquityChart() {
   const [period,    setPeriod]    = useState<ChartPeriod>('1M')
   const [accountId, setAccountId] = useState<string | undefined>()
+  const [view,      setView]      = useState<'cumul' | 'daily'>('cumul')
 
   const { data, isLoading }         = useKpiSnapshots(period, accountId)
   const { data: accounts = [] }     = useAccounts()
 
   const isEmpty = !isLoading && (!data || data.length === 0)
+  const dataKey = view === 'cumul' ? 'cumPnl' : 'pnl'
 
   return (
     <div className="h-full rounded-2xl border border-[#1e2f4a] bg-[#0b1527] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_18px_60px_rgba(0,0,0,0.22)]">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 className="text-base font-bold text-white">Évolution de la performance</h3>
-          <button className="mt-3 text-xs font-semibold text-[#a798ff]">P&amp;L cumulé</button>
+          <div className="mt-2 inline-flex overflow-hidden rounded-lg border border-[#1e2f4a] bg-[#07101f] text-xs font-semibold">
+            <button
+              onClick={() => setView('cumul')}
+              className={`px-3 py-1.5 transition-colors ${view === 'cumul' ? 'bg-[#7c5cff]/20 text-[#b9a8ff]' : 'text-slate-500 hover:text-slate-300'}`}
+            >
+              Cumulé
+            </button>
+            <button
+              onClick={() => setView('daily')}
+              className={`border-l border-[#1e2f4a] px-3 py-1.5 transition-colors ${view === 'daily' ? 'bg-[#7c5cff]/20 text-[#b9a8ff]' : 'text-slate-500 hover:text-slate-300'}`}
+            >
+              Journalier
+            </button>
+          </div>
         </div>
 
         {accounts.length > 0 && (
@@ -96,10 +92,24 @@ export function EquityChart() {
               tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)}
               width={40}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={({ active, payload, label }) => {
+              if (!active || !payload?.length) return null
+              const val = Number(payload[0]?.value ?? 0)
+              return (
+                <div className="rounded-lg border border-[#243957] bg-[#0b1527] px-3 py-2 text-xs shadow-2xl">
+                  <div className="mb-1 text-slate-400">{label}</div>
+                  <div className="font-semibold text-white">
+                    {view === 'cumul' ? 'P&L cumulé' : 'P&L journalier'} :{' '}
+                    <span className={val >= 0 ? 'text-[#9b7cff]' : 'text-[#ff5e70]'}>
+                      {val >= 0 ? '+' : ''}{val.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                    </span>
+                  </div>
+                </div>
+              )
+            }} />
             <Area
               type="monotone"
-              dataKey="cumPnl"
+              dataKey={dataKey}
               stroke="#8f72ff"
               strokeWidth={2}
               fill="url(#perfGradient)"

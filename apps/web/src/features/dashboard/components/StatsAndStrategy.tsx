@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useKpiSummary, useKpiDetailedStats, useKpiBreakdown, type KpiPeriod } from '@/lib/hooks/use-kpis'
 
 function fmt(n: number) {
@@ -47,7 +48,7 @@ export function StatsCles({ period = '30d' }: { period?: KpiPeriod }) {
     <div className="rounded-2xl border border-[#1e2f4a] bg-[#0b1527] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_18px_60px_rgba(0,0,0,0.22)]">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-bold text-white">Statistiques clés</h3>
-        <button className="text-xs font-semibold text-[#a798ff] transition-colors hover:text-[#c9bcff]">Voir toutes</button>
+        <Link href="/app/trades" className="text-xs font-semibold text-[#a798ff] transition-colors hover:text-[#c9bcff]">Voir toutes</Link>
       </div>
       {isLoading ? <Skeleton /> : (
         <div className="space-y-2.5">
@@ -75,7 +76,7 @@ export function StrategyPerformance({ period = '30d' }: { period?: KpiPeriod }) 
     <div className="rounded-2xl border border-[#1e2f4a] bg-[#0b1527] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_18px_60px_rgba(0,0,0,0.22)]">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-bold text-white">Performance par stratégie</h3>
-        <button className="text-xs font-semibold text-[#a798ff] transition-colors hover:text-[#c9bcff]">Voir toutes</button>
+        <Link href="/app/performance" className="text-xs font-semibold text-[#a798ff] transition-colors hover:text-[#c9bcff]">Voir toutes</Link>
       </div>
 
       {isLoading ? (
