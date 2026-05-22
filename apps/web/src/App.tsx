@@ -154,26 +154,6 @@ function MarketConstellationScene() {
     )
     scene.add(particles)
 
-    const linePositions = new Float32Array(96 * 3)
-    for (let i = 0; i < 48; i += 1) {
-      const a = i * 0.62
-      const r1 = 2.7 + (i % 7) * 0.24
-      const r2 = r1 + 0.45
-      linePositions[i * 6] = Math.cos(a) * r1
-      linePositions[i * 6 + 1] = Math.sin(i * 0.4) * 1.9
-      linePositions[i * 6 + 2] = Math.sin(a) * r1 - 0.7
-      linePositions[i * 6 + 3] = Math.cos(a + 0.24) * r2
-      linePositions[i * 6 + 4] = Math.sin(i * 0.4 + 0.5) * 1.9
-      linePositions[i * 6 + 5] = Math.sin(a + 0.24) * r2 - 0.7
-    }
-    const lineGeometry = new THREE.BufferGeometry()
-    lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3))
-    const lines = new THREE.LineSegments(
-      lineGeometry,
-      new THREE.LineBasicMaterial({ color: 0x18c7ff, transparent: true, opacity: 0.18 }),
-    )
-    scene.add(lines)
-
     const floor = new THREE.GridHelper(12, 34, 0x263a66, 0x182744)
     floor.position.y = -3.05
     floor.position.z = -0.8
@@ -212,7 +192,6 @@ function MarketConstellationScene() {
       orbit.rotation.y = -elapsed * 0.12
       orbit.rotation.z = Math.sin(elapsed * 0.22) * 0.1
       particles.rotation.y = elapsed * 0.035
-      lines.rotation.y = elapsed * 0.045
       bars.position.y = Math.sin(elapsed * 0.9) * 0.035
       camera.position.x += (pointer.x * 0.45 - camera.position.x) * 0.035
       camera.position.y += (1.4 - pointer.y * 0.22 - camera.position.y) * 0.035
@@ -236,8 +215,6 @@ function MarketConstellationScene() {
       barMaterialDown.dispose()
       particleGeometry.dispose()
       ;(particles.material as THREE.Material).dispose()
-      lineGeometry.dispose()
-      ;(lines.material as THREE.Material).dispose()
       floor.geometry.dispose()
       floorMaterial.dispose()
     }
