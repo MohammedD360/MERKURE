@@ -66,30 +66,33 @@ function MarketConstellationScene() {
     scene.add(orbit)
     root.add(bars)
 
-    scene.add(new THREE.AmbientLight(0xbad6ff, 0.8))
-    const keyLight = new THREE.PointLight(0x7c5cff, 5.8, 24)
-    keyLight.position.set(-4, 4, 7)
+    scene.add(new THREE.AmbientLight(0xbad6ff, 1.1))
+    const keyLight = new THREE.PointLight(0x7c5cff, 10, 28)
+    keyLight.position.set(-4, 4, 6)
     scene.add(keyLight)
-    const rimLight = new THREE.PointLight(0x18c7ff, 4.4, 26)
+    const rimLight = new THREE.PointLight(0x18c7ff, 8, 30)
     rimLight.position.set(5, -2, 5)
     scene.add(rimLight)
+    const fillLight = new THREE.PointLight(0x5b4dcc, 5, 20)
+    fillLight.position.set(0, -4, 8)
+    scene.add(fillLight)
 
     const coreGeometry = new THREE.IcosahedronGeometry(1.65, 4)
     const coreMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0x5b6dff,
-      emissive: 0x17205c,
+      color: 0x7c6cff,
+      emissive: 0x3a1e8a,
       metalness: 0.25,
       roughness: 0.34,
       transparent: true,
-      opacity: 0.72,
+      opacity: 0.55,
       wireframe: true,
     })
     const core = new THREE.Mesh(coreGeometry, coreMaterial)
     root.add(core)
 
     const shell = new THREE.Mesh(
-      new THREE.TorusKnotGeometry(2.1, 0.018, 220, 10, 2, 5),
-      new THREE.MeshBasicMaterial({ color: 0x18c7ff, transparent: true, opacity: 0.72 }),
+      new THREE.TorusKnotGeometry(2.1, 0.022, 280, 12, 2, 5),
+      new THREE.MeshBasicMaterial({ color: 0x18c7ff, transparent: true, opacity: 0.88 }),
     )
     shell.rotation.x = 1.05
     root.add(shell)
@@ -97,13 +100,13 @@ function MarketConstellationScene() {
     const ringMaterial = new THREE.MeshBasicMaterial({
       color: 0x7c5cff,
       transparent: true,
-      opacity: 0.42,
+      opacity: 0.58,
       side: THREE.DoubleSide,
     })
-    for (let i = 0; i < 3; i += 1) {
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(3.1 + i * 0.72, 0.012, 8, 180), ringMaterial)
-      ring.rotation.x = Math.PI / 2 + i * 0.32
-      ring.rotation.y = i * 0.72
+    for (let i = 0; i < 5; i += 1) {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(2.9 + i * 0.55, 0.014, 8, 200), ringMaterial)
+      ring.rotation.x = Math.PI / 2 + i * 0.28
+      ring.rotation.y = i * 0.62
       orbit.add(ring)
     }
 
@@ -130,12 +133,12 @@ function MarketConstellationScene() {
       bars.add(bar)
     }
 
-    const particleCount = 680
+    const particleCount = 1400
     const particlePositions = new Float32Array(particleCount * 3)
     for (let i = 0; i < particleCount; i += 1) {
       const angle = i * 0.39
-      const radius = 2.4 + (i % 41) * 0.078
-      const y = Math.sin(i * 0.19) * 2.9
+      const radius = 2.0 + (i % 52) * 0.068
+      const y = Math.sin(i * 0.17) * 3.4
       particlePositions[i * 3] = Math.cos(angle) * radius
       particlePositions[i * 3 + 1] = y
       particlePositions[i * 3 + 2] = Math.sin(angle) * radius - 0.8
@@ -145,10 +148,10 @@ function MarketConstellationScene() {
     const particles = new THREE.Points(
       particleGeometry,
       new THREE.PointsMaterial({
-        color: 0x9fb7ff,
-        size: 0.024,
+        color: 0xb8a8ff,
+        size: 0.032,
         transparent: true,
-        opacity: 0.7,
+        opacity: 0.85,
         depthWrite: false,
       }),
     )
@@ -529,7 +532,8 @@ function HeroOperationalPanel() {
       initial={{ opacity: 0, x: 32, y: 18 }}
       animate={{ opacity: 1, x: 0, y: 0 }}
       transition={{ duration: 0.7, delay: 0.35 }}
-      className="absolute right-10 top-[20%] z-20 hidden w-[440px] rounded-xl border border-[#2b456d] bg-[#091221]/80 p-4 shadow-[0_30px_110px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl xl:block 2xl:right-[calc((100vw-1560px)/2)]"
+      className="absolute right-10 top-[18%] z-20 hidden w-[440px] rounded-3xl p-4 xl:block 2xl:right-[calc((100vw-1560px)/2)]"
+      style={{ background: 'rgba(8,14,30,0.72)', border: '1px solid rgba(120,110,255,0.35)', backdropFilter: 'blur(18px)', boxShadow: '0 0 60px rgba(83,74,183,0.22), 0 40px 120px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.07)' }}
     >
       <div className="mb-4 flex items-start justify-between border-b border-[#2a3b59] pb-4">
         <div>
@@ -693,12 +697,47 @@ function HeroStatsStrip() {
 
 function Hero() {
   return (
-    <section className="relative min-h-[100svh] overflow-hidden bg-[#03070f]">
+    <section
+      className="relative min-h-[100svh] overflow-hidden"
+      style={{ background: 'radial-gradient(ellipse at 68% 42%, rgba(83,74,183,.38) 0%, transparent 52%), radial-gradient(ellipse at 25% 62%, rgba(0,209,255,.24) 0%, transparent 46%), linear-gradient(180deg, #050816 0%, #02040a 100%)' }}
+    >
+      {/* Starfield */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          backgroundImage: [
+            'radial-gradient(1.5px 1.5px at 12% 8%, rgba(255,255,255,0.55) 0%, transparent 100%)',
+            'radial-gradient(1px 1px at 28% 22%, rgba(255,255,255,0.35) 0%, transparent 100%)',
+            'radial-gradient(1.5px 1.5px at 44% 6%, rgba(255,255,255,0.45) 0%, transparent 100%)',
+            'radial-gradient(1px 1px at 63% 18%, rgba(255,255,255,0.40) 0%, transparent 100%)',
+            'radial-gradient(1px 1px at 78% 11%, rgba(255,255,255,0.30) 0%, transparent 100%)',
+            'radial-gradient(1.5px 1.5px at 92% 27%, rgba(255,255,255,0.50) 0%, transparent 100%)',
+            'radial-gradient(1px 1px at 8% 38%, rgba(255,255,255,0.35) 0%, transparent 100%)',
+            'radial-gradient(1px 1px at 18% 55%, rgba(255,255,255,0.25) 0%, transparent 100%)',
+            'radial-gradient(1.5px 1.5px at 36% 47%, rgba(255,255,255,0.40) 0%, transparent 100%)',
+            'radial-gradient(1px 1px at 55% 72%, rgba(255,255,255,0.30) 0%, transparent 100%)',
+            'radial-gradient(1px 1px at 72% 58%, rgba(255,255,255,0.35) 0%, transparent 100%)',
+            'radial-gradient(1.5px 1.5px at 88% 45%, rgba(255,255,255,0.45) 0%, transparent 100%)',
+            'radial-gradient(1px 1px at 5% 78%, rgba(255,255,255,0.30) 0%, transparent 100%)',
+            'radial-gradient(1px 1px at 24% 88%, rgba(255,255,255,0.25) 0%, transparent 100%)',
+            'radial-gradient(1.5px 1.5px at 50% 92%, rgba(255,255,255,0.35) 0%, transparent 100%)',
+            'radial-gradient(1px 1px at 82% 84%, rgba(255,255,255,0.40) 0%, transparent 100%)',
+            'radial-gradient(1px 1px at 96% 68%, rgba(255,255,255,0.30) 0%, transparent 100%)',
+          ].join(', '),
+        }}
+      />
+      {/* Sphere ambient glow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-[46%] z-[1] h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+        style={{ background: 'radial-gradient(circle, rgba(124,92,255,0.22) 0%, rgba(24,199,255,0.12) 38%, transparent 68%)' }}
+      />
       <MarketConstellationScene />
       <HeroCandlesBackdrop />
       <HeroFloatingLabels />
-      <div className="absolute inset-0 bg-[linear-gradient(90deg,#03070f_0%,rgba(3,7,15,0.82)_30%,rgba(3,7,15,0.28)_58%,rgba(3,7,15,0.68)_100%)]" />
-      <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#03070f] to-transparent" />
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,#050816_0%,rgba(5,8,22,0.88)_28%,rgba(5,8,22,0.12)_55%,rgba(5,8,22,0.55)_100%)]" />
+      <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#02040a] to-transparent" />
       <HeroOperationalPanel />
       <HeroStatsStrip />
 
@@ -745,8 +784,7 @@ function Hero() {
               href="/sign-up"
               className="inline-flex items-center justify-center gap-3 rounded-2xl border border-[#2b456d] bg-[#0b1527]/70 px-8 py-4 text-base font-black text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl transition-colors hover:bg-[#142139]"
             >
-              Créer un compte
-              <ArrowRight className="h-4 w-4" />
+              Entrer dans MERKURE →
             </Link>
           </motion.div>
 
