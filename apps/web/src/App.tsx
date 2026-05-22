@@ -1048,91 +1048,216 @@ const planOffers = [
   {
     id: 'STARTER',
     name: 'Starter',
-    price: '19 €',
-    description: 'Pour poser une base propre et suivre vos performances sans friction.',
-    features: ['Trades illimités', 'Sync broker (1)', 'KPIs avancés', 'Journal IA'],
+    monthly: 19,
+    annual: 190,
+    tagline: 'Pour poser une base solide.',
+    description: 'Sync un broker, KPIs complets et journal IA pour structurer votre progression.',
+    features: [
+      '1 compte broker connecté',
+      'Import trades illimité',
+      'KPIs avancés — P&L, drawdown, win rate',
+      'Journal de trading structuré',
+      'Analyse IA journalière',
+      'Alertes email',
+    ],
   },
   {
     id: 'PRO',
     name: 'Pro',
-    price: '49 €',
-    description: 'Pour analyser plus finement plusieurs comptes et accélérer la progression.',
-    features: ['Sync broker (3)', 'Analytics avancés', 'Alertes', 'Coach IA illimité'],
+    monthly: 49,
+    annual: 490,
+    tagline: 'Pour analyser plusieurs comptes.',
+    description: 'Multi-brokers, analytics granulaires, coach IA sans limite et alertes en temps réel.',
+    features: [
+      'Tout Starter, plus :',
+      '3 comptes brokers',
+      'Analytics par actif et stratégie',
+      'Coach IA illimité',
+      'Alertes temps réel',
+      'Rapport hebdomadaire automatique',
+    ],
     highlighted: true,
   },
   {
     id: 'ELITE',
     name: 'Elite',
-    price: '129 €',
-    description: 'Pour les traders qui veulent automatiser leur suivi et produire des rapports.',
-    features: ['Sync broker illimité', 'Rapports PDF', 'API access', 'Support prioritaire'],
+    monthly: 129,
+    annual: 1290,
+    tagline: 'Pour les traders qui veulent tout.',
+    description: 'Brokers illimités, rapports PDF, accès API et support prioritaire réactif.',
+    features: [
+      'Tout Pro, plus :',
+      'Comptes brokers illimités',
+      'Export rapports PDF',
+      'Accès API MERKURE',
+      'Webhooks & intégrations',
+      'Support prioritaire < 4h',
+    ],
   },
 ]
 
+const pricingFaq = [
+  {
+    q: 'Y a-t-il une période d\'essai ?',
+    a: 'Oui. Les 14 premiers jours sont offerts sur tous les plans payants, sans carte bancaire. Vous ne serez débité qu\'à la fin de l\'essai.',
+  },
+  {
+    q: 'Puis-je changer de plan à tout moment ?',
+    a: 'Oui. Vous pouvez upgrader ou downgrader depuis votre espace abonnement. Le changement prend effet immédiatement, avec prorata sur la facturation.',
+  },
+  {
+    q: 'Quels brokers sont supportés ?',
+    a: 'MetaTrader 4, MetaTrader 5, Binance, Interactive Brokers et cTrader. D\'autres brokers sont en cours d\'intégration.',
+  },
+  {
+    q: 'Mes identifiants broker sont-ils en sécurité ?',
+    a: 'Vos credentials sont chiffrés AES-256 côté serveur avant stockage. MERKURE utilise uniquement le mot de passe investisseur (lecture seule) — aucun ordre ne peut être passé.',
+  },
+]
+
+function PricingFaq() {
+  const [open, setOpen] = useState<number | null>(null)
+  return (
+    <div className="mx-auto mt-16 max-w-2xl">
+      <p className="mb-6 text-center text-xs font-bold uppercase tracking-[0.16em] text-[#a798ff]">Questions fréquentes</p>
+      <div className="divide-y divide-[#1e2f4a] rounded-lg border border-[#1e2f4a]">
+        {pricingFaq.map((item, i) => (
+          <div key={i}>
+            <button
+              type="button"
+              onClick={() => setOpen(open === i ? null : i)}
+              className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-semibold text-white transition-colors hover:text-[#b9a8ff]"
+            >
+              {item.q}
+              <ChevronRight className={`h-4 w-4 shrink-0 text-slate-500 transition-transform duration-200 ${open === i ? 'rotate-90' : ''}`} />
+            </button>
+            {open === i && (
+              <div className="px-5 pb-4 text-sm leading-7 text-slate-400">{item.a}</div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function PricingSection() {
+  const [annual, setAnnual] = useState(false)
+
   return (
     <section id="pricing" className="scroll-mt-20 bg-[#050b16] px-5 py-24 sm:px-6">
       <div className="mx-auto max-w-7xl">
         <SectionTitle
           eyebrow="Offres"
-          title="Trois niveaux pour accompagner votre progression."
-          text="Chaque plan débloque un niveau d'analyse adapté à votre rythme, du suivi individuel aux rapports et accès avancés."
+          title="Un plan pour chaque étape de votre progression."
+          text="Démarrez avec un essai gratuit de 14 jours. Sans carte bancaire, sans engagement."
         />
 
+        {/* Toggle mensuel / annuel */}
+        <div className="mb-10 flex items-center justify-center gap-4">
+          <span className={`text-sm font-semibold transition-colors ${!annual ? 'text-white' : 'text-slate-500'}`}>Mensuel</span>
+          <button
+            type="button"
+            onClick={() => setAnnual(a => !a)}
+            className={`relative h-6 w-11 rounded-full border transition-colors ${annual ? 'border-[#7c5cff]/60 bg-[#7c5cff]/30' : 'border-[#2b456d] bg-[#0b1527]'}`}
+            aria-label="Basculer facturation annuelle"
+          >
+            <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all duration-200 ${annual ? 'left-5' : 'left-0.5'}`} />
+          </button>
+          <span className={`text-sm font-semibold transition-colors ${annual ? 'text-white' : 'text-slate-500'}`}>
+            Annuel
+            <span className="ml-2 rounded-full bg-[#38e476]/15 px-2 py-0.5 text-[10px] font-bold text-[#38e476]">−2 mois offerts</span>
+          </span>
+        </div>
+
         <div className="grid gap-4 lg:grid-cols-3">
-          {planOffers.map((plan, index) => (
-            <motion.article
-              key={plan.id}
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.35, delay: index * 0.06 }}
-              className={`relative flex min-h-[420px] flex-col rounded-lg border p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_18px_60px_rgba(0,0,0,0.22)] ${
-                plan.highlighted
-                  ? 'border-[#7c5cff]/70 bg-[#101a32]'
-                  : 'border-[#1e2f4a] bg-[#0b1527]'
-              }`}
-            >
-              {plan.highlighted && (
-                <div className="absolute right-5 top-5 rounded-full border border-[#7c5cff]/30 bg-[#7c5cff]/10 px-3 py-1 text-xs font-bold text-[#c4b7ff]">
-                  Recommandé
-                </div>
-              )}
+          {planOffers.map((plan, index) => {
+            const price    = annual ? Math.round(plan.annual / 12) : plan.monthly
+            const priceStr = `${price} €`
+            const saving   = plan.monthly * 12 - plan.annual
 
-              <div>
-                <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#a798ff]">{plan.name}</p>
-                <div className="mt-5 flex items-end gap-2">
-                  <span className="text-5xl font-black text-white">{plan.price}</span>
-                  <span className="pb-2 text-sm font-semibold text-slate-500">/ mois</span>
-                </div>
-                <p className="mt-5 text-sm leading-7 text-slate-400">{plan.description}</p>
-              </div>
-
-              <div className="my-7 h-px bg-[#243957]" />
-
-              <ul className="space-y-3">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-3 text-sm text-slate-300">
-                    <Check className="h-4 w-4 shrink-0 text-[#38e476]" />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                href="/sign-up"
-                className={`mt-auto inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-bold transition-colors ${
+            return (
+              <motion.article
+                key={plan.id}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-80px' }}
+                transition={{ duration: 0.35, delay: index * 0.06 }}
+                className={`relative flex flex-col rounded-xl border p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_18px_60px_rgba(0,0,0,0.22)] ${
                   plan.highlighted
-                    ? 'bg-[#7c5cff] text-white hover:bg-[#8d72ff]'
-                    : 'border border-[#243957] bg-[#0b1527]/80 text-slate-200 hover:bg-[#142139]'
+                    ? 'border-[#7c5cff]/70 bg-[#101a32] shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_0_0_1px_rgba(124,92,255,0.15),0_24px_80px_rgba(124,92,255,0.18)]'
+                    : 'border-[#1e2f4a] bg-[#0b1527]'
                 }`}
               >
-                Choisir {plan.name}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </motion.article>
+                {plan.highlighted && (
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full border border-[#7c5cff]/40 bg-[#7c5cff] px-4 py-1 text-[11px] font-black uppercase tracking-wider text-white shadow-[0_4px_20px_rgba(124,92,255,0.5)]">
+                    Le plus populaire
+                  </div>
+                )}
+
+                <div className="pt-2">
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#a798ff]">{plan.name}</p>
+                  <p className="mt-1 text-sm font-semibold text-white">{plan.tagline}</p>
+
+                  <div className="mt-5 flex items-end gap-2">
+                    <span className="text-5xl font-black text-white">{priceStr}</span>
+                    <div className="flex flex-col pb-1.5">
+                      <span className="text-xs font-semibold text-slate-500">/ mois</span>
+                      {annual && (
+                        <span className="text-[10px] font-bold text-[#38e476]">économisez {saving} €/an</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {annual && (
+                    <p className="mt-1 text-xs text-slate-600">
+                      Facturé {plan.annual} € par an
+                    </p>
+                  )}
+
+                  <p className="mt-4 text-sm leading-6 text-slate-400">{plan.description}</p>
+                </div>
+
+                <div className="my-6 h-px bg-[#243957]" />
+
+                <ul className="flex-1 space-y-3">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className={`flex items-start gap-3 text-sm ${feature.endsWith(':') ? 'font-bold text-slate-300' : 'text-slate-400'}`}>
+                      {!feature.endsWith(':') && <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#38e476]" />}
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                <Link
+                  href={`/sign-up?plan=${plan.id.toLowerCase()}`}
+                  className={`mt-6 inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-colors ${
+                    plan.highlighted
+                      ? 'bg-[#7c5cff] text-white hover:bg-[#8d72ff] shadow-[0_8px_30px_rgba(124,92,255,0.4)]'
+                      : 'border border-[#243957] bg-[#0b1527]/80 text-slate-200 hover:border-[#314767] hover:bg-[#142139]'
+                  }`}
+                >
+                  Essayer 14 jours gratuit
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </motion.article>
+            )
+          })}
+        </div>
+
+        {/* Trust signals */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+          {[
+            '✓ 14 jours d\'essai gratuit',
+            '✓ Sans carte bancaire',
+            '✓ Résiliable à tout moment',
+            '✓ Données chiffrées AES-256',
+          ].map(item => (
+            <span key={item} className="text-xs font-medium text-slate-500">{item}</span>
           ))}
         </div>
+
+        <PricingFaq />
       </div>
     </section>
   )
