@@ -6,7 +6,7 @@ import {
   BarChart2, PieChart, FileText,
   Bot, Lightbulb, FlaskConical, ScanLine,
   BookOpen, NotebookPen,
-  Zap, CreditCard, Bell,
+  Zap, CreditCard, Bell, Settings2,
 } from 'lucide-react'
 import type { ElementType } from 'react'
 import type { Page } from '@/lib/navigation'
@@ -28,6 +28,7 @@ const sections: Array<{
       { icon: Wallet,            label: 'Comptes',      page: 'comptes' },
       { icon: CreditCard,        label: 'Abonnement',   page: 'billing' },
       { icon: Bell,              label: 'Alertes',      page: 'alerts' },
+      { icon: Settings2,         label: 'Paramètres',   page: 'settings' },
       { icon: BriefcaseBusiness, label: 'Portefeuille', page: 'portefeuille', soon: true },
       { icon: TrendingUp,        label: 'Positions',    page: 'positions',    soon: true },
       { icon: ArrowLeftRight,    label: 'Transactions', page: 'transactions' },
@@ -44,7 +45,7 @@ const sections: Array<{
   {
     label: 'IA & STRATÉGIE',
     items: [
-      { icon: Bot,         label: 'Assistant IA',   page: 'assistant',   badge: 'BETA' },
+      { icon: Bot,         label: 'Assistant IA',   page: 'assistant',   soon: true },
       { icon: Lightbulb,   label: 'Stratégies',     page: 'strategies',  soon: true },
       { icon: FlaskConical,label: 'Backtesting',    page: 'backtesting', soon: true },
       { icon: ScanLine,    label: 'Market Scanner', page: 'scanner',     soon: true },

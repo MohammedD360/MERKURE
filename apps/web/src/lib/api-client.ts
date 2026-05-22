@@ -144,6 +144,15 @@ export interface AlertsResponse {
   offset: number
 }
 
+export interface UserProfile {
+  id: string
+  email: string
+  firstName: string | null
+  lastName: string | null
+  timezone: string
+  currency: string
+}
+
 // ── API methods ───────────────────────────────────────────────────────────────
 
 export const api = {
@@ -193,6 +202,7 @@ export const api = {
       const qs = weekStart ? `?weekStart=${weekStart}` : ''
       return apiFetchBlob(`/api/v1/reports/weekly${qs}`)
     },
+    downloadWeekly: () => apiFetchBlob('/api/v1/reports/weekly'),
   },
 
   alerts: {
@@ -204,5 +214,16 @@ export const api = {
       apiFetch<{ updated: number }>('/api/v1/alerts/read-all', { method: 'PATCH' }),
     delete: (id: string) =>
       apiFetch<void>(`/api/v1/alerts/${id}`, { method: 'DELETE' }),
+  },
+
+  users: {
+    me: () => apiFetch<UserProfile>('/api/v1/users/me'),
+    updateProfile: (data: Partial<Pick<UserProfile, 'firstName' | 'lastName' | 'timezone' | 'currency'>>) =>
+      apiFetch<UserProfile>('/api/v1/users/me', { method: 'PATCH', body: JSON.stringify(data) }),
+    changePassword: (currentPassword: string, newPassword: string) =>
+      apiFetch<{ ok: boolean }>('/api/v1/users/me/change-password', {
+        method: 'POST',
+        body: JSON.stringify({ currentPassword, newPassword }),
+      }),
   },
 }

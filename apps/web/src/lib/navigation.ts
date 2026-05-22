@@ -15,3 +15,4 @@ export type Page =
   | 'journal'
   | 'billing'
   | 'alerts'
+  | 'settings'
