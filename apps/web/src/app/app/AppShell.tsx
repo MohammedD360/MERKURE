@@ -15,9 +15,10 @@ const pageToPath: Partial<Record<Page, string>> = {
   performance:  '/app/performance',
   journal:      '/app/journal',
   billing:      '/app/billing',
+  alerts:       '/app/alerts',
 }
 
-type KnownPage = 'dashboard' | 'comptes' | 'transactions' | 'performance' | 'journal' | 'billing'
+type KnownPage = 'dashboard' | 'comptes' | 'transactions' | 'performance' | 'journal' | 'billing' | 'alerts'
 
 const headerCopy: Record<KnownPage, { title: string; description: string }> = {
   dashboard: {
@@ -44,6 +45,10 @@ const headerCopy: Record<KnownPage, { title: string; description: string }> = {
     title:       'Abonnement',
     description: 'Gérez votre plan et votre facturation',
   },
+  alerts: {
+    title:       'Alertes',
+    description: 'Notifications de risque et erreurs de synchronisation',
+  },
 }
 
 function getCurrentPage(pathname: string): KnownPage {
@@ -52,6 +57,7 @@ function getCurrentPage(pathname: string): KnownPage {
   if (pathname.startsWith('/app/performance')) return 'performance'
   if (pathname.startsWith('/app/journal'))     return 'journal'
   if (pathname.startsWith('/app/billing'))     return 'billing'
+  if (pathname.startsWith('/app/alerts'))      return 'alerts'
   return 'dashboard'
 }
 

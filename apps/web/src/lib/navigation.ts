@@ -14,3 +14,4 @@ export type Page =
   | 'conseils'
   | 'journal'
   | 'billing'
+  | 'alerts'

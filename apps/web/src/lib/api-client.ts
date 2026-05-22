@@ -127,6 +127,23 @@ export interface Subscription {
   cancelAtPeriodEnd: boolean
 }
 
+export interface Alert {
+  id: string
+  type: string
+  severity: 'INFO' | 'WARNING' | 'CRITICAL'
+  title: string
+  body: string | null
+  isRead: boolean
+  triggeredAt: string
+}
+
+export interface AlertsResponse {
+  alerts: Alert[]
+  total: number
+  limit: number
+  offset: number
+}
+
 // ── API methods ───────────────────────────────────────────────────────────────
 
 export const api = {
@@ -176,5 +193,16 @@ export const api = {
       const qs = weekStart ? `?weekStart=${weekStart}` : ''
       return apiFetchBlob(`/api/v1/reports/weekly${qs}`)
     },
+  },
+
+  alerts: {
+    list: (unreadOnly = false) =>
+      apiFetch<AlertsResponse>(`/api/v1/alerts?unreadOnly=${unreadOnly}`),
+    markRead: (id: string) =>
+      apiFetch<Alert>(`/api/v1/alerts/${id}/read`, { method: 'PATCH' }),
+    markAllRead: () =>
+      apiFetch<{ updated: number }>('/api/v1/alerts/read-all', { method: 'PATCH' }),
+    delete: (id: string) =>
+      apiFetch<void>(`/api/v1/alerts/${id}`, { method: 'DELETE' }),
   },
 }

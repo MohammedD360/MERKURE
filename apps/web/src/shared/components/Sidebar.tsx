@@ -6,7 +6,7 @@ import {
   BarChart2, PieChart, FileText,
   Bot, Lightbulb, FlaskConical, ScanLine,
   BookOpen, NotebookPen,
-  Zap, CreditCard,
+  Zap, CreditCard, Bell,
 } from 'lucide-react'
 import type { ElementType } from 'react'
 import type { Page } from '@/lib/navigation'
@@ -27,6 +27,7 @@ const sections: Array<{
       { icon: LayoutDashboard,   label: 'Dashboard',    page: 'dashboard' },
       { icon: Wallet,            label: 'Comptes',      page: 'comptes' },
       { icon: CreditCard,        label: 'Abonnement',   page: 'billing' },
+      { icon: Bell,              label: 'Alertes',      page: 'alerts' },
       { icon: BriefcaseBusiness, label: 'Portefeuille', page: 'portefeuille', soon: true },
       { icon: TrendingUp,        label: 'Positions',    page: 'positions',    soon: true },
       { icon: ArrowLeftRight,    label: 'Transactions', page: 'transactions' },

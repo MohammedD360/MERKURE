@@ -37,7 +37,7 @@ import {
 
 import { setToken } from '@/lib/api-client'
 
-function MarketConstellationScene() {
+function RotatingEarthScene() {
   const mountRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -48,7 +48,7 @@ function MarketConstellationScene() {
 
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 120)
-    camera.position.set(0, 1.4, 10.4)
+    camera.position.set(0, 0.35, 8.2)
 
     const renderer = new THREE.WebGLRenderer({
       canvas,
@@ -59,111 +59,114 @@ function MarketConstellationScene() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     renderer.outputColorSpace = THREE.SRGBColorSpace
 
-    const root = new THREE.Group()
-    const orbit = new THREE.Group()
-    const bars = new THREE.Group()
-    scene.add(root)
-    scene.add(orbit)
-    root.add(bars)
+    const earthGroup = new THREE.Group()
+    earthGroup.position.set(1.65, -0.05, 0)
+    scene.add(earthGroup)
 
-    scene.add(new THREE.AmbientLight(0xbad6ff, 1.1))
-    const keyLight = new THREE.PointLight(0x7c5cff, 10, 28)
-    keyLight.position.set(-4, 4, 6)
-    scene.add(keyLight)
-    const rimLight = new THREE.PointLight(0x18c7ff, 8, 30)
-    rimLight.position.set(5, -2, 5)
+    scene.add(new THREE.AmbientLight(0x6f88bb, 1.15))
+    const sunLight = new THREE.DirectionalLight(0xffffff, 3.8)
+    sunLight.position.set(-4, 3, 5)
+    scene.add(sunLight)
+    const rimLight = new THREE.DirectionalLight(0x18c7ff, 2.2)
+    rimLight.position.set(5, 1.8, -2)
     scene.add(rimLight)
-    const fillLight = new THREE.PointLight(0x5b4dcc, 5, 20)
-    fillLight.position.set(0, -4, 8)
-    scene.add(fillLight)
 
-    const coreGeometry = new THREE.IcosahedronGeometry(1.65, 4)
-    const coreMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0x7c6cff,
-      emissive: 0x3a1e8a,
-      metalness: 0.25,
-      roughness: 0.34,
+    const textureCanvas = document.createElement('canvas')
+    textureCanvas.width = 2048
+    textureCanvas.height = 1024
+    const ctx = textureCanvas.getContext('2d')
+    if (!ctx) return
+
+    const ocean = ctx.createLinearGradient(0, 0, textureCanvas.width, textureCanvas.height)
+    ocean.addColorStop(0, '#0a2e66')
+    ocean.addColorStop(0.45, '#0b58a4')
+    ocean.addColorStop(1, '#041431')
+    ctx.fillStyle = ocean
+    ctx.fillRect(0, 0, textureCanvas.width, textureCanvas.height)
+
+    ctx.strokeStyle = 'rgba(130, 190, 255, 0.11)'
+    ctx.lineWidth = 1
+    for (let x = 0; x <= textureCanvas.width; x += 128) {
+      ctx.beginPath()
+      ctx.moveTo(x, 0)
+      ctx.lineTo(x, textureCanvas.height)
+      ctx.stroke()
+    }
+    for (let y = 0; y <= textureCanvas.height; y += 128) {
+      ctx.beginPath()
+      ctx.moveTo(0, y)
+      ctx.lineTo(textureCanvas.width, y)
+      ctx.stroke()
+    }
+
+    const land = ctx.createLinearGradient(0, 0, 0, textureCanvas.height)
+    land.addColorStop(0, '#81c982')
+    land.addColorStop(0.5, '#2f8757')
+    land.addColorStop(1, '#1f6a44')
+    ctx.fillStyle = land
+    ctx.shadowColor = 'rgba(100, 255, 190, 0.32)'
+    ctx.shadowBlur = 18
+
+    const drawLand = (points: Array<[number, number]>) => {
+      ctx.beginPath()
+      points.forEach(([x, y], index) => {
+        const px = x * textureCanvas.width
+        const py = y * textureCanvas.height
+        if (index === 0) ctx.moveTo(px, py)
+        else ctx.lineTo(px, py)
+      })
+      ctx.closePath()
+      ctx.fill()
+    }
+
+    drawLand([[0.08, 0.23], [0.18, 0.16], [0.29, 0.22], [0.31, 0.34], [0.24, 0.44], [0.14, 0.39]])
+    drawLand([[0.22, 0.45], [0.31, 0.50], [0.34, 0.65], [0.29, 0.78], [0.22, 0.68], [0.18, 0.55]])
+    drawLand([[0.42, 0.24], [0.55, 0.19], [0.69, 0.27], [0.70, 0.42], [0.57, 0.49], [0.44, 0.41]])
+    drawLand([[0.53, 0.42], [0.66, 0.45], [0.70, 0.61], [0.61, 0.77], [0.51, 0.68], [0.47, 0.52]])
+    drawLand([[0.72, 0.50], [0.86, 0.45], [0.94, 0.56], [0.88, 0.66], [0.74, 0.62]])
+    drawLand([[0.80, 0.72], [0.88, 0.70], [0.91, 0.78], [0.84, 0.84]])
+
+    ctx.shadowBlur = 0
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.22)'
+    for (let i = 0; i < 52; i += 1) {
+      const x = (Math.sin(i * 12.9898) * 43758.5453) % 1
+      const y = (Math.sin(i * 78.233) * 24634.6345) % 1
+      const px = Math.abs(x) * textureCanvas.width
+      const py = Math.abs(y) * textureCanvas.height
+      const width = 22 + (i % 6) * 10
+      const height = 5 + (i % 4) * 3
+      ctx.beginPath()
+      ctx.ellipse(px, py, width, height, (i % 8) * 0.4, 0, Math.PI * 2)
+      ctx.fill()
+    }
+
+    const earthTexture = new THREE.CanvasTexture(textureCanvas)
+    earthTexture.colorSpace = THREE.SRGBColorSpace
+    earthTexture.anisotropy = 8
+
+    const earthGeometry = new THREE.SphereGeometry(2.45, 96, 96)
+    const earthMaterial = new THREE.MeshStandardMaterial({
+      map: earthTexture,
+      metalness: 0.04,
+      roughness: 0.78,
+      emissive: 0x06152f,
+      emissiveIntensity: 0.3,
+    })
+    const earth = new THREE.Mesh(earthGeometry, earthMaterial)
+    earth.rotation.z = -0.22
+    earthGroup.add(earth)
+
+    const atmosphereGeometry = new THREE.SphereGeometry(2.53, 96, 96)
+    const atmosphereMaterial = new THREE.MeshBasicMaterial({
+      color: 0x4fb9ff,
       transparent: true,
-      opacity: 0.55,
-      wireframe: true,
+      opacity: 0.14,
+      blending: THREE.AdditiveBlending,
+      side: THREE.BackSide,
+      depthWrite: false,
     })
-    const core = new THREE.Mesh(coreGeometry, coreMaterial)
-    root.add(core)
-
-    const shell = new THREE.Mesh(
-      new THREE.TorusKnotGeometry(2.1, 0.022, 280, 12, 2, 5),
-      new THREE.MeshBasicMaterial({ color: 0x18c7ff, transparent: true, opacity: 0.88 }),
-    )
-    shell.rotation.x = 1.05
-    root.add(shell)
-
-    const ringMaterial = new THREE.MeshBasicMaterial({
-      color: 0x7c5cff,
-      transparent: true,
-      opacity: 0.58,
-      side: THREE.DoubleSide,
-    })
-    for (let i = 0; i < 5; i += 1) {
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(2.9 + i * 0.55, 0.014, 8, 200), ringMaterial)
-      ring.rotation.x = Math.PI / 2 + i * 0.28
-      ring.rotation.y = i * 0.62
-      orbit.add(ring)
-    }
-
-    const barMaterialUp = new THREE.MeshStandardMaterial({
-      color: 0x39e681,
-      emissive: 0x073f23,
-      metalness: 0.2,
-      roughness: 0.45,
-    })
-    const barMaterialDown = new THREE.MeshStandardMaterial({
-      color: 0xff5e70,
-      emissive: 0x471018,
-      metalness: 0.2,
-      roughness: 0.5,
-    })
-    for (let i = 0; i < 34; i += 1) {
-      const wave = Math.sin(i * 0.56) + Math.cos(i * 0.22)
-      const height = 0.22 + Math.abs(wave) * 0.42
-      const bar = new THREE.Mesh(
-        new THREE.BoxGeometry(0.08, height, 0.08),
-        wave >= 0 ? barMaterialUp : barMaterialDown,
-      )
-      bar.position.set(-3.6 + i * 0.22, -2.55 + height / 2, -0.55 + Math.sin(i * 0.31) * 0.18)
-      bars.add(bar)
-    }
-
-    const particleCount = 1400
-    const particlePositions = new Float32Array(particleCount * 3)
-    for (let i = 0; i < particleCount; i += 1) {
-      const angle = i * 0.39
-      const radius = 2.0 + (i % 52) * 0.068
-      const y = Math.sin(i * 0.17) * 3.4
-      particlePositions[i * 3] = Math.cos(angle) * radius
-      particlePositions[i * 3 + 1] = y
-      particlePositions[i * 3 + 2] = Math.sin(angle) * radius - 0.8
-    }
-    const particleGeometry = new THREE.BufferGeometry()
-    particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3))
-    const particles = new THREE.Points(
-      particleGeometry,
-      new THREE.PointsMaterial({
-        color: 0xb8a8ff,
-        size: 0.032,
-        transparent: true,
-        opacity: 0.85,
-        depthWrite: false,
-      }),
-    )
-    scene.add(particles)
-
-    const floor = new THREE.GridHelper(12, 34, 0x263a66, 0x182744)
-    floor.position.y = -3.05
-    floor.position.z = -0.8
-    const floorMaterial = floor.material as THREE.Material
-    floorMaterial.transparent = true
-    floorMaterial.opacity = 0.22
-    scene.add(floor)
+    const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial)
+    earthGroup.add(atmosphere)
 
     const pointer = { x: 0, y: 0 }
     const onPointerMove = (event: PointerEvent) => {
@@ -178,7 +181,9 @@ function MarketConstellationScene() {
       const width = Math.max(1, rect.width)
       const height = Math.max(1, rect.height)
       camera.aspect = width / height
-      camera.position.z = width < 700 ? 12.5 : 10.4
+      camera.position.z = width < 700 ? 9.2 : 8.2
+      earthGroup.position.x = width < 700 ? 0.9 : 1.65
+      earthGroup.position.y = width < 700 ? -0.85 : -0.05
       camera.updateProjectionMatrix()
       renderer.setSize(width, height, false)
     }
@@ -190,15 +195,12 @@ function MarketConstellationScene() {
     const clock = new THREE.Clock()
     const animate = () => {
       const elapsed = clock.getElapsedTime()
-      root.rotation.y = elapsed * 0.18 + pointer.x * 0.08
-      root.rotation.x = Math.sin(elapsed * 0.28) * 0.08 - pointer.y * 0.05
-      orbit.rotation.y = -elapsed * 0.12
-      orbit.rotation.z = Math.sin(elapsed * 0.22) * 0.1
-      particles.rotation.y = elapsed * 0.035
-      bars.position.y = Math.sin(elapsed * 0.9) * 0.035
-      camera.position.x += (pointer.x * 0.45 - camera.position.x) * 0.035
-      camera.position.y += (1.4 - pointer.y * 0.22 - camera.position.y) * 0.035
-      camera.lookAt(0, -0.08, -0.4)
+      earth.rotation.y = elapsed * 0.16 + pointer.x * 0.08
+      atmosphere.rotation.y = elapsed * 0.11
+      earthGroup.rotation.x = -pointer.y * 0.035
+      camera.position.x += (pointer.x * 0.24 - camera.position.x) * 0.035
+      camera.position.y += (0.35 - pointer.y * 0.12 - camera.position.y) * 0.035
+      camera.lookAt(earthGroup.position.x * 0.35, earthGroup.position.y * 0.25, 0)
       renderer.render(scene, camera)
       raf = requestAnimationFrame(animate)
     }
@@ -209,23 +211,22 @@ function MarketConstellationScene() {
       mount.removeEventListener('pointermove', onPointerMove)
       observer.disconnect()
       renderer.dispose()
-      coreGeometry.dispose()
-      coreMaterial.dispose()
-      shell.geometry.dispose()
-      ;(shell.material as THREE.Material).dispose()
-      ringMaterial.dispose()
-      barMaterialUp.dispose()
-      barMaterialDown.dispose()
-      particleGeometry.dispose()
-      ;(particles.material as THREE.Material).dispose()
-      floor.geometry.dispose()
-      floorMaterial.dispose()
+      earthGeometry.dispose()
+      earthMaterial.dispose()
+      earthTexture.dispose()
+      atmosphereGeometry.dispose()
+      atmosphereMaterial.dispose()
     }
   }, [])
 
   return (
     <div ref={mountRef} className="absolute inset-0">
-      <canvas ref={canvasRef} className="h-full w-full" aria-hidden="true" />
+      <canvas
+        key="merkure-rotating-earth-v1"
+        ref={canvasRef}
+        className="h-full w-full"
+        aria-hidden="true"
+      />
     </div>
   )
 }
@@ -278,13 +279,6 @@ const heroSignals = [
   { icon: Gauge, label: 'Risk lens' },
   { icon: Brain, label: 'Coach IA' },
   { icon: Radar, label: 'Alertes live' },
-]
-
-const heroLabels = [
-  { label: 'Analyse IA', tone: 'purple', className: 'left-[42%] top-[22%]' },
-  { label: 'Signal', tone: 'cyan', className: 'right-[33%] top-[34%]' },
-  { label: 'Détection', tone: 'purple', className: 'left-[38%] bottom-[36%]' },
-  { label: 'Optimisation', tone: 'cyan', className: 'right-[35%] bottom-[28%]' },
 ]
 
 const heroStats: Array<{
@@ -613,59 +607,6 @@ function HeroOperationalPanel() {
   )
 }
 
-function HeroFloatingLabels() {
-  return (
-    <div className="pointer-events-none absolute inset-0 z-10 hidden lg:block">
-      {heroLabels.map((item, index) => (
-        <motion.div
-          key={item.label}
-          initial={{ opacity: 0, y: 10, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.45, delay: 0.42 + index * 0.08 }}
-          className={`absolute ${item.className} rounded-lg border px-3 py-2 text-[11px] font-black uppercase tracking-[0.14em] shadow-[0_12px_40px_rgba(0,0,0,0.35)] backdrop-blur-md ${
-            item.tone === 'cyan'
-              ? 'border-[#18c7ff]/60 bg-[#07101f]/80 text-[#18e0ff]'
-              : 'border-[#7c5cff]/60 bg-[#120b2b]/80 text-[#c4a7ff]'
-          }`}
-        >
-          {item.label}
-        </motion.div>
-      ))}
-    </div>
-  )
-}
-
-function HeroCandlesBackdrop() {
-  const candles = [
-    44, 68, 52, 84, 46, 72, 104, 60, 92, 128, 86, 142, 106, 154, 118, 164,
-  ]
-
-  return (
-    <div className="pointer-events-none absolute right-[12%] top-[7%] z-[1] hidden h-[330px] w-[310px] opacity-45 lg:block">
-      {candles.map((height, index) => {
-        const up = index % 3 !== 1
-        return (
-          <div
-            key={`${height}-${index}`}
-            className="absolute bottom-0 w-3 rounded-sm"
-            style={{
-              height,
-              left: index * 18,
-              backgroundColor: up ? 'rgba(16,185,129,0.55)' : 'rgba(124,92,255,0.5)',
-              boxShadow: up ? '0 0 24px rgba(16,185,129,0.35)' : '0 0 24px rgba(124,92,255,0.35)',
-            }}
-          >
-            <span
-              className="absolute left-1/2 top-[-36px] w-px -translate-x-1/2 bg-current opacity-60"
-              style={{ height: height + 54, color: up ? '#10b981' : '#7c5cff' }}
-            />
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
 function HeroStatsStrip() {
   return (
     <motion.div
@@ -733,9 +674,7 @@ function Hero() {
         className="pointer-events-none absolute left-1/2 top-[46%] z-[1] h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{ background: 'radial-gradient(circle, rgba(124,92,255,0.22) 0%, rgba(24,199,255,0.12) 38%, transparent 68%)' }}
       />
-      <MarketConstellationScene />
-      <HeroCandlesBackdrop />
-      <HeroFloatingLabels />
+      <RotatingEarthScene />
       <div className="absolute inset-0 bg-[linear-gradient(90deg,#050816_0%,rgba(5,8,22,0.88)_28%,rgba(5,8,22,0.12)_55%,rgba(5,8,22,0.55)_100%)]" />
       <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#02040a] to-transparent" />
       <HeroOperationalPanel />

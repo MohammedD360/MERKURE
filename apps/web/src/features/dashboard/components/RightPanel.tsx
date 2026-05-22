@@ -9,7 +9,8 @@ import { useAlerts } from '@/lib/hooks/use-alerts'
 function AssistantPanel() {
   const [tab, setTab] = useState<'insights' | 'alert'>('insights')
   const { data: entry, isLoading } = useLatestAiAnalysis()
-  const { data: alerts = [] }      = useAlerts()
+  const { data: alertsData }       = useAlerts()
+  const alerts = alertsData?.alerts ?? []
 
   const insights    = entry?.insights
   const allInsights = [
@@ -80,7 +81,7 @@ function AssistantPanel() {
           <div className="space-y-2">
             {alerts.slice(0, 5).map(a => (
               <div key={a.id} className="flex items-start gap-2 p-2.5 rounded-lg bg-red-500/5 border border-red-500/15">
-                <p className="text-[11px] text-red-300">{a.message}</p>
+                <p className="text-[11px] text-red-300">{a.body ?? a.title}</p>
               </div>
             ))}
           </div>

@@ -80,6 +80,12 @@ function DemoLoginForm() {
         />
       </div>
 
+      <div className="flex justify-end">
+        <Link href="/forgot-password" className="text-xs text-indigo-400 hover:underline">
+          Mot de passe oublié ?
+        </Link>
+      </div>
+
       <button
         type="submit"
         disabled={loading}
