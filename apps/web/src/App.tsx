@@ -289,7 +289,7 @@ const sectionLinks = [
   { id: 'workflow', label: 'Workflow' },
   { id: 'pricing', label: 'Offres' },
   { id: 'security', label: 'Sécurité' },
-  { id: 'resources', label: 'Ressources' },
+  { id: 'resources', label: 'Avantages' },
 ]
 const sectionIds = sectionLinks.map((link) => link.id)
 
@@ -312,11 +312,11 @@ const heroStats: Array<{
   value: string
   label: string
 }> = [
-  { icon: Gauge, value: '127 842', label: 'Trades analysés' },
-  { icon: CircleDollarSign, value: '+2.4M$', label: 'De données traitées' },
-  { icon: SlidersHorizontal, value: '83%', label: 'Des traders améliorent leur RR' },
-  { icon: Server, value: '18', label: 'Brokers compatibles' },
-  { icon: Brain, value: '24/7', label: 'IA & système actif' },
+  { icon: Server, value: '5', label: 'Brokers compatibles' },
+  { icon: Gauge, value: 'Illimité', label: 'Trades importés' },
+  { icon: SlidersHorizontal, value: 'AES-256', label: 'Chiffrement credentials' },
+  { icon: Brain, value: '24/7', label: 'Sync & alertes actives' },
+  { icon: Eye, value: 'Read-only', label: 'Accès lecture seule' },
 ]
 
 const platformModules: Array<{
@@ -426,7 +426,8 @@ function BrandMark({ small = false }: { small?: boolean }) {
 }
 
 function Navbar() {
-  const [scrolled, setScrolled] = useState(false)
+  const [scrolled,    setScrolled]    = useState(false)
+  const [mobileOpen,  setMobileOpen]  = useState(false)
   const activeSection = useActiveSection(sectionIds)
 
   useEffect(() => {
@@ -435,17 +436,21 @@ function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Fermer le menu au clic sur un lien
+  const handleNavClick = () => setMobileOpen(false)
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
-        scrolled ? 'border-b border-[#172842] bg-[#050b16]/90 backdrop-blur-xl' : 'bg-transparent'
+        scrolled || mobileOpen ? 'border-b border-[#172842] bg-[#050b16]/95 backdrop-blur-xl' : 'bg-transparent'
       }`}
     >
-      <nav className="mx-auto flex h-24 max-w-[1560px] items-center justify-between px-5 sm:px-8 lg:px-11">
+      <nav className="mx-auto flex h-20 max-w-[1560px] items-center justify-between px-5 sm:px-8 lg:px-11">
         <Link href="/" className="flex items-center gap-3">
           <BrandMark />
         </Link>
 
+        {/* Desktop nav */}
         <div className="hidden items-center gap-10 md:flex">
           {sectionLinks.map((link) => (
             <a
@@ -466,13 +471,71 @@ function Navbar() {
           ))}
         </div>
 
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-3">
           <Link href="/sign-in" className="hidden rounded-xl px-4 py-2 text-sm font-semibold text-slate-300 transition-colors hover:bg-white/[0.04] hover:text-white sm:block">
             Connexion
           </Link>
-          <DemoButton variant="ghost" />
+          <div className="hidden sm:block">
+            <DemoButton variant="ghost" />
+          </div>
+
+          {/* Burger — mobile only */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen(o => !o)}
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#2b456d] bg-[#0b1527]/70 text-slate-300 transition-colors hover:bg-[#142139] md:hidden"
+            aria-label="Menu"
+          >
+            {mobileOpen ? (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
+                <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
+                <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
+              </svg>
+            )}
+          </button>
         </div>
       </nav>
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div className="border-t border-[#172842] bg-[#050b16]/98 px-5 pb-6 pt-4 md:hidden">
+          <div className="flex flex-col gap-1">
+            {sectionLinks.map((link) => (
+              <a
+                key={link.id}
+                href={`#${link.id}`}
+                onClick={handleNavClick}
+                className={`rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
+                  activeSection === link.id
+                    ? 'bg-[#7c5cff]/15 text-white'
+                    : 'text-slate-400 hover:bg-white/[0.04] hover:text-white'
+                }`}
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+          <div className="mt-5 flex flex-col gap-3 border-t border-[#172842] pt-5">
+            <Link
+              href="/sign-up"
+              onClick={handleNavClick}
+              className="flex items-center justify-center gap-2 rounded-xl bg-[#7c5cff] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#8d72ff]"
+            >
+              Créer un compte
+            </Link>
+            <Link
+              href="/sign-in"
+              onClick={handleNavClick}
+              className="flex items-center justify-center gap-2 rounded-xl border border-[#2b456d] px-5 py-3 text-sm font-semibold text-slate-300 transition-colors hover:bg-white/[0.04]"
+            >
+              Connexion
+            </Link>
+          </div>
+        </div>
+      )}
     </header>
   )
 }
@@ -702,10 +765,10 @@ function Hero() {
           >
             <DemoButton />
             <Link
-              href="/sign-in"
+              href="/sign-up"
               className="inline-flex items-center justify-center gap-3 rounded-2xl border border-[#2b456d] bg-[#0b1527]/70 px-8 py-4 text-base font-black text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl transition-colors hover:bg-[#142139]"
             >
-              Entrer dans MERKURE
+              Créer un compte
               <ArrowRight className="h-4 w-4" />
             </Link>
           </motion.div>
@@ -1079,7 +1142,7 @@ function SecuritySection() {
   const items = [
     { icon: <Lock className="h-5 w-5" />, title: 'Identifiants chiffrés', text: 'Les accès broker sont chiffrés côté API avant stockage.' },
     { icon: <Eye className="h-5 w-5" />, title: 'Lecture seule', text: "MERKURE lit vos historiques et ne place pas d'ordre pour vous." },
-    { icon: <ShieldCheck className="h-5 w-5" />, title: 'Auth flexible', text: "Mode démo local-first et Clerk disponible quand l'environnement est configuré." },
+    { icon: <ShieldCheck className="h-5 w-5" />, title: 'Accès sécurisé', text: "Authentification par email ou OAuth. Vos sessions sont isolées et vos données ne sont jamais partagées." },
     { icon: <Database className="h-5 w-5" />, title: 'Base structurée', text: 'Prisma/Postgres séparent utilisateurs, comptes, trades, snapshots et abonnements.' },
   ]
 
@@ -1116,11 +1179,22 @@ function FinalCTA() {
         >
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#a798ff]">Prêt à ouvrir le cockpit</p>
           <h2 className="mx-auto mt-4 max-w-3xl text-3xl font-black leading-tight text-white sm:text-4xl">
-            Entrez dans MERKURE et visualisez vos performances depuis vos vraies données.
+            Visualisez vos performances depuis vos vraies données.
           </h2>
-          <div className="mt-8 flex justify-center">
-            <DemoButton />
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-slate-400">
+            Connectez votre broker, importez votre historique et obtenez un tableau de bord complet en quelques minutes.
+          </p>
+          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link
+              href="/sign-up"
+              className="inline-flex items-center justify-center gap-3 rounded-2xl border border-[#9b79ff]/70 bg-[#7c5cff] px-8 py-4 text-base font-black text-white shadow-[0_0_0_1px_rgba(24,199,255,0.28),0_20px_70px_rgba(124,92,255,0.48)] transition-colors hover:bg-[#8d72ff]"
+            >
+              Créer un compte — dès 19 €/mois
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <DemoButton variant="ghost" />
           </div>
+          <p className="mt-5 text-xs text-slate-600">Aucune carte bancaire requise pour la démo · Résiliable à tout moment</p>
         </motion.div>
       </div>
     </section>
