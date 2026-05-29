@@ -69,6 +69,7 @@ export async function csvImportRoutes(app: FastifyInstance) {
 
     // ── Upsert idempotent (même logique que le sync broker) ───────────────
     let imported = 0
+    let dbSkipped = 0
     const importErrors: string[] = [...errors]
 
     for (const trade of trades) {
@@ -106,13 +107,13 @@ export async function csvImportRoutes(app: FastifyInstance) {
         imported++
       } catch {
         importErrors.push(`Impossible d'importer le trade ${trade.externalId}`)
-        skipped
+        dbSkipped++
       }
     }
 
     return reply.code(201).send({
       imported,
-      skipped: skipped + (trades.length - imported),
+      skipped: skipped + dbSkipped,
       errors:  importErrors,
     })
   })

@@ -26,7 +26,7 @@ export async function billingRoutes(app: FastifyInstance) {
   app.get(
     '/subscription',
     { preHandler: authenticate },
-    async (request, reply) => {
+    async (request, _reply) => {
       const sub = await prisma.subscription.findUnique({
         where: { userId: request.user.id },
         select: {
