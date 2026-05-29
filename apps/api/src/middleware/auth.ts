@@ -21,15 +21,17 @@ export async function authenticate(
   reply: FastifyReply,
 ): Promise<void> {
   if (env.AUTH_MODE === 'demo') {
+    // En mode demo, on accepte un JWT valide s'il est fourni, sinon on injecte le demo user
     const auth = request.headers.authorization
-    if (!auth?.startsWith('Bearer ')) {
-      return reply.code(401).send({ error: 'not_authenticated' })
+    if (auth?.startsWith('Bearer ')) {
+      try {
+        await request.jwtVerify()
+        return
+      } catch {
+        // token invalide → on retombe sur le demo user
+      }
     }
-    try {
-      await request.jwtVerify()
-    } catch {
-      return reply.code(401).send({ error: 'invalid_token' })
-    }
+    request.user = { id: 'demo_user_merkure', email: 'demo@merkure.app', plan: 'FREE' }
     return
   }
 

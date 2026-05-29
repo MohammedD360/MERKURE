@@ -12,6 +12,7 @@ import type { FastifyInstance, FastifyRequest } from 'fastify'
 
 import { env } from './config/env.js'
 import { prisma } from './infrastructure/database/client.js'
+import { getDemoUser } from './modules/auth/demo-user.js'
 
 import { accountsRoutes } from './modules/accounts/accounts.routes.js'
 import { tradesRoutes } from './modules/trades/trades.routes.js'
@@ -83,32 +84,7 @@ export function buildApp(): FastifyInstance {
   // ─── Current user ─────────────────────────────────────────────────────────────
   app.get('/api/v1/me', async (request, reply) => {
     if (env.AUTH_MODE === 'demo') {
-      const auth = request.headers.authorization
-      if (!auth?.startsWith('Bearer ')) return reply.code(401).send({ error: 'not_authenticated' })
-      try {
-        await request.jwtVerify()
-        const u = request.user
-        const dbUser = await prisma.user.findUnique({
-          where:  { id: u.id },
-          select: {
-            firstName: true,
-            lastName: true,
-            avatarUrl: true,
-            subscription: { select: { plan: true } },
-          },
-        })
-        return {
-          id: u.id,
-          email: u.email,
-          firstName: dbUser?.firstName ?? null,
-          lastName: dbUser?.lastName ?? null,
-          avatarUrl: dbUser?.avatarUrl ?? null,
-          plan: dbUser?.subscription?.plan ?? u.plan,
-          authMode: 'demo',
-        }
-      } catch {
-        return reply.code(401).send({ error: 'invalid_token' })
-      }
+      return getDemoUser()
     }
     if (!env.CLERK_SECRET_KEY) return reply.code(500).send({ error: 'clerk_not_configured' })
 
