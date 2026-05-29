@@ -11,6 +11,7 @@ import { verifyToken } from '@clerk/backend'
 import type { FastifyInstance, FastifyRequest } from 'fastify'
 
 import { env } from './config/env.js'
+import { prisma } from './infrastructure/database/client.js'
 
 import { accountsRoutes } from './modules/accounts/accounts.routes.js'
 import { tradesRoutes } from './modules/trades/trades.routes.js'
@@ -26,8 +27,12 @@ import { aiRoutes } from './modules/ai/ai.routes.js'
 import { performanceRoutes } from './modules/performance/performance.routes.js'
 import { reportsRoutes } from './modules/reports/reports.routes.js'
 import { authRoutes } from './modules/auth/auth.routes.js'
+import { googleOAuthRoutes } from './modules/auth/google-oauth.routes.js'
 import { riskRoutes } from './modules/risk/risk.routes.js'
 import { usersRoutes } from './modules/users/users.routes.js'
+import { portfolioRoutes } from './modules/portfolio/portfolio.routes.js'
+import { statsRoutes } from './modules/stats/stats.routes.js'
+import { journalRoutes } from './modules/journal/journal.routes.js'
 
 function getBearerToken(request: FastifyRequest): string | null {
   const auth = request.headers.authorization
@@ -72,7 +77,8 @@ export function buildApp(): FastifyInstance {
   app.get('/health', healthHandler)
   app.get('/api/health', healthHandler)
 
-  void app.register(authRoutes, { prefix: '/api/v1/auth' })
+  void app.register(authRoutes,       { prefix: '/api/v1/auth' })
+  void app.register(googleOAuthRoutes, { prefix: '/api/v1/auth' })
 
   // ─── Current user ─────────────────────────────────────────────────────────────
   app.get('/api/v1/me', async (request, reply) => {
@@ -82,7 +88,24 @@ export function buildApp(): FastifyInstance {
       try {
         await request.jwtVerify()
         const u = request.user
-        return { id: u.id, email: u.email, firstName: null, lastName: null, plan: u.plan, authMode: 'demo' }
+        const dbUser = await prisma.user.findUnique({
+          where:  { id: u.id },
+          select: {
+            firstName: true,
+            lastName: true,
+            avatarUrl: true,
+            subscription: { select: { plan: true } },
+          },
+        })
+        return {
+          id: u.id,
+          email: u.email,
+          firstName: dbUser?.firstName ?? null,
+          lastName: dbUser?.lastName ?? null,
+          avatarUrl: dbUser?.avatarUrl ?? null,
+          plan: dbUser?.subscription?.plan ?? u.plan,
+          authMode: 'demo',
+        }
       } catch {
         return reply.code(401).send({ error: 'invalid_token' })
       }
@@ -94,11 +117,36 @@ export function buildApp(): FastifyInstance {
 
     try {
       const payload = await verifyToken(token, { secretKey: env.CLERK_SECRET_KEY })
+      const dbUser = await prisma.user.findUnique({
+        where:  { clerkId: payload.sub },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          avatarUrl: true,
+          subscription: { select: { plan: true } },
+        },
+      })
+
+      if (dbUser) {
+        return {
+          id: dbUser.id,
+          email: dbUser.email,
+          firstName: dbUser.firstName,
+          lastName: dbUser.lastName,
+          avatarUrl: dbUser.avatarUrl,
+          plan: dbUser.subscription?.plan ?? 'FREE',
+          authMode: 'clerk',
+        }
+      }
+
       return {
         id: payload.sub,
         email: typeof payload['email'] === 'string' ? payload['email'] : null,
         firstName: null,
         lastName: null,
+        avatarUrl: null,
         plan: 'FREE',
         authMode: 'clerk',
       }
@@ -124,6 +172,9 @@ export function buildApp(): FastifyInstance {
   void app.register(reportsRoutes,      { prefix: '/api/v1/reports' })
   void app.register(riskRoutes,         { prefix: '/api/v1/risk' })
   void app.register(usersRoutes,        { prefix: '/api/v1/users' })
+  void app.register(portfolioRoutes,    { prefix: '/api/v1/portfolio' })
+  void app.register(statsRoutes,        { prefix: '/api/v1/stats' })
+  void app.register(journalRoutes,      { prefix: '/api/v1/journal' })
 
   // ─── WebSocket ────────────────────────────────────────────────────────────────
   void app.register(registerWsHandler)

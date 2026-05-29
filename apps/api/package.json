@@ -30,6 +30,7 @@
     "@fastify/websocket": "^11.0.1",
     "@merkure/shared-types": "workspace:*",
     "@prisma/client": "^5.22.0",
+    "@sentry/node": "^10.55.0",
     "bcryptjs": "^2.4.3",
     "bullmq": "^5.21.3",
     "csv-parse": "^6.2.1",

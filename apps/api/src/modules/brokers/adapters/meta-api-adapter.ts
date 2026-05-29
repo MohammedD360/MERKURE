@@ -108,14 +108,19 @@ export class MetaApiAdapter implements BrokerAdapter {
   private async findOrProvision(
     login: string, password: string, server: string, platform: string,
   ): Promise<string> {
-    // Check if already provisioned for this login/server combination
-    const accounts: { id: string; login: string; server: string }[] = await metaFetch(
+    // MetaAPI returns _id (MongoDB convention), not id
+    const accounts: { _id: string; login: string; server: string }[] = await metaFetch(
       `${PROVISION_URL}/users/current/accounts?limit=100`,
     )
-    const existing = accounts.find(a => a.login === login && a.server === server)
-    if (existing) return existing.id
 
-    // Provision new account
+    // Try exact match first, then fall back to login-only (server name format may differ)
+    const byLoginServer = accounts.find(a => a.login === login && a.server === server)
+    if (byLoginServer) return byLoginServer._id
+
+    const byLogin = accounts.find(a => a.login === login)
+    if (byLogin) return byLogin._id
+
+    // Provision new account — use the broker server name as-is
     const created = await metaFetch(`${PROVISION_URL}/users/current/accounts`, {
       method: 'POST',
       body: JSON.stringify({
@@ -128,7 +133,7 @@ export class MetaApiAdapter implements BrokerAdapter {
         magic:    0,
       }),
     })
-    return created.id
+    return created._id ?? created.id
   }
 
   private async deploy(): Promise<void> {

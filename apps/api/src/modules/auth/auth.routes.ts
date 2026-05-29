@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { prisma } from '../../infrastructure/database/client.js'
 import { env } from '../../config/env.js'
 import { emailService } from '../../infrastructure/email/email.service.js'
+import { authenticate } from '../../middleware/auth.js'
 
 const LoginSchema = z.object({
   email:    z.string().email(),
@@ -53,6 +54,14 @@ export async function authRoutes(app: FastifyInstance) {
 
     // Email de bienvenue (fire & forget)
     emailService.sendWelcome(user.email!, user.firstName).catch(() => {})
+
+    // Email de vérification (fire & forget)
+    const rawVerifyToken = crypto.randomBytes(32).toString('hex')
+    const verifyUrl = `${env.FRONTEND_URL}/verify-email?token=${rawVerifyToken}`
+    prisma.user.update({
+      where: { id: user.id },
+      data: { emailVerifyToken: rawVerifyToken },
+    }).then(() => emailService.sendEmailVerification(user.email!, verifyUrl)).catch(() => {})
 
     return reply.code(201).send({ token, user: { id: user.id, email: user.email, plan: 'FREE' } })
   })
@@ -159,6 +168,57 @@ export async function authRoutes(app: FastifyInstance) {
       }),
     ])
 
+    return { ok: true }
+  })
+
+  // GET /api/v1/auth/me — profil courant
+  app.get('/me', { preHandler: authenticate }, async (req) => {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { id: true, email: true, firstName: true, lastName: true, emailVerified: true },
+    })
+    const sub = await prisma.subscription.findUnique({
+      where: { userId: req.user.id },
+      select: { plan: true, status: true },
+    })
+    return {
+      ...(user ?? {}),
+      plan: sub?.plan ?? 'FREE',
+      subscriptionStatus: sub?.status ?? 'ACTIVE',
+    }
+  })
+
+  // POST /api/v1/auth/refresh-plan — refresh le JWT avec le plan courant en DB
+  app.post('/refresh-plan', { preHandler: authenticate }, async (req) => {
+    const sub = await prisma.subscription.findUnique({
+      where: { userId: req.user.id },
+      select: { plan: true },
+    })
+    const plan = sub?.plan ?? 'FREE'
+    const token = app.jwt.sign(
+      { id: req.user.id, email: req.user.email, plan },
+      { expiresIn: '7d' },
+    )
+    return { token, plan }
+  })
+
+  // GET /api/v1/auth/verify-email?token=xxx
+  app.get<{ Querystring: { token?: string } }>('/verify-email', async (req, reply) => {
+    const { token } = req.query
+    if (!token || typeof token !== 'string') {
+      return reply.code(400).send({ error: 'missing_token' })
+    }
+    const user = await prisma.user.findFirst({
+      where: { emailVerifyToken: token },
+      select: { id: true },
+    })
+    if (!user) {
+      return reply.code(400).send({ error: 'invalid_or_expired_token' })
+    }
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { emailVerified: true, emailVerifyToken: null },
+    })
     return { ok: true }
   })
 

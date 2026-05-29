@@ -23,7 +23,10 @@ const envSchema = z.object({
 
   // Email (Resend)
   RESEND_API_KEY: z.string().optional(),
-  RESEND_FROM: z.string().email().default('MERKURE <noreply@merkure.app>'),
+  RESEND_FROM: z.string().default('noreply@merkure.app'),
+
+  // Monitoring
+  SENTRY_DSN: z.string().url().optional(),
 
   // AI Service
   AI_SERVICE_URL: z.string().url().default('http://localhost:8000'),
@@ -52,6 +55,11 @@ const envSchema = z.object({
 
   // Encryption (for broker credentials)
   ENCRYPTION_KEY: z.string().length(64).default('0000000000000000000000000000000000000000000000000000000000000000'), // 32 bytes hex
+
+  // Google OAuth
+  GOOGLE_CLIENT_ID:     z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_REDIRECT_URI:  z.string().url().default('http://localhost:3001/api/v1/auth/google/callback'),
 })
 
 const parsed = envSchema.safeParse(process.env)
@@ -60,6 +68,21 @@ if (!parsed.success) {
   console.error('Invalid environment variables:')
   console.error(parsed.error.flatten().fieldErrors)
   process.exit(1)
+}
+
+// Vérifications supplémentaires en production
+if (parsed.data.NODE_ENV === 'production') {
+  const missing: string[] = []
+  if (!parsed.data.RESEND_API_KEY)       missing.push('RESEND_API_KEY')
+  if (!parsed.data.STRIPE_SECRET_KEY)    missing.push('STRIPE_SECRET_KEY')
+  if (!parsed.data.STRIPE_WEBHOOK_SECRET) missing.push('STRIPE_WEBHOOK_SECRET')
+  if (!parsed.data.STRIPE_PRICE_STARTER) missing.push('STRIPE_PRICE_STARTER')
+  if (!parsed.data.STRIPE_PRICE_PRO)     missing.push('STRIPE_PRICE_PRO')
+  if (!parsed.data.STRIPE_PRICE_ELITE)   missing.push('STRIPE_PRICE_ELITE')
+  if (missing.length > 0) {
+    console.error(`[env] Variables manquantes en production : ${missing.join(', ')}`)
+    process.exit(1)
+  }
 }
 
 export const env = parsed.data

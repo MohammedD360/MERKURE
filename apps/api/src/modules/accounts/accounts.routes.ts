@@ -5,15 +5,35 @@ import { accountsService } from './accounts.service.js'
 import { CreateAccountSchema } from './accounts.types.js'
 import { brokerSyncQueue } from '../../infrastructure/queue/queues.js'
 import type { BrokerSyncJob } from '../../infrastructure/queue/queues.js'
+import { ACCOUNT_LIMIT, upgradeRequired } from '../../middleware/plan-limits.js'
 
 export async function accountsRoutes(app: FastifyInstance) {
   app.get('/', { preHandler: [authenticate] }, async (req) => {
     return accountsService.list(req.user.id)
   })
 
+  app.get<{ Params: { id: string } }>('/:id', { preHandler: [authenticate] }, async (req, reply) => {
+    const account = await accountsService.findById(req.params.id, req.user.id)
+    if (!account) return reply.code(404).send({ error: 'account_not_found' })
+    return account
+  })
+
   app.post<{ Body: unknown }>('/', { preHandler: [authenticate] }, async (req, reply) => {
     try {
-      const body = CreateAccountSchema.parse(req.body)
+      const body  = CreateAccountSchema.parse(req.body)
+      const plan  = req.user.plan ?? 'FREE'
+      const limit = ACCOUNT_LIMIT[plan] ?? 1
+      const count = await accountsService.count(req.user.id)
+
+      if (count >= limit) {
+        return reply.code(403).send({
+          error:        'account_limit_reached',
+          limit,
+          plan,
+          requiredPlan: upgradeRequired(plan),
+        })
+      }
+
       const account = await accountsService.create(req.user.id, body)
 
       // Déclenche une sync complète immédiatement après la création
@@ -58,14 +78,14 @@ export async function accountsRoutes(app: FastifyInstance) {
     if (!account) return reply.code(404).send({ error: 'account_not_found' })
 
     await brokerSyncQueue.add(
-      `manual-${account.id}`,
+      `manual-${account.id}-${Date.now()}`,
       {
         accountId: account.id,
         userId: req.user.id,
         brokerType: account.brokerType.toLowerCase() as BrokerSyncJob['brokerType'],
         fullSync: false,
       },
-      { priority: 1, jobId: `manual-${account.id}` },
+      { priority: 1 },
     )
 
     return { queued: true, accountId: account.id }

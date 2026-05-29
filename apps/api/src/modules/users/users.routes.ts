@@ -5,8 +5,15 @@ import { prisma } from '../../infrastructure/database/client.js'
 import { authenticate } from '../../middleware/auth.js'
 
 const UpdateProfileSchema = z.object({
-  firstName: z.string().min(1).max(50).optional(),
-  lastName:  z.string().min(1).max(50).optional(),
+  firstName: z.string().trim().max(50).nullable().optional(),
+  lastName:  z.string().trim().max(50).nullable().optional(),
+  avatarUrl: z.string().max(400_000).refine(
+    value => value.startsWith('data:image/jpeg;base64,')
+      || value.startsWith('data:image/png;base64,')
+      || value.startsWith('data:image/webp;base64,')
+      || value.startsWith('https://'),
+    'invalid_avatar_url',
+  ).nullable().optional(),
   timezone:  z.string().optional(),
   currency:  z.string().length(3).optional(),
 })
@@ -17,6 +24,13 @@ const ChangePasswordSchema = z.object({
 })
 
 export async function usersRoutes(app: FastifyInstance) {
+  const nullableText = (value: string | null | undefined) => {
+    if (value === undefined) return undefined
+    if (value === null) return null
+    const trimmed = value.trim()
+    return trimmed.length > 0 ? trimmed : null
+  }
+
   /**
    * GET /api/v1/users/me — profil complet
    */
@@ -24,7 +38,7 @@ export async function usersRoutes(app: FastifyInstance) {
     const user = await prisma.user.findUnique({
       where:  { id: req.user.id },
       select: {
-        id: true, email: true, firstName: true, lastName: true,
+        id: true, email: true, firstName: true, lastName: true, avatarUrl: true,
         timezone: true, currency: true, createdAt: true,
         subscription: { select: { plan: true, status: true } },
       },
@@ -39,10 +53,13 @@ export async function usersRoutes(app: FastifyInstance) {
     const parsed = UpdateProfileSchema.safeParse(req.body)
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_body' })
 
-    const { firstName, lastName, timezone, currency } = parsed.data
+    const { firstName, lastName, avatarUrl, timezone, currency } = parsed.data
+    const normalizedFirstName = nullableText(firstName)
+    const normalizedLastName  = nullableText(lastName)
     const updateData = {
-      ...(firstName !== undefined ? { firstName } : {}),
-      ...(lastName  !== undefined ? { lastName  } : {}),
+      ...(normalizedFirstName !== undefined ? { firstName: normalizedFirstName } : {}),
+      ...(normalizedLastName  !== undefined ? { lastName:  normalizedLastName  } : {}),
+      ...(avatarUrl !== undefined ? { avatarUrl } : {}),
       ...(timezone  !== undefined ? { timezone  } : {}),
       ...(currency  !== undefined ? { currency  } : {}),
     }
@@ -50,7 +67,7 @@ export async function usersRoutes(app: FastifyInstance) {
       where: { id: req.user.id },
       data:  updateData,
       select: {
-        id: true, email: true, firstName: true, lastName: true,
+        id: true, email: true, firstName: true, lastName: true, avatarUrl: true,
         timezone: true, currency: true,
       },
     })

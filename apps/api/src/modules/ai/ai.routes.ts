@@ -12,7 +12,7 @@ export async function aiRoutes(app: FastifyInstance) {
    */
   app.post<{ Body: { date?: string; context?: string } }>(
     '/analysis',
-    { preHandler: [authenticate, requirePlan('STARTER')] },
+    { preHandler: [authenticate, requirePlan('PRO')] },
     async (req, reply) => {
       const date = req.body?.date ? new Date(req.body.date) : new Date()
       if (isNaN(date.getTime())) {

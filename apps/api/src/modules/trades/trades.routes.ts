@@ -6,6 +6,7 @@ import { tradesRepository } from './trades.repository.js'
 import { TradesQuerySchema, AnnotateTradeSchema } from './trades.types.js'
 import { prisma } from '../../infrastructure/database/client.js'
 import type { Direction, TradeStatus } from '@prisma/client'
+import { CAN_EXPORT_TRADES, TRADE_HISTORY_DAYS, upgradeRequired } from '../../middleware/plan-limits.js'
 
 const CACHE_TTL = 60 * 2 // 2 minutes (trades changent plus souvent que les KPIs)
 
@@ -32,6 +33,11 @@ export async function tradesRoutes(app: FastifyInstance) {
       dateTo?: string
     }
   }>('/export', { preHandler: [authenticate] }, async (req, reply) => {
+    const plan = req.user.plan ?? 'FREE'
+    if (!CAN_EXPORT_TRADES.has(plan)) {
+      return reply.code(403).send({ error: 'plan_required', requiredPlan: upgradeRequired(plan) })
+    }
+
     const { symbol, direction, status, accountId, dateFrom, dateTo } = req.query
 
     const where = {
@@ -88,7 +94,18 @@ export async function tradesRoutes(app: FastifyInstance) {
 
   app.get<{ Querystring: unknown }>('/', { preHandler: [authenticate] }, async (req, reply) => {
     try {
-      const query    = TradesQuerySchema.parse(req.query)
+      const plan      = req.user.plan ?? 'FREE'
+      const maxDays   = TRADE_HISTORY_DAYS[plan] ?? 30
+      const earliest  = new Date(Date.now() - maxDays * 86_400_000)
+
+      const raw   = typeof req.query === 'object' && req.query !== null ? req.query : {}
+      const query = TradesQuerySchema.parse({
+        ...raw,
+        // Empêche de remonter au-delà de la limite du plan
+        dateFrom: 'dateFrom' in raw && typeof raw.dateFrom === 'string' && new Date(raw.dateFrom) >= earliest
+          ? raw.dateFrom
+          : earliest.toISOString().slice(0, 10),
+      })
       const queryHash = JSON.stringify(query)
       const cacheKey  = CacheKeys.trades(req.user.id, queryHash)
 

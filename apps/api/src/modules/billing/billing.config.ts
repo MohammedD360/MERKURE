@@ -25,7 +25,7 @@ export const PLANS: Record<Exclude<Plan, 'INSTITUTIONAL'>, PlanConfig> = {
     priceMonthly: 900,
     currency: 'EUR',
     stripePriceId: env.STRIPE_PRICE_STARTER,
-    features: ['Trades illimités', 'Sync broker (1)', 'KPIs avancés', 'Journal IA'],
+    features: ['Trades illimités', 'Sync broker (1)', 'KPIs avancés', 'Journal assisté'],
   },
   PRO: {
     id: 'PRO',
@@ -33,7 +33,7 @@ export const PLANS: Record<Exclude<Plan, 'INSTITUTIONAL'>, PlanConfig> = {
     priceMonthly: 1900,
     currency: 'EUR',
     stripePriceId: env.STRIPE_PRICE_PRO,
-    features: ['Sync broker (3)', 'Analytics avancés', 'Alertes', 'Coach IA illimité'],
+    features: ['Sync broker (3)', 'Analyse par actif', 'Alertes de risque', 'Rapport hebdomadaire'],
   },
   ELITE: {
     id: 'ELITE',
@@ -41,7 +41,7 @@ export const PLANS: Record<Exclude<Plan, 'INSTITUTIONAL'>, PlanConfig> = {
     priceMonthly: 4900,
     currency: 'EUR',
     stripePriceId: env.STRIPE_PRICE_ELITE,
-    features: ['Sync broker illimité', 'Rapports PDF', 'API access', 'Support prioritaire'],
+    features: ['Sync broker illimité', 'Rapports PDF', 'Exports avancés', 'Support prioritaire'],
   },
 }
 

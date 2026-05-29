@@ -18,8 +18,8 @@ function getSession(utcHour: number): string {
   if (utcHour < 7)  return 'Asia'
   if (utcHour < 13) return 'London'
   if (utcHour < 17) return 'Overlap'
-  if (utcHour < 22) return 'NewYork'
-  return 'AfterHours'
+  if (utcHour < 22) return 'New York'
+  return 'After-Hours'
 }
 
 // JS getDay() : 0=Dimanche → on remaps vers 0=Lundi
@@ -112,7 +112,7 @@ export const performanceRepository = {
       sessionMap.get(session)!.push(Number(t.pnl ?? 0))
     }
 
-    const ORDER = ['Asia', 'London', 'Overlap', 'NewYork', 'AfterHours']
+    const ORDER = ['Asia', 'London', 'Overlap', 'New York', 'After-Hours']
     return ORDER.map(session => {
       const pnls     = sessionMap.get(session) ?? []
       const nbTrades = pnls.length
@@ -130,7 +130,7 @@ export const performanceRepository = {
     userId: string,
     period: Period,
     accountId?: string,
-  ): Promise<{ day: string; nbTrades: number; winRate: number; totalPnl: number }[]> {
+  ): Promise<{ day: number; label: string; nbTrades: number; winRate: number; totalPnl: number }[]> {
     const from = periodToDate(period)
     const trades = await prisma.trade.findMany({
       where: {
@@ -155,7 +155,7 @@ export const performanceRepository = {
       const nbTrades = pnls.length
       const totalPnl = pnls.reduce((s, p) => s + p, 0)
       const winRate  = nbTrades > 0 ? pnls.filter(p => p > 0).length / nbTrades : 0
-      return { day: DAY_NAMES[i]!, nbTrades, winRate, totalPnl }
+      return { day: i, label: DAY_NAMES[i]!, nbTrades, winRate, totalPnl }
     })
   },
 
@@ -166,7 +166,7 @@ export const performanceRepository = {
     userId: string,
     period: Period,
     accountId?: string,
-  ): Promise<{ day: number; hour: number; pnl: number; count: number }[]> {
+  ): Promise<{ dayOfWeek: number; hour: number; pnl: number; count: number }[]> {
     const from = periodToDate(period)
     const trades = await prisma.trade.findMany({
       where: {
@@ -180,21 +180,21 @@ export const performanceRepository = {
 
     const cellMap = new Map<string, { pnl: number; count: number }>()
     for (const t of trades) {
-      const day  = jsWeekdayToMon0(t.openTime.getUTCDay())
-      const hour = t.openTime.getUTCHours()
-      const key  = `${day}:${hour}`
-      const cell = cellMap.get(key) ?? { pnl: 0, count: 0 }
+      const dayOfWeek = jsWeekdayToMon0(t.openTime.getUTCDay())
+      const hour      = t.openTime.getUTCHours()
+      const key       = `${dayOfWeek}:${hour}`
+      const cell      = cellMap.get(key) ?? { pnl: 0, count: 0 }
       cell.pnl   += Number(t.pnl ?? 0)
       cell.count += 1
       cellMap.set(key, cell)
     }
 
-    const result: { day: number; hour: number; pnl: number; count: number }[] = []
-    for (let day = 0; day < 7; day++) {
+    const result: { dayOfWeek: number; hour: number; pnl: number; count: number }[] = []
+    for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
       for (let hour = 0; hour < 24; hour++) {
-        const cell = cellMap.get(`${day}:${hour}`)
+        const cell = cellMap.get(`${dayOfWeek}:${hour}`)
         if (cell) {
-          result.push({ day, hour, pnl: cell.pnl, count: cell.count })
+          result.push({ dayOfWeek, hour, pnl: cell.pnl, count: cell.count })
         }
       }
     }
@@ -208,7 +208,7 @@ export const performanceRepository = {
     userId: string,
     period: Period,
     accountId?: string,
-  ): Promise<{ avgRR: number | null; avgDurationMin: number | null; nbTrades: number }> {
+  ): Promise<{ winRate: number | null; avgRR: number | null; avgDurationMs: number | null; profitFactor: number | null; nbTrades: number }> {
     const from = periodToDate(period)
     const trades = await prisma.trade.findMany({
       where: {
@@ -221,25 +221,30 @@ export const performanceRepository = {
     })
 
     const nbTrades = trades.length
-    if (nbTrades === 0) return { avgRR: null, avgDurationMin: null, nbTrades: 0 }
+    if (nbTrades === 0) return { winRate: null, avgRR: null, avgDurationMs: null, profitFactor: null, nbTrades: 0 }
 
     const pnls    = trades.map(t => Number(t.pnl ?? 0))
     const winners = pnls.filter(p => p > 0)
     const losers  = pnls.filter(p => p < 0)
 
-    const avgWin  = winners.length > 0 ? winners.reduce((s, p) => s + p, 0) / winners.length : null
-    const avgLoss = losers.length  > 0 ? Math.abs(losers.reduce((s, p) => s + p, 0) / losers.length) : null
+    const winRate     = nbTrades > 0 ? winners.length / nbTrades : null
+    const grossProfit = winners.reduce((s, p) => s + p, 0)
+    const grossLoss   = Math.abs(losers.reduce((s, p) => s + p, 0))
+    const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : null
+
+    const avgWin  = winners.length > 0 ? grossProfit / winners.length : null
+    const avgLoss = losers.length  > 0 ? grossLoss  / losers.length   : null
     const avgRR   = avgWin != null && avgLoss != null && avgLoss > 0 ? avgWin / avgLoss : null
 
     const durationsMs = trades
       .filter(t => t.closeTime != null)
       .map(t => t.closeTime!.getTime() - t.openTime.getTime())
 
-    const avgDurationMin = durationsMs.length > 0
-      ? durationsMs.reduce((s, d) => s + d, 0) / durationsMs.length / 60_000
+    const avgDurationMs = durationsMs.length > 0
+      ? durationsMs.reduce((s, d) => s + d, 0) / durationsMs.length
       : null
 
-    return { avgRR, avgDurationMin, nbTrades }
+    return { winRate, avgRR, avgDurationMs, profitFactor, nbTrades }
   },
 
   /**
@@ -250,14 +255,14 @@ export const performanceRepository = {
     period: Period,
     config: { timeThresholdMin: number; lotIncreasePct: number },
   ): Promise<{
-    tradeId: string
-    prevTradeId: string
+    id: string
     symbol: string
     type: 'fast_reentry' | 'lot_increase' | 'both'
-    minutesBetween: number | null
+    openTime: string
+    minutesBetweenTrades: number
     prevLotSize: number
-    lotSize: number
-    prevPnl: number
+    currLotSize: number
+    lotSizeDelta: number
   }[]> {
     const from = periodToDate(period)
     const trades = await prisma.trade.findMany({
@@ -271,14 +276,14 @@ export const performanceRepository = {
     })
 
     const alerts: {
-      tradeId: string
-      prevTradeId: string
+      id: string
       symbol: string
       type: 'fast_reentry' | 'lot_increase' | 'both'
-      minutesBetween: number | null
+      openTime: string
+      minutesBetweenTrades: number
       prevLotSize: number
-      lotSize: number
-      prevPnl: number
+      currLotSize: number
+      lotSizeDelta: number
     }[] = []
 
     for (let i = 1; i < trades.length; i++) {
@@ -290,15 +295,15 @@ export const performanceRepository = {
       if (prevPnl >= 0) continue
 
       const prevLotSize = Number(prev.lotSize)
-      const lotSize     = Number(curr.lotSize)
+      const currLotSize = Number(curr.lotSize)
+      const lotSizeDelta = currLotSize - prevLotSize
 
-      let minutesBetween: number | null = null
-      if (prev.closeTime && curr.openTime) {
-        minutesBetween = (curr.openTime.getTime() - prev.closeTime.getTime()) / 60_000
-      }
+      const minutesBetweenTrades = prev.closeTime && curr.openTime
+        ? (curr.openTime.getTime() - prev.closeTime.getTime()) / 60_000
+        : 0
 
-      const isFastReentry  = minutesBetween != null && minutesBetween < config.timeThresholdMin
-      const isLotIncrease  = prevLotSize > 0 && ((lotSize - prevLotSize) / prevLotSize) * 100 > config.lotIncreasePct
+      const isFastReentry = minutesBetweenTrades < config.timeThresholdMin
+      const isLotIncrease = prevLotSize > 0 && (lotSizeDelta / prevLotSize) * 100 > config.lotIncreasePct
 
       if (!isFastReentry && !isLotIncrease) continue
 
@@ -308,14 +313,14 @@ export const performanceRepository = {
         : 'lot_increase'
 
       alerts.push({
-        tradeId:       curr.id,
-        prevTradeId:   prev.id,
-        symbol:        curr.symbol,
+        id:                   curr.id,
+        symbol:               curr.symbol,
         type,
-        minutesBetween,
+        openTime:             curr.openTime.toISOString(),
+        minutesBetweenTrades: Math.round(minutesBetweenTrades),
         prevLotSize,
-        lotSize,
-        prevPnl,
+        currLotSize,
+        lotSizeDelta,
       })
     }
 

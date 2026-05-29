@@ -8,9 +8,9 @@ describe('PLANS', () => {
   })
 
   it('paid plans have a priceMonthly > 0', () => {
-    expect(PLANS.STARTER.priceMonthly).toBe(1900)
-    expect(PLANS.PRO.priceMonthly).toBe(4900)
-    expect(PLANS.ELITE.priceMonthly).toBe(12900)
+    expect(PLANS.STARTER.priceMonthly).toBe(900)
+    expect(PLANS.PRO.priceMonthly).toBe(1900)
+    expect(PLANS.ELITE.priceMonthly).toBe(4900)
   })
 
   it('all plans have required fields', () => {

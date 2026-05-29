@@ -1,4 +1,4 @@
-import { createWorker, brokerSyncQueue } from '../../infrastructure/queue/queues.js'
+import { createWorker, brokerSyncQueue, alertProcessQueue } from '../../infrastructure/queue/queues.js'
 import type { BrokerSyncJob } from '../../infrastructure/queue/queues.js'
 import { prisma } from '../../infrastructure/database/client.js'
 import { cache, CacheKeys } from '../../infrastructure/cache/redis.js'
@@ -159,33 +159,12 @@ export function startBrokerSyncWorker() {
         // ─── Step 4: Recalculate KPI snapshots for affected dates ─────────────────
         await recalculateKpiSnapshots(userId, syncFrom)
 
-        // ─── Step 4b: Trigger drawdown alerts based on latest KPI snapshot ────────
-        const latestSnapshot = await prisma.kpiSnapshot.findFirst({
-          where: { userId },
-          orderBy: { date: 'desc' },
-        })
-
-        if (latestSnapshot?.maxDrawdown != null) {
-          const drawdownPct = Math.abs(Number(latestSnapshot.maxDrawdown) * 100)
-
-          if (drawdownPct >= 20) {
-            await createAlertIfNew(
-              userId,
-              'DRAWDOWN',
-              'CRITICAL',
-              'Drawdown critique détecté',
-              `Votre drawdown maximum atteint ${drawdownPct.toFixed(1)}% — réduisez votre exposition immédiatement.`,
-            )
-          } else if (drawdownPct >= 10) {
-            await createAlertIfNew(
-              userId,
-              'DRAWDOWN',
-              'WARNING',
-              'Drawdown élevé',
-              `Votre drawdown maximum est de ${drawdownPct.toFixed(1)}% — surveillez votre gestion du risque.`,
-            )
-          }
-        }
+        // ─── Step 4b: Enqueue alert checks (drawdown, lot size, P&L limit) ─────────
+        await alertProcessQueue.add(
+          `check-${userId}`,
+          { userId, triggerType: 'drawdown' },
+          { jobId: `alerts-${userId}`, removeOnComplete: true },
+        )
 
         // ─── Step 5: Invalidate Redis cache ──────────────────────────────────────
         await cache.delPattern(`kpis:${userId}:*`)
@@ -222,7 +201,7 @@ export async function scheduleBrokerSyncCron(): Promise<void> {
     'dispatch-all',
     {} as BrokerSyncJob,
     {
-      repeat: { every: 60 * 60 * 1_000 }, // every hour
+      repeat: { every: 5 * 60 * 1_000 }, // every 5 minutes
       jobId: 'dispatch-all-cron',
     },
   )

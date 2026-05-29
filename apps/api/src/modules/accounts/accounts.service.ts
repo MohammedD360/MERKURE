@@ -1,8 +1,13 @@
 import { accountsRepository } from './accounts.repository.js'
 import { encrypt } from '../../infrastructure/crypto/encryption.js'
+import { prisma } from '../../infrastructure/database/client.js'
 import type { CreateAccountInput } from './accounts.types.js'
 
 export const accountsService = {
+  count(userId: string) {
+    return prisma.brokerAccount.count({ where: { userId, isActive: true } })
+  },
+
   list(userId: string) {
     return accountsRepository
       .findAll(userId)
