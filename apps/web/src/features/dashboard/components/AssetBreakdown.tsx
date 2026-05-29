@@ -2,9 +2,10 @@
 
 import { useState } from 'react'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
-import { useKpiBreakdown, type KpiPeriod } from '@/lib/hooks/use-kpis'
+import type { KpiBreakdown } from '@/lib/api-client'
 
 type Mode = 'volume' | 'pnl'
+const DASHBOARD_CURRENCY = 'EUR'
 
 function CustomTooltip({ active, payload, mode }: {
   active?: boolean
@@ -14,22 +15,27 @@ function CustomTooltip({ active, payload, mode }: {
   if (!active || !payload?.length) return null
   const d = payload[0]!.payload
   return (
-    <div className="rounded-lg border border-[#243957] bg-[#0b1527] px-3 py-2 text-xs shadow-2xl">
+    <div className="rounded-md border border-slate-700 bg-[#0b111c] px-3 py-2 text-xs shadow-2xl">
       <div className="font-medium text-white">{d.label}</div>
       {mode === 'volume' ? (
         <div className="mt-0.5 text-slate-400">{d.pct}% des trades ({d.nbTrades})</div>
       ) : (
         <div className={`mt-0.5 ${d.pnl >= 0 ? 'text-[#38e476]' : 'text-[#ff5e70]'}`}>
-          {d.pnl >= 0 ? '+' : ''}{d.pnl.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+          {d.pnl >= 0 ? '+' : ''}{d.pnl.toLocaleString('fr-FR', { style: 'currency', currency: DASHBOARD_CURRENCY, maximumFractionDigits: 0 })}
         </div>
       )}
     </div>
   )
 }
 
-export function AssetBreakdown({ period = '30d' }: { period?: KpiPeriod }) {
+export function AssetBreakdown({
+  data,
+  isLoading = false,
+}: {
+  data?: KpiBreakdown | undefined
+  isLoading?: boolean
+}) {
   const [mode, setMode] = useState<Mode>('volume')
-  const { data, isLoading } = useKpiBreakdown(period)
   const assets = data?.bySymbol ?? []
 
   const pieData = assets.map(a => ({
@@ -41,24 +47,27 @@ export function AssetBreakdown({ period = '30d' }: { period?: KpiPeriod }) {
     ? { value: assets.reduce((s, a) => s + a.nbTrades, 0).toString(), sub: 'trades' }
     : {
         value: assets.reduce((s, a) => s + a.pnl, 0)
-          .toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }),
+          .toLocaleString('fr-FR', { style: 'currency', currency: DASHBOARD_CURRENCY, maximumFractionDigits: 0 }),
         sub: 'P&L total',
       }
 
   return (
-    <div className="h-full rounded-2xl border border-[#1e2f4a] bg-[#0b1527] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_18px_60px_rgba(0,0,0,0.22)]">
+    <div className="h-full rounded-lg border border-slate-800 bg-[#0b111c] p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h3 className="text-base font-bold text-white">Répartition des actifs</h3>
-        <div className="inline-flex overflow-hidden rounded-lg border border-[#243957] bg-[#111b2d] text-xs font-medium">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Allocation trades</p>
+          <h3 className="mt-1 text-base font-black text-white">Répartition des actifs</h3>
+        </div>
+        <div className="inline-flex overflow-hidden rounded-md border border-slate-800 bg-[#071017] text-xs font-bold">
           <button
             onClick={() => setMode('volume')}
-            className={`px-3 py-1.5 transition-colors ${mode === 'volume' ? 'bg-[#7c5cff]/20 text-[#b9a8ff]' : 'text-slate-400 hover:text-slate-200'}`}
+            className={`px-3 py-1.5 transition-colors ${mode === 'volume' ? 'bg-blue-700 text-white' : 'text-slate-500 hover:text-slate-200'}`}
           >
             Nb trades
           </button>
           <button
             onClick={() => setMode('pnl')}
-            className={`border-l border-[#243957] px-3 py-1.5 transition-colors ${mode === 'pnl' ? 'bg-[#7c5cff]/20 text-[#b9a8ff]' : 'text-slate-400 hover:text-slate-200'}`}
+            className={`border-l border-slate-800 px-3 py-1.5 transition-colors ${mode === 'pnl' ? 'bg-blue-700 text-white' : 'text-slate-500 hover:text-slate-200'}`}
           >
             Par P&amp;L
           </button>
@@ -75,7 +84,7 @@ export function AssetBreakdown({ period = '30d' }: { period?: KpiPeriod }) {
           </div>
         </div>
       ) : assets.length === 0 ? (
-        <div className="flex h-[310px] items-center justify-center rounded-xl border border-dashed border-[#223653] bg-[#081220] text-sm text-slate-500">
+        <div className="flex h-[310px] items-center justify-center rounded-lg border border-dashed border-slate-800 bg-[#071017] text-sm font-semibold text-slate-500">
           Aucun trade sur cette période
         </div>
       ) : (
@@ -117,7 +126,7 @@ export function AssetBreakdown({ period = '30d' }: { period?: KpiPeriod }) {
                   {mode === 'volume' ? `${asset.pct}%` : `${asset.nbTrades} trades`}
                 </span>
                 <span className={`min-w-20 text-right font-mono text-xs ${asset.pnl >= 0 ? 'text-[#38e476]' : 'text-[#ff5e70]'}`}>
-                  {asset.pnl >= 0 ? '+' : ''}{asset.pnl.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+                  {asset.pnl >= 0 ? '+' : ''}{asset.pnl.toLocaleString('fr-FR', { style: 'currency', currency: DASHBOARD_CURRENCY, maximumFractionDigits: 0 })}
                 </span>
               </div>
             ))}

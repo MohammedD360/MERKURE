@@ -8,7 +8,7 @@ import '../index.css'
 
 export const metadata: Metadata = {
   title: 'MERKURE',
-  description: 'MERKURE - analytics, risk management and trading account cockpit.',
+  description: 'MERKURE - analytics, risk management and trading journal for serious traders.',
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {

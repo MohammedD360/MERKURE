@@ -8,6 +8,7 @@ interface CurrentUser {
   email:     string | null
   firstName: string | null
   lastName:  string | null
+  avatarUrl: string | null
   plan:      string
   authMode:  string
 }

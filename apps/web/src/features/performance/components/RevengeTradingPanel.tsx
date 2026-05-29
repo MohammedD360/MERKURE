@@ -23,7 +23,7 @@ const BADGE_LABELS: Record<'fast_reentry' | 'lot_increase' | 'both', string> = {
   both:         'Les deux',
 }
 
-export function RevengeTradingPanel({ period, accountId }: Props) {
+export function RevengeTradingPanel({ period }: Props) {
   const [timeThreshold, setTimeThreshold] = useState(30)
   const [lotPct, setLotPct]               = useState(20)
 

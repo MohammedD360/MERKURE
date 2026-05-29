@@ -29,29 +29,29 @@ const FALLBACK_PLANS: Plan[] = [
   {
     id: 'STARTER',
     name: 'STARTER',
-    priceMonthly: 9,
+    priceMonthly: 900,
     currency: 'EUR',
-    features: ['Trades illimités', 'Sync broker 1', 'KPIs avancés', 'Journal IA'],
+    features: ['Trades illimités', 'Sync broker 1', 'KPIs avancés', 'Journal assisté'],
   },
   {
     id: 'PRO',
     name: 'PRO',
-    priceMonthly: 19,
+    priceMonthly: 1900,
     currency: 'EUR',
-    features: ['Sync broker 3', 'Analytics avancés', 'Alertes', 'Coach IA'],
+    features: ['Sync broker 3', 'Analyse par actif', 'Alertes de risque', 'Rapport hebdomadaire'],
   },
   {
     id: 'ELITE',
     name: 'ELITE',
-    priceMonthly: 49,
+    priceMonthly: 4900,
     currency: 'EUR',
-    features: ['Sync broker illimité', 'Rapports PDF', 'API access', 'Support'],
+    features: ['Sync broker illimité', 'Rapports PDF', 'Exports avancés', 'Support prioritaire'],
   },
 ]
 
 function formatPrice(price: number): string {
   if (price === 0) return 'Gratuit'
-  return `${price.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/mois`
+  return `${(price / 100).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/mois`
 }
 
 interface PlanCardProps {
@@ -66,32 +66,35 @@ function PlanCard({ plan, onSelect, disabled }: PlanCardProps) {
 
   return (
     <div
-      className={`relative flex flex-col rounded-2xl border p-5 transition-all ${
+      className={`relative rounded-xl border bg-[#0b111c] p-5 flex flex-col transition-all ${
         isPro
-          ? 'border-[#7c5cff] shadow-[0_0_24px_rgba(124,92,255,0.18)] bg-[#0b1527]'
-          : 'border-[#1e2f4a] bg-[#0b1527] hover:border-[#7c5cff]/40'
+          ? 'border-blue-500/40 ring-1 ring-blue-500/20'
+          : 'border-white/10 hover:border-white/20'
       }`}
     >
       {isPro && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <span className="rounded-full bg-[#7c5cff] px-3 py-0.5 text-[10px] font-black tracking-widest text-white uppercase">
-            POPULAIRE
+          <span className="rounded-md border border-blue-300/20 bg-blue-300/10 px-3 py-0.5 text-[10px] font-black uppercase tracking-widest text-blue-200">
+            Recommandé
           </span>
         </div>
       )}
 
       <div className="mb-4">
-        <p className="text-xs font-bold tracking-widest text-gray-400 uppercase">{plan.name}</p>
-        <p className={`mt-1 text-xl font-black ${isPro ? 'text-[#a78bfa]' : 'text-white'}`}>
+        <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">{plan.name}</p>
+        <p className="mt-1 text-2xl font-black text-white">
           {formatPrice(plan.priceMonthly)}
         </p>
+        {isPro && (
+          <p className="text-[11px] font-semibold text-emerald-400 mt-1">✓ 14 jours d&apos;essai gratuit</p>
+        )}
       </div>
 
       <ul className="mb-6 flex-1 space-y-2">
         {plan.features.map((feature) => (
           <li key={feature} className="flex items-start gap-2">
-            <Check className={`mt-0.5 h-3.5 w-3.5 flex-shrink-0 ${isPro ? 'text-[#7c5cff]' : 'text-emerald-500'}`} />
-            <span className="text-xs text-gray-300">{feature}</span>
+            <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#56bf6b]" />
+            <span className="text-sm text-slate-300">{feature}</span>
           </li>
         ))}
       </ul>
@@ -100,13 +103,15 @@ function PlanCard({ plan, onSelect, disabled }: PlanCardProps) {
         type="button"
         onClick={onSelect}
         disabled={disabled}
-        className={`w-full rounded-xl py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`w-full rounded-lg h-11 text-sm font-black transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
           isFree
-            ? 'border border-[#1e2f4a] bg-[#1e2f4a] text-gray-200 hover:bg-[#263d5e]'
-            : 'bg-[#7c5cff] text-white hover:bg-[#6b4eee]'
+            ? 'border border-white/15 bg-white/[0.04] text-slate-200 hover:bg-white/[0.08]'
+            : isPro
+            ? 'bg-[#56bf6b] hover:bg-[#49ab5e] text-white shadow-[0_6px_20px_rgba(86,191,107,0.22)]'
+            : 'border border-white/15 bg-white/[0.04] text-slate-200 hover:bg-white/[0.08]'
         }`}
       >
-        {isFree ? 'Commencer gratuitement' : `Choisir ${plan.name}`}
+        {isFree ? 'Commencer gratuitement' : isPro ? 'Essayer 14j gratuitement' : `Choisir ${plan.name}`}
       </button>
     </div>
   )
@@ -128,12 +133,7 @@ export function StepPlan({ onSelectFree, onSelectPaid, loading }: Props) {
 
   return (
     <div>
-      <div className="mb-6 text-center">
-        <h2 className="text-xl font-black text-white">Choisissez votre plan</h2>
-        <p className="mt-1 text-sm text-gray-400">Commencez gratuitement, upgradez à tout moment.</p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {plans.map((plan) => (
           <PlanCard
             key={plan.id}

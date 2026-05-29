@@ -35,7 +35,7 @@ export function PlanGateBanner({ required, featureName, children }: Props) {
         </span>
         <button
           type="button"
-          onClick={() => router.push('/app/billing')}
+          onClick={() => router.push('/app/upgrade')}
           className="mt-2 rounded-xl bg-gradient-to-r from-[#7c5cff] to-[#18c7ff] px-5 py-2.5 text-sm font-bold text-white shadow-[0_8px_24px_rgba(124,92,255,0.28)] transition-opacity hover:opacity-90"
         >
           Passer à {required} →

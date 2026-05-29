@@ -149,16 +149,25 @@ export interface UserProfile {
   email: string
   firstName: string | null
   lastName: string | null
+  avatarUrl: string | null
   timezone: string
   currency: string
+  createdAt?: string
+  subscription?: {
+    plan: string
+    status: string
+  } | null
 }
 
 // ── API methods ───────────────────────────────────────────────────────────────
 
 export const api = {
   kpis: {
-    summary: (period = '30d') =>
-      apiFetch<KpiSummary>(`/api/v1/kpis/summary?period=${period}`),
+    summary: (period = '30d', accountId?: string) => {
+      const qs = new URLSearchParams({ period })
+      if (accountId) qs.set('accountId', accountId)
+      return apiFetch<KpiSummary>(`/api/v1/kpis/summary?${qs.toString()}`)
+    },
 
     snapshots: (from: string, to: string, accountId?: string) => {
       const qs = new URLSearchParams({ from, to })
@@ -218,7 +227,7 @@ export const api = {
 
   users: {
     me: () => apiFetch<UserProfile>('/api/v1/users/me'),
-    updateProfile: (data: Partial<Pick<UserProfile, 'firstName' | 'lastName' | 'timezone' | 'currency'>>) =>
+    updateProfile: (data: Partial<Pick<UserProfile, 'firstName' | 'lastName' | 'avatarUrl' | 'timezone' | 'currency'>>) =>
       apiFetch<UserProfile>('/api/v1/users/me', { method: 'PATCH', body: JSON.stringify(data) }),
     changePassword: (currentPassword: string, newPassword: string) =>
       apiFetch<{ ok: boolean }>('/api/v1/users/me/change-password', {

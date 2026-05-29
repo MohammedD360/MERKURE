@@ -7,6 +7,8 @@ import {
 import { usePerformanceCurve } from '@/lib/hooks/use-performance'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { useChartExport } from '@/lib/hooks/use-chart-export'
+import { ChartDownloadButton } from '@/shared/components/ChartDownloadButton'
 
 interface Props {
   from:       string
@@ -20,7 +22,6 @@ function ChartSkeleton() {
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function PnlTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
@@ -33,7 +34,6 @@ function PnlTooltip({ active, payload, label }: any) {
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function DrawdownTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   const val = Number(payload[0]?.value ?? 0)
@@ -49,6 +49,7 @@ function DrawdownTooltip({ active, payload, label }: any) {
 
 export function PnlDrawdownChart({ from, to, accountId }: Props) {
   const query = usePerformanceCurve(from, to, ...accountId ? [accountId] : [])
+  const { ref, download, isExporting } = useChartExport('pnl-drawdown')
 
   const data = (query.data ?? []).map(p => ({
     label:       format(new Date(p.date), 'dd MMM', { locale: fr }),
@@ -57,8 +58,11 @@ export function PnlDrawdownChart({ from, to, accountId }: Props) {
   }))
 
   return (
-    <div className="bg-[#111827] border border-gray-800/60 rounded-xl p-4 space-y-4">
-      <h2 className="text-sm font-semibold text-white">P&L cumulé & Drawdown</h2>
+    <div ref={ref} className="bg-[#111827] border border-gray-800/60 rounded-xl p-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-white">P&L cumulé & Drawdown</h2>
+        <ChartDownloadButton onClick={download} isExporting={isExporting} />
+      </div>
 
       {/* Courbe P&L */}
       <div>

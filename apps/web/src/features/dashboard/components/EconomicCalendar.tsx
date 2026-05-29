@@ -2,14 +2,17 @@ import { CalendarClock } from 'lucide-react'
 
 export function EconomicCalendar() {
   return (
-    <div className="flex flex-col rounded-2xl border border-[#1e2f4a] bg-[#0b1527] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_18px_60px_rgba(0,0,0,0.22)]">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-base font-bold text-white">Calendrier économique</h3>
+    <div className="flex flex-col rounded-lg border border-slate-800 bg-[#0b111c] p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
+      <div className="mb-5 flex items-center justify-between">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Contexte marché</p>
+          <h3 className="mt-1 text-base font-black text-white">Calendrier économique</h3>
+        </div>
       </div>
-      <div className="flex min-h-32 flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[#223653] bg-[#081220] py-8 text-center">
+      <div className="flex min-h-32 flex-1 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-slate-800 bg-[#071017] px-4 py-8 text-center">
         <CalendarClock className="h-8 w-8 text-slate-600" />
         <div>
-          <p className="text-xs font-medium text-slate-500">Aucun événement chargé</p>
+          <p className="text-xs font-black text-slate-500">Aucun événement chargé</p>
           <p className="mt-1 text-[11px] text-slate-600">Connectez une source calendrier pour alimenter ce panneau.</p>
         </div>
       </div>

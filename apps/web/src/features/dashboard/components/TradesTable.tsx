@@ -3,15 +3,20 @@
 import { ArrowUpRight, ArrowDownRight, Clock } from 'lucide-react'
 import { useTrades, type Trade } from '@/lib/hooks/use-trades'
 
+const DASHBOARD_CURRENCY = 'EUR'
+
 export function TradesTable() {
   const { data, isLoading } = useTrades({ limit: 7 })
   const trades = data?.items ?? []
 
   return (
-    <div className="card">
-      <div className="flex items-center justify-between mb-5">
-        <h3 className="text-sm font-medium text-gray-400">Trades Récents</h3>
-        <a href="/app/trades" className="text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+    <div className="rounded-lg border border-slate-800 bg-[#0b111c] p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Historique</p>
+          <h3 className="mt-1 text-base font-black text-white">Trades récents</h3>
+        </div>
+        <a href="/app/trades" className="text-xs font-black text-blue-300 transition-colors hover:text-blue-200">
           Voir tout →
         </a>
       </div>
@@ -23,25 +28,25 @@ export function TradesTable() {
           ))}
         </div>
       ) : trades.length === 0 ? (
-        <div className="flex items-center justify-center h-24 text-gray-600 text-sm">
+        <div className="flex h-28 items-center justify-center rounded-lg border border-dashed border-slate-800 bg-[#071017] text-sm font-semibold text-slate-500">
           Aucun trade récent
         </div>
       ) : (
-        <div className="overflow-x-auto -mx-6 px-6">
+        <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-800">
+              <tr className="border-b border-slate-800">
                 {['Instrument', 'Direction', 'Ouverture', 'Fermeture', 'Lots', 'P&L'].map((h) => (
                   <th
                     key={h}
-                    className="text-left text-xs font-medium text-gray-500 pb-3 pr-4 uppercase tracking-wider"
+                    className="pb-3 pr-4 text-left text-[11px] font-black uppercase tracking-wider text-slate-500"
                   >
                     {h}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800/60">
+            <tbody className="divide-y divide-slate-800/80">
               {trades.map((trade: Trade) => {
                 const pnl      = Number(trade.pnl ?? 0)
                 const isProfit = pnl >= 0
@@ -51,10 +56,10 @@ export function TradesTable() {
                   d ? new Date(d).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : null
 
                 return (
-                  <tr key={trade.id} className="hover:bg-gray-800/30 transition-colors group">
+                  <tr key={trade.id} className="group transition-colors hover:bg-white/[0.03]">
                     <td className="py-3 pr-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-md bg-gray-800 flex items-center justify-center text-[10px] font-bold text-gray-300 group-hover:bg-gray-700 transition-colors">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-800 bg-[#071017] text-[10px] font-bold text-slate-300 transition-colors group-hover:border-slate-700">
                           {trade.symbol.slice(0, 2)}
                         </div>
                         <span className="font-medium text-white">{trade.symbol}</span>
@@ -79,9 +84,9 @@ export function TradesTable() {
                       </div>
                     </td>
 
-                    <td className="py-3 pr-4 text-gray-400 font-mono text-xs">{fmtDate(trade.openTime)}</td>
+                    <td className="py-3 pr-4 font-mono text-xs text-slate-400">{fmtDate(trade.openTime)}</td>
 
-                    <td className="py-3 pr-4 text-gray-400 font-mono text-xs">
+                    <td className="py-3 pr-4 font-mono text-xs text-slate-400">
                       {fmtDate(trade.closeTime) ?? (
                         <span className="flex items-center gap-1 text-indigo-400">
                           <Clock className="w-3 h-3" />
@@ -90,14 +95,14 @@ export function TradesTable() {
                       )}
                     </td>
 
-                    <td className="py-3 pr-4 text-gray-400 font-mono text-xs">
+                    <td className="py-3 pr-4 font-mono text-xs text-slate-400">
                       {Number(trade.lotSize).toFixed(2)}
                     </td>
 
                     <td className="py-3">
                       <div className={`font-mono font-semibold text-sm ${isProfit ? 'text-green-400' : 'text-red-400'}`}>
                         {isProfit ? '+' : ''}
-                        {pnl.toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
+                        {pnl.toLocaleString('fr-FR', { style: 'currency', currency: DASHBOARD_CURRENCY })}
                       </div>
                     </td>
                   </tr>

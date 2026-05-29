@@ -41,10 +41,10 @@ function chartPeriodToDates(p: ChartPeriod): { from: string; to: string } {
   }
 }
 
-export function useKpiSummary(period: KpiPeriod = '30d') {
+export function useKpiSummary(period: KpiPeriod = '30d', accountId?: string) {
   return useQuery({
-    queryKey: ['kpis', 'summary', period],
-    queryFn:  () => api.kpis.summary(period),
+    queryKey: ['kpis', 'summary', period, accountId],
+    queryFn:  () => api.kpis.summary(period, accountId),
   })
 }
 
@@ -74,10 +74,11 @@ export function useKpiDetailedStats(period: KpiPeriod = '30d', accountId?: strin
   })
 }
 
-export function useKpiBreakdown(period: KpiPeriod = '30d', accountId?: string) {
+export function useKpiBreakdown(period: KpiPeriod = '30d', accountId?: string, enabled = true) {
   return useQuery({
     queryKey: ['kpis', 'breakdown', period, accountId],
     queryFn:  () => api.kpis.breakdown(period, accountId),
+    enabled,
   })
 }
 

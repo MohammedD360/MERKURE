@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { AlertCircle, CheckCircle2, Mail } from 'lucide-react'
+
+import { AuthShell } from '@/shared/components/AuthShell'
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
@@ -30,60 +33,67 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#090d14] px-6 py-12 text-white">
-      <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-md flex-col items-center justify-center">
-        <div className="mb-8 text-center">
-          <Link href="/" className="text-2xl font-black tracking-normal">MERKURE</Link>
-          <p className="mt-2 text-sm text-gray-400">Réinitialisation du mot de passe</p>
+    <AuthShell
+      eyebrow="Récupération"
+      title="Réinitialisez votre accès sans perdre vos repères."
+      description="Indiquez l’email associé à votre compte MERKURE. Si le compte existe, un lien de réinitialisation vous sera envoyé."
+    >
+      {sent ? (
+        <div className="rounded-xl border border-emerald-400/25 bg-emerald-400/10 p-6 shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
+          <CheckCircle2 className="h-8 w-8 text-emerald-300" />
+          <h2 className="mt-5 text-xl font-black text-white">Email envoyé</h2>
+          <p className="mt-3 text-sm font-medium leading-7 text-emerald-100/80">
+            Si un compte existe pour <strong>{email}</strong>, vous recevrez un lien dans quelques minutes.
+          </p>
+          <Link href="/sign-in" className="mt-6 inline-flex text-sm font-black text-white transition-colors hover:text-blue-200">
+            Retour à la connexion
+          </Link>
         </div>
-
-        {sent ? (
-          <div className="w-full rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-center">
-            <p className="text-base font-bold text-emerald-300">Email envoyé ✓</p>
-            <p className="mt-2 text-sm text-emerald-500">
-              Si un compte existe pour <strong>{email}</strong>, vous recevrez un lien dans quelques minutes.
-            </p>
-            <Link href="/sign-in" className="mt-4 inline-block text-sm text-slate-400 hover:text-white transition-colors">
-              ← Retour à la connexion
-            </Link>
+      ) : (
+        <form onSubmit={handleSubmit} className="rounded-xl border border-white/10 bg-white/[0.04] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.25)] sm:p-6">
+          <div className="mb-6">
+            <h2 className="text-xl font-black text-white">Mot de passe oublié</h2>
+            <p className="mt-2 text-sm font-medium text-slate-400">Recevez un lien sécurisé pour définir un nouveau mot de passe.</p>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="w-full rounded-xl border border-gray-800 bg-[#111827] p-6 space-y-4">
-            <div>
-              <h1 className="text-lg font-bold text-white">Mot de passe oublié ?</h1>
-              <p className="mt-1 text-sm text-gray-400">Entrez votre email pour recevoir un lien de réinitialisation.</p>
+
+          {error && (
+            <div className="mb-5 flex items-start gap-3 rounded-md border border-red-400/25 bg-red-400/10 px-3 py-3 text-sm font-semibold text-red-200">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              {error}
             </div>
+          )}
 
-            {error && (
-              <div className="rounded-lg bg-red-500/10 border border-red-500/30 px-3 py-2 text-sm text-red-400">{error}</div>
-            )}
+          <label htmlFor="email" className="text-xs font-black uppercase tracking-wider text-slate-400">Email</label>
+          <div className="relative mt-2">
+            <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+            <input
+              id="email"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="vous@exemple.com"
+              className="h-12 w-full rounded-md border border-white/10 bg-[#0b1118] px-3.5 pl-11 text-sm font-semibold text-white outline-none transition-colors placeholder:text-slate-600 focus:border-blue-400/70"
+            />
+          </div>
 
-            <div className="space-y-1">
-              <label className="text-xs text-gray-400 font-medium">Email</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="vous@example.com"
-                className="w-full rounded-lg bg-gray-900 border border-gray-700 px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
-              />
-            </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-6 flex h-12 w-full items-center justify-center rounded-md bg-[#56bf6b] px-5 text-sm font-black text-white transition-colors hover:bg-[#49ab5e] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? 'Envoi en cours…' : 'Envoyer le lien'}
+          </button>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 px-4 py-2.5 text-sm font-semibold text-white transition-colors"
-            >
-              {loading ? 'Envoi…' : 'Envoyer le lien'}
-            </button>
-
-            <p className="text-center text-xs text-gray-500">
-              <Link href="/sign-in" className="text-indigo-400 hover:underline">← Retour à la connexion</Link>
-            </p>
-          </form>
-        )}
-      </div>
-    </main>
+          <p className="mt-6 text-center text-sm font-semibold text-slate-500">
+            Vous avez retrouvé votre mot de passe ?{' '}
+            <Link href="/sign-in" className="font-black text-white transition-colors hover:text-blue-200">
+              Se connecter
+            </Link>
+          </p>
+        </form>
+      )}
+    </AuthShell>
   )
 }

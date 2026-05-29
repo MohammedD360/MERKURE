@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { X, ChevronRight, ArrowLeft, Eye, EyeOff, Check, Lock, AlertCircle } from 'lucide-react'
 import { brokerMeta } from '@/lib/mock-comptes'
 import { useCreateAccount, type BrokerType, type AccountType } from '@/lib/hooks/use-accounts'
+import { BrokerLogo } from '@/shared/components/BrokerLogo'
 
 interface Props {
   open:    boolean
@@ -12,19 +13,9 @@ interface Props {
 
 type Step = 'choose' | 'form' | 'success'
 
-const BROKERS: BrokerType[] = ['MT5', 'MT4', 'BINANCE', 'IB', 'CTRADER']
+const BROKERS: BrokerType[] = ['MT5', 'MT4', 'IB', 'CTRADER']
+const COMING_SOON: BrokerType[] = ['BINANCE']
 
-function BrokerIcon({ broker }: { broker: BrokerType }) {
-  const meta = brokerMeta[broker]
-  return (
-    <div
-      className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0"
-      style={{ backgroundColor: meta.bg, color: meta.color, border: `1px solid ${meta.color}40` }}
-    >
-      {broker === 'MT4' || broker === 'MT5' ? 'MT' : broker.slice(0, 2)}
-    </div>
-  )
-}
 
 interface FormState {
   label:       string
@@ -56,23 +47,23 @@ function Field({
   const [show, setShow] = useState(false)
   return (
     <div>
-      <label className="block text-xs font-medium text-gray-400 mb-1.5">{label}</label>
+      <label className="mb-1.5 block text-xs font-black text-slate-400">{label}</label>
       <div className="relative">
         <input
           type={showToggle ? (show ? 'text' : 'password') : type}
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full bg-gray-800/60 border border-gray-700/60 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/30 transition-all"
+          className="w-full rounded-lg border border-white/10 bg-[#071017] px-3 py-2.5 text-sm font-semibold text-white placeholder-slate-600 transition-all focus:border-[#56bf6b]/60 focus:outline-none focus:ring-1 focus:ring-[#56bf6b]/20"
         />
         {showToggle && (
           <button type="button" onClick={() => setShow(s => !s)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 transition-colors hover:text-white">
             {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         )}
       </div>
-      {hint && <p className="text-[10px] text-gray-600 mt-1">{hint}</p>}
+      {hint && <p className="mt-1 text-[10px] font-semibold leading-4 text-slate-600">{hint}</p>}
     </div>
   )
 }
@@ -86,17 +77,17 @@ function AccountTypeSelect({ value, onChange }: { value: AccountType; onChange: 
   ]
   return (
     <div>
-      <label className="block text-xs font-medium text-gray-400 mb-1.5">Type de compte</label>
+      <label className="mb-1.5 block text-xs font-black text-slate-400">Type de compte</label>
       <div className="grid grid-cols-2 gap-1.5">
         {options.map(opt => (
           <button
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className={`py-2 rounded-lg text-xs font-medium transition-all border ${
+            className={`rounded-lg border py-2 text-xs font-black transition-colors ${
               value === opt.value
-                ? 'bg-indigo-600/20 border-indigo-500/40 text-indigo-300'
-                : 'bg-gray-800/40 border-gray-700/40 text-gray-500 hover:text-gray-300'
+                ? 'border-[#56bf6b]/30 bg-[#56bf6b]/[0.10] text-[#56bf6b]'
+                : 'border-white/10 bg-white/[0.03] text-slate-500 hover:bg-white/[0.06] hover:text-white'
             }`}
           >
             {opt.label}
@@ -123,38 +114,38 @@ function BrokerFormFields({ broker, form, setForm }: {
 
   if (broker === 'MT4' || broker === 'MT5') return (
     <div className="space-y-4">
-      <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-lg p-3">
-        <p className="text-xs text-indigo-300 leading-relaxed">
-          Tes identifiants sont chiffrés AES-256 et servent uniquement à lire ton historique.
-          Utilise le <span className="font-semibold">mot de passe investisseur</span> (lecture seule) de préférence.
+      <div className="rounded-lg border border-blue-400/20 bg-blue-400/[0.08] p-3">
+        <p className="text-xs font-semibold leading-relaxed text-blue-200">
+          Vos identifiants sont chiffrés AES-256 et servent uniquement à lire votre historique.
+          Utilisez le <span className="font-semibold">mot de passe investisseur</span> en lecture seule de préférence.
         </p>
       </div>
       {common}
-      <Field label="Numéro de compte MT4" value={form.accountId} onChange={set('accountId')} placeholder="Ex : 1234567" />
-      <Field label="Mot de passe investisseur" value={form.password} onChange={set('password')} placeholder="••••••••" showToggle hint="Utilise le mot de passe investisseur (lecture seule) de ton compte MT4." />
-      <Field label="Serveur du broker" value={form.server} onChange={set('server')} placeholder="Ex : PepperstoneUK-Demo03" hint="Nom du serveur MT4 tel qu'il apparaît dans ton terminal (ex: PepperstoneUK-Demo03, ICMarkets-Demo)." />
+      <Field label={`Numéro de compte ${broker}`} value={form.accountId} onChange={set('accountId')} placeholder="Ex : 1234567" />
+      <Field label="Mot de passe investisseur" value={form.password} onChange={set('password')} placeholder="••••••••" showToggle hint={`Utilisez le mot de passe investisseur en lecture seule de votre compte ${broker}.`} />
+      <Field label="Serveur du broker" value={form.server} onChange={set('server')} placeholder="Ex : PepperstoneUK-Demo03" hint={`Nom du serveur ${broker} tel qu'il apparaît dans votre terminal (ex: PepperstoneUK-Demo03, ICMarkets-Demo).`} />
     </div>
   )
 
   if (broker === 'BINANCE') return (
     <div className="space-y-4">
-      <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-3">
-        <p className="text-xs text-amber-300 leading-relaxed">
-          Crée une clé API Binance en <span className="font-semibold">lecture seule</span> depuis Paramètres → Gestion des API.
+      <div className="rounded-lg border border-amber-400/20 bg-amber-400/[0.08] p-3">
+        <p className="text-xs font-semibold leading-relaxed text-amber-200">
+          Créez une clé API Binance en <span className="font-semibold">lecture seule</span> depuis Paramètres → Gestion des API.
         </p>
       </div>
       {common}
-      <Field label="Account ID / UID"   value={form.accountId} onChange={set('accountId')} placeholder="Ton UID Binance" />
-      <Field label="API Key"            value={form.apiKey}    onChange={set('apiKey')}    placeholder="Colle ta clé API ici" />
-      <Field label="API Secret"         value={form.apiSecret} onChange={set('apiSecret')} placeholder="Colle ton secret API ici" showToggle />
+      <Field label="Account ID / UID"   value={form.accountId} onChange={set('accountId')} placeholder="Votre UID Binance" />
+      <Field label="API Key"            value={form.apiKey}    onChange={set('apiKey')}    placeholder="Collez votre clé API ici" />
+      <Field label="API Secret"         value={form.apiSecret} onChange={set('apiSecret')} placeholder="Collez votre secret API ici" showToggle />
     </div>
   )
 
   if (broker === 'IB') return (
     <div className="space-y-4">
-      <div className="bg-green-500/5 border border-green-500/20 rounded-lg p-3">
-        <p className="text-xs text-green-300 leading-relaxed">
-          Connexion via l'API TWS. Assure-toi que TWS ou IB Gateway est ouvert et que l'accès API est activé.
+      <div className="rounded-lg border border-[#56bf6b]/20 bg-[#56bf6b]/[0.08] p-3">
+        <p className="text-xs font-semibold leading-relaxed text-emerald-200">
+          Connexion via l'API TWS. Assurez-vous que TWS ou IB Gateway est ouvert et que l'accès API est activé.
         </p>
       </div>
       {common}
@@ -166,7 +157,7 @@ function BrokerFormFields({ broker, form, setForm }: {
   return (
     <div className="space-y-4">
       {common}
-      <Field label="Account ID"    value={form.accountId}    onChange={set('accountId')}    placeholder="Ton identifiant cTrader" />
+      <Field label="Account ID"    value={form.accountId}    onChange={set('accountId')}    placeholder="Votre identifiant cTrader" />
       <Field label="Client ID"     value={form.clientId}     onChange={set('clientId')}     placeholder="Open API Client ID" />
       <Field label="Client Secret" value={form.clientSecret} onChange={set('clientSecret')} placeholder="••••••••" showToggle />
     </div>
@@ -228,15 +219,15 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={handleClose} />
+      <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={handleClose} />
 
-      <div className="relative w-full max-w-md bg-[#111827] border border-gray-700/60 rounded-2xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-md overflow-hidden rounded-xl border border-white/10 bg-[#0b111c] shadow-[0_24px_80px_rgba(0,0,0,0.42)]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800/60">
+        <div className="flex items-center justify-between border-b border-white/[0.06] px-6 py-4">
           <div className="flex items-center gap-2">
             {step === 'form' && (
               <button onClick={() => setStep('choose')}
-                className="w-7 h-7 rounded-lg hover:bg-gray-800 flex items-center justify-center text-gray-500 hover:text-white transition-colors">
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-500 transition-colors hover:bg-white/[0.07] hover:text-white">
                 <ArrowLeft className="w-4 h-4" />
               </button>
             )}
@@ -246,36 +237,50 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
                 {step === 'form'    && selected && `Connexion ${brokerMeta[selected].name}`}
                 {step === 'success' && 'Compte connecté !'}
               </h2>
-              <p className="text-[11px] text-gray-500 mt-0.5">
-                {step === 'choose'  && 'Choisis ton broker pour commencer'}
-                {step === 'form'    && 'Renseigne tes identifiants'}
+              <p className="mt-0.5 text-[11px] font-semibold text-slate-500">
+                {step === 'choose'  && 'Choisissez votre broker pour commencer'}
+                {step === 'form'    && 'Renseignez vos identifiants'}
                 {step === 'success' && 'La synchronisation démarre…'}
               </p>
             </div>
           </div>
           <button onClick={handleClose}
-            className="w-7 h-7 rounded-lg hover:bg-gray-800 flex items-center justify-center text-gray-500 hover:text-white transition-colors">
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-500 transition-colors hover:bg-white/[0.07] hover:text-white">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Corps */}
-        <div className="px-6 py-5 max-h-[70vh] overflow-y-auto">
+        <div className="max-h-[70vh] overflow-y-auto px-6 py-5">
           {/* Étape 1 */}
           {step === 'choose' && (
             <div className="space-y-2">
               {BROKERS.map(broker => (
                 <button key={broker}
                   onClick={() => { setSelected(broker); setStep('form') }}
-                  className="w-full flex items-center gap-4 p-3.5 rounded-xl border border-gray-700/40 hover:border-indigo-500/30 hover:bg-indigo-500/5 transition-all group text-left"
+                  className="group flex w-full items-center gap-4 rounded-xl border border-white/10 bg-white/[0.025] p-3.5 text-left transition-colors hover:border-[#56bf6b]/30 hover:bg-[#56bf6b]/[0.06]"
                 >
-                  <BrokerIcon broker={broker} />
+                  <BrokerLogo broker={broker} />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-white">{brokerMeta[broker].name}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">{brokerMeta[broker].desc}</div>
+                    <div className="text-sm font-black text-white">{brokerMeta[broker].name}</div>
+                    <div className="mt-0.5 text-xs font-semibold text-slate-500">{brokerMeta[broker].desc}</div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-indigo-400 transition-colors" />
+                  <ChevronRight className="h-4 w-4 text-slate-600 transition-colors group-hover:text-[#56bf6b]" />
                 </button>
+              ))}
+              {COMING_SOON.map(broker => (
+                <div key={broker}
+                  className="flex w-full items-center gap-4 rounded-xl border border-white/[0.06] bg-white/[0.01] p-3.5 opacity-50 cursor-not-allowed"
+                >
+                  <BrokerLogo broker={broker} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-black text-slate-400">{brokerMeta[broker].name}</div>
+                    <div className="mt-0.5 text-xs font-semibold text-slate-600">{brokerMeta[broker].desc}</div>
+                  </div>
+                  <span className="rounded border border-slate-600/40 bg-slate-800/50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-slate-500">
+                    Bientôt
+                  </span>
+                </div>
               ))}
             </div>
           )}
@@ -283,20 +288,20 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
           {/* Étape 2 */}
           {step === 'form' && selected && (
             <div className="space-y-5">
-              <div className="flex items-center gap-3 p-3 bg-gray-800/40 rounded-xl border border-gray-700/40">
-                <BrokerIcon broker={selected} />
+              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                <BrokerLogo broker={selected} />
                 <div>
-                  <p className="text-sm font-semibold text-white">{brokerMeta[selected].name}</p>
-                  <p className="text-[11px] text-gray-500">{brokerMeta[selected].desc}</p>
+                  <p className="text-sm font-black text-white">{brokerMeta[selected].name}</p>
+                  <p className="text-[11px] font-semibold text-slate-500">{brokerMeta[selected].desc}</p>
                 </div>
               </div>
 
               <BrokerFormFields broker={selected} form={form} setForm={setForm} />
 
               {error && (
-                <div className="flex items-start gap-2 rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2">
+                <div className="flex items-start gap-2 rounded-lg border border-rose-400/20 bg-rose-400/[0.08] px-3 py-2">
                   <AlertCircle className="w-3.5 h-3.5 text-red-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-red-300">
+                  <p className="text-xs font-semibold leading-6 text-rose-200">
                     {error instanceof Error && error.message.includes('account_already_exists')
                       ? 'Ce compte existe déjà. Supprime-le depuis la page Comptes avant de le recréer.'
                       : error instanceof Error ? error.message : 'Erreur lors de la connexion.'}
@@ -304,9 +309,9 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
                 </div>
               )}
 
-              <div className="flex items-start gap-2 text-[11px] text-gray-600">
-                <Lock className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-green-500" />
-                Tes identifiants sont chiffrés AES-256. MERKURE ne peut jamais placer d'ordres.
+              <div className="flex items-start gap-2 text-[11px] font-semibold leading-5 text-slate-500">
+                <Lock className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#56bf6b]" />
+                Vos identifiants sont chiffrés AES-256. MERKURE ne peut jamais placer d'ordres.
               </div>
             </div>
           )}
@@ -314,18 +319,18 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
           {/* Étape 3 */}
           {step === 'success' && (
             <div className="flex flex-col items-center gap-4 py-6 text-center">
-              <div className="w-16 h-16 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center">
-                <Check className="w-8 h-8 text-green-400" />
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-[#56bf6b]/30 bg-[#56bf6b]/[0.12]">
+                <Check className="h-8 w-8 text-[#56bf6b]" />
               </div>
               <div>
-                <p className="text-base font-bold text-white mb-1">Compte connecté !</p>
-                <p className="text-sm text-gray-400">
+                <p className="mb-1 text-base font-black text-white">Compte connecté !</p>
+                <p className="text-sm font-medium leading-6 text-slate-400">
                   La synchronisation de l'historique est en cours.<br />
                   Cela peut prendre 1 à 2 minutes.
                 </p>
               </div>
-              <div className="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden">
-                <div className="h-full bg-indigo-500 rounded-full animate-pulse w-1/2" />
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                <div className="h-full w-1/2 animate-pulse rounded-full bg-[#56bf6b]" />
               </div>
             </div>
           )}
@@ -333,13 +338,13 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
 
         {/* Footer */}
         {step === 'form' && (
-          <div className="px-6 py-4 border-t border-gray-800/60 flex gap-3">
+          <div className="flex gap-3 border-t border-white/[0.06] px-6 py-4">
             <button onClick={() => setStep('choose')}
-              className="flex-1 py-2.5 rounded-xl text-sm font-medium text-gray-400 bg-gray-800/60 hover:bg-gray-700/60 border border-gray-700/40 transition-colors">
+              className="flex-1 rounded-lg border border-white/10 bg-white/[0.04] py-2.5 text-sm font-black text-slate-400 transition-colors hover:bg-white/[0.07] hover:text-white">
               Annuler
             </button>
             <button onClick={handleConnect} disabled={isPending || !isFormValid()}
-              className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2">
+              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#56bf6b] py-2.5 text-sm font-black text-white transition-colors hover:bg-[#49ab5e] disabled:cursor-not-allowed disabled:opacity-50">
               {isPending ? (
                 <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Connexion…</>
               ) : 'Connecter le compte'}
@@ -347,9 +352,9 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
           </div>
         )}
         {step === 'success' && (
-          <div className="px-6 py-4 border-t border-gray-800/60">
+          <div className="border-t border-white/[0.06] px-6 py-4">
             <button onClick={handleClose}
-              className="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors">
+              className="w-full rounded-lg bg-[#56bf6b] py-2.5 text-sm font-black text-white transition-colors hover:bg-[#49ab5e]">
               Voir mes comptes
             </button>
           </div>

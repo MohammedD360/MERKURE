@@ -41,7 +41,7 @@ export function ReportsPage() {
           <div>
             <p className="text-base font-bold text-white">Rapport hebdomadaire</p>
             <p className="mt-1 text-sm text-slate-400">
-              Synthèse de votre performance, trades clés et recommandations IA pour la semaine.
+              Synthèse de votre performance, trades clés et axes de travail pour la semaine.
             </p>
           </div>
 

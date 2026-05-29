@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Check } from 'lucide-react'
 import { StepProfile } from './steps/StepProfile'
 import { StepBroker } from './steps/StepBroker'
 import { StepPlan } from './steps/StepPlan'
@@ -17,6 +18,48 @@ const STEPS: { id: Step; label: string; num: number }[] = [
   { id: 'plan', label: 'Plan', num: 3 },
   { id: 'done', label: 'Terminé', num: 4 },
 ]
+
+const STEP_META: Record<Step, { title: string; description: string }> = {
+  profile: {
+    title: 'Votre profil de trader',
+    description: 'Aidez MERKURE à personnaliser vos analyses',
+  },
+  broker: {
+    title: 'Connecter un broker',
+    description: 'Synchronisez vos trades automatiquement',
+  },
+  plan: {
+    title: 'Choisissez votre plan',
+    description: 'Commencez gratuitement, puis changez de plan à tout moment.',
+  },
+  done: {
+    title: "C'est parti !",
+    description: 'Votre espace MERKURE est prêt',
+  },
+}
+
+function BrandMark() {
+  return (
+    <div className="flex items-center gap-2.5">
+      <svg className="h-8 w-8 text-white" viewBox="0 0 40 40" fill="none">
+        <path
+          d="M7 9.5L20 4l13 5.5v21L20 36 7 30.5v-21Z"
+          stroke="currentColor"
+          strokeWidth="3"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M12 27V13l8 8 8-8v14"
+          stroke="currentColor"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <span className="text-[22px] font-black tracking-[0.12em] text-white">MERKURE</span>
+    </div>
+  )
+}
 
 export function OnboardingWizard() {
   const router = useRouter()
@@ -35,7 +78,7 @@ export function OnboardingWizard() {
       await saveProfile(profile)
       setStep('broker')
     } catch {
-      setError('Erreur lors de la sauvegarde. Réessaie.')
+      setError('Erreur lors de la sauvegarde. Veuillez réessayer.')
     } finally {
       setLoading(false)
     }
@@ -45,11 +88,26 @@ export function OnboardingWizard() {
     setError(null)
     setLoading(true)
     try {
-      await connectBroker(payload)
+      const { id: accountId } = await connectBroker(payload)
       setBrokerConnected(true)
+      // Sondage du statut sync (max 12s)
+      const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+      const token = typeof window !== 'undefined' ? localStorage.getItem('merkure_token') : null
+      let tries = 0
+      while (tries < 6) {
+        await new Promise((r) => setTimeout(r, 2000))
+        try {
+          const r = await fetch(`${API}/api/v1/accounts/${accountId}`, {
+            headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+          })
+          const acc = await r.json() as { syncStatus?: string }
+          if (acc.syncStatus === 'SUCCESS' || acc.syncStatus === 'ERROR') break
+        } catch { break }
+        tries++
+      }
       setStep('plan')
     } catch {
-      setError('Connexion broker échouée. Vérifie tes identifiants.')
+      setError('Connexion broker échouée. Vérifiez vos identifiants.')
       setLoading(false)
     }
   }
@@ -95,42 +153,63 @@ export function OnboardingWizard() {
     }
   }
 
+  const meta = STEP_META[step]
+  const isPlan = step === 'plan'
+
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
+    <div className="relative min-h-screen bg-[#070b10] flex flex-col items-center justify-center px-4 py-12">
+      {/* Background halos */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -top-32 -left-32 h-[600px] w-[600px] rounded-full bg-blue-600/[0.07] blur-[120px]" />
+        <div className="absolute -bottom-32 -right-32 h-[500px] w-[500px] rounded-full bg-emerald-600/[0.05] blur-[100px]" />
+      </div>
+
       {/* Logo */}
       <div className="mb-10 text-center">
-        <h1 className="text-2xl font-black tracking-tight text-white">
-          MERK<span className="text-indigo-400">URE</span>
-        </h1>
-        <p className="text-sm text-gray-500 mt-1">Configuration de ton espace</p>
+        <BrandMark />
+        <p className="text-sm font-semibold text-slate-500 mt-2">Configuration de votre espace</p>
       </div>
 
       {/* Card */}
-      <div className={`w-full bg-[#111827] border border-gray-800/60 rounded-2xl shadow-2xl overflow-hidden ${step === 'plan' ? 'max-w-4xl' : 'max-w-lg'}`}>
+      <div
+        className={`relative w-full border border-white/10 bg-[#0b111c] rounded-2xl shadow-[0_32px_80px_rgba(0,0,0,0.40)] overflow-hidden ${
+          isPlan ? 'max-w-3xl' : 'max-w-lg'
+        }`}
+      >
         {/* Stepper */}
-        <div className="px-6 pt-6 pb-5 border-b border-gray-800/60">
-          <div className="flex items-center gap-0">
+        <div className="px-6 pt-6 pb-5 border-b border-white/10">
+          <div className="flex items-center">
             {STEPS.map((s, i) => {
               const done = s.num < currentNum
               const active = s.id === step
               return (
                 <div key={s.id} className="flex items-center flex-1 last:flex-none">
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border transition-all ${
-                      done
-                        ? 'bg-indigo-600 border-indigo-600 text-white'
-                        : active
-                        ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10'
-                        : 'border-gray-700 text-gray-600'
-                    }`}>
-                      {done ? '✓' : s.num}
+                  <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                    <div
+                      className={`h-9 w-9 rounded-full border-2 flex items-center justify-center text-xs font-black transition-all ${
+                        done
+                          ? 'border-[#56bf6b] bg-[#56bf6b] text-white'
+                          : active
+                          ? 'border-blue-400 bg-blue-400/10 text-blue-300'
+                          : 'border-white/15 bg-white/[0.04] text-slate-600'
+                      }`}
+                    >
+                      {done ? <Check className="h-4 w-4" /> : s.num}
                     </div>
-                    <span className={`text-xs font-medium hidden sm:block ${active ? 'text-white' : done ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <span
+                      className={`hidden sm:block text-[10px] font-black uppercase tracking-wider ${
+                        active ? 'text-white' : done ? 'text-slate-400' : 'text-slate-700'
+                      }`}
+                    >
                       {s.label}
                     </span>
                   </div>
                   {i < STEPS.length - 1 && (
-                    <div className={`flex-1 h-px mx-3 transition-all ${done ? 'bg-indigo-600' : 'bg-gray-800'}`} />
+                    <div
+                      className={`h-px flex-1 mx-3 mb-4 transition-all ${
+                        done ? 'bg-[#56bf6b]' : 'bg-white/10'
+                      }`}
+                    />
                   )}
                 </div>
               )
@@ -138,38 +217,16 @@ export function OnboardingWizard() {
           </div>
         </div>
 
-        {/* Titre de l'étape */}
+        {/* Step header */}
         <div className="px-6 pt-6 pb-2">
-          {step === 'profile' && (
-            <>
-              <h2 className="text-base font-bold text-white">Ton profil de trader</h2>
-              <p className="text-xs text-gray-500 mt-1">Aide MERKURE à personnaliser tes analytics</p>
-            </>
-          )}
-          {step === 'broker' && (
-            <>
-              <h2 className="text-base font-bold text-white">Connecter un broker</h2>
-              <p className="text-xs text-gray-500 mt-1">Synchronise tes trades automatiquement</p>
-            </>
-          )}
-          {step === 'plan' && (
-            <>
-              <h2 className="text-base font-bold text-white">Choisissez votre plan</h2>
-              <p className="text-xs text-gray-500 mt-1">Commencez gratuitement, upgradez à tout moment.</p>
-            </>
-          )}
-          {step === 'done' && (
-            <>
-              <h2 className="text-base font-bold text-white">C'est parti !</h2>
-              <p className="text-xs text-gray-500 mt-1">Ton espace MERKURE est prêt</p>
-            </>
-          )}
+          <h2 className="text-lg font-black text-white">{meta.title}</h2>
+          <p className="text-sm font-medium text-slate-500 mt-1">{meta.description}</p>
         </div>
 
-        {/* Contenu */}
+        {/* Content */}
         <div className="px-6 py-5">
           {error && (
-            <div className="mb-4 px-4 py-2.5 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400">
+            <div className="mb-4 border border-red-400/25 bg-red-400/[0.08] px-4 py-3 rounded-lg text-sm text-red-200">
               {error}
             </div>
           )}
@@ -178,7 +235,7 @@ export function OnboardingWizard() {
             <StepProfile data={profile} onChange={(patch) => setProfile((p) => ({ ...p, ...patch }))} />
           )}
           {step === 'broker' && (
-            <StepBroker onConnect={handleBrokerConnect} onSkip={handleBrokerSkip} />
+            <StepBroker onConnect={handleBrokerConnect} onSkip={handleBrokerSkip} loading={loading} />
           )}
           {step === 'plan' && (
             <StepPlan
@@ -192,24 +249,26 @@ export function OnboardingWizard() {
           )}
         </div>
 
-        {/* Footer — uniquement step profile */}
+        {/* Footer — profile step only */}
         {step === 'profile' && (
-          <div className="px-6 py-4 border-t border-gray-800/60 flex justify-end">
+          <div className="flex justify-end border-t border-white/10 px-6 py-4">
             <button
               onClick={handleProfileNext}
               disabled={loading}
-              className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              className="px-6 py-2.5 rounded-lg text-sm font-black text-white bg-[#56bf6b] hover:bg-[#49ab5e] disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               {loading ? (
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : 'Continuer →'}
+              ) : (
+                'Continuer →'
+              )}
             </button>
           </div>
         )}
       </div>
 
-      <p className="text-xs text-gray-700 mt-6">
-        Tu peux modifier ces informations à tout moment dans ton profil.
+      <p className="text-xs text-slate-700 mt-6">
+        Vous pouvez modifier ces informations à tout moment dans votre profil.
       </p>
     </div>
   )

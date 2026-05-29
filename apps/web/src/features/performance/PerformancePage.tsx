@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { format, subDays, startOfYear } from 'date-fns'
+import { format, subDays } from 'date-fns'
 import { FileDown, Loader2 } from 'lucide-react'
 import type { KpiPeriod } from '@/lib/hooks/use-kpis'
 import { useAccounts } from '@/lib/hooks/use-accounts'

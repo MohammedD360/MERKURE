@@ -36,12 +36,13 @@ export async function saveProfile(payload: ProfilePayload) {
   if (!res.ok) throw new Error('save_profile_failed')
 }
 
-export async function connectBroker(payload: BrokerPayload) {
+export async function connectBroker(payload: BrokerPayload): Promise<{ id: string }> {
   const res = await apiFetch('/api/v1/accounts', {
     method: 'POST',
     body: JSON.stringify(payload),
   })
   if (!res.ok) throw new Error('connect_broker_failed')
+  return res.json() as Promise<{ id: string }>
 }
 
 export async function completeOnboarding() {

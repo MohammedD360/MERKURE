@@ -3,7 +3,6 @@
 import {
   Activity,
   CalendarDays,
-  Info,
   Target,
   TrendingDown,
   TrendingUp,
@@ -40,74 +39,72 @@ function Skeleton({ className = '' }: { className?: string }) {
 function KpiCard({
   title,
   icon,
-  accent,
   children,
 }: {
   title: string
   icon: ReactNode
-  accent: string
   children: ReactNode
 }) {
   return (
-    <div className="group relative min-h-[132px] overflow-hidden rounded-2xl border border-[#1e2f4a] bg-[#0b1527] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_18px_60px_rgba(0,0,0,0.22)]">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-70"
-        style={{ background: `radial-gradient(circle at 100% 0%, ${accent}20, transparent 42%)` }}
-      />
-      <div className="relative flex h-full flex-col">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-2">
-            <p className="truncate text-xs font-medium text-slate-300">{title}</p>
-            <Info className="h-3.5 w-3.5 flex-shrink-0 text-slate-500" />
-          </div>
-          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.035] text-slate-300">
+    <div className="h-full min-h-[124px] rounded-lg border border-slate-800 bg-[#0b111c] p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)]">
+      <div className="flex h-full flex-col">
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <p className="truncate text-[11px] font-black uppercase tracking-wider text-slate-500">{title}</p>
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-slate-800 bg-[#071017] text-slate-300">
             {icon}
           </div>
         </div>
-        <div className="relative flex flex-1 flex-col justify-end">{children}</div>
+        <div className="flex flex-1 flex-col justify-end">{children}</div>
       </div>
     </div>
   )
 }
 
 function Donut({ value }: { value: number | null }) {
-  const radius = 25
+  const radius = 20
   const circumference = 2 * Math.PI * radius
   const safeValue = value == null ? 0 : Math.max(0, Math.min(value, 100))
   const filled = (safeValue / 100) * circumference
 
   return (
-    <svg width="72" height="72" viewBox="0 0 72 72" className="shrink-0">
-      <circle cx="36" cy="36" r={radius} fill="none" stroke="#1d2b44" strokeWidth="7" />
+    <svg width="56" height="56" viewBox="0 0 56 56" className="shrink-0">
+      <circle cx="28" cy="28" r={radius} fill="none" stroke="#1f2a3a" strokeWidth="6" />
       <circle
-        cx="36"
-        cy="36"
+        cx="28"
+        cy="28"
         r={radius}
         fill="none"
         stroke="url(#winrate-gradient)"
-        strokeWidth="7"
+        strokeWidth="6"
         strokeDasharray={`${filled} ${circumference - filled}`}
         strokeLinecap="round"
-        transform="rotate(-90 36 36)"
+        transform="rotate(-90 28 28)"
       />
       <defs>
-        <linearGradient id="winrate-gradient" x1="10" y1="10" x2="62" y2="62">
-          <stop stopColor="#7c5cff" />
-          <stop offset="1" stopColor="#18c7ff" />
+        <linearGradient id="winrate-gradient" x1="8" y1="8" x2="48" y2="48">
+          <stop stopColor="#2563eb" />
+          <stop offset="1" stopColor="#38e476" />
         </linearGradient>
       </defs>
     </svg>
   )
 }
 
-export function KpiCards({ period = '30d' }: { period?: KpiPeriod }) {
-  const { data, isLoading } = useKpiSummary(period)
+export function KpiCards({ period = '30d', accountId }: { period?: KpiPeriod; accountId?: string | undefined }) {
+  const { data, isLoading } = useKpiSummary(period, accountId)
 
   const totalPnl = data?.totalPnl
   const drawdownPct = data?.maxDrawdown != null ? Math.abs(data.maxDrawdown * 100) : null
   const winRatePct = data ? data.winRate * 100 : null
   const winningTrades = data ? Math.round(data.winRate * data.nbTrades) : null
   const pnlPositive = totalPnl == null || totalPnl >= 0
+  const drawdownLabel = drawdownPct == null
+    ? null
+    : drawdownPct <= 5
+      ? 'Risque contenu'
+      : drawdownPct <= 12
+        ? 'À surveiller'
+        : 'Risque élevé'
   const profitLabel = data?.profitFactor == null
     ? null
     : data.profitFactor >= 1.5
@@ -117,11 +114,10 @@ export function KpiCards({ period = '30d' }: { period?: KpiPeriod }) {
         : 'Faible'
 
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-6">
+    <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 xl:grid-cols-6">
       <KpiCard
         title={`P&L ${PERIOD_LABELS[period]}`}
         icon={pnlPositive ? <TrendingUp className="h-4 w-4 text-[#38e476]" /> : <TrendingDown className="h-4 w-4 text-[#ff5e70]" />}
-        accent={pnlPositive ? '#38e476' : '#ff5e70'}
       >
         {isLoading ? (
           <>
@@ -135,15 +131,16 @@ export function KpiCards({ period = '30d' }: { period?: KpiPeriod }) {
             <p className={`font-mono text-2xl font-black tracking-normal ${pnlPositive ? 'text-[#38e476]' : 'text-[#ff5e70]'}`}>
               {formatMoney(totalPnl, true)}
             </p>
-            <p className="mt-3 text-xs font-semibold text-slate-500">Données synchronisées</p>
+            <p className="mt-3 text-xs font-semibold text-slate-500">
+              {data && data.nbTrades > 0 ? `${data.nbTrades} trades analysés` : 'Aucun trade sur la période'}
+            </p>
           </>
         )}
       </KpiCard>
 
       <KpiCard
         title="Trades"
-        icon={<Activity className="h-4 w-4 text-[#9b7cff]" />}
-        accent="#9b7cff"
+        icon={<Activity className="h-4 w-4 text-blue-300" />}
       >
         {isLoading ? (
           <>
@@ -153,7 +150,9 @@ export function KpiCards({ period = '30d' }: { period?: KpiPeriod }) {
         ) : data ? (
           <>
             <p className="font-mono text-2xl font-black text-white">{data.nbTrades}</p>
-            <p className="mt-3 text-xs font-semibold text-slate-500">Trades clôturés</p>
+            <p className="mt-3 text-xs font-semibold text-slate-500">
+              {winRatePct == null ? 'Taux indisponible' : `${formatPct(winRatePct)} de réussite`}
+            </p>
           </>
         ) : (
           <p className="font-mono text-2xl font-black text-slate-500">—</p>
@@ -163,7 +162,6 @@ export function KpiCards({ period = '30d' }: { period?: KpiPeriod }) {
       <KpiCard
         title="Drawdown Max"
         icon={<TrendingDown className="h-4 w-4 text-[#ff5e70]" />}
-        accent="#ff5e70"
       >
         {isLoading ? (
           <>
@@ -177,26 +175,25 @@ export function KpiCards({ period = '30d' }: { period?: KpiPeriod }) {
             <p className="font-mono text-2xl font-black tracking-normal text-[#ff5e70]">
               -{formatPct(drawdownPct)}
             </p>
-            <p className="mt-3 text-xs font-semibold text-slate-500">Maximum observé</p>
+            {drawdownLabel && <p className="mt-3 text-xs font-semibold text-slate-500">{drawdownLabel}</p>}
           </>
         )}
       </KpiCard>
 
       <KpiCard
         title="Win Rate"
-        icon={<Target className="h-4 w-4 text-[#18c7ff]" />}
-        accent="#18c7ff"
+        icon={<Target className="h-4 w-4 text-blue-300" />}
       >
         {isLoading ? (
           <div className="flex items-end gap-3">
-            <Skeleton className="h-[72px] w-[72px] rounded-full" />
+            <Skeleton className="h-14 w-14 rounded-full" />
             <div>
               <Skeleton className="mb-3 h-7 w-20" />
               <Skeleton className="h-4 w-20" />
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Donut value={winRatePct} />
             <div className="min-w-0">
               <p className="font-mono text-2xl font-black text-white">
@@ -215,7 +212,6 @@ export function KpiCards({ period = '30d' }: { period?: KpiPeriod }) {
       <KpiCard
         title="Profit Factor"
         icon={<Target className="h-4 w-4 text-[#38e476]" />}
-        accent="#38e476"
       >
         {isLoading ? (
           <>
@@ -237,7 +233,6 @@ export function KpiCards({ period = '30d' }: { period?: KpiPeriod }) {
       <KpiCard
         title="Meilleur jour"
         icon={<CalendarDays className="h-4 w-4 text-[#38e476]" />}
-        accent="#38e476"
       >
         {isLoading ? (
           <>

@@ -1,18 +1,18 @@
 'use client'
 
-import { CheckCircle2, AlertTriangle, ArrowRight, RefreshCw } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, RefreshCw, Sparkles, Zap } from 'lucide-react'
 import { useLatestAiAnalysis, useGenerateAiAnalysis } from '@/lib/hooks/use-ai-journal'
 
 function ScoreCircle({ score }: { score: number }) {
   const r = 38
   const circ = 2 * Math.PI * r
   const filled = (score / 100) * circ
-  const color = score >= 70 ? '#22c55e' : score >= 50 ? '#f59e0b' : '#ef4444'
+  const color = score >= 70 ? '#56bf6b' : score >= 50 ? '#f59e0b' : '#ef4444'
 
   return (
-    <div className="relative flex items-center justify-center w-24 h-24">
+    <div className="relative flex h-24 w-24 items-center justify-center">
       <svg width="96" height="96" className="absolute">
-        <circle cx="48" cy="48" r={r} fill="none" stroke="#1f2937" strokeWidth="6" />
+        <circle cx="48" cy="48" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
         <circle
           cx="48" cy="48" r={r} fill="none"
           stroke={color} strokeWidth="6"
@@ -21,123 +21,158 @@ function ScoreCircle({ score }: { score: number }) {
           transform="rotate(-90 48 48)"
         />
       </svg>
-      <div className="text-center z-10">
-        <div className="text-2xl font-bold text-white font-mono leading-none">{score}</div>
-        <div className="text-[10px] text-gray-500">/100</div>
+      <div className="z-10 text-center">
+        <div className="font-mono text-2xl font-black leading-none text-white">{score}</div>
+        <div className="text-[10px] font-semibold text-slate-500">/100</div>
       </div>
     </div>
   )
 }
 
 function Skeleton({ className = '' }: { className?: string }) {
-  return <div className={`animate-pulse bg-gray-800/60 rounded ${className}`} />
+  return <div className={`animate-pulse rounded bg-white/[0.04] ${className}`} />
 }
 
 export function AiAnalysisBanner() {
   const { data: entry, isLoading } = useLatestAiAnalysis()
   const { mutate: generate, isPending } = useGenerateAiAnalysis()
 
-  const score     = entry?.score ?? null
-  const strengths = entry?.insights?.strengths    ?? []
-  const improv    = entry?.insights?.improvements ?? []
-  const scoreLabel = score == null ? null : score >= 70 ? 'Bon travail !' : score >= 50 ? 'Peut mieux faire' : 'À améliorer'
+  const score      = entry?.score ?? null
+  const strengths  = entry?.insights?.strengths    ?? []
+  const improv     = entry?.insights?.improvements ?? []
+  const actions    = entry?.insights?.actions      ?? []
+  const scoreLabel = score == null ? null : score >= 70 ? 'Bon travail !' : score >= 50 ? 'À consolider' : 'À améliorer'
+  const scoreColor = score == null ? '' : score >= 70 ? 'text-emerald-400' : score >= 50 ? 'text-amber-400' : 'text-red-400'
 
   return (
-    <div className="relative bg-gradient-to-r from-indigo-950/60 via-[#111827] to-[#111827] border border-indigo-500/20 rounded-xl p-5 overflow-hidden">
-      <div className="absolute left-0 top-0 w-32 h-full bg-indigo-600/5 blur-2xl pointer-events-none" />
-
-      <div className="flex items-start gap-6">
-        {/* Icône IA */}
-        <div className="w-16 h-16 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
-          <svg viewBox="0 0 40 40" className="w-9 h-9" fill="none">
-            <circle cx="20" cy="20" r="18" fill="#4f46e5" opacity="0.2" />
-            <path d="M20 8C13.4 8 8 13.4 8 20s5.4 12 12 12 12-5.4 12-12S26.6 8 20 8zm0 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm4 14h-8v-2h3v-6h-3v-2h6v8h2v2z" fill="#818cf8" />
-          </svg>
+    <div className="overflow-hidden rounded-xl border border-white/10 bg-[#0b111c]">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-400/20 bg-blue-400/[0.08]">
+            <Sparkles className="h-4 w-4 text-blue-300" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-black text-white">Analyse de performance</h3>
+              <span className="rounded border border-blue-400/20 bg-blue-400/[0.08] px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-blue-300">
+                BETA
+              </span>
+            </div>
+            {entry && (
+              <p className="text-[11px] font-semibold text-slate-500">
+                Mise à jour le{' '}
+                {new Date(entry.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
+              </p>
+            )}
+          </div>
         </div>
 
-        {/* Titre */}
-        <div className="flex-shrink-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-sm font-bold text-white">Analyse IA de votre performance</h3>
-            <span className="text-[9px] font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-1.5 py-0.5 rounded">BETA</span>
+        <button
+          onClick={() => generate({})}
+          disabled={isPending}
+          className="flex items-center gap-2 rounded-lg bg-[#56bf6b] px-3.5 py-2 text-xs font-black text-white shadow-[0_4px_12px_rgba(86,191,107,0.20)] transition-all hover:bg-[#49ab5e] hover:shadow-[0_6px_16px_rgba(86,191,107,0.26)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
+        >
+          {isPending ? (
+            <><RefreshCw className="h-3.5 w-3.5 animate-spin" />Analyse…</>
+          ) : (
+            <><Zap className="h-3.5 w-3.5" />{entry ? 'Actualiser' : 'Générer'}</>
+          )}
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="p-5">
+        {isLoading ? (
+          <div className="space-y-3">
+            <Skeleton className="h-4 w-1/3" />
+            <Skeleton className="h-3 w-full" />
+            <Skeleton className="h-3 w-3/4" />
+            <Skeleton className="h-3 w-5/6" />
           </div>
-          {entry && (
-            <p className="text-[10px] text-gray-500">
-              {new Date(entry.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
+        ) : !entry ? (
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/[0.03]">
+              <Sparkles className="h-5 w-5 text-slate-500" />
+            </div>
+            <p className="mt-3 text-sm font-semibold text-white">Aucune analyse disponible</p>
+            <p className="mt-1.5 max-w-xs text-xs font-medium leading-5 text-slate-500">
+              Générez votre première analyse pour obtenir des insights personnalisés sur votre trading.
             </p>
-          )}
-        </div>
-
-        {/* Points forts */}
-        <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-semibold text-gray-400 mb-2 uppercase tracking-wider">Points forts</p>
-          {isLoading ? (
-            <div className="space-y-2">
-              <Skeleton className="h-3 w-full" />
-              <Skeleton className="h-3 w-3/4" />
-            </div>
-          ) : strengths.length > 0 ? (
-            <div className="space-y-1.5">
-              {strengths.map((s: string, i: number) => (
-                <div key={i} className="flex items-start gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-xs text-gray-300">{s}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-gray-600">Aucune analyse disponible</p>
-          )}
-        </div>
-
-        {/* Axes d'amélioration */}
-        <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-semibold text-gray-400 mb-2 uppercase tracking-wider">Axes d'amélioration</p>
-          {isLoading ? (
-            <div className="space-y-2">
-              <Skeleton className="h-3 w-full" />
-              <Skeleton className="h-3 w-2/3" />
-            </div>
-          ) : improv.length > 0 ? (
-            <div className="space-y-1.5">
-              {improv.map((s: string, i: number) => (
-                <div key={i} className="flex items-start gap-1.5">
-                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-xs text-gray-300">{s}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-gray-600">—</p>
-          )}
-        </div>
-
-        {/* Score */}
-        <div className="flex-shrink-0 flex flex-col items-center gap-2">
-          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Score de performance</p>
-          {isLoading ? (
-            <Skeleton className="w-24 h-24 rounded-full" />
-          ) : score != null ? (
-            <ScoreCircle score={score} />
-          ) : (
-            <div className="w-24 h-24 rounded-full bg-gray-800/60 flex items-center justify-center text-gray-600 text-xs text-center px-2">
-              Non analysé
-            </div>
-          )}
-          {scoreLabel && <p className="text-xs font-semibold text-green-400">{scoreLabel}</p>}
-          <div className="flex flex-col items-center gap-1 mt-1">
-            <button
-              onClick={() => generate({})}
-              disabled={isPending}
-              className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors disabled:opacity-50"
-            >
-              {isPending
-                ? <><RefreshCw className="w-3 h-3 animate-spin" />Analyse en cours…</>
-                : <><ArrowRight className="w-3 h-3" />{entry ? 'Actualiser' : "Générer l'analyse"}</>
-              }
-            </button>
           </div>
-        </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_auto]">
+            {/* Points forts */}
+            <div>
+              <p className="mb-3 text-[11px] font-black uppercase tracking-wider text-slate-400">Points forts</p>
+              {strengths.length > 0 ? (
+                <div className="space-y-2">
+                  {strengths.map((s: string, i: number) => (
+                    <div key={i} className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
+                      <span className="text-xs font-medium leading-5 text-slate-300">{s}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-slate-600">—</p>
+              )}
+            </div>
+
+            {/* Axes d'amélioration */}
+            <div>
+              <p className="mb-3 text-[11px] font-black uppercase tracking-wider text-slate-400">
+                Axes d&apos;amélioration
+              </p>
+              {improv.length > 0 ? (
+                <div className="space-y-2">
+                  {improv.map((s: string, i: number) => (
+                    <div key={i} className="flex items-start gap-2">
+                      <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
+                      <span className="text-xs font-medium leading-5 text-slate-300">{s}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-slate-600">—</p>
+              )}
+            </div>
+
+            {/* Score */}
+            <div className="flex flex-col items-center gap-2 sm:items-start xl:items-center">
+              <p className="text-[11px] font-black uppercase tracking-wider text-slate-400">Score</p>
+              {score != null ? (
+                <>
+                  <ScoreCircle score={score} />
+                  {scoreLabel && (
+                    <p className={`text-xs font-black ${scoreColor}`}>{scoreLabel}</p>
+                  )}
+                </>
+              ) : (
+                <div className="flex h-24 w-24 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] px-2 text-center text-[11px] font-semibold text-slate-500">
+                  —
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Actions prioritaires */}
+        {!isLoading && actions.length > 0 && (
+          <div className="mt-5 border-t border-white/10 pt-4">
+            <p className="mb-3 text-[11px] font-black uppercase tracking-wider text-slate-400">Actions prioritaires</p>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {actions.map((a: string, i: number) => (
+                <div key={i} className="flex items-start gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2.5">
+                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-blue-400/15 text-[9px] font-black text-blue-300">
+                    {i + 1}
+                  </span>
+                  <span className="text-xs font-medium leading-5 text-slate-300">{a}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

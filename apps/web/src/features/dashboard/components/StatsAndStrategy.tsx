@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useKpiSummary, useKpiDetailedStats, useKpiBreakdown, type KpiPeriod } from '@/lib/hooks/use-kpis'
+import { useKpiSummary, useKpiDetailedStats, type KpiPeriod } from '@/lib/hooks/use-kpis'
+import type { KpiBreakdown } from '@/lib/api-client'
 
 function fmt(n: number) {
   return n.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
@@ -17,9 +18,9 @@ function Skeleton() {
   )
 }
 
-export function StatsCles({ period = '30d' }: { period?: KpiPeriod }) {
-  const { data: summary, isLoading: l1 } = useKpiSummary(period)
-  const { data: stats,   isLoading: l2 } = useKpiDetailedStats(period)
+export function StatsCles({ period = '30d', accountId }: { period?: KpiPeriod; accountId?: string | undefined }) {
+  const { data: summary, isLoading: l1 } = useKpiSummary(period, accountId)
+  const { data: stats,   isLoading: l2 } = useKpiDetailedStats(period, accountId)
   const isLoading = l1 || l2
 
   const total     = summary?.nbTrades ?? 0
@@ -45,16 +46,19 @@ export function StatsCles({ period = '30d' }: { period?: KpiPeriod }) {
   ]
 
   return (
-    <div className="rounded-2xl border border-[#1e2f4a] bg-[#0b1527] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_18px_60px_rgba(0,0,0,0.22)]">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-bold text-white">Statistiques clés</h3>
-        <Link href="/app/trades" className="text-xs font-semibold text-[#a798ff] transition-colors hover:text-[#c9bcff]">Voir toutes</Link>
+    <div className="rounded-lg border border-slate-800 bg-[#0b111c] p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Lecture rapide</p>
+          <h3 className="mt-1 text-base font-black text-white">Statistiques clés</h3>
+        </div>
+        <Link href="/app/trades" className="text-xs font-black text-blue-300 transition-colors hover:text-blue-200">Voir toutes</Link>
       </div>
       {isLoading ? <Skeleton /> : (
         <div className="space-y-2.5">
           {rows.map(({ label, value, color }) => (
-            <div key={label} className="flex items-center justify-between">
-              <span className="text-sm text-slate-500">{label}</span>
+            <div key={label} className="flex items-center justify-between rounded-md border border-slate-800 bg-[#071017] px-3 py-2.5">
+              <span className="text-sm font-semibold text-slate-500">{label}</span>
               <span className={`text-xs font-semibold font-mono ${color}`}>{value}</span>
             </div>
           ))}
@@ -64,8 +68,13 @@ export function StatsCles({ period = '30d' }: { period?: KpiPeriod }) {
   )
 }
 
-export function StrategyPerformance({ period = '30d' }: { period?: KpiPeriod }) {
-  const { data, isLoading } = useKpiBreakdown(period)
+export function StrategyPerformance({
+  data,
+  isLoading = false,
+}: {
+  data?: KpiBreakdown | undefined
+  isLoading?: boolean
+}) {
   const strategies = data?.byStrategy ?? []
 
   const maxAbs = strategies.length > 0
@@ -73,10 +82,13 @@ export function StrategyPerformance({ period = '30d' }: { period?: KpiPeriod }) 
     : 1
 
   return (
-    <div className="rounded-2xl border border-[#1e2f4a] bg-[#0b1527] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_18px_60px_rgba(0,0,0,0.22)]">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-bold text-white">Performance par stratégie</h3>
-        <Link href="/app/performance" className="text-xs font-semibold text-[#a798ff] transition-colors hover:text-[#c9bcff]">Voir toutes</Link>
+    <div className="rounded-lg border border-slate-800 bg-[#0b111c] p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Edges</p>
+          <h3 className="mt-1 text-base font-black text-white">Performance par stratégie</h3>
+        </div>
+        <Link href="/app/performance" className="text-xs font-black text-blue-300 transition-colors hover:text-blue-200">Voir toutes</Link>
       </div>
 
       {isLoading ? (
@@ -86,8 +98,16 @@ export function StrategyPerformance({ period = '30d' }: { period?: KpiPeriod }) 
           ))}
         </div>
       ) : strategies.length === 0 ? (
-        <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-[#223653] bg-[#081220] text-xs text-slate-500">
-          Annotez vos trades avec une stratégie pour voir cette section
+        <div className="flex min-h-32 flex-col items-center justify-center rounded-lg border border-dashed border-slate-800 bg-[#071017] px-4 py-6 text-center">
+          <p className="text-xs font-semibold text-slate-500">
+            Annotez vos trades avec une stratégie pour voir cette section.
+          </p>
+          <Link
+            href="/app/trades"
+            className="mt-3 rounded-md border border-slate-700 px-3 py-2 text-xs font-black text-slate-200 transition-colors hover:border-blue-500 hover:text-white"
+          >
+            Annoter un trade
+          </Link>
         </div>
       ) : (
         <div className="space-y-4">
@@ -98,10 +118,10 @@ export function StrategyPerformance({ period = '30d' }: { period?: KpiPeriod }) 
                 <div className="flex items-center justify-between mb-1">
                   <span className="max-w-[60%] truncate text-sm text-slate-300">{s.name}</span>
                   <span className={`text-xs font-semibold font-mono ${s.positive ? 'text-[#38e476]' : 'text-[#ff5e70]'}`}>
-                    {s.positive ? '+' : ''}{s.pnl.toLocaleString('fr-FR', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}
+                    {s.positive ? '+' : ''}{s.pnl.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
                   </span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-[#15243a]">
+                <div className="h-2 overflow-hidden rounded-full bg-slate-800">
                   <div
                     className={`h-full rounded-full transition-all ${s.positive ? 'bg-[#38e476]' : 'bg-[#ff5e70]'}`}
                     style={{ width: `${barWidth}%` }}
