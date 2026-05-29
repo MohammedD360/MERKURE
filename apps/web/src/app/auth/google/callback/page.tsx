@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { setToken } from '@/lib/api-client'
 
-export default function GoogleCallbackPage() {
+function Callback() {
   const router       = useRouter()
   const searchParams = useSearchParams()
 
@@ -25,5 +25,13 @@ export default function GoogleCallbackPage() {
         <p className="text-sm font-semibold text-slate-400">Connexion en cours…</p>
       </div>
     </div>
+  )
+}
+
+export default function GoogleCallbackPage() {
+  return (
+    <Suspense>
+      <Callback />
+    </Suspense>
   )
 }
