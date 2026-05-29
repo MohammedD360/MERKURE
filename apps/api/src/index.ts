@@ -1,63 +1,22 @@
-import Fastify from 'fastify'
-import fastifyCors from '@fastify/cors'
-import fastifyHelmet from '@fastify/helmet'
-import fastifyJwt from '@fastify/jwt'
-import fastifyCookie from '@fastify/cookie'
-import fastifyRateLimit from '@fastify/rate-limit'
-import fastifyWebsocket from '@fastify/websocket'
+import { initSentry } from './infrastructure/monitoring/sentry.js'
+initSentry() // Doit être le premier import exécuté
 
+import { buildApp } from './app.js'
 import { env } from './config/env.js'
 import { prisma } from './infrastructure/database/client.js'
 import { redis } from './infrastructure/cache/redis.js'
+import { startBrokerSyncWorker, scheduleBrokerSyncCron } from './modules/sync/broker-sync.worker.js'
+import { startAlertsWorker } from './modules/alerts/alerts.worker.js'
 
-const app = Fastify({
-  logger: {
-    level: env.NODE_ENV === 'production' ? 'warn' : 'info',
-    transport:
-      env.NODE_ENV === 'development'
-        ? { target: 'pino-pretty', options: { colorize: true } }
-        : undefined,
-  },
-})
+const app = buildApp()
 
-// Plugins
-await app.register(fastifyHelmet, {
-  contentSecurityPolicy: false, // Gere par Cloudflare en prod
-})
+// Start workers
+const syncWorker    = startBrokerSyncWorker()
+const alertsWorker  = startAlertsWorker()
 
-await app.register(fastifyCors, {
-  origin: env.FRONTEND_URL,
-  credentials: true,
-})
-
-await app.register(fastifyCookie)
-
-await app.register(fastifyJwt, {
-  secret: env.JWT_SECRET,
-  cookie: { cookieName: 'access_token', signed: false },
-})
-
-await app.register(fastifyRateLimit, {
-  max: 100,
-  timeWindow: '1 minute',
-})
-
-await app.register(fastifyWebsocket)
-
-// Health check
-app.get('/health', async () => {
-  return { status: 'ok', timestamp: new Date().toISOString() }
-})
-
-// Routes — seront ajoutees module par module
-// await app.register(authRoutes, { prefix: '/api/v1/auth' })
-// await app.register(tradesRoutes, { prefix: '/api/v1/trades' })
-// await app.register(kpisRoutes, { prefix: '/api/v1/kpis' })
-// await app.register(riskRoutes, { prefix: '/api/v1/risk' })
-
-// Graceful shutdown
 const gracefulShutdown = async (signal: string) => {
   app.log.info(`[${signal}] Shutting down...`)
+  await Promise.all([syncWorker.close(), alertsWorker.close()])
   await app.close()
   await prisma.$disconnect()
   await redis.quit()
@@ -67,13 +26,17 @@ const gracefulShutdown = async (signal: string) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
 process.on('SIGINT', () => gracefulShutdown('SIGINT'))
 
-// Start
 try {
   await redis.connect()
   await prisma.$connect()
   await app.listen({ port: env.PORT, host: '0.0.0.0' })
-  app.log.info(`TradeEdge API running on port ${env.PORT}`)
+  app.log.info(`MERKURE API running on port ${env.PORT}`)
+
+  await scheduleBrokerSyncCron()
+  app.log.info('Broker sync cron scheduled (every 5 min)')
 } catch (err) {
+  const { Sentry } = await import('./infrastructure/monitoring/sentry.js')
+  Sentry.captureException(err)
   app.log.error(err)
   process.exit(1)
 }

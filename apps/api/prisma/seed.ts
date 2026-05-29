@@ -1,33 +1,45 @@
-import { PrismaClient, Plan, BrokerType, Direction, TradeStatus } from '@prisma/client'
+import { PrismaClient, Plan, BrokerType, Direction, TradeStatus, AccountType } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('🌱 Seeding database...')
+  console.log('Seeding MERKURE database...')
 
-  // Organisation de test
+  // Organisation de démonstration
   const org = await prisma.organization.upsert({
-    where: { slug: 'test-org' },
-    update: {},
+    where: { slug: 'merkure-demo' },
+    update: {
+      name: 'MERKURE Demo',
+      plan: Plan.FREE,
+    },
     create: {
-      slug: 'test-org',
-      name: 'Organisation Test',
-      plan: Plan.PRO,
+      slug: 'merkure-demo',
+      name: 'MERKURE Demo',
+      plan: Plan.FREE,
     },
   })
 
-  // Utilisateur de test
+  // Utilisateur de démonstration local-first
   const user = await prisma.user.upsert({
-    where: { email: 'trader@test.com' },
-    update: {},
+    where: { email: 'demo@merkure.app' },
+    update: {
+      clerkId: 'demo_user_merkure',
+      timezone: 'Europe/Paris',
+      currency: 'EUR',
+      riskPerTrade: 1,
+    },
     create: {
       orgId: org.id,
-      email: 'trader@test.com',
+      clerkId: 'demo_user_merkure',
+      email: 'demo@merkure.app',
       passwordHash: await bcrypt.hash('Test1234!', 12),
-      firstName: 'Jean',
-      lastName: 'Dupont',
+      firstName: 'Alexandre',
+      lastName: 'L.',
       onboarded: true,
+      timezone: 'Europe/Paris',
+      currency: 'EUR',
+      riskPerTrade: 1,
       profile: {
         create: {
           style: 'DAYTRADER',
@@ -52,8 +64,9 @@ async function main() {
     create: {
       userId: user.id,
       brokerType: BrokerType.MT5,
+      accountType: AccountType.DEMO,
       accountId: 'demo-12345',
-      label: 'Compte Demo MT5',
+      label: 'Compte Démo MERKURE MT5',
       syncStatus: 'SUCCESS',
       lastSyncAt: new Date(),
     },
@@ -106,8 +119,8 @@ async function main() {
     })
   }
 
-  console.log('✅ Seed terminé')
-  console.log(`   Email: trader@test.com`)
+  console.log('Seed terminé')
+  console.log(`   Email: demo@merkure.app`)
   console.log(`   Mot de passe: Test1234!`)
 }
 

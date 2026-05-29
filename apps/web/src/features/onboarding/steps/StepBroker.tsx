@@ -1,0 +1,221 @@
+'use client'
+
+import { useState } from 'react'
+import { ChevronRight, ArrowLeft, Eye, EyeOff, Lock, SkipForward } from 'lucide-react'
+import type { BrokerPayload } from '../api'
+import { BrokerLogo } from '@/shared/components/BrokerLogo'
+
+type BrokerType = 'MT5' | 'MT4' | 'BINANCE' | 'IB' | 'CTRADER'
+
+const BROKERS: { id: BrokerType; name: string; desc: string }[] = [
+  { id: 'MT5',     name: 'MetaTrader 5',         desc: 'Forex, indices, matières premières' },
+  { id: 'MT4',     name: 'MetaTrader 4',          desc: 'Forex classique' },
+  { id: 'IB',      name: 'Interactive Brokers',   desc: 'Actions, options, obligations' },
+  { id: 'CTRADER', name: 'cTrader',               desc: 'Forex, CFDs' },
+]
+
+const COMING_SOON: { id: BrokerType; name: string; desc: string }[] = [
+  { id: 'BINANCE', name: 'Binance', desc: 'Crypto spot & futures' },
+]
+
+interface FormState {
+  label: string
+  accountId: string
+  password: string
+  server: string
+  apiKey: string
+  apiSecret: string
+  port: string
+  clientId: string
+  clientSecret: string
+}
+
+interface Props {
+  onConnect: (payload: BrokerPayload) => void
+  onSkip: () => void
+  loading?: boolean
+}
+
+function Field({
+  label, value, onChange, placeholder, type = 'text', hint,
+}: {
+  label: string; value: string; onChange: (v: string) => void
+  placeholder: string; type?: string; hint?: string
+}) {
+  const [show, setShow] = useState(false)
+  const isPassword = type === 'password'
+  return (
+    <div>
+      <label className="block text-[11px] font-black uppercase tracking-wider text-slate-400 mb-1.5">{label}</label>
+      <div className="relative">
+        <input
+          type={isPassword ? (show ? 'text' : 'password') : type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="w-full h-11 rounded-lg border border-white/10 bg-[#0a0f18] px-3.5 text-sm font-semibold text-white outline-none transition-all placeholder:text-slate-600 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/15"
+        />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShow((s) => !s)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-500 hover:text-white hover:bg-white/5 transition-all"
+          >
+            {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        )}
+      </div>
+      {hint && <p className="text-[11px] text-slate-600 mt-1">{hint}</p>}
+    </div>
+  )
+}
+
+export function StepBroker({ onConnect, onSkip, loading }: Props) {
+  const [selected, setSelected] = useState<BrokerType | null>(null)
+  const [form, setForm] = useState<FormState>({
+    label: '', accountId: '', password: '', server: '',
+    apiKey: '', apiSecret: '', port: '', clientId: '', clientSecret: '',
+  })
+
+  const set = (k: keyof FormState) => (v: string) => setForm((f) => ({ ...f, [k]: v }))
+
+  const handleConnect = () => {
+    if (!selected) return
+    const credentials: Record<string, string> = {}
+    if (selected === 'MT4' || selected === 'MT5') {
+      credentials.password = form.password
+      credentials.server = form.server
+    } else if (selected === 'BINANCE') {
+      credentials.apiKey = form.apiKey
+      credentials.apiSecret = form.apiSecret
+    } else if (selected === 'IB') {
+      credentials.port = form.port
+    } else {
+      credentials.clientId = form.clientId
+      credentials.clientSecret = form.clientSecret
+    }
+    onConnect({
+      brokerType: selected,
+      accountType: 'LIVE',
+      accountId: form.accountId,
+      label: form.label || `${selected} — compte principal`,
+      credentials,
+    })
+  }
+
+  if (!selected) {
+    return (
+      <div className="space-y-3">
+        <p className="text-sm font-semibold text-slate-400 mb-4">
+          Connectez votre broker pour synchroniser automatiquement vos trades.
+          Vous pourrez en ajouter d&apos;autres plus tard.
+        </p>
+            {BROKERS.map((b) => (
+              <button
+                key={b.id}
+                onClick={() => setSelected(b.id)}
+                className="w-full flex items-center gap-4 p-3.5 rounded-xl border border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06] transition-all group text-left"
+              >
+                <BrokerLogo broker={b.id} />
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-white">{b.name}</div>
+                  <div className="text-xs text-slate-500 mt-0.5">{b.desc}</div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-300 transition-colors" />
+              </button>
+            ))}
+            {COMING_SOON.map((b) => (
+              <div
+                key={b.id}
+                className="w-full flex items-center gap-4 p-3.5 rounded-xl border border-white/[0.06] bg-white/[0.01] opacity-50 cursor-not-allowed"
+              >
+                <BrokerLogo broker={b.id} />
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-slate-400">{b.name}</div>
+                  <div className="text-xs text-slate-600 mt-0.5">{b.desc}</div>
+                </div>
+                <span className="rounded border border-slate-600/40 bg-slate-800/50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-slate-500">
+                  Bientôt
+                </span>
+              </div>
+            ))}
+        <button
+          onClick={onSkip}
+          className="w-full flex items-center justify-center gap-2 py-3 text-xs font-semibold text-slate-600 hover:text-slate-400 transition-colors mt-2"
+        >
+          <SkipForward className="w-4 h-4" />
+          Passer cette étape
+        </button>
+      </div>
+    )
+  }
+
+  const broker = BROKERS.find((b) => b.id === selected)!
+
+  return (
+    <div className="space-y-5">
+      <button
+        onClick={() => setSelected(null)}
+        className="flex items-center gap-1.5 text-xs font-black text-slate-500 hover:text-slate-300 transition-colors"
+      >
+        <ArrowLeft className="w-3.5 h-3.5" /> Changer de broker
+      </button>
+
+      <div className="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-white/[0.04]">
+        <BrokerLogo broker={broker.id} />
+        <div>
+          <p className="text-sm font-semibold text-white">{broker.name}</p>
+          <p className="text-[11px] text-slate-500">{broker.desc}</p>
+        </div>
+      </div>
+
+      <Field label="Libellé du compte" value={form.label} onChange={set('label')}
+        placeholder={`Ex : ${broker.name} Principal`} />
+
+      {(selected === 'MT4' || selected === 'MT5') && <>
+        <Field label="Numéro de compte MT" value={form.accountId} onChange={set('accountId')} placeholder="Ex : 1234567" />
+        <Field label="Mot de passe" value={form.password} onChange={set('password')} placeholder="••••••••" type="password"
+          hint="Utilisez le mot de passe en lecture seule pour plus de sécurité." />
+        <Field label="Serveur MetaTrader" value={form.server} onChange={set('server')} placeholder="Ex : Pepperstone-MT5" />
+      </>}
+
+      {selected === 'BINANCE' && <>
+        <Field label="API Key" value={form.apiKey} onChange={set('apiKey')} placeholder="Clé API Binance" />
+        <Field label="API Secret" value={form.apiSecret} onChange={set('apiSecret')} placeholder="Secret API" type="password"
+          hint="Créez une clé en lecture seule depuis Paramètres → Gestion des API." />
+        <input type="hidden" value="binance_main" readOnly />
+      </>}
+
+      {selected === 'IB' && <>
+        <Field label="Numéro de compte IB" value={form.accountId} onChange={set('accountId')} placeholder="Ex : U1234567" />
+        <Field label="Port TWS/Gateway" value={form.port} onChange={set('port')} placeholder="7497 (live) ou 7496 (paper)" />
+      </>}
+
+      {selected === 'CTRADER' && <>
+        <Field label="Client ID" value={form.clientId} onChange={set('clientId')} placeholder="ID cTrader Open API" />
+        <Field label="Client Secret" value={form.clientSecret} onChange={set('clientSecret')} placeholder="••••••••" type="password" />
+      </>}
+
+      <div className="flex items-start gap-2">
+        <Lock className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#56bf6b]" />
+        <span className="text-[11px] text-slate-600">
+          Identifiants chiffrés AES-256. MERKURE ne peut jamais placer d&apos;ordres en votre nom.
+        </span>
+      </div>
+
+      <button
+        onClick={handleConnect}
+        disabled={loading}
+        className="w-full h-11 rounded-lg text-sm font-black text-white bg-[#56bf6b] hover:bg-[#49ab5e] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+      >
+        Connecter le compte
+      </button>
+      <button
+        onClick={onSkip}
+        className="w-full py-2 text-xs font-semibold text-slate-600 hover:text-slate-400 transition-colors"
+      >
+        Passer cette étape
+      </button>
+    </div>
+  )
+}

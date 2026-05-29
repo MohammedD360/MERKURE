@@ -1,0 +1,12 @@
+[services.api]
+source = "apps/api"
+build.dockerfile = "Dockerfile"
+deploy.startCommand = "node dist/index.js"
+deploy.healthcheckPath = "/health"
+deploy.healthcheckTimeout = 30
+
+[services.web]
+source = "apps/web"
+build.dockerfile = "Dockerfile"
+deploy.startCommand = "node apps/web/server.js"
+deploy.healthcheckPath = "/"
