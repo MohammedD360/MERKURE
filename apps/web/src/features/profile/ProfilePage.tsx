@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 
 import { api, type UserProfile } from '@/lib/api-client'
+import { getPlanDisplayName } from '@/lib/plans'
 
 const CURRENCIES = ['EUR', 'USD', 'GBP', 'CHF', 'CAD'] as const
 const TIMEZONES = ['Europe/Paris', 'Europe/London', 'America/New_York', 'America/Toronto', 'Asia/Dubai'] as const
@@ -56,14 +57,7 @@ function formatDate(date?: string) {
 }
 
 function planLabel(plan?: string) {
-  const labels: Record<string, string> = {
-    FREE: 'Gratuit',
-    STARTER: 'Starter',
-    TRADER: 'Trader',
-    PRO: 'Pro',
-    ELITE: 'Elite',
-  }
-  return plan ? labels[plan] ?? plan : 'Gratuit'
+  return getPlanDisplayName(plan)
 }
 
 function readFileAsDataUrl(file: File) {

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Check, Zap, Crown, Star } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api-client'
+import { getPlanDisplayName } from '@/lib/plans'
 
 interface Plan {
   id: string
@@ -34,10 +35,10 @@ const PLAN_RING: Record<string, string> = {
 }
 
 const FALLBACK_PLANS: Plan[] = [
-  { id: 'FREE',    name: 'Free',    priceMonthly: 0,    currency: 'EUR', features: ['10 trades/mois', 'KPIs de base', 'Journal manuel'] },
-  { id: 'STARTER', name: 'Starter', priceMonthly: 900,  currency: 'EUR', features: ['Trades illimités', 'Sync broker (1)', 'KPIs avancés', 'Journal assisté'] },
-  { id: 'PRO',     name: 'Pro',     priceMonthly: 1900, currency: 'EUR', features: ['Sync broker (3)', 'Analyse IA', 'Alertes de risque', 'Rapport hebdomadaire'] },
-  { id: 'ELITE',   name: 'Elite',   priceMonthly: 4900, currency: 'EUR', features: ['Sync broker illimité', 'Rapports PDF', 'Exports avancés', 'Support prioritaire'] },
+  { id: 'FREE',    name: 'Gratuit', priceMonthly: 0,    currency: 'EUR', features: ['10 trades/mois', 'KPIs de base', 'Journal manuel'] },
+  { id: 'STARTER', name: 'Starter', priceMonthly: 900,  currency: 'EUR', features: ['Journal de trading', 'Statistiques de base', 'Import manuel & CSV', '1 compte broker'] },
+  { id: 'PRO',     name: 'Trader',  priceMonthly: 1900, currency: 'EUR', features: ['Toutes les fonctionnalités Starter', 'Analyses avancées', 'Suivi du risque', 'Jusqu’à 3 comptes brokers'] },
+  { id: 'ELITE',   name: 'Pro',     priceMonthly: 4900, currency: 'EUR', features: ['Toutes les fonctionnalités Trader', 'Analyse comportementale IA', 'Exports avancés', 'Connexions brokers illimitées'] },
 ]
 
 function formatPrice(price: number) {
@@ -80,7 +81,7 @@ export function UpgradePage() {
       <div>
         <h1 className="text-2xl font-black text-white">Changer de plan</h1>
         <p className="text-sm text-slate-400 mt-1">
-          Plan actuel : <span className={`font-bold ${PLAN_COLORS[currentPlan] ?? 'text-white'}`}>{currentPlan}</span>
+          Plan actuel : <span className={`font-bold ${PLAN_COLORS[currentPlan] ?? 'text-white'}`}>{getPlanDisplayName(currentPlan)}</span>
         </p>
       </div>
 
@@ -92,7 +93,7 @@ export function UpgradePage() {
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {plans.map((plan) => {
-          const isPro = plan.id === 'PRO'
+          const isRecommended = plan.id === 'PRO'
           const isCurrent = plan.id === currentPlan
           const Icon = PLAN_ICONS[plan.id]
           const isLoadingThis = loading === plan.id
@@ -113,7 +114,7 @@ export function UpgradePage() {
                   </span>
                 </div>
               )}
-              {isPro && !isCurrent && (
+              {isRecommended && !isCurrent && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-0.5 text-[10px] font-black uppercase tracking-widest text-violet-300 whitespace-nowrap">
                     Recommandé
@@ -129,9 +130,6 @@ export function UpgradePage() {
                   </p>
                 </div>
                 <p className="text-2xl font-black text-white">{formatPrice(plan.priceMonthly)}</p>
-                {isPro && !isCurrent && (
-                  <p className="text-[11px] text-emerald-400 font-semibold mt-1">✓ 14 jours d&apos;essai gratuit</p>
-                )}
               </div>
 
               <ul className="mb-6 flex-1 space-y-2">
@@ -165,7 +163,7 @@ export function UpgradePage() {
                   onClick={() => handleSelect(plan.id)}
                   disabled={isLoadingThis}
                   className={`w-full rounded-xl h-11 text-sm font-black transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
-                    isPro
+                    isRecommended
                       ? 'bg-gradient-to-r from-[#7c5cff] to-[#9b6dff] hover:opacity-90 text-white shadow-[0_6px_20px_rgba(124,92,255,0.25)]'
                       : 'border border-white/15 bg-white/[0.06] text-white hover:bg-white/[0.10]'
                   }`}
@@ -175,8 +173,6 @@ export function UpgradePage() {
                       <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       Chargement…
                     </span>
-                  ) : isPro ? (
-                    'Essayer 14j gratuitement →'
                   ) : (
                     `Passer à ${plan.name} →`
                   )}

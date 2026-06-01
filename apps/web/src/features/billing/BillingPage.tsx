@@ -3,6 +3,7 @@
 import { Check, ShieldAlert, ExternalLink, Crown, Zap, Star } from 'lucide-react'
 import { useSubscription, usePlans, useCheckout, usePortal } from '@/lib/hooks/use-billing'
 import type { BillingPlan } from '@/lib/api-client'
+import { getPlanDisplayName } from '@/lib/plans'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -38,15 +39,12 @@ function PlanBadge({ plan }: { plan: string }) {
     PRO:     'border-emerald-500/40 bg-emerald-500/10 text-emerald-300',
     ELITE:   'border-amber-500/40 bg-amber-500/20 text-amber-300',
   }
-  const labels: Record<string, string> = {
-    FREE: 'Gratuit', STARTER: 'Starter', PRO: 'Pro', ELITE: 'Elite',
-  }
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold tracking-wide ${styles[plan] ?? styles.FREE}`}>
       {plan === 'ELITE' && <Crown className="h-3 w-3" />}
       {plan === 'PRO'   && <Star  className="h-3 w-3" />}
       {plan === 'STARTER' && <Zap className="h-3 w-3" />}
-      {labels[plan] ?? plan}
+      {getPlanDisplayName(plan)}
     </span>
   )
 }
@@ -61,7 +59,7 @@ function StatusBadge({ status }: { status: string }) {
     CANCELED: 'border-red-500/30 bg-red-500/10 text-red-400',
   }
   const labels: Record<string, string> = {
-    ACTIVE: 'Actif', TRIALING: 'Période d\'essai', PAST_DUE: 'Paiement en retard', CANCELED: 'Annulé',
+    ACTIVE: 'Actif', TRIALING: 'Actif', PAST_DUE: 'Paiement en retard', CANCELED: 'Annulé',
   }
   return (
     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${styles[status] ?? styles.ACTIVE}`}>
@@ -107,7 +105,7 @@ interface PlanCardProps {
 
 function PlanCard({ plan, currentPlan, onCheckout, isCheckoutPending }: PlanCardProps) {
   const isCurrent  = plan.id === currentPlan
-  const isPro      = plan.id === 'PRO'
+  const isRecommended = plan.id === 'PRO'
   const isFree     = plan.id === 'FREE'
   const currentRank = getPlanRank(currentPlan)
   const planRank    = getPlanRank(plan.id)
@@ -117,13 +115,13 @@ function PlanCard({ plan, currentPlan, onCheckout, isCheckoutPending }: PlanCard
   return (
     <div
       className={`relative flex flex-col rounded-lg border p-5 transition-all duration-200 ${
-        isPro
+        isRecommended
           ? 'border-slate-500 bg-[#111827]'
           : 'border-[#1e2f4a] bg-[#0b1527]'
       } ${isCurrent ? 'ring-1 ring-emerald-500/30' : ''}`}
     >
       {/* Badge Populaire */}
-      {isPro && (
+      {isRecommended && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
           <span className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-0.5 text-[10px] font-bold tracking-wider text-emerald-300">
             RECOMMANDÉ
