@@ -76,7 +76,7 @@ const headerCopy: Record<KnownPage, { title: string; description: string }> = {
   },
   settings: {
     title:       'Paramètres',
-    description: 'Profil et sécurité du compte',
+    description: 'Préférences produit, affichage et cadre de risque',
   },
   profile: {
     title:       'Profil',
