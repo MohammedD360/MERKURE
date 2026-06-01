@@ -243,6 +243,15 @@
     }
   }
 
+  @keyframes merkure-brain-orbit {
+    from {
+      transform: translate3d(-50%, -50%, 0) rotate(0deg);
+    }
+    to {
+      transform: translate3d(-50%, -50%, 0) rotate(360deg);
+    }
+  }
+
   .hero-fade-up {
     opacity: 0;
     animation: merkure-hero-fade-up 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -322,11 +331,60 @@
     animation: merkure-soft-pulse 2200ms ease-in-out infinite;
   }
 
+  .hero-brain-art-frame {
+    isolation: isolate;
+    mask-image: radial-gradient(ellipse 50% 43% at 58% 47%, #000 0%, #000 56%, rgba(0, 0, 0, 0.55) 66%, transparent 78%);
+    -webkit-mask-image: radial-gradient(ellipse 50% 43% at 58% 47%, #000 0%, #000 56%, rgba(0, 0, 0, 0.55) 66%, transparent 78%);
+  }
+
+  .hero-brain-art {
+    transform: translate3d(-2.5%, -0.5%, 0) scale(1.08);
+    filter: saturate(1.18) contrast(1.06) brightness(1.04)
+            drop-shadow(0 0 34px rgba(139, 92, 246, 0.42));
+    mix-blend-mode: screen;
+  }
+
+  .hero-brain-orbit {
+    animation: merkure-brain-orbit 22s linear infinite;
+    box-shadow: 0 0 42px rgba(139, 92, 246, 0.09);
+  }
+
+  .hero-brain-orbit::before,
+  .hero-brain-orbit::after {
+    content: '';
+    position: absolute;
+    height: 7px;
+    width: 7px;
+    border-radius: 9999px;
+    background: #c4b5fd;
+    box-shadow: 0 0 18px rgba(196, 181, 253, 0.9);
+  }
+
+  .hero-brain-orbit::before {
+    left: 50%;
+    top: -4px;
+  }
+
+  .hero-brain-orbit::after {
+    bottom: 12%;
+    right: 7%;
+  }
+
+  .hero-brain-orbit-slow {
+    animation-duration: 34s;
+  }
+
+  .hero-brain-orbit-reverse {
+    animation-duration: 28s;
+    animation-direction: reverse;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .hero-fade-up,
     .hero-preview-stage,
     .hero-preview,
     .hero-depth-scene,
+    .hero-brain-orbit,
     .hero-floating-chip,
     .hero-metric-pop,
     .hero-chart-draw,

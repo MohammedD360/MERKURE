@@ -63,12 +63,13 @@ const legalLinks = [
 ]
 
 const heroBenefits: Array<{ icon: LucideIcon; title: string; text: string }> = [
-  { icon: ShieldCheck, title: 'Clarté', text: 'Prenez des décisions basées sur vos données.' },
-  { icon: Target, title: 'Discipline', text: 'Identifiez vos forces et vos faiblesses.' },
-  { icon: Sparkles, title: 'Performance', text: 'Améliorez vos résultats sur le long terme.' },
+  { icon: NotebookPen, title: 'Journal intelligent', text: 'Structurez vos décisions.' },
+  { icon: Brain, title: 'Analyse comportementale', text: 'Détectez vos biais.' },
+  { icon: Sparkles, title: 'Coach IA personnalisé', text: 'Recevez des actions concrètes.' },
+  { icon: ArrowLeftRight, title: 'Simulations & scénarios', text: 'Testez vos règles.' },
 ]
 
-const heroBenefitDelayClasses = ['hero-delay-4', 'hero-delay-5', 'hero-delay-6'] as const
+const heroBenefitDelayClasses = ['hero-delay-4', 'hero-delay-5', 'hero-delay-6', 'hero-delay-7'] as const
 
 const features: Array<{ icon: LucideIcon; title: string; text: string; badge?: string }> = [
   {
@@ -358,24 +359,30 @@ const partnerLogos: Array<{
   },
 ]
 
+function BrandIcon({ className = 'h-8 w-8' }: { className?: string }) {
+  return (
+    <svg className={`${className} text-current`} viewBox="0 0 40 40" fill="none" aria-hidden="true">
+      <path
+        d="M7 9.5L20 4l13 5.5v21L20 36 7 30.5v-21Z"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12 27V13l8 8 8-8v14"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 function BrandMark() {
   return (
     <div className="flex items-center gap-3">
-      <svg className="h-8 w-8 text-white" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-        <path
-          d="M7 9.5L20 4l13 5.5v21L20 36 7 30.5v-21Z"
-          stroke="currentColor"
-          strokeWidth="3"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M12 27V13l8 8 8-8v14"
-          stroke="currentColor"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <BrandIcon className="h-8 w-8 text-violet-400 drop-shadow-[0_0_18px_rgba(139,92,246,0.55)]" />
       <span className="text-[22px] font-black tracking-[0.12em] text-white">MERKURE</span>
     </div>
   )
@@ -385,10 +392,12 @@ function DemoButton({
   compact = false,
   dark = true,
   className = '',
+  label = 'Voir une analyse réelle',
 }: {
   compact?: boolean
   dark?: boolean
   className?: string
+  label?: string
 }) {
   const [loading, setLoading] = useState(false)
 
@@ -425,7 +434,7 @@ function DemoButton({
       ) : (
         <PlayCircle className="h-4 w-4" />
       )}
-      Voir la démo
+      {label}
     </button>
   )
 }
@@ -485,14 +494,14 @@ function Header() {
         </div>
 
         <div className="hidden items-center gap-6 lg:flex">
-          <Link href="/sign-in" className="text-sm font-bold text-white underline underline-offset-4">
-            Connexion
+          <Link href="/sign-in" className="rounded-lg border border-white/15 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10">
+            Se connecter
           </Link>
           <Link
             href="/sign-up"
-            className="rounded-md bg-[#56bf6b] px-6 py-3 text-sm font-black text-white shadow-[0_12px_28px_rgba(86,191,107,0.24)] transition-colors hover:bg-[#49ab5e]"
+            className="rounded-lg bg-[linear-gradient(135deg,#7c3aed_0%,#a855f7_52%,#2563eb_100%)] px-6 py-3 text-sm font-black text-white shadow-[0_16px_34px_rgba(124,58,237,0.36)] transition-transform hover:-translate-y-0.5"
           >
-            Commencer
+            Commencer gratuitement
           </Link>
         </div>
 
@@ -522,11 +531,11 @@ function Header() {
           </div>
           <div className="mt-5 grid gap-3 border-t border-white/10 pt-5">
             <Link href="/sign-in" onClick={() => setOpen(false)} className="rounded-md border border-white/20 px-4 py-3 text-center text-sm font-bold text-white">
-              Connexion
+              Se connecter
             </Link>
             <DemoButton compact className="w-full py-3" />
-            <Link href="/sign-up" onClick={() => setOpen(false)} className="rounded-md bg-[#56bf6b] px-4 py-3 text-center text-sm font-black text-white">
-              Commencer
+            <Link href="/sign-up" onClick={() => setOpen(false)} className="rounded-md bg-[linear-gradient(135deg,#7c3aed,#a855f7_52%,#2563eb)] px-4 py-3 text-center text-sm font-black text-white">
+              Commencer gratuitement
             </Link>
           </div>
         </div>
@@ -539,7 +548,7 @@ function PrimaryCta({ children = 'Commencer maintenant', href = '/sign-up' }: { 
   return (
     <Link
       href={href}
-      className="inline-flex items-center justify-center gap-2 rounded-md bg-[#56bf6b] px-6 py-3 text-sm font-black text-white shadow-[0_14px_30px_rgba(86,191,107,0.25)] transition-colors hover:bg-[#49ab5e]"
+      className="inline-flex items-center justify-center gap-2 rounded-lg bg-[linear-gradient(135deg,#7c3aed_0%,#a855f7_52%,#2563eb_100%)] px-6 py-3 text-sm font-black text-white shadow-[0_18px_40px_rgba(124,58,237,0.34)] transition-transform hover:-translate-y-0.5"
     >
       {children}
       <ArrowRight className="h-4 w-4" />
@@ -682,7 +691,7 @@ function HeroDepthScene() {
   )
 }
 
-function DashboardPreview() {
+function _DashboardPreview() {
   const sideNavSections: Array<{
     label: string
     items: Array<{ icon: LucideIcon; label: string; active?: boolean }>
@@ -972,53 +981,124 @@ function DashboardPreview() {
   )
 }
 
+const heroBrainChips: Array<{
+  icon: LucideIcon
+  title: string
+  text: string
+  position: string
+}> = [
+  { icon: Brain, title: 'Détection de biais', text: 'Patterns récurrents', position: 'left-0 top-16' },
+  { icon: Sparkles, title: 'Coaching IA', text: 'Conseils personnalisés', position: 'right-4 top-24' },
+  { icon: ShieldCheck, title: 'Analyse IA', text: 'Temps réel', position: 'left-12 bottom-24' },
+  { icon: TrendingUp, title: "Plan d'amélioration", text: 'Actions concrètes', position: 'right-10 bottom-28' },
+]
+
+function HeroBrainVisual() {
+  return (
+    <div className="hero-fade-up hero-delay-4 relative mx-auto hidden h-[560px] w-full max-w-[820px] xl:block">
+      <div className="absolute inset-[-36px] rounded-full bg-[radial-gradient(circle_at_54%_44%,rgba(168,85,247,0.36),transparent_38%),radial-gradient(circle_at_68%_55%,rgba(37,99,235,0.22),transparent_36%),radial-gradient(circle_at_56%_82%,rgba(109,40,217,0.24),transparent_28%)] blur-3xl" />
+      <div className="absolute left-[57%] top-[56%] h-[230px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[linear-gradient(90deg,rgba(59,130,246,0.08),rgba(168,85,247,0.22),rgba(236,72,153,0.10))] blur-2xl" />
+      <div className="hero-brain-orbit absolute left-[58%] top-[48%] h-[430px] w-[430px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-violet-400/20" />
+      <div className="hero-brain-orbit hero-brain-orbit-slow absolute left-[58%] top-[48%] h-[540px] w-[540px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-violet-500/10" />
+      <div className="hero-brain-orbit hero-brain-orbit-reverse absolute left-[58%] top-[48%] h-[315px] w-[315px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-violet-300/20" />
+
+      <div className="hero-brain-art-frame absolute inset-y-[-26px] right-[-48px] w-[98%] overflow-hidden">
+        <Image
+          src="/hero/merkure-brain-profile.png"
+          alt=""
+          fill
+          priority
+          sizes="(min-width: 1280px) 760px, 0px"
+          className="hero-brain-art object-contain object-center"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_60%_45%,transparent_0%,transparent_48%,rgba(5,8,22,0.72)_76%,#050816_100%),linear-gradient(90deg,#050816_0%,rgba(5,8,22,0.26)_18%,rgba(5,8,22,0)_56%,#050816_100%)]" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#050816] via-[#050816]/72 to-transparent" />
+      </div>
+
+      <div className="pointer-events-none absolute left-[58.4%] top-[41.8%] z-20 flex h-[104px] w-[104px] -translate-x-1/2 -translate-y-1/2 items-center justify-center">
+        <div className="absolute inset-0 rounded-full bg-violet-500/18 blur-2xl" />
+        <BrandIcon className="relative h-16 w-16 text-white drop-shadow-[0_0_24px_rgba(255,255,255,0.86)]" />
+      </div>
+
+      {heroBrainChips.map(({ icon: Icon, title, text, position }, index) => (
+        <div
+          key={title}
+          className={`hero-floating-chip absolute z-30 ${position} min-w-[190px] rounded-lg border border-violet-300/15 bg-[#0c1020]/86 px-4 py-3 shadow-[0_18px_46px_rgba(0,0,0,0.35)] backdrop-blur-md`}
+          style={{ animationDelay: `${900 + index * 170}ms` }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-violet-300/15 bg-violet-500/15 text-violet-300">
+              <Icon className="h-4 w-4" />
+            </span>
+            <span>
+              <span className="block text-[10px] font-black uppercase tracking-wider text-white">{title}</span>
+              <span className="mt-0.5 block text-[11px] font-semibold text-slate-400">{text}</span>
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function Hero() {
   return (
-    <section className="bg-[#070b10] px-5 pb-8 pt-20 text-white sm:px-8 lg:pb-10 lg:pt-24">
-      <div className="mx-auto grid w-full max-w-[1680px] items-center gap-9 xl:grid-cols-[0.86fr_1.08fr] xl:gap-10 2xl:gap-14">
-        <div>
-          <div className="hero-fade-up hero-delay-1 inline-flex rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-slate-300">
-            Pour les traders qui veulent des données, pas des intuitions
+    <section className="relative overflow-hidden bg-[#050816] px-5 pb-8 pt-24 text-white sm:px-8 lg:pb-10 lg:pt-28">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(980px_560px_at_75%_24%,rgba(124,58,237,0.34),transparent_60%),radial-gradient(720px_440px_at_58%_70%,rgba(37,99,235,0.18),transparent_58%),radial-gradient(520px_380px_at_18%_70%,rgba(168,85,247,0.16),transparent_62%),linear-gradient(135deg,#050816_0%,#080b18_34%,#120b2a_66%,#050816_100%)]" />
+      <div className="pointer-events-none absolute left-1/2 top-20 h-[620px] w-[980px] -translate-x-[10%] rounded-full bg-[conic-gradient(from_210deg,rgba(37,99,235,0),rgba(124,58,237,0.20),rgba(236,72,153,0.10),rgba(37,99,235,0.16),rgba(37,99,235,0))] blur-3xl" />
+      <div className="pointer-events-none absolute inset-x-0 top-[88px] h-px bg-gradient-to-r from-transparent via-violet-400/25 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 opacity-50 [background-image:linear-gradient(rgba(139,92,246,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.05)_1px,transparent_1px)] [background-size:72px_72px]" />
+
+      <div className="relative mx-auto grid w-full max-w-[1680px] items-center gap-10 xl:grid-cols-[0.82fr_1.18fr] xl:gap-8 2xl:gap-12">
+        <div className="relative z-10">
+          <div className="hero-fade-up hero-delay-1 inline-flex items-center gap-2 rounded-full border border-violet-400/20 bg-violet-500/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-violet-300">
+            Plateforme de performance trading
+            <span className="h-1.5 w-1.5 rounded-full bg-violet-300 shadow-[0_0_14px_rgba(196,181,253,0.85)]" />
           </div>
 
-          <h1 className="hero-fade-up hero-delay-2 mt-8 max-w-3xl text-4xl font-black leading-[1.1] tracking-normal text-white sm:text-5xl xl:text-[58px]">
-            Analysez vos trades.
+          <h1 className="hero-fade-up hero-delay-2 mt-7 max-w-3xl text-4xl font-black leading-[1.08] tracking-normal text-white sm:text-5xl xl:text-[62px]">
+            Devenez le trader
             <br />
-            Comprenez vos erreurs.
+            que vos <span className="bg-gradient-to-r from-violet-300 via-fuchsia-400 to-blue-300 bg-clip-text text-transparent drop-shadow-[0_0_22px_rgba(139,92,246,0.44)]">émotions</span>
             <br />
-            Progressez <span className="text-[#56bf6b]">durablement.</span>
+            <span className="bg-gradient-to-r from-violet-300 via-fuchsia-400 to-blue-300 bg-clip-text text-transparent drop-shadow-[0_0_22px_rgba(139,92,246,0.44)]">empêchent d’être.</span>
           </h1>
 
           <p className="hero-fade-up hero-delay-3 mt-7 max-w-xl text-base font-medium leading-8 text-slate-300">
-            MERKURE centralise vos trades, analyse vos performances et révèle vos edges pour vous aider à trader avec plus de clarté et de discipline.
+            MERKURE analyse vos décisions, détecte vos biais comportementaux et vous aide à construire une discipline durable.
           </p>
 
-          <div className="mt-10 grid max-w-2xl gap-5 sm:grid-cols-3">
+          <div className="hero-fade-up hero-delay-7 mt-10 flex flex-col gap-3 sm:flex-row">
+            <PrimaryCta>Commencer gratuitement</PrimaryCta>
+            <DemoButton />
+          </div>
+
+          <div className="mt-10 grid max-w-3xl gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {heroBenefits.map(({ icon: Icon, title, text }, index) => (
-              <div key={title} className={`hero-fade-up ${heroBenefitDelayClasses[index] ?? 'hero-delay-4'} flex items-start gap-3`}>
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-[#56bf6b]">
-                  <Icon className="h-5 w-5" />
+              <div key={title} className={`hero-fade-up ${heroBenefitDelayClasses[index] ?? 'hero-delay-4'} flex items-center gap-3`}>
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-violet-400/20 bg-violet-500/10 text-violet-300">
+                  <Icon className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="text-sm font-black text-white">{title}</p>
-                  <p className="mt-1 text-[12px] leading-5 text-slate-400">{text}</p>
+                  <p className="text-[12px] font-black text-white">{title}</p>
+                  <p className="mt-0.5 text-[11px] leading-4 text-slate-500">{text}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="hero-fade-up hero-delay-7 mt-10 flex flex-col gap-3 sm:flex-row">
-            <PrimaryCta />
-            <DemoButton />
+          <div className="hero-fade-up hero-delay-8 mt-8 flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-400">
+            <span className="rounded-lg border border-violet-400/20 bg-violet-500/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-violet-300">Early access</span>
+            <span>Rejoignez les premiers traders qui construisent leur avantage comportemental avec MERKURE.</span>
           </div>
 
-          <p className="hero-fade-up hero-delay-8 mt-5 flex items-center gap-2 text-xs font-semibold text-slate-400">
-            <Lock className="h-4 w-4" />
+          <p className="hero-fade-up hero-delay-8 mt-4 flex items-center gap-2 text-xs font-semibold text-slate-500">
+            <Lock className="h-4 w-4 text-violet-300" />
             Aucune carte bancaire requise
           </p>
         </div>
 
-        <DashboardPreview />
+        <HeroBrainVisual />
       </div>
     </section>
   )
