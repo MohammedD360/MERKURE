@@ -84,7 +84,6 @@ export async function billingRoutes(app: FastifyInstance) {
           cancel_url: `${env.FRONTEND_URL}/pricing?checkout=cancelled`,
           metadata: { userId: request.user.id, plan: body.data.plan },
           subscription_data: {
-            ...(body.data.plan === 'PRO' ? { trial_period_days: 14 } : {}),
             metadata: { userId: request.user.id, plan: body.data.plan },
           },
         })

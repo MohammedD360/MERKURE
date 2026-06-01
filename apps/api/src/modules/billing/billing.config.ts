@@ -13,7 +13,7 @@ export interface PlanConfig {
 export const PLANS: Record<Exclude<Plan, 'INSTITUTIONAL'>, PlanConfig> = {
   FREE: {
     id: 'FREE',
-    name: 'Free',
+    name: 'Gratuit',
     priceMonthly: 0,
     currency: 'EUR',
     stripePriceId: undefined,
@@ -25,23 +25,36 @@ export const PLANS: Record<Exclude<Plan, 'INSTITUTIONAL'>, PlanConfig> = {
     priceMonthly: 900,
     currency: 'EUR',
     stripePriceId: env.STRIPE_PRICE_STARTER,
-    features: ['Trades illimités', 'Sync broker (1)', 'KPIs avancés', 'Journal assisté'],
+    features: ['Journal de trading', 'Statistiques de base', 'Import manuel & CSV', '1 compte broker'],
   },
   PRO: {
     id: 'PRO',
-    name: 'Pro',
+    name: 'Trader',
     priceMonthly: 1900,
     currency: 'EUR',
     stripePriceId: env.STRIPE_PRICE_PRO,
-    features: ['Sync broker (3)', 'Analyse par actif', 'Alertes de risque', 'Rapport hebdomadaire'],
+    features: [
+      'Toutes les fonctionnalités Starter',
+      'Analyses avancées',
+      'Suivi du risque',
+      'Rapports personnalisés',
+      'Jusqu’à 3 comptes brokers',
+    ],
   },
   ELITE: {
     id: 'ELITE',
-    name: 'Elite',
+    name: 'Pro',
     priceMonthly: 4900,
     currency: 'EUR',
     stripePriceId: env.STRIPE_PRICE_ELITE,
-    features: ['Sync broker illimité', 'Rapports PDF', 'Exports avancés', 'Support prioritaire'],
+    features: [
+      'Toutes les fonctionnalités Trader',
+      'Analyse comportementale IA',
+      'Objectifs & plans de trading',
+      'Exports avancés',
+      'Connexions brokers illimitées',
+      'Support prioritaire',
+    ],
   },
 }
 

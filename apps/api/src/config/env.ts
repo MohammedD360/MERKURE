@@ -23,7 +23,7 @@ const envSchema = z.object({
 
   // Email (Resend)
   RESEND_API_KEY: z.string().optional(),
-  RESEND_FROM: z.string().default('noreply@merkure.app'),
+  RESEND_FROM: z.string().default('noreply@merkure360.com'),
 
   // Monitoring
   SENTRY_DSN: z.string().url().optional(),

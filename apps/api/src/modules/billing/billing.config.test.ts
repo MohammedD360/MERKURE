@@ -13,6 +13,13 @@ describe('PLANS', () => {
     expect(PLANS.ELITE.priceMonthly).toBe(4900)
   })
 
+  it('exposes the commercial plan names shown in the frontend', () => {
+    expect(PLANS.FREE.name).toBe('Gratuit')
+    expect(PLANS.STARTER.name).toBe('Starter')
+    expect(PLANS.PRO.name).toBe('Trader')
+    expect(PLANS.ELITE.name).toBe('Pro')
+  })
+
   it('all plans have required fields', () => {
     for (const plan of Object.values(PLANS)) {
       expect(plan.id).toBeTruthy()
