@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { Lock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { usePlanGate } from '@/lib/hooks/use-plan-gate'
+import { getPlanDisplayName } from '@/lib/plans'
 
 interface Props {
   required:    'STARTER' | 'PRO' | 'ELITE'
@@ -19,6 +20,7 @@ const BADGE_STYLES: Record<'STARTER' | 'PRO' | 'ELITE', string> = {
 export function PlanGateBanner({ required, featureName, children }: Props) {
   const { allowed, isLoading } = usePlanGate(required)
   const router = useRouter()
+  const planName = getPlanDisplayName(required)
 
   if (isLoading || allowed) return <>{children}</>
 
@@ -28,17 +30,17 @@ export function PlanGateBanner({ required, featureName, children }: Props) {
         <Lock className="h-6 w-6" style={{ color: '#fbbf24' }} />
         <div className="space-y-1">
           <p className="text-base font-bold text-white">Fonctionnalité {featureName}</p>
-          <p className="text-sm text-slate-400">Disponible à partir du plan {required}</p>
+          <p className="text-sm text-slate-400">Disponible à partir du plan {planName}</p>
         </div>
         <span className={`rounded-full px-3 py-1 text-xs font-bold ${BADGE_STYLES[required]}`}>
-          {required}
+          {planName}
         </span>
         <button
           type="button"
           onClick={() => router.push('/app/upgrade')}
           className="mt-2 rounded-xl bg-gradient-to-r from-[#7c5cff] to-[#18c7ff] px-5 py-2.5 text-sm font-bold text-white shadow-[0_8px_24px_rgba(124,92,255,0.28)] transition-opacity hover:opacity-90"
         >
-          Passer à {required} →
+          Passer à {planName} →
         </button>
       </div>
     </div>

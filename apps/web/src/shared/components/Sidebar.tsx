@@ -9,6 +9,7 @@ import {
 import type { ElementType } from 'react'
 import type { Page } from '@/lib/navigation'
 import { useCurrentUser } from '@/lib/hooks/use-current-user'
+import { getPlanDisplayLabel } from '@/lib/plans'
 
 interface Props {
   currentPage: Page
@@ -62,14 +63,6 @@ const sections: Array<{
   },
 ]
 
-const PLAN_LABELS: Record<string, string> = {
-  FREE: 'Plan Gratuit',
-  STARTER: 'Plan Starter',
-  PRO: 'Plan Pro',
-  ELITE: 'Plan Elite',
-  INSTITUTIONAL: 'Plan Institutionnel',
-}
-
 function MerkureLogo() {
   return (
     <div className="flex items-center gap-3">
@@ -95,7 +88,7 @@ function MerkureLogo() {
 
 export function Sidebar({ currentPage, onNavigate, mobileOpen = false, onClose }: Props) {
   const { data: user } = useCurrentUser()
-  const planLabel = user?.plan ? (PLAN_LABELS[user.plan] ?? `Plan ${user.plan}`) : 'Plan —'
+  const planLabel = user?.plan ? getPlanDisplayLabel(user.plan) : 'Plan —'
 
   return (
     <aside className={`fixed left-0 top-0 z-30 flex h-screen w-64 flex-col overflow-hidden transition-transform duration-200 lg:translate-x-0 ${
