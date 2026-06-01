@@ -7,9 +7,9 @@ import type { Alert } from '@/lib/api-client'
 
 function severityConfig(severity: Alert['severity']) {
   switch (severity) {
-    case 'CRITICAL': return { icon: ShieldAlert, color: 'text-[#ff5e70]', bg: 'bg-[#ff5e70]/10', border: 'border-[#ff5e70]/25' }
-    case 'WARNING':  return { icon: AlertTriangle, color: 'text-[#f7b84b]', bg: 'bg-[#f7b84b]/10', border: 'border-[#f7b84b]/25' }
-    default:         return { icon: Info, color: 'text-[#18c7ff]', bg: 'bg-[#18c7ff]/10', border: 'border-[#18c7ff]/25' }
+    case 'CRITICAL': return { icon: ShieldAlert, color: 'text-rose-300', bg: 'bg-rose-400/[0.08]', border: 'border-rose-400/25' }
+    case 'WARNING':  return { icon: AlertTriangle, color: 'text-amber-300', bg: 'bg-amber-400/[0.08]', border: 'border-amber-400/25' }
+    default:         return { icon: Info, color: 'text-blue-300', bg: 'bg-blue-400/[0.08]', border: 'border-blue-400/25' }
   }
 }
 
@@ -20,18 +20,18 @@ function AlertCard({ alert }: { alert: Alert }) {
 
   return (
     <div
-      className={`group relative flex items-start gap-4 rounded-2xl border p-4 transition-all ${
+      className={`group relative flex items-start gap-4 rounded-lg border p-4 transition-all ${
         alert.isRead
-          ? 'border-[#1e2f4a] bg-[#0b1527]/60 opacity-60'
+          ? 'border-slate-800 bg-[#0b111c]/70 opacity-60'
           : `${border} ${bg} cursor-pointer hover:opacity-90`
       }`}
       onClick={() => { if (!alert.isRead) markRead.mutate(alert.id) }}
     >
       {!alert.isRead && (
-        <span className="absolute right-4 top-4 h-2 w-2 rounded-full bg-[#7c5cff]" />
+        <span className="absolute right-4 top-4 h-2 w-2 rounded-full bg-[#56bf6b]" />
       )}
 
-      <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border ${border} ${bg}`}>
+      <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md border ${border} ${bg}`}>
         <Icon className={`h-4 w-4 ${color}`} />
       </div>
 
@@ -60,7 +60,7 @@ function Skeleton() {
   return (
     <div className="space-y-3">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="h-20 animate-pulse rounded-2xl bg-white/[0.04]" />
+        <div key={i} className="h-20 animate-pulse rounded-lg bg-white/[0.04]" />
       ))}
     </div>
   )
@@ -76,29 +76,30 @@ export function AlertsPage() {
   const unreadCount = alerts.filter(a => !a.isRead).length
 
   return (
-    <div className="space-y-6 px-6 py-5">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#1b2a42] pt-4">
+    <div className="space-y-5 px-4 py-5 sm:px-6 lg:px-8">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#f7b84b]/30 bg-[#f7b84b]/10">
-            <Bell className="h-5 w-5 text-[#f7b84b]" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-md border border-amber-400/20 bg-amber-400/[0.08]">
+            <Bell className="h-5 w-5 text-amber-300" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-white">Alertes</h2>
-            <p className="text-xs text-slate-500">{total} alerte{total !== 1 ? 's' : ''} au total</p>
+            <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Compte</p>
+            <h1 className="mt-1 text-xl font-black text-white">Alertes</h1>
+            <p className="mt-1 text-sm font-medium text-slate-500">{total} alerte{total !== 1 ? 's' : ''} au total</p>
           </div>
           {unreadCount > 0 && (
-            <span className="rounded-full bg-[#7c5cff] px-2.5 py-0.5 text-xs font-bold text-white">
+            <span className="rounded-full bg-[#56bf6b] px-2.5 py-0.5 text-xs font-bold text-white">
               {unreadCount} non lue{unreadCount > 1 ? 's' : ''}
             </span>
           )}
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="inline-flex overflow-hidden rounded-xl border border-[#20314d] bg-[#07101f] p-1">
+          <div className="inline-flex overflow-hidden rounded-md border border-slate-800 bg-[#071017] p-1">
             <button
               onClick={() => setUnreadOnly(false)}
               className={`rounded-lg px-4 py-2 text-xs font-semibold transition-colors ${
-                !unreadOnly ? 'bg-[#6d4cff] text-white' : 'text-slate-400 hover:text-white'
+                !unreadOnly ? 'bg-[#56bf6b] text-white' : 'text-slate-400 hover:text-white'
               }`}
             >
               Toutes
@@ -106,7 +107,7 @@ export function AlertsPage() {
             <button
               onClick={() => setUnreadOnly(true)}
               className={`rounded-lg px-4 py-2 text-xs font-semibold transition-colors ${
-                unreadOnly ? 'bg-[#6d4cff] text-white' : 'text-slate-400 hover:text-white'
+                unreadOnly ? 'bg-[#56bf6b] text-white' : 'text-slate-400 hover:text-white'
               }`}
             >
               Non lues
@@ -117,7 +118,7 @@ export function AlertsPage() {
             <button
               onClick={() => markAll.mutate()}
               disabled={markAll.isPending}
-              className="inline-flex items-center gap-2 rounded-xl border border-[#1e2f4a] px-4 py-2 text-xs font-semibold text-slate-400 transition-colors hover:bg-white/[0.04] hover:text-slate-200 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-md border border-slate-800 bg-[#0b111c] px-4 py-2 text-xs font-black text-slate-400 transition-colors hover:bg-white/[0.04] hover:text-slate-200 disabled:opacity-50"
             >
               <CheckCheck className="h-3.5 w-3.5" />
               Tout marquer comme lu
@@ -129,7 +130,7 @@ export function AlertsPage() {
       {isLoading ? (
         <Skeleton />
       ) : alerts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#1e2f4a] bg-[#07101f]/50 py-20 text-center">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-slate-800 bg-[#071017]/70 py-20 text-center">
           <BellOff className="mb-4 h-10 w-10 text-slate-600" />
           <p className="text-sm font-semibold text-slate-400">
             {unreadOnly ? 'Aucune alerte non lue' : 'Aucune alerte'}

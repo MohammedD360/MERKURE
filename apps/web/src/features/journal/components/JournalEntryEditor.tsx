@@ -67,8 +67,6 @@ export function JournalEntryEditor({ date }: Props) {
     })
   }
 
-  const isEmpty = !entry && !dirty
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">

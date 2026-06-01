@@ -13,9 +13,9 @@ import { ChartDownloadButton } from '@/shared/components/ChartDownloadButton'
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[#1a2235] border border-gray-700/60 rounded-lg px-3 py-2 text-xs shadow-xl">
-      <p className="text-gray-400 mb-1">{label}</p>
-      <p className="text-indigo-400 font-mono">
+    <div className="rounded-lg border border-slate-700 bg-[#101827] px-3 py-2 text-xs shadow-xl">
+      <p className="mb-1 text-slate-400">{label}</p>
+      <p className="font-mono text-blue-300">
         Equity : {Number(payload[0]?.value ?? 0).toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
       </p>
       {payload[1] && (
@@ -42,16 +42,16 @@ export function EquityCurveChart() {
     : 0
 
   return (
-    <div ref={ref} className="bg-[#111827] border border-gray-800/60 rounded-xl p-4">
+    <div ref={ref} className="rounded-lg border border-slate-800 bg-[#0b111c] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-white">Historique equity (90 jours)</h2>
+        <h2 className="text-sm font-black text-white">Historique equity (90 jours)</h2>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-4 text-[10px] text-gray-500">
+          <div className="flex items-center gap-4 text-[10px] text-slate-500">
             <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-0.5 bg-indigo-400 inline-block rounded" />Equity
+              <span className="inline-block h-0.5 w-2.5 rounded bg-blue-400" />Equity
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-0.5 bg-amber-400 inline-block rounded" />Balance
+              <span className="inline-block h-0.5 w-2.5 rounded bg-amber-400" />Balance
             </span>
           </div>
           <ChartDownloadButton onClick={download} isExporting={isExporting} />
@@ -59,9 +59,9 @@ export function EquityCurveChart() {
       </div>
 
       {isLoading ? (
-        <div className="h-48 animate-pulse bg-gray-800/60 rounded-lg" />
+        <div className="h-48 animate-pulse rounded-lg bg-slate-800/70" />
       ) : data.length === 0 ? (
-        <div className="h-48 flex items-center justify-center text-gray-600 text-sm">
+        <div className="flex h-48 items-center justify-center text-sm text-slate-600">
           Aucune donnée historique
         </div>
       ) : (
@@ -69,31 +69,31 @@ export function EquityCurveChart() {
           <AreaChart data={data} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="equityGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%"  stopColor="#6366f1" stopOpacity={0.25} />
-                <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                <stop offset="5%"  stopColor="#3b82f6" stopOpacity={0.22} />
+                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="balanceGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%"  stopColor="#f59e0b" stopOpacity={0.15} />
                 <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
             <XAxis
               dataKey="label"
-              tick={{ fill: '#6b7280', fontSize: 10 }}
+              tick={{ fill: '#64748b', fontSize: 10 }}
               tickLine={false}
               axisLine={false}
               interval="preserveStartEnd"
             />
             <YAxis
-              tick={{ fill: '#6b7280', fontSize: 10 }}
+              tick={{ fill: '#64748b', fontSize: 10 }}
               tickLine={false}
               axisLine={false}
               domain={[minVal, 'auto']}
               tickFormatter={v => `${(Number(v) / 1000).toFixed(0)}k`}
             />
             <Tooltip content={<CustomTooltip />} />
-            <ReferenceLine y={0} stroke="#374151" strokeDasharray="4 4" />
+            <ReferenceLine y={0} stroke="#334155" strokeDasharray="4 4" />
             <Area
               type="monotone"
               dataKey="balance"
@@ -106,11 +106,11 @@ export function EquityCurveChart() {
             <Area
               type="monotone"
               dataKey="equity"
-              stroke="#6366f1"
+              stroke="#3b82f6"
               strokeWidth={2}
               fill="url(#equityGrad)"
               dot={false}
-              activeDot={{ r: 4, fill: '#6366f1' }}
+              activeDot={{ r: 4, fill: '#3b82f6' }}
             />
           </AreaChart>
         </ResponsiveContainer>

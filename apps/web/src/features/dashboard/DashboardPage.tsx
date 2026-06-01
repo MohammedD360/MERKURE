@@ -23,6 +23,7 @@ import { RightPanel }                        from './components/RightPanel'
 
 const DASHBOARD_PERIODS = ['7J', '1M', '3M', '1Y', 'ALL'] as const satisfies readonly ChartPeriod[]
 type DashboardPeriod = (typeof DASHBOARD_PERIODS)[number]
+const DASHBOARD_PERIOD_KEY = 'merkure_dashboard_period'
 
 const DASHBOARD_PERIOD_LABELS: Record<DashboardPeriod, string> = {
   '7J': '7J',
@@ -30,6 +31,10 @@ const DASHBOARD_PERIOD_LABELS: Record<DashboardPeriod, string> = {
   '3M': '3M',
   '1Y': '1Y',
   ALL: 'Tout',
+}
+
+function isDashboardPeriod(value: string | null): value is DashboardPeriod {
+  return DASHBOARD_PERIODS.includes(value as DashboardPeriod)
 }
 
 function OnboardingStrip({
@@ -156,6 +161,11 @@ export function DashboardPage() {
 
       if (window.localStorage.getItem('dashboard-quick-actions-dismissed') === '1') {
         setShowQuickActions(false)
+      }
+
+      const storedDashboardPeriod = window.localStorage.getItem(DASHBOARD_PERIOD_KEY)
+      if (isDashboardPeriod(storedDashboardPeriod)) {
+        setChartPeriod(storedDashboardPeriod)
       }
 
       // Check email verification

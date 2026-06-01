@@ -9,16 +9,6 @@ const MONTHS_FR = [
   'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
 ]
 
-const MOOD_EMOJI: Record<string, string> = {
-  serein:       '😌',
-  concentre:    '💪',
-  confiant:     '😊',
-  stresse:      '😰',
-  surconfiant:  '🤑',
-  craintif:     '😨',
-  neutre:       '😐',
-}
-
 interface Props {
   year:        number
   month:       number
@@ -74,7 +64,6 @@ export function JournalCalendar({ year, month, days, selectedDate, onSelectDate,
           const isSel    = day.date === selectedDate
           const hasPnl   = day.dailyPnl != null
           const isProfit = hasPnl && day.dailyPnl! >= 0
-          const isLoss   = hasPnl && day.dailyPnl! < 0
 
           return (
             <button

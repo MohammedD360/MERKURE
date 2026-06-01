@@ -21,31 +21,31 @@ interface Props {
 const FALLBACK_PLANS: Plan[] = [
   {
     id: 'FREE',
-    name: 'FREE',
+    name: 'Gratuit',
     priceMonthly: 0,
     currency: 'EUR',
     features: ['10 trades/mois', 'KPIs de base', 'Journal manuel'],
   },
   {
     id: 'STARTER',
-    name: 'STARTER',
+    name: 'Starter',
     priceMonthly: 900,
     currency: 'EUR',
-    features: ['Trades illimités', 'Sync broker 1', 'KPIs avancés', 'Journal assisté'],
+    features: ['Journal de trading', 'Statistiques de base', 'Import manuel & CSV', '1 compte broker'],
   },
   {
     id: 'PRO',
-    name: 'PRO',
+    name: 'Trader',
     priceMonthly: 1900,
     currency: 'EUR',
-    features: ['Sync broker 3', 'Analyse par actif', 'Alertes de risque', 'Rapport hebdomadaire'],
+    features: ['Toutes les fonctionnalités Starter', 'Analyses avancées', 'Suivi du risque', 'Rapports personnalisés', 'Jusqu’à 3 comptes brokers'],
   },
   {
     id: 'ELITE',
-    name: 'ELITE',
+    name: 'Pro',
     priceMonthly: 4900,
     currency: 'EUR',
-    features: ['Sync broker illimité', 'Rapports PDF', 'Exports avancés', 'Support prioritaire'],
+    features: ['Toutes les fonctionnalités Trader', 'Analyse comportementale IA', 'Exports avancés', 'Connexions brokers illimitées', 'Support prioritaire'],
   },
 ]
 
@@ -61,18 +61,18 @@ interface PlanCardProps {
 }
 
 function PlanCard({ plan, onSelect, disabled }: PlanCardProps) {
-  const isPro = plan.name === 'PRO'
+  const isRecommended = plan.id === 'PRO'
   const isFree = plan.priceMonthly === 0
 
   return (
     <div
       className={`relative rounded-xl border bg-[#0b111c] p-5 flex flex-col transition-all ${
-        isPro
+        isRecommended
           ? 'border-blue-500/40 ring-1 ring-blue-500/20'
           : 'border-white/10 hover:border-white/20'
       }`}
     >
-      {isPro && (
+      {isRecommended && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
           <span className="rounded-md border border-blue-300/20 bg-blue-300/10 px-3 py-0.5 text-[10px] font-black uppercase tracking-widest text-blue-200">
             Recommandé
@@ -85,9 +85,6 @@ function PlanCard({ plan, onSelect, disabled }: PlanCardProps) {
         <p className="mt-1 text-2xl font-black text-white">
           {formatPrice(plan.priceMonthly)}
         </p>
-        {isPro && (
-          <p className="text-[11px] font-semibold text-emerald-400 mt-1">✓ 14 jours d&apos;essai gratuit</p>
-        )}
       </div>
 
       <ul className="mb-6 flex-1 space-y-2">
@@ -106,12 +103,12 @@ function PlanCard({ plan, onSelect, disabled }: PlanCardProps) {
         className={`w-full rounded-lg h-11 text-sm font-black transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
           isFree
             ? 'border border-white/15 bg-white/[0.04] text-slate-200 hover:bg-white/[0.08]'
-            : isPro
+            : isRecommended
             ? 'bg-[#56bf6b] hover:bg-[#49ab5e] text-white shadow-[0_6px_20px_rgba(86,191,107,0.22)]'
             : 'border border-white/15 bg-white/[0.04] text-slate-200 hover:bg-white/[0.08]'
         }`}
       >
-        {isFree ? 'Commencer gratuitement' : isPro ? 'Essayer 14j gratuitement' : `Choisir ${plan.name}`}
+        {isFree ? 'Continuer en gratuit' : `Choisir ${plan.name}`}
       </button>
     </div>
   )
