@@ -65,25 +65,26 @@ export function PerformancePage() {
   }
 
   return (
-    <div className="px-5 py-4 space-y-4">
+    <div className="space-y-5 px-4 py-5 sm:px-6 lg:px-8">
       {/* En-tête + contrôles */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 border-b border-slate-800/80 pb-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-base font-bold text-white">Performance</h1>
-          <p className="text-xs text-gray-500 mt-0.5">Analyse détaillée de vos résultats de trading</p>
+          <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Analyse</p>
+          <h1 className="mt-1 text-xl font-black text-white">Performance</h1>
+          <p className="mt-1 text-sm font-medium text-slate-500">Analyse détaillée de vos résultats de trading</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Sélecteur période */}
-          <div className="flex bg-[#111827] border border-gray-800/60 rounded-lg p-0.5">
+          <div className="flex rounded-md border border-slate-800 bg-[#071017] p-0.5">
             {PERIODS.map(({ label, value }) => (
               <button
                 key={value}
                 onClick={() => setPeriod(value)}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                className={`rounded px-3 py-1.5 text-xs font-black transition-colors ${
                   period === value
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-gray-400 hover:text-gray-200'
+                    ? 'bg-[#56bf6b] text-white'
+                    : 'text-slate-500 hover:text-slate-200'
                 }`}
               >
                 {label}
@@ -96,7 +97,7 @@ export function PerformancePage() {
             <select
               value={accountId ?? ''}
               onChange={(e) => setAccountId(e.target.value || undefined)}
-              className="bg-[#111827] border border-gray-800/60 text-gray-300 text-xs rounded-lg px-3 py-1.5 outline-none focus:border-indigo-500/60"
+              className="rounded-md border border-slate-800 bg-[#071017] px-3 py-2 text-xs font-semibold text-slate-300 outline-none transition-colors focus:border-[#56bf6b]/60"
             >
               <option value="">Tous les comptes</option>
               {accounts.map(acc => (
@@ -109,7 +110,7 @@ export function PerformancePage() {
           <button
             onClick={handleDownload}
             disabled={downloading}
-            className="flex items-center gap-2 rounded-lg border border-[#1e2f4a] bg-[#0b1527] px-3 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:border-[#263a5b] hover:text-white disabled:opacity-60"
+            className="flex items-center gap-2 rounded-md border border-slate-800 bg-[#0b111c] px-3 py-2 text-xs font-black text-slate-300 transition-colors hover:border-slate-700 hover:text-white disabled:opacity-60"
           >
             {downloading
               ? <Loader2 className="h-3.5 w-3.5 animate-spin" />

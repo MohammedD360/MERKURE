@@ -11,12 +11,12 @@ interface Props {
 
 function StatCard({ label, value, loading }: { label: string; value: string; loading: boolean }) {
   return (
-    <div className="bg-[#090d14] border border-gray-800/60 rounded-xl p-4 flex flex-col gap-1">
-      <span className="text-[11px] text-gray-500 uppercase tracking-wider font-medium">{label}</span>
+    <div className="flex flex-col gap-1 rounded-lg border border-slate-800 bg-[#0b111c] p-4 shadow-[0_10px_34px_rgba(0,0,0,0.14)]">
+      <span className="text-[11px] font-black uppercase tracking-wider text-slate-500">{label}</span>
       {loading ? (
-        <div className="h-7 w-20 animate-pulse bg-gray-800 rounded mt-1" />
+        <div className="mt-1 h-7 w-20 animate-pulse rounded bg-slate-800" />
       ) : (
-        <span className="text-2xl font-bold text-white font-mono">{value}</span>
+        <span className="font-mono text-2xl font-black text-white">{value}</span>
       )}
     </div>
   )
@@ -56,7 +56,7 @@ export function DetailedStats({ period, accountId }: Props) {
     : '—'
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       <StatCard label="Win Rate"      value={winRate}      loading={loading} />
       <StatCard label="Avg R:R"       value={avgRR}        loading={loading} />
       <StatCard label="Durée moy."    value={avgDuration}  loading={loading} />

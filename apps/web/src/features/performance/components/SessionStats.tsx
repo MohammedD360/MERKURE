@@ -16,7 +16,7 @@ function Skeleton() {
   return (
     <div className="space-y-2">
       {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="h-6 animate-pulse bg-gray-800/60 rounded" />
+        <div key={i} className="h-6 animate-pulse rounded bg-slate-800/60" />
       ))}
     </div>
   )
@@ -25,8 +25,8 @@ function Skeleton() {
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[#1a2235] border border-gray-700/60 rounded-lg px-3 py-2 text-xs shadow-xl">
-      <p className="text-gray-300 font-medium mb-1">{label}</p>
+    <div className="rounded-lg border border-slate-700/70 bg-[#071017] px-3 py-2 text-xs shadow-xl">
+      <p className="mb-1 font-medium text-slate-300">{label}</p>
       {payload.map((p: { name: string; value: number; color: string }, i: number) => (
         <p key={i} style={{ color: p.color }} className="font-mono">
           {p.name} : {p.name === 'P&L' ? Number(p.value).toLocaleString('fr-FR', { style: 'currency', currency: 'USD' }) : p.value}
@@ -46,11 +46,11 @@ export function SessionStats({ period, accountId }: Props) {
   }))
 
   return (
-    <div className="bg-[#111827] border border-gray-800/60 rounded-xl p-4">
-      <h2 className="text-sm font-semibold text-white mb-4">Performance par session</h2>
+    <div className="rounded-lg border border-slate-800 bg-[#0b111c] p-4 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
+      <h2 className="mb-4 text-sm font-black text-white">Performance par session</h2>
 
       {query.isLoading ? <Skeleton /> : data.length === 0 ? (
-        <div className="h-48 flex items-center justify-center text-gray-600 text-sm">
+        <div className="flex h-48 items-center justify-center text-sm text-slate-600">
           Aucune donnée disponible
         </div>
       ) : (

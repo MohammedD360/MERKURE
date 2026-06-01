@@ -42,7 +42,7 @@ function Skeleton() {
     <div className="overflow-x-auto">
       <div className="grid gap-0.5" style={{ gridTemplateColumns: '40px repeat(24, 1fr)', minWidth: 600 }}>
         {Array.from({ length: 7 * 24 + 24 + 7 }).map((_, i) => (
-          <div key={i} className="h-6 animate-pulse bg-gray-800/60 rounded-sm" />
+          <div key={i} className="h-6 animate-pulse rounded-sm bg-slate-800/60" />
         ))}
       </div>
     </div>
@@ -65,11 +65,11 @@ export function HeatmapGrid({ period, accountId }: Props) {
   }
 
   return (
-    <div className="bg-[#111827] border border-gray-800/60 rounded-xl p-4">
-      <h2 className="text-sm font-semibold text-white mb-4">Heatmap P&L (jour × heure)</h2>
+    <div className="rounded-lg border border-slate-800 bg-[#0b111c] p-4 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
+      <h2 className="mb-4 text-sm font-black text-white">Heatmap P&L (jour × heure)</h2>
 
       {query.isLoading ? <Skeleton /> : (
-        <div className="overflow-x-auto relative">
+        <div className="relative overflow-x-auto">
           {/* Grille : 25 colonnes (1 label + 24h) × 8 lignes (1 header + 7 jours) */}
           <div
             className="grid gap-0.5"
@@ -78,7 +78,7 @@ export function HeatmapGrid({ period, accountId }: Props) {
             {/* Header row */}
             <div /> {/* coin vide */}
             {HOURS.map(h => (
-              <div key={h} className="text-center text-[10px] text-gray-500 pb-1 font-mono">
+              <div key={h} className="pb-1 text-center font-mono text-[10px] text-slate-500">
                 {String(h).padStart(2, '0')}
               </div>
             ))}
@@ -86,7 +86,7 @@ export function HeatmapGrid({ period, accountId }: Props) {
             {/* Rows pour chaque jour */}
             {DAY_LABELS.map((dayLabel, dayIdx) => (
               <>
-                <div key={`label-${dayIdx}`} className="flex items-center text-[11px] text-gray-400 font-medium pr-1">
+                <div key={`label-${dayIdx}`} className="flex items-center pr-1 text-[11px] font-medium text-slate-400">
                   {dayLabel}
                 </div>
                 {HOURS.map(hour => {
@@ -97,7 +97,7 @@ export function HeatmapGrid({ period, accountId }: Props) {
                   return (
                     <div
                       key={key}
-                      className="h-6 rounded-sm cursor-default transition-opacity hover:opacity-80"
+                      className="h-6 cursor-default rounded-sm transition-opacity hover:opacity-80"
                       style={{ backgroundColor: color }}
                       onMouseEnter={(e) => {
                         const rect = (e.target as HTMLElement).getBoundingClientRect()
@@ -115,7 +115,7 @@ export function HeatmapGrid({ period, accountId }: Props) {
           </div>
 
           {/* Légende */}
-          <div className="flex items-center gap-4 mt-3 text-[10px] text-gray-500">
+          <div className="mt-3 flex items-center gap-4 text-[10px] text-slate-500">
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#1f2937' }} />
               <span>Aucun trade</span>
@@ -135,13 +135,13 @@ export function HeatmapGrid({ period, accountId }: Props) {
       {/* Tooltip flottant via portal-like fixed */}
       {tooltip && (
         <div
-          className="fixed z-50 pointer-events-none bg-[#1a2235] border border-gray-700/60 rounded-lg px-3 py-2 text-xs shadow-xl"
+          className="pointer-events-none fixed z-50 rounded-lg border border-slate-700/70 bg-[#071017] px-3 py-2 text-xs shadow-xl"
           style={{ left: tooltip.x + 12, top: tooltip.y - 8 }}
         >
-          <p className="text-gray-300 font-medium mb-0.5">
+          <p className="mb-0.5 font-medium text-slate-300">
             {DAY_LABELS[tooltip.day]} — {String(tooltip.hour).padStart(2, '0')}h
           </p>
-          <p className="text-gray-400">{tooltip.count} trade{tooltip.count > 1 ? 's' : ''}</p>
+          <p className="text-slate-400">{tooltip.count} trade{tooltip.count > 1 ? 's' : ''}</p>
           <p className={`font-mono font-semibold ${tooltip.pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
             {tooltip.pnl >= 0 ? '+' : ''}{tooltip.pnl.toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
           </p>
