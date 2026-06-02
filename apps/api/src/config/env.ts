@@ -5,7 +5,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3001),
 
   // Database
-  DATABASE_URL: z.string().url().default('postgresql://merkure:merkure_dev_password@localhost:5432/merkure_db'),
+  DATABASE_URL: z.string().min(1).default('postgresql://merkure:merkure_dev_password@localhost:5432/merkure_db'),
 
   // Redis
   REDIS_URL: z.string().url().default('redis://localhost:6379'),
