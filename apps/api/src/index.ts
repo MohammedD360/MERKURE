@@ -27,10 +27,14 @@ process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
 process.on('SIGINT', () => gracefulShutdown('SIGINT'))
 
 try {
-  await redis.connect()
   await prisma.$connect()
   await app.listen({ port: env.PORT, host: '0.0.0.0' })
   app.log.info(`MERKURE API running on port ${env.PORT}`)
+
+  // Redis is optional — cache degraded gracefully if unavailable
+  redis.connect().catch((err) => {
+    app.log.warn(`[Redis] Could not connect, cache disabled: ${err instanceof Error ? err.message : String(err)}`)
+  })
 
   await scheduleBrokerSyncCron()
   app.log.info('Broker sync cron scheduled (every 5 min)')

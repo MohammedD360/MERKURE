@@ -12,11 +12,9 @@ import {
   BarChart2,
   Bell,
   Brain,
-  Briefcase,
   BriefcaseBusiness,
   CalendarDays,
   Check,
-  ClipboardList,
   CreditCard,
   Download,
   FileText,
@@ -71,39 +69,20 @@ const heroBenefits: Array<{ icon: LucideIcon; title: string; text: string }> = [
 
 const heroBenefitDelayClasses = ['hero-delay-4', 'hero-delay-5', 'hero-delay-6', 'hero-delay-7'] as const
 
-const features: Array<{ icon: LucideIcon; title: string; text: string; badge?: string }> = [
-  {
-    icon: ClipboardList,
-    title: 'Journal de trading',
-    text: "Enregistrez chaque trade avec vos notes, captures d'écran et émotions.",
+const beforeAfterCards = {
+  before: {
+    label: 'Trader seul',
+    metric: '-12.43R',
+    caption: 'Performance moyenne',
+    items: ['Revenge trading', 'Perte de contrôle', 'Sur-risque', 'Émotions incontrôlées', 'Aucune structure'],
   },
-  {
-    icon: ShieldCheck,
-    title: 'Analyses avancées',
-    text: 'Identifiez vos setups rentables et vos erreurs récurrentes.',
+  after: {
+    label: 'Trader avec MERKURE',
+    metric: '+21.67R',
+    caption: 'Performance moyenne',
+    items: ['Discipline', 'Gestion du risque', 'Exécution optimale', 'Contrôle émotionnel', 'Amélioration continue'],
   },
-  {
-    icon: TrendingUp,
-    title: 'Suivi du risque',
-    text: 'Gardez le contrôle avec des indicateurs de risque clairs et personnalisables.',
-  },
-  {
-    icon: Briefcase,
-    title: 'Connexion broker',
-    text: 'Importez automatiquement vos trades en toute sécurité, en lecture seule.',
-  },
-  {
-    icon: Download,
-    title: 'Rapports & Exports',
-    text: 'Générez des rapports détaillés et exportez vos données facilement.',
-  },
-  {
-    icon: Brain,
-    title: 'Analyse comportementale',
-    text: 'Comprenez vos biais cognitifs et améliorez votre discipline.',
-    badge: 'IA',
-  },
-]
+}
 
 const analysisBullets = [
   'Statistiques détaillées et filtres avancés',
@@ -1115,25 +1094,125 @@ function SectionHeading({ eyebrow, title, dark = false }: { eyebrow: string; tit
 
 function FeatureSection() {
   return (
-    <section id="fonctionnalites" className="scroll-mt-24 bg-white px-5 py-16 text-slate-950 sm:px-8 lg:py-20">
-      <div className="mx-auto w-full max-w-[1680px]">
-        <SectionHeading eyebrow="Tout ce dont vous avez besoin" title="Un outil complet pour chaque étape de votre progression" />
+    <section id="fonctionnalites" className="relative scroll-mt-24 overflow-hidden border-y border-white/10 bg-[#050816] px-5 py-16 text-white sm:px-8 lg:py-20">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(760px_420px_at_50%_0%,rgba(124,58,237,0.24),transparent_64%),radial-gradient(520px_320px_at_20%_100%,rgba(239,68,68,0.10),transparent_62%),radial-gradient(520px_320px_at_82%_100%,rgba(34,197,94,0.12),transparent_62%),linear-gradient(180deg,#050816_0%,#070b16_100%)]" />
+      <div className="pointer-events-none absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-violet-400/25 to-transparent" />
 
-        <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
-          {features.map(({ icon: Icon, title, text, badge }, index) => (
-            <article key={title} className={`rounded-lg border border-slate-200 bg-white p-6 ${index > 0 ? '2xl:border-l 2xl:border-slate-200' : ''}`}>
-              <div className="relative mb-7 flex h-10 w-10 items-center justify-center text-blue-700">
-                <Icon className="h-8 w-8 stroke-[1.8]" />
-                {badge && (
-                  <span className="absolute -right-5 -top-2 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-black text-blue-700">
-                    {badge}
-                  </span>
-                )}
+      <div className="relative mx-auto w-full max-w-[1680px]">
+        <div className="text-center">
+          <h2 className="text-3xl font-black leading-tight text-white sm:text-4xl lg:text-5xl">Avant / Après MERKURE</h2>
+          <p className="mt-3 text-sm font-semibold text-slate-400 sm:text-base">La discipline change tout.</p>
+        </div>
+
+        <div className="relative mt-12 grid gap-6 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
+          <article className="relative overflow-hidden rounded-lg border border-red-400/20 bg-[linear-gradient(135deg,rgba(127,29,29,0.26),rgba(15,23,42,0.62)_48%,rgba(5,8,22,0.92))] p-7 shadow-[0_24px_90px_rgba(0,0,0,0.35)]">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-400/60 to-transparent" />
+            <div className="absolute -left-24 top-8 h-64 w-64 rounded-full bg-red-500/12 blur-3xl" />
+
+            <div className="relative grid gap-8 md:grid-cols-[0.78fr_1fr] md:items-end">
+              <div>
+                <p className="text-[12px] font-black uppercase tracking-[0.18em] text-red-300">{beforeAfterCards.before.label}</p>
+                <ul className="mt-7 space-y-3">
+                  {beforeAfterCards.before.items.map((item) => (
+                    <li key={item} className="flex items-center gap-3 text-sm font-semibold text-slate-300">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full border border-red-400/30 bg-red-500/10 text-red-300">
+                        <X className="h-3.5 w-3.5" />
+                      </span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <h3 className="text-base font-black text-slate-950">{title}</h3>
-              <p className="mt-4 text-sm font-medium leading-7 text-slate-600">{text}</p>
-            </article>
-          ))}
+
+              <div className="relative min-h-[210px]">
+                <svg viewBox="0 0 520 250" className="absolute inset-0 h-full w-full" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="beforeLossGradient" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stopColor="#ef4444" stopOpacity="0.24" />
+                      <stop offset="100%" stopColor="#ef4444" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  {[60, 110, 160, 210].map((y) => (
+                    <line key={y} x1="0" x2="520" y1={y} y2={y} stroke="rgba(148,163,184,0.09)" strokeDasharray="4 8" />
+                  ))}
+                  <path d="M36 62 L70 82 L104 76 L138 102 L172 96 L206 128 L240 120 L274 148 L308 142 L342 166 L376 176 L410 192 L444 204 L484 222 L484 250 L36 250 Z" fill="url(#beforeLossGradient)" />
+                  <polyline
+                    points="36,62 70,82 104,76 138,102 172,96 206,128 240,120 274,148 308,142 342,166 376,176 410,192 444,204 484,222"
+                    fill="none"
+                    stroke="#ef4444"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  {[[36, 62], [138, 102], [240, 120], [342, 166], [484, 222]].map(([cx, cy]) => (
+                    <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="4" fill="#ff6b6b" />
+                  ))}
+                </svg>
+                <div className="absolute bottom-0 right-0 text-right">
+                  <p className="font-mono text-2xl font-black text-red-300">{beforeAfterCards.before.metric}</p>
+                  <p className="mt-1 text-xs font-semibold text-slate-500">{beforeAfterCards.before.caption}</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div className="relative mx-auto flex h-20 w-20 items-center justify-center lg:h-24 lg:w-24">
+            <div className="absolute inset-0 rounded-full bg-violet-500/20 blur-2xl" />
+            <div className="relative flex h-14 w-14 items-center justify-center rounded-full border border-violet-300/35 bg-[#0d0820] text-sm font-black text-white shadow-[0_0_34px_rgba(124,58,237,0.46)]">
+              VS
+            </div>
+          </div>
+
+          <article className="relative overflow-hidden rounded-lg border border-emerald-400/20 bg-[linear-gradient(135deg,rgba(20,83,45,0.28),rgba(15,23,42,0.60)_46%,rgba(5,8,22,0.92))] p-7 shadow-[0_24px_90px_rgba(0,0,0,0.35)]">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent" />
+            <div className="absolute -right-24 top-8 h-64 w-64 rounded-full bg-emerald-400/12 blur-3xl" />
+
+            <div className="relative grid gap-8 md:grid-cols-[0.78fr_1fr] md:items-end">
+              <div>
+                <p className="text-[12px] font-black uppercase tracking-[0.18em] text-emerald-300">{beforeAfterCards.after.label}</p>
+                <ul className="mt-7 space-y-3">
+                  {beforeAfterCards.after.items.map((item) => (
+                    <li key={item} className="flex items-center gap-3 text-sm font-semibold text-slate-300">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-500/10 text-emerald-300">
+                        <Check className="h-3.5 w-3.5" />
+                      </span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="relative min-h-[210px]">
+                <svg viewBox="0 0 520 250" className="absolute inset-0 h-full w-full" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="afterGainGradient" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stopColor="#22c55e" stopOpacity="0.30" />
+                      <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  {[60, 110, 160, 210].map((y) => (
+                    <line key={y} x1="0" x2="520" y1={y} y2={y} stroke="rgba(148,163,184,0.09)" strokeDasharray="4 8" />
+                  ))}
+                  <path d="M34 218 L70 206 L106 198 L142 184 L178 176 L214 158 L250 146 L286 128 L322 112 L358 92 L394 82 L430 60 L486 38 L486 250 L34 250 Z" fill="url(#afterGainGradient)" />
+                  <polyline
+                    points="34,218 70,206 106,198 142,184 178,176 214,158 250,146 286,128 322,112 358,92 394,82 430,60 486,38"
+                    fill="none"
+                    stroke="#22c55e"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  {[[34, 218], [142, 184], [250, 146], [358, 92], [486, 38]].map(([cx, cy]) => (
+                    <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="4" fill="#4ade80" />
+                  ))}
+                </svg>
+                <div className="absolute bottom-0 right-0 text-right">
+                  <p className="font-mono text-2xl font-black text-emerald-300">{beforeAfterCards.after.metric}</p>
+                  <p className="mt-1 text-xs font-semibold text-slate-500">{beforeAfterCards.after.caption}</p>
+                </div>
+              </div>
+            </div>
+          </article>
         </div>
       </div>
     </section>
