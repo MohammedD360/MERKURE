@@ -171,7 +171,7 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
       </div>
 
       <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-        <div ref={searchRef} className="relative hidden sm:block">
+        <div ref={searchRef} className="relative">
           <button
             type="button"
             onClick={() => setSearchOpen((open) => !open)}
@@ -185,7 +185,7 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
 
           {searchOpen && (
             <div
-              className="absolute right-0 top-full z-50 mt-2 w-[360px] overflow-hidden rounded-lg border shadow-[0_20px_60px_rgba(0,0,0,0.28)]"
+              className="absolute right-0 top-full z-50 mt-2 w-[min(360px,calc(100vw-2rem))] overflow-hidden rounded-lg border shadow-[0_20px_60px_rgba(0,0,0,0.28)]"
               style={{ background: 'var(--surface-bg)', borderColor: 'var(--border-color)' }}
             >
               <form onSubmit={handleSearchSubmit} className="border-b p-3" style={{ borderColor: 'var(--border-color)' }}>
@@ -275,7 +275,7 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
 
           {menuOpen && (
             <div
-              className="absolute right-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-lg border shadow-[0_20px_60px_rgba(0,0,0,0.25)]"
+              className="absolute right-0 top-full z-50 mt-2 w-52 max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border shadow-[0_20px_60px_rgba(0,0,0,0.25)]"
               style={{ background: 'var(--surface-bg)', borderColor: 'var(--border-color)' }}
             >
               <div className="border-b px-4 py-3" style={{ borderColor: 'var(--border-color)' }}>
