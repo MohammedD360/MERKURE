@@ -74,15 +74,6 @@ export async function authRoutes(app: FastifyInstance) {
 
       const { email, password } = parsed.data
 
-      // Mode demo — accepte n'importe quel email/mdp et retourne le demo user
-      if (env.AUTH_MODE === 'demo') {
-        const token = app.jwt.sign(
-          { id: 'demo_user_merkure', email: 'demo@merkure.app', plan: 'FREE' },
-          { expiresIn: '7d' },
-        )
-        return reply.send({ token, user: { id: 'demo_user_merkure', email: 'demo@merkure.app', plan: 'FREE' } })
-      }
-
       const user = await prisma.user.findFirst({
         where: { email },
         select: { id: true, email: true, passwordHash: true },
