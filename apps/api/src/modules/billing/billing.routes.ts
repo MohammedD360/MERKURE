@@ -45,6 +45,10 @@ export async function billingRoutes(app: FastifyInstance) {
     '/checkout',
     { preHandler: authenticate },
     async (request, reply) => {
+      if (env.AUTH_MODE === 'demo') {
+        return reply.code(403).send({ error: 'demo_mode', detail: 'Créez un compte pour accéder aux plans payants.' })
+      }
+
       const body = CheckoutSchema.safeParse(request.body)
       if (!body.success) return reply.code(400).send({ error: 'invalid_plan' })
 
