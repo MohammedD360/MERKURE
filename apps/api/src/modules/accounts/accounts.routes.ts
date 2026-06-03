@@ -16,7 +16,7 @@ const DEMO_ACCOUNTS = [
     accountId: 'demo-12345',
     label: 'Compte Démo MT5',
     isActive: true,
-    syncStatus: 'OK',
+    syncStatus: 'SUCCESS',
     syncError: null,
     lastSyncAt: '2026-06-01T10:00:00.000Z',
     createdAt: '2026-06-01T10:00:00.000Z',
