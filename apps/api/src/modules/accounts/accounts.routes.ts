@@ -11,14 +11,15 @@ import { env } from '../../config/env.js'
 const DEMO_ACCOUNTS = [
   {
     id: 'demo_account_1',
-    userId: 'demo_user_merkure',
     brokerType: 'MT5',
-    accountName: 'Démo MT5',
-    currency: 'USD',
-    balance: 10000,
-    equity: 10250,
-    status: 'ACTIVE',
-    createdAt: new Date().toISOString(),
+    accountType: 'DEMO',
+    accountId: 'demo-12345',
+    label: 'Compte Démo MT5',
+    isActive: true,
+    syncStatus: 'OK',
+    syncError: null,
+    lastSyncAt: '2026-06-01T10:00:00.000Z',
+    createdAt: '2026-06-01T10:00:00.000Z',
   },
 ]
 
