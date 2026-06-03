@@ -6,7 +6,7 @@ import { CreateAccountSchema } from './accounts.types.js'
 import { brokerSyncQueue } from '../../infrastructure/queue/queues.js'
 import type { BrokerSyncJob } from '../../infrastructure/queue/queues.js'
 import { ACCOUNT_LIMIT, upgradeRequired } from '../../middleware/plan-limits.js'
-import { env } from '../../config/env.js'
+
 
 const DEMO_ACCOUNTS = [
   {
@@ -25,7 +25,7 @@ const DEMO_ACCOUNTS = [
 
 export async function accountsRoutes(app: FastifyInstance) {
   app.get('/', { preHandler: [authenticate] }, async (req) => {
-    if (env.AUTH_MODE === 'demo') return DEMO_ACCOUNTS
+    if (req.user.id === 'demo_user_merkure') return DEMO_ACCOUNTS
     return accountsService.list(req.user.id)
   })
 
@@ -36,7 +36,7 @@ export async function accountsRoutes(app: FastifyInstance) {
   })
 
   app.post<{ Body: unknown }>('/', { preHandler: [authenticate] }, async (req, reply) => {
-    if (env.AUTH_MODE === 'demo') {
+    if (req.user.id === 'demo_user_merkure') {
       return reply.code(403).send({ error: 'demo_mode', detail: 'Créez un compte pour connecter un broker.' })
     }
     try {
@@ -56,8 +56,8 @@ export async function accountsRoutes(app: FastifyInstance) {
 
       const account = await accountsService.create(req.user.id, body)
 
-      // Déclenche une sync complète immédiatement après la création
-      await brokerSyncQueue.add(
+      // Déclenche une sync complète (non-bloquant si Redis indisponible)
+      brokerSyncQueue.add(
         `initial-${account.id}`,
         {
           accountId: account.id,
@@ -66,7 +66,7 @@ export async function accountsRoutes(app: FastifyInstance) {
           fullSync: true,
         },
         { priority: 1, jobId: `initial-${account.id}` },
-      )
+      ).catch(() => {})
 
       return reply.code(201).send(account)
     } catch (err) {

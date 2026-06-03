@@ -45,7 +45,7 @@ export async function billingRoutes(app: FastifyInstance) {
     '/checkout',
     { preHandler: authenticate },
     async (request, reply) => {
-      if (env.AUTH_MODE === 'demo') {
+      if (request.user.id === 'demo_user_merkure') {
         return reply.code(403).send({ error: 'demo_mode', detail: 'Créez un compte pour accéder aux plans payants.' })
       }
 
