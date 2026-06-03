@@ -54,9 +54,7 @@ export function buildApp(): FastifyInstance {
 
   // ─── Security & transport plugins ────────────────────────────────────────────
   void app.register(fastifyHelmet, { contentSecurityPolicy: false })
-  const baseOrigin = env.FRONTEND_URL.replace(/^https:\/\/(www\.)?/, 'https://')
-  const allowedOrigins = [baseOrigin, baseOrigin.replace('https://', 'https://www.')]
-  void app.register(fastifyCors, { origin: allowedOrigins, credentials: true })
+  void app.register(fastifyCors, { origin: true, credentials: true })
   void app.register(fastifyCookie)
   void app.register(fastifyJwt, {
     secret: env.JWT_SECRET,
