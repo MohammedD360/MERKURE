@@ -27,12 +27,22 @@ process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
 process.on('SIGINT', () => gracefulShutdown('SIGINT'))
 
 try {
-  await prisma.$connect()
   await app.listen({ port: env.PORT, host: '0.0.0.0' })
   app.log.info(`MERKURE API running on port ${env.PORT}`)
 
+  // DB connection — non-bloquant en dev/demo
+  prisma.$connect().catch((err: unknown) => {
+    const msg = err instanceof Error ? err.message : String(err)
+    if (env.NODE_ENV === 'production') {
+      app.log.error(`[DB] Connection failed: ${msg}`)
+      process.exit(1)
+    } else {
+      app.log.warn(`[DB] Could not connect (demo mode): ${msg}`)
+    }
+  })
+
   // Redis is optional — cache degraded gracefully if unavailable
-  redis.connect().catch((err) => {
+  redis.connect().catch((err: unknown) => {
     app.log.warn(`[Redis] Could not connect, cache disabled: ${err instanceof Error ? err.message : String(err)}`)
   })
 
