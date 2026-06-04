@@ -127,16 +127,20 @@ const brokerLogos = [
 
 function BrandIcon({ className = 'h-8 w-8' }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 40 40" fill="none" aria-hidden="true">
-      <path d="M6 8.5L20 3l14 5.5v23L20 37 6 31.5v-23Z" fill="url(#brandGradient)" />
-      <path d="M12 27V13l8 8 8-8v14" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-      <defs>
-        <linearGradient id="brandGradient" x1="6" x2="34" y1="5" y2="36">
-          <stop stopColor="#22d3ee" />
-          <stop offset="0.48" stopColor="#7c3aed" />
-          <stop offset="1" stopColor="#a855f7" />
-        </linearGradient>
-      </defs>
+    <svg className={`${className} text-current`} viewBox="0 0 40 40" fill="none" aria-hidden="true">
+      <path
+        d="M7 9.5L20 4l13 5.5v21L20 36 7 30.5v-21Z"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12 27V13l8 8 8-8v14"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   )
 }
@@ -144,8 +148,8 @@ function BrandIcon({ className = 'h-8 w-8' }: { className?: string }) {
 function BrandMark() {
   return (
     <Link href="/" className="flex items-center gap-3" aria-label="MERKURE">
-      <BrandIcon className="h-8 w-8 drop-shadow-[0_0_18px_rgba(124,58,237,0.58)]" />
-      <span className="text-[21px] font-extrabold tracking-tight text-white">MERKURE</span>
+      <BrandIcon className="h-8 w-8 text-violet-400 drop-shadow-[0_0_18px_rgba(139,92,246,0.55)]" />
+      <span className="text-[22px] font-black tracking-[0.12em] text-white">MERKURE</span>
     </Link>
   )
 }
