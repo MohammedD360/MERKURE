@@ -260,24 +260,20 @@ function GlobeVisual() {
         <div className="absolute left-1/2 top-1/2 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/15 blur-[60px]" />
       </div>
 
-      {/* Globe iframe — taille relative au conteneur */}
+      {/* Globe iframe — fixe, pas d'interaction utilisateur */}
       <iframe
         src="https://my.spline.design/3dglobe-fF7pTN8k830L2ACIFwixbdia/"
         title="Globe 3D MERKURE"
-        className="relative z-10 h-full w-full border-0"
+        className="relative z-10 h-full w-full border-0 pointer-events-none select-none"
         loading="lazy"
         allow="autoplay; fullscreen; xr-spatial-tracking"
+        scrolling="no"
       />
 
       {/* Fondu sur les bords pour intégrer au fond */}
       <div className="pointer-events-none absolute inset-0 z-20 bg-[radial-gradient(ellipse_80%_80%_at_50%_50%,transparent_55%,#050816_100%)]" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-24 bg-gradient-to-t from-[#050816] to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-16 bg-gradient-to-b from-[#050816] to-transparent" />
-
-      {/* Logo centré */}
-      <div className="absolute left-1/2 top-1/2 z-30 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,#2563eb,#7c3aed)] shadow-[0_0_48px_rgba(124,58,237,0.8)]">
-        <BrandIcon className="h-8 w-8" />
-      </div>
 
       {/* Badges flottants */}
       <div className="absolute left-[8%] top-[18%] z-30 rounded-lg border border-violet-400/30 bg-[#080d1b]/80 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-violet-200 backdrop-blur-md">
