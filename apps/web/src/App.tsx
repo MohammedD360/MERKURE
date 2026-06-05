@@ -2,8 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
-import * as THREE from 'three'
+import { useState } from 'react'
 import {
   ArrowRight,
   Brain,
@@ -29,37 +28,6 @@ const navLinks = [
   { href: '#tarifs', label: 'Tarifs' },
   { href: '#ressources', label: 'Ressources' },
   { href: '#apropos', label: 'À propos' },
-]
-
-const heroCallouts: Array<{ icon: LucideIcon; title: string; text: string; className: string; dotClassName: string }> = [
-  {
-    icon: ShieldCheck,
-    title: 'Détection',
-    text: 'des biais',
-    className: 'left-[9%] top-[20%]',
-    dotClassName: 'left-[33%] top-[24%]',
-  },
-  {
-    icon: Brain,
-    title: 'Analyse IA',
-    text: 'en profondeur',
-    className: 'right-[6%] top-[20%]',
-    dotClassName: 'right-[29%] top-[24%]',
-  },
-  {
-    icon: Target,
-    title: "Plan d'action",
-    text: 'personnalisé',
-    className: 'left-[9%] bottom-[29%]',
-    dotClassName: 'left-[33%] bottom-[34%]',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Suivi & progrès',
-    text: 'continu',
-    className: 'right-[4%] bottom-[29%]',
-    dotClassName: 'right-[30%] bottom-[34%]',
-  },
 ]
 
 const heroAssurances = ['Aucune carte bancaire', 'Analyse en 2 min', 'Résultats immédiats']
@@ -209,251 +177,6 @@ function Header() {
   return null
 }
 
-function PortalScene() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const frameRef = useRef<number | null>(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    const container = canvas?.parentElement
-    if (!canvas || !container) return undefined
-
-    const scene = new THREE.Scene()
-    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100)
-    camera.position.set(0, 0.1, 6.2)
-
-    const renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: true,
-      canvas,
-      powerPreference: 'high-performance',
-    })
-    renderer.setClearColor(0x000000, 0)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-
-    const resize = () => {
-      const { width, height } = container.getBoundingClientRect()
-      renderer.setSize(width, height, false)
-      camera.aspect = width / Math.max(height, 1)
-      camera.updateProjectionMatrix()
-    }
-
-    resize()
-    const resizeObserver = new ResizeObserver(resize)
-    resizeObserver.observe(container)
-
-    const portal = new THREE.Group()
-    portal.position.y = 0.28
-    scene.add(portal)
-
-    const haloMaterial = new THREE.MeshBasicMaterial({
-      color: 0x7c3aed,
-      transparent: true,
-      opacity: 0.12,
-      blending: THREE.AdditiveBlending,
-      side: THREE.DoubleSide,
-      depthWrite: false,
-    })
-    const darkRockMaterial = new THREE.MeshStandardMaterial({
-      color: 0x151324,
-      emissive: 0x24105a,
-      emissiveIntensity: 0.34,
-      roughness: 0.82,
-      metalness: 0.12,
-    })
-    const silhouetteMaterial = new THREE.MeshStandardMaterial({
-      color: 0x020204,
-      emissive: 0x090615,
-      emissiveIntensity: 0.16,
-      roughness: 1,
-      metalness: 0,
-    })
-    const mountainMaterial = new THREE.MeshStandardMaterial({
-      color: 0x090818,
-      emissive: 0x18043c,
-      emissiveIntensity: 0.2,
-      roughness: 0.95,
-      metalness: 0,
-    })
-
-    const ringSpecs = [
-      { radius: 1.1, tube: 0.018, opacity: 0.52, speed: 0.18, color: 0x8b5cf6 },
-      { radius: 1.42, tube: 0.055, opacity: 0.94, speed: -0.12, color: 0xa78bfa },
-      { radius: 1.68, tube: 0.014, opacity: 0.34, speed: 0.08, color: 0x8b5cf6 },
-      { radius: 1.96, tube: 0.01, opacity: 0.22, speed: -0.05, color: 0x60a5fa },
-    ]
-    const ringMeshes = ringSpecs.map((spec) => {
-      const material = new THREE.MeshBasicMaterial({
-        color: spec.color,
-        transparent: true,
-        opacity: spec.opacity,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-      })
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(spec.radius, spec.tube, 24, 192), material)
-      portal.add(ring)
-      return { ring, material, speed: spec.speed }
-    })
-    const coreRing = ringMeshes[1]!.ring
-
-    const halo = new THREE.Mesh(
-      new THREE.RingGeometry(1.18, 2.12, 192),
-      haloMaterial,
-    )
-    portal.add(halo)
-
-    const platform = new THREE.Group()
-    platform.position.set(0, -1.73, 0.78)
-    scene.add(platform)
-    const platformBase = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 1.02, 0.22, 32), darkRockMaterial)
-    const platformTop = new THREE.Mesh(new THREE.CylinderGeometry(0.56, 0.72, 0.08, 32), darkRockMaterial)
-    platformTop.position.y = 0.14
-    const platformGlow = new THREE.Mesh(
-      new THREE.TorusGeometry(0.9, 0.018, 16, 128),
-      new THREE.MeshBasicMaterial({
-        color: 0xa78bfa,
-        transparent: true,
-        opacity: 0.5,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-      }),
-    )
-    platformGlow.rotation.x = Math.PI / 2
-    platformGlow.position.y = 0.18
-    platform.add(platformBase, platformTop, platformGlow)
-
-    const character = new THREE.Group()
-    character.position.set(0, -1.26, 0.98)
-    scene.add(character)
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.09, 24, 16), silhouetteMaterial)
-    head.position.y = 0.58
-    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.085, 0.48, 8, 16), silhouetteMaterial)
-    body.position.y = 0.25
-    const leftLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.035, 0.42, 12), silhouetteMaterial)
-    leftLeg.position.set(-0.045, -0.17, 0)
-    const rightLeg = leftLeg.clone()
-    rightLeg.position.x = 0.045
-    const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.026, 0.4, 12), silhouetteMaterial)
-    leftArm.position.set(-0.13, 0.22, 0)
-    leftArm.rotation.z = -0.1
-    const rightArm = leftArm.clone()
-    rightArm.position.x = 0.13
-    rightArm.rotation.z = 0.1
-    character.add(head, body, leftLeg, rightLeg, leftArm, rightArm)
-
-    const mountains = new THREE.Group()
-    mountains.position.set(0, -1.82, -1.65)
-    scene.add(mountains)
-    Array.from({ length: 13 }, (_, index) => {
-      const mountain = new THREE.Mesh(new THREE.ConeGeometry(0.55 + Math.random() * 0.62, 0.7 + Math.random() * 0.95, 4), mountainMaterial)
-      mountain.position.set(-4.1 + index * 0.68, -0.12 + Math.random() * 0.08, -0.25 - Math.random() * 0.9)
-      mountain.rotation.y = Math.PI / 4 + Math.random() * 0.3
-      mountain.scale.y = 0.75 + Math.random() * 0.9
-      mountains.add(mountain)
-      return mountain
-    })
-
-    const particleCount = 520
-    const particlePositions = new Float32Array(particleCount * 3)
-    for (let index = 0; index < particleCount; index += 1) {
-      const radius = 1.05 + Math.random() * 2.35
-      const angle = Math.random() * Math.PI * 2
-      particlePositions[index * 3] = Math.cos(angle) * radius
-      particlePositions[index * 3 + 1] = Math.sin(angle) * radius * (0.5 + Math.random() * 0.5)
-      particlePositions[index * 3 + 2] = (Math.random() - 0.5) * 1.3
-    }
-    const particles = new THREE.Points(
-      new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(particlePositions, 3)),
-      new THREE.PointsMaterial({
-        color: 0x9f7aea,
-        size: 0.018,
-        transparent: true,
-        opacity: 0.92,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-      }),
-    )
-    scene.add(particles)
-
-    const asteroidGeometry = new THREE.DodecahedronGeometry(0.28, 1)
-    const asteroids = Array.from({ length: 12 }, (_, index) => {
-      const asteroid = new THREE.Mesh(asteroidGeometry, darkRockMaterial)
-      const side = index % 2 === 0 ? 1 : -1
-      asteroid.position.set(
-        side * (1.75 + Math.random() * 2.15),
-        -0.65 + Math.random() * 2.95,
-        -1.7 + Math.random() * 1.9,
-      )
-      asteroid.scale.setScalar(0.45 + Math.random() * 1.55)
-      asteroid.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI)
-      scene.add(asteroid)
-      return asteroid
-    })
-
-    const keyLight = new THREE.PointLight(0xa78bfa, 6, 8)
-    keyLight.position.set(0, 0.25, 2.2)
-    scene.add(keyLight)
-    const fillLight = new THREE.PointLight(0x38bdf8, 2.2, 8)
-    fillLight.position.set(-2.5, -0.4, 2.4)
-    scene.add(fillLight)
-
-    const animate = (time: number) => {
-      const t = time * 0.001
-      portal.rotation.z = Math.sin(t * 0.3) * 0.03
-      coreRing.scale.setScalar(1 + Math.sin(t * 2.2) * 0.018)
-      ringMeshes.forEach(({ ring, speed }, index) => {
-        ring.rotation.z = t * speed + index * 0.35
-      })
-      halo.rotation.z = t * 0.05
-      platformGlow.rotation.z = t * 0.18
-      character.scale.y = 1 + Math.sin(t * 1.3) * 0.012
-      particles.rotation.z = t * 0.018
-      particles.rotation.x = Math.sin(t * 0.28) * 0.05
-
-      asteroids.forEach((asteroid, index) => {
-        asteroid.rotation.x += 0.002 + index * 0.0002
-        asteroid.rotation.y += 0.003 + index * 0.0002
-        asteroid.position.y += Math.sin(t * 0.55 + index) * 0.0009
-      })
-
-      renderer.render(scene, camera)
-      frameRef.current = window.requestAnimationFrame(animate)
-    }
-
-    frameRef.current = window.requestAnimationFrame(animate)
-
-    return () => {
-      if (frameRef.current) window.cancelAnimationFrame(frameRef.current)
-      resizeObserver.disconnect()
-      renderer.dispose()
-      ringMeshes.forEach(({ ring, material }) => {
-        ring.geometry.dispose()
-        material.dispose()
-      })
-      halo.geometry.dispose()
-      particles.geometry.dispose()
-      asteroidGeometry.dispose()
-      platformBase.geometry.dispose()
-      platformTop.geometry.dispose()
-      platformGlow.geometry.dispose()
-      head.geometry.dispose()
-      body.geometry.dispose()
-      leftLeg.geometry.dispose()
-      leftArm.geometry.dispose()
-      haloMaterial.dispose()
-      darkRockMaterial.dispose()
-      silhouetteMaterial.dispose()
-      mountainMaterial.dispose()
-    }
-  }, [])
-
-  return (
-    <div className="pointer-events-none absolute inset-0">
-      <canvas ref={canvasRef} className="h-full w-full" />
-    </div>
-  )
-}
-
 function Hero() {
   return (
     <section id="produit" className="relative overflow-hidden bg-[#030305] px-4 py-5 text-white sm:px-6 lg:px-8">
@@ -465,29 +188,20 @@ function Hero() {
         <div className="absolute inset-y-0 left-0 w-[56%] bg-gradient-to-r from-black via-black/90 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-[34%] bg-[radial-gradient(ellipse_at_66%_0%,rgba(124,58,237,0.34),transparent_56%),linear-gradient(180deg,transparent,rgba(0,0,0,0.9)_82%)]" />
 
-        <div className="absolute bottom-[3%] right-[3%] top-[14%] w-[60%] overflow-hidden max-lg:opacity-45">
-          <PortalScene />
-          <div className="absolute left-[50%] top-[38%] flex h-[72px] w-[72px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl border border-white/20 bg-[linear-gradient(135deg,#4f46e5,#7c3aed)] shadow-[0_0_70px_rgba(167,139,250,0.95)]">
-            <BrandIcon className="h-11 w-11 text-white" />
-          </div>
-          <div className="absolute bottom-[14%] left-[34%] h-[2px] w-[34%] rounded-full bg-violet-200/70 blur-[1px]" />
-          <div className="absolute bottom-[10%] left-[22%] h-[23%] w-[58%] rounded-[50%] border-t border-violet-300/28 bg-violet-500/10" />
-          <div className="absolute bottom-0 left-0 right-0 h-[32%] bg-gradient-to-t from-black via-black/72 to-transparent" />
-
-          {heroCallouts.map(({ icon: Icon, title, text, className, dotClassName }) => (
-            <div key={title}>
-              <div className={`absolute ${dotClassName} z-20 h-4 w-4 rounded-full border-2 border-violet-100 bg-violet-500 shadow-[0_0_24px_rgba(167,139,250,0.95)]`} />
-              <article className={`absolute ${className} z-20 flex min-w-[168px] items-center gap-4 rounded-xl border border-violet-300/30 bg-black/42 px-4 py-3 backdrop-blur-md`}>
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-violet-300/20 bg-violet-500/12 text-violet-200">
-                  <Icon className="h-5 w-5" />
-                </span>
-                <span>
-                  <span className="block text-xs font-black uppercase tracking-[0.06em] text-white">{title}</span>
-                  <span className="text-xs font-medium text-white/68">{text}</span>
-                </span>
-              </article>
-            </div>
-          ))}
+        <div className="pointer-events-none absolute bottom-[4%] right-[2.6%] top-[15%] w-[58%] overflow-hidden max-lg:opacity-35">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_54%_38%,rgba(139,92,246,0.28),transparent_48%)]" />
+          <Image
+            src="/hero/merkure-portal-scene.png"
+            alt=""
+            width={610}
+            height={470}
+            priority
+            sizes="(min-width: 1280px) 760px, 60vw"
+            className="absolute left-1/2 top-1/2 w-[min(100%,760px)] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_0_48px_rgba(139,92,246,0.26)]"
+          />
+          <div className="absolute inset-y-0 left-0 w-36 bg-gradient-to-r from-[#050506] to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#050506] to-transparent" />
+          <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[#080316] to-transparent" />
         </div>
 
         <div className="relative z-10 flex min-h-[720px] flex-col px-6 py-7 sm:px-10 lg:px-12">
