@@ -43,6 +43,7 @@
   body {
     background-color: var(--app-bg);
     @apply text-gray-100 antialiased;
+    font-family: Inter, "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     transition: background-color 0.2s ease;
   }

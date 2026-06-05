@@ -4,14 +4,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import {
-  Activity,
   ArrowRight,
-  BarChart2,
-  Bell,
   Brain,
   Check,
   Lock,
-  Menu,
   NotebookPen,
   PieChart,
   PlayCircle,
@@ -21,7 +17,6 @@ import {
   Star,
   Target,
   TrendingUp,
-  X,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -33,27 +28,6 @@ const navLinks = [
   { href: '#tarifs', label: 'Tarifs' },
   { href: '#ressources', label: 'Ressources' },
   { href: '#apropos', label: 'À propos' },
-]
-
-const heroPills: Array<{ icon: LucideIcon; label: string }> = [
-  { icon: Server, label: 'Connexion multi-brokers' },
-  { icon: Brain, label: 'Analyse IA avancée' },
-  { icon: NotebookPen, label: 'Journal de trading' },
-  { icon: Bell, label: 'Alertes intelligentes' },
-]
-
-const operationalSteps: Array<{ icon: LucideIcon; title: string; text: string }> = [
-  { icon: Brain, title: 'Importer', text: 'Comptes et transactions' },
-  { icon: Activity, title: 'Lire', text: 'Performance et risque' },
-  { icon: Sparkles, title: 'Comprendre', text: 'Coach et journal IA' },
-]
-
-const stats = [
-  { icon: Activity, value: '127 842', label: 'Trades analysés' },
-  { icon: Brain, value: '+2.4M$', label: 'De données traitées' },
-  { icon: Target, value: '83%', label: 'Des traders améliorent leur RR' },
-  { icon: BarChart2, value: '18', label: 'Brokers compatibles' },
-  { icon: Sparkles, value: '24/7', label: 'IA & système actif' },
 ]
 
 const problemCards: Array<{ icon: LucideIcon; title: string; text: string }> = [
@@ -198,219 +172,44 @@ function PrimaryCta({ children = 'Démarrer gratuitement', href = '/sign-up', cl
 }
 
 function Header() {
-  const [open, setOpen] = useState(false)
-
-  return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050816]/90 px-5 py-3.5 backdrop-blur-xl sm:px-8">
-      <div className="mx-auto flex w-full max-w-[1680px] items-center justify-between gap-6">
-        <BrandMark />
-
-        <nav className="hidden items-center gap-10 lg:flex">
-          {navLinks.map((link, index) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className={`text-[13px] font-semibold transition-colors hover:text-white ${index === 0 ? 'border-b border-violet-400 pb-1 text-white' : 'text-slate-300'}`}
-            >
-              {link.label}
-            </a>
-          ))}
-        </nav>
-
-        <div className="hidden items-center gap-3 lg:flex">
-          <Link href="/sign-in" className="rounded-lg border border-white/15 px-5 py-2.5 text-sm font-extrabold text-white transition hover:bg-white/[0.08]">
-            Se connecter
-          </Link>
-          <PrimaryCta href="/sign-up">Démarrer gratuitement</PrimaryCta>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setOpen((value) => !value)}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/15 text-white lg:hidden"
-          aria-label="Ouvrir le menu"
-        >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
-      </div>
-
-      {open && (
-        <div className="mx-auto mt-4 grid w-full max-w-[1680px] gap-3 rounded-lg border border-white/10 bg-[#071020] p-4 lg:hidden">
-          {navLinks.map((link) => (
-            <a key={link.href} href={link.href} onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/[0.06]">
-              {link.label}
-            </a>
-          ))}
-          <Link href="/sign-in" onClick={() => setOpen(false)} className="rounded-lg border border-white/15 px-4 py-3 text-center text-sm font-black text-white">
-            Se connecter
-          </Link>
-          <PrimaryCta href="/sign-up" className="w-full">Démarrer gratuitement</PrimaryCta>
-        </div>
-      )}
-    </header>
-  )
-}
-
-function GlobeVisual() {
-  return (
-    <div className="relative flex h-[480px] items-center justify-center overflow-hidden xl:h-[560px]">
-      {/* Halo violet derrière le globe */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/20 blur-[80px]" />
-        <div className="absolute left-1/2 top-1/2 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/15 blur-[60px]" />
-      </div>
-
-      {/* Globe iframe — fixe, pas d'interaction utilisateur */}
-      <iframe
-        src="https://my.spline.design/3dglobe-fF7pTN8k830L2ACIFwixbdia/"
-        title="Globe 3D MERKURE"
-        className="relative z-10 h-full w-full border-0 pointer-events-none select-none"
-        loading="lazy"
-        allow="autoplay; fullscreen; xr-spatial-tracking"
-        scrolling="no"
-      />
-
-      {/* Fondu sur les bords pour intégrer au fond */}
-      <div className="pointer-events-none absolute inset-0 z-20 bg-[radial-gradient(ellipse_80%_80%_at_50%_50%,transparent_55%,#050816_100%)]" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-24 bg-gradient-to-t from-[#050816] to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-16 bg-gradient-to-b from-[#050816] to-transparent" />
-
-      {/* Badges flottants */}
-      <div className="absolute left-[8%] top-[18%] z-30 rounded-lg border border-violet-400/30 bg-[#080d1b]/80 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-violet-200 backdrop-blur-md">
-        Analyse IA
-      </div>
-      <div className="absolute right-[8%] top-[22%] z-30 rounded-lg border border-cyan-400/30 bg-[#080d1b]/80 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-cyan-200 backdrop-blur-md">
-        Signal
-      </div>
-      <div className="absolute bottom-[22%] left-[8%] z-30 rounded-lg border border-violet-400/30 bg-[#080d1b]/80 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-violet-200 backdrop-blur-md">
-        Détection
-      </div>
-      <div className="absolute bottom-[18%] right-[8%] z-30 rounded-lg border border-cyan-400/30 bg-[#080d1b]/80 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-cyan-200 backdrop-blur-md">
-        Optimisation
-      </div>
-    </div>
-  )
-}
-
-function OperationalPanel() {
-  return (
-    <aside className="relative rounded-xl border border-cyan-300/12 bg-[#07111e]/76 p-4 shadow-[0_24px_90px_rgba(0,0,0,0.40)] backdrop-blur-xl">
-      <div className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-lg border border-cyan-300/15 bg-cyan-400/10 text-cyan-300">
-        <Server className="h-4 w-4" />
-      </div>
-      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-violet-300">Couche opérationnelle</p>
-      <h2 className="mt-2 text-base font-extrabold text-white">Cockpit de décision</h2>
-
-      <div className="mt-5 flex items-center justify-between text-[9px] font-black uppercase tracking-wider">
-        <span className="flex items-center gap-2 text-emerald-300">
-          <span className="h-2 w-2 rounded-full bg-emerald-400" />
-          Système actif
-        </span>
-        <span className="text-slate-500">Mis à jour en temps réel</span>
-      </div>
-
-      <div className="mt-4 grid gap-2.5">
-        {operationalSteps.map(({ icon: Icon, title, text }) => (
-          <div key={title} className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.035] p-3">
-            <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-500/14 text-violet-300">
-                <Icon className="h-4 w-4" />
-              </span>
-              <span>
-                <span className="block text-sm font-extrabold text-white">{title}</span>
-                <span className="text-[11px] font-semibold text-slate-500">{text}</span>
-              </span>
-            </div>
-            <span className="h-2 w-2 rounded-full border border-slate-500" />
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <div className="rounded-lg border border-white/10 bg-white/[0.035] p-3.5">
-          <p className="text-[10px] font-black uppercase text-slate-500">Risk score</p>
-          <div className="mt-2 flex items-end gap-2">
-            <span className="font-mono text-2xl font-black text-white">72</span>
-            <span className="pb-1 text-sm font-bold text-slate-500">/100</span>
-          </div>
-          <svg viewBox="0 0 120 36" className="mt-2 h-8 w-full" aria-hidden="true">
-            <polyline points="0,26 18,25 34,20 50,23 68,17 84,15 102,10 120,7" fill="none" stroke="#22c55e" strokeWidth="3" strokeLinecap="round" />
-          </svg>
-        </div>
-        <div className="rounded-lg border border-white/10 bg-white/[0.035] p-3.5">
-          <p className="text-[10px] font-black uppercase text-slate-500">Confiance IA</p>
-          <div className="mt-2 flex items-center justify-between">
-            <span className="font-mono text-2xl font-black text-white">85%</span>
-            <span className="h-12 w-12 rounded-full border-[6px] border-violet-500 border-l-cyan-400" />
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-4 flex items-center justify-between rounded-lg border border-emerald-400/20 bg-emerald-400/12 px-4 py-3 text-sm font-extrabold text-emerald-300">
-        Mode lecture seule
-        <span className="h-2 w-2 rounded-full bg-emerald-300" />
-      </div>
-    </aside>
-  )
+  return null
 }
 
 function Hero() {
   return (
-    <section id="produit" className="relative overflow-hidden bg-[#050816] px-5 pb-5 pt-7 text-white sm:px-8 lg:pb-6">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_540px_at_50%_28%,rgba(37,99,235,0.20),transparent_60%),radial-gradient(780px_520px_at_78%_34%,rgba(124,58,237,0.24),transparent_62%),linear-gradient(180deg,#050816_0%,#07101c_100%)]" />
-      <div className="pointer-events-none absolute inset-0 opacity-45 [background-image:linear-gradient(rgba(124,58,237,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(37,99,235,0.05)_1px,transparent_1px)] [background-size:76px_76px]" />
+    <section id="produit" className="relative overflow-hidden bg-black text-white">
+      <div className="relative mx-auto aspect-[1586/776] min-h-[560px] w-full overflow-hidden bg-black sm:min-h-0">
+        <Image
+          src="/hero/merkure-hero-final.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
 
-      <div className="relative mx-auto grid w-full max-w-[1680px] gap-7 xl:grid-cols-[0.84fr_1.26fr_0.64fr] xl:items-center">
-        <div className="relative z-20">
-          <div className="inline-flex items-center gap-2 rounded-full border border-violet-400/35 bg-violet-500/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-violet-200">
-            <Sparkles className="h-3.5 w-3.5" />
-            Cockpit IA pour traders exigeants
-          </div>
-
-          <h1 className="mt-7 max-w-2xl text-[44px] font-extrabold leading-[1.05] tracking-[-0.015em] text-white sm:text-[56px] 2xl:text-[66px]">
-            Trade avec
-            <br />
-            des <span className="bg-gradient-to-r from-violet-300 via-violet-500 to-cyan-300 bg-clip-text text-transparent">données.</span>
-            <br />
-            Pas des émotions.
-          </h1>
-
-          <p className="mt-6 max-w-xl text-[15px] font-medium leading-8 text-slate-300">
-            MERKURE connecte vos comptes, analyse chaque trade avec l'IA et vous donne un avantage mesurable sur le marché.
+        <div className="sr-only">
+          <h1>Devenez le trader que vos émotions empêchent d'être.</h1>
+          <p>
+            MERKURE analyse vos décisions en profondeur, détecte vos biais comportementaux et vous donne un plan d'amélioration clair pour performer durablement.
           </p>
-
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <PrimaryCta>Démarrer gratuitement</PrimaryCta>
-            <DemoButton />
-          </div>
-
-          <div className="mt-7 grid gap-3 sm:grid-cols-2">
-            {heroPills.map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.028] px-4 py-3 text-xs font-bold text-slate-300">
-                <Icon className="h-4 w-4 text-emerald-300" />
-                {label}
-              </div>
-            ))}
-          </div>
         </div>
 
-        <GlobeVisual />
-
-        <div className="hidden xl:block">
-          <OperationalPanel />
-        </div>
-      </div>
-
-      <div className="relative mx-auto mt-5 grid w-full max-w-[1680px] gap-3 rounded-xl border border-white/10 bg-white/[0.032] p-4 backdrop-blur-xl sm:grid-cols-2 lg:grid-cols-5">
-        {stats.map(({ icon: Icon, value, label }, index) => (
-          <div key={label} className={`flex items-center gap-4 px-3 py-1.5 ${index > 0 ? 'lg:border-l lg:border-white/10' : ''}`}>
-            <Icon className="h-8 w-8 text-violet-300" />
-            <div>
-              <p className="font-mono text-xl font-black text-white">{value}</p>
-              <p className="mt-1 text-[10px] font-black uppercase tracking-wider text-slate-500">{label}</p>
-            </div>
-          </div>
-        ))}
+        <Link
+          href="/app/dashboard"
+          aria-label="Accéder à l'app"
+          className="absolute right-[3.1%] top-[6.2%] z-10 h-[8.2%] w-[15.8%] rounded-[20px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300"
+        />
+        <Link
+          href="/sign-up"
+          aria-label="Lancer mon analyse IA"
+          className="absolute left-[4.75%] top-[85.5%] z-10 h-[9.4%] w-[22.7%] rounded-[12px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300"
+        />
+        <a
+          href="#fonctionnalites"
+          aria-label="Voir comment ça marche"
+          className="absolute left-[28.9%] top-[85.5%] z-10 h-[9.4%] w-[23.4%] rounded-[12px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300"
+        />
       </div>
     </section>
   )
