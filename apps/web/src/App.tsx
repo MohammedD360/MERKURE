@@ -2,12 +2,14 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import * as THREE from 'three'
 import {
   ArrowRight,
   Brain,
   Check,
   Lock,
+  LogIn,
   NotebookPen,
   PieChart,
   PlayCircle,
@@ -175,41 +177,232 @@ function Header() {
   return null
 }
 
+function PortalScene() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const frameRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const container = canvas?.parentElement
+    if (!canvas || !container) return undefined
+
+    const scene = new THREE.Scene()
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100)
+    camera.position.set(0, 0.18, 6.4)
+
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+      canvas,
+      powerPreference: 'high-performance',
+    })
+    renderer.setClearColor(0x000000, 0)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+    const resize = () => {
+      const { width, height } = container.getBoundingClientRect()
+      renderer.setSize(width, height, false)
+      camera.aspect = width / Math.max(height, 1)
+      camera.updateProjectionMatrix()
+    }
+
+    resize()
+    const resizeObserver = new ResizeObserver(resize)
+    resizeObserver.observe(container)
+
+    const portal = new THREE.Group()
+    scene.add(portal)
+
+    const glowMaterial = new THREE.MeshBasicMaterial({
+      color: 0xa78bfa,
+      transparent: true,
+      opacity: 0.92,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    })
+    const blueMaterial = new THREE.MeshBasicMaterial({
+      color: 0x60a5fa,
+      transparent: true,
+      opacity: 0.3,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    })
+    const darkRockMaterial = new THREE.MeshStandardMaterial({
+      color: 0x151324,
+      emissive: 0x24105a,
+      emissiveIntensity: 0.34,
+      roughness: 0.82,
+      metalness: 0.12,
+    })
+
+    const coreRing = new THREE.Mesh(new THREE.TorusGeometry(1.42, 0.055, 32, 192), glowMaterial)
+    const outerRing = new THREE.Mesh(new THREE.TorusGeometry(1.76, 0.012, 16, 192), blueMaterial)
+    const innerRing = new THREE.Mesh(new THREE.TorusGeometry(1.04, 0.018, 16, 192), blueMaterial.clone())
+    innerRing.material.opacity = 0.42
+    portal.add(coreRing, outerRing, innerRing)
+
+    const halo = new THREE.Mesh(
+      new THREE.RingGeometry(1.18, 2.12, 192),
+      new THREE.MeshBasicMaterial({
+        color: 0x7c3aed,
+        transparent: true,
+        opacity: 0.12,
+        blending: THREE.AdditiveBlending,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      }),
+    )
+    portal.add(halo)
+
+    const particleCount = 520
+    const particlePositions = new Float32Array(particleCount * 3)
+    for (let index = 0; index < particleCount; index += 1) {
+      const radius = 1.05 + Math.random() * 2.35
+      const angle = Math.random() * Math.PI * 2
+      particlePositions[index * 3] = Math.cos(angle) * radius
+      particlePositions[index * 3 + 1] = Math.sin(angle) * radius * (0.5 + Math.random() * 0.5)
+      particlePositions[index * 3 + 2] = (Math.random() - 0.5) * 1.3
+    }
+    const particles = new THREE.Points(
+      new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(particlePositions, 3)),
+      new THREE.PointsMaterial({
+        color: 0x9f7aea,
+        size: 0.018,
+        transparent: true,
+        opacity: 0.92,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      }),
+    )
+    scene.add(particles)
+
+    const asteroidGeometry = new THREE.DodecahedronGeometry(0.28, 1)
+    const asteroids = Array.from({ length: 10 }, (_, index) => {
+      const asteroid = new THREE.Mesh(asteroidGeometry, darkRockMaterial)
+      const side = index % 2 === 0 ? 1 : -1
+      asteroid.position.set(
+        side * (1.65 + Math.random() * 2.1),
+        -0.75 + Math.random() * 2.8,
+        -1.7 + Math.random() * 1.9,
+      )
+      asteroid.scale.setScalar(0.45 + Math.random() * 1.55)
+      asteroid.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI)
+      scene.add(asteroid)
+      return asteroid
+    })
+
+    const keyLight = new THREE.PointLight(0xa78bfa, 6, 8)
+    keyLight.position.set(0, 0.25, 2.2)
+    scene.add(keyLight)
+    const fillLight = new THREE.PointLight(0x38bdf8, 2.2, 8)
+    fillLight.position.set(-2.5, -0.4, 2.4)
+    scene.add(fillLight)
+
+    const animate = (time: number) => {
+      const t = time * 0.001
+      portal.rotation.z = Math.sin(t * 0.3) * 0.03
+      coreRing.scale.setScalar(1 + Math.sin(t * 2.2) * 0.018)
+      outerRing.rotation.z = t * 0.12
+      innerRing.rotation.z = -t * 0.18
+      halo.rotation.z = t * 0.05
+      particles.rotation.z = t * 0.018
+      particles.rotation.x = Math.sin(t * 0.28) * 0.05
+
+      asteroids.forEach((asteroid, index) => {
+        asteroid.rotation.x += 0.002 + index * 0.0002
+        asteroid.rotation.y += 0.003 + index * 0.0002
+        asteroid.position.y += Math.sin(t * 0.55 + index) * 0.0009
+      })
+
+      renderer.render(scene, camera)
+      frameRef.current = window.requestAnimationFrame(animate)
+    }
+
+    frameRef.current = window.requestAnimationFrame(animate)
+
+    return () => {
+      if (frameRef.current) window.cancelAnimationFrame(frameRef.current)
+      resizeObserver.disconnect()
+      renderer.dispose()
+      coreRing.geometry.dispose()
+      outerRing.geometry.dispose()
+      innerRing.geometry.dispose()
+      halo.geometry.dispose()
+      particles.geometry.dispose()
+      asteroidGeometry.dispose()
+      glowMaterial.dispose()
+      blueMaterial.dispose()
+      darkRockMaterial.dispose()
+    }
+  }, [])
+
+  return (
+    <div className="pointer-events-none absolute inset-0">
+      <canvas ref={canvasRef} className="h-full w-full" />
+    </div>
+  )
+}
+
 function Hero() {
   return (
-    <section id="produit" className="relative overflow-hidden bg-black text-white">
-      <div className="relative mx-auto aspect-[1586/776] min-h-[560px] w-full overflow-hidden bg-black sm:min-h-0">
-        <Image
-          src="/hero/merkure-hero-final.png"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center"
-        />
+    <section id="produit" className="relative min-h-screen overflow-hidden bg-black text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_48%,rgba(124,58,237,0.34),transparent_34%),radial-gradient(circle_at_58%_42%,rgba(37,99,235,0.22),transparent_34%),linear-gradient(90deg,#030305_0%,#050516_46%,#080315_100%)]" />
+      <div className="absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_25%_25%,rgba(255,255,255,0.24)_0_1px,transparent_1.8px),radial-gradient(circle_at_75%_15%,rgba(139,92,246,0.38)_0_1px,transparent_2px)] [background-size:180px_140px,230px_190px]" />
+      <div className="absolute inset-x-0 bottom-0 h-[44%] bg-[radial-gradient(ellipse_at_64%_100%,rgba(124,58,237,0.44),transparent_56%),linear-gradient(180deg,transparent,#020204_84%)]" />
+      <div className="absolute bottom-0 left-0 right-0 h-[22%] bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.88)),radial-gradient(ellipse_at_63%_10%,rgba(167,139,250,0.22),transparent_52%)]" />
 
-        <div className="sr-only">
-          <h1>Devenez le trader que vos émotions empêchent d'être.</h1>
-          <p>
-            MERKURE analyse vos décisions en profondeur, détecte vos biais comportementaux et vous donne un plan d'amélioration clair pour performer durablement.
-          </p>
+      <div className="absolute right-0 top-0 h-full w-[64%] overflow-hidden">
+        <PortalScene />
+        <div className="absolute left-[50%] top-[50%] flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl border border-white/20 bg-[linear-gradient(135deg,#4f46e5,#7c3aed)] shadow-[0_0_60px_rgba(167,139,250,0.85)]">
+          <BrandIcon className="h-12 w-12 text-white" />
         </div>
+        <div className="absolute bottom-[10%] left-[39%] h-[2px] w-[30%] rounded-full bg-violet-300/75 blur-[1px]" />
+        <div className="absolute bottom-[7%] left-[18%] h-[20%] w-[58%] rounded-[50%] border-t border-violet-300/28 bg-violet-500/10 blur-[0.2px]" />
+        <div className="absolute bottom-0 left-0 right-0 h-[30%] bg-gradient-to-t from-black via-black/70 to-transparent" />
+      </div>
 
-        <Link
-          href="/app/dashboard"
-          aria-label="Accéder à l'app"
-          className="absolute right-[3.1%] top-[6.2%] z-10 h-[8.2%] w-[15.8%] rounded-[20px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300"
-        />
-        <Link
-          href="/sign-up"
-          aria-label="Lancer mon analyse IA"
-          className="absolute left-[4.75%] top-[85.5%] z-10 h-[9.4%] w-[22.7%] rounded-[12px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300"
-        />
-        <a
-          href="#fonctionnalites"
-          aria-label="Voir comment ça marche"
-          className="absolute left-[28.9%] top-[85.5%] z-10 h-[9.4%] w-[23.4%] rounded-[12px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300"
-        />
+      <div className="absolute inset-y-0 left-0 w-[58%] bg-gradient-to-r from-black via-black/88 to-transparent" />
+
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[1586px] flex-col px-8 py-10 sm:px-12 lg:px-[76px]">
+        <header className="flex items-center justify-between">
+          <BrandMark />
+          <Link
+            href="/app/dashboard"
+            className="inline-flex items-center gap-3 rounded-[22px] border border-violet-400/45 bg-black/38 px-7 py-4 text-sm font-black uppercase tracking-[0.04em] text-white shadow-[0_0_32px_rgba(124,58,237,0.22)] backdrop-blur-md transition hover:bg-violet-500/10"
+          >
+            <LogIn className="h-5 w-5" />
+            Accéder à l'app
+          </Link>
+        </header>
+
+        <div className="flex flex-1 items-center pb-8 pt-14">
+          <div className="max-w-[710px]">
+            <h1 className="text-[44px] font-black uppercase leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_5px_18px_rgba(0,0,0,0.55)] sm:text-[64px] lg:text-[76px] 2xl:text-[82px]">
+              Devenez le trader
+              <br />
+              que vos <span className="text-[#8b5cf6] drop-shadow-[0_0_26px_rgba(139,92,246,0.5)]">émotions</span>
+              <br />
+              <span className="text-[#7c3aed] drop-shadow-[0_0_30px_rgba(124,58,237,0.55)]">empêchent d'être.</span>
+            </h1>
+
+            <p className="mt-9 max-w-[460px] text-[20px] font-bold leading-[1.7] text-white/78">
+              MERKURE analyse vos décisions en profondeur, détecte vos biais comportementaux et vous donne un plan d'amélioration clair pour performer durablement.
+            </p>
+
+            <div className="mt-12 flex flex-col gap-5 sm:flex-row">
+              <PrimaryCta href="/sign-up" className="min-h-[72px] rounded-xl px-9 text-base font-black uppercase tracking-[0.02em] shadow-[0_0_42px_rgba(168,85,247,0.34)]">
+                Lancer mon analyse IA
+              </PrimaryCta>
+              <a
+                href="#fonctionnalites"
+                className="inline-flex min-h-[72px] items-center justify-center gap-4 rounded-xl border border-violet-300/28 bg-white/[0.035] px-9 text-base font-black uppercase tracking-[0.02em] text-white shadow-[0_0_28px_rgba(124,58,237,0.14)] backdrop-blur-md transition hover:bg-white/[0.07]"
+              >
+                Voir comment ça marche
+                <PlayCircle className="h-6 w-6" />
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   )
