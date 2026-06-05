@@ -9,7 +9,6 @@ import {
   Brain,
   Check,
   Lock,
-  LogIn,
   NotebookPen,
   PieChart,
   PlayCircle,
@@ -31,6 +30,39 @@ const navLinks = [
   { href: '#ressources', label: 'Ressources' },
   { href: '#apropos', label: 'À propos' },
 ]
+
+const heroCallouts: Array<{ icon: LucideIcon; title: string; text: string; className: string; dotClassName: string }> = [
+  {
+    icon: ShieldCheck,
+    title: 'Détection',
+    text: 'des biais',
+    className: 'left-[9%] top-[20%]',
+    dotClassName: 'left-[33%] top-[24%]',
+  },
+  {
+    icon: Brain,
+    title: 'Analyse IA',
+    text: 'en profondeur',
+    className: 'right-[6%] top-[20%]',
+    dotClassName: 'right-[29%] top-[24%]',
+  },
+  {
+    icon: Target,
+    title: "Plan d'action",
+    text: 'personnalisé',
+    className: 'left-[9%] bottom-[29%]',
+    dotClassName: 'left-[33%] bottom-[34%]',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Suivi & progrès',
+    text: 'continu',
+    className: 'right-[4%] bottom-[29%]',
+    dotClassName: 'right-[30%] bottom-[34%]',
+  },
+]
+
+const heroAssurances = ['Aucune carte bancaire', 'Analyse en 2 min', 'Résultats immédiats']
 
 const problemCards: Array<{ icon: LucideIcon; title: string; text: string }> = [
   { icon: Server, title: 'Donnees eparpillees', text: 'Entre plusieurs plateformes' },
@@ -187,8 +219,8 @@ function PortalScene() {
     if (!canvas || !container) return undefined
 
     const scene = new THREE.Scene()
-    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100)
-    camera.position.set(0, 0.18, 6.4)
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100)
+    camera.position.set(0, 0.1, 6.2)
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -211,20 +243,15 @@ function PortalScene() {
     resizeObserver.observe(container)
 
     const portal = new THREE.Group()
+    portal.position.y = 0.28
     scene.add(portal)
 
-    const glowMaterial = new THREE.MeshBasicMaterial({
-      color: 0xa78bfa,
+    const haloMaterial = new THREE.MeshBasicMaterial({
+      color: 0x7c3aed,
       transparent: true,
-      opacity: 0.92,
+      opacity: 0.12,
       blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    })
-    const blueMaterial = new THREE.MeshBasicMaterial({
-      color: 0x60a5fa,
-      transparent: true,
-      opacity: 0.3,
-      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
       depthWrite: false,
     })
     const darkRockMaterial = new THREE.MeshStandardMaterial({
@@ -234,25 +261,97 @@ function PortalScene() {
       roughness: 0.82,
       metalness: 0.12,
     })
+    const silhouetteMaterial = new THREE.MeshStandardMaterial({
+      color: 0x020204,
+      emissive: 0x090615,
+      emissiveIntensity: 0.16,
+      roughness: 1,
+      metalness: 0,
+    })
+    const mountainMaterial = new THREE.MeshStandardMaterial({
+      color: 0x090818,
+      emissive: 0x18043c,
+      emissiveIntensity: 0.2,
+      roughness: 0.95,
+      metalness: 0,
+    })
 
-    const coreRing = new THREE.Mesh(new THREE.TorusGeometry(1.42, 0.055, 32, 192), glowMaterial)
-    const outerRing = new THREE.Mesh(new THREE.TorusGeometry(1.76, 0.012, 16, 192), blueMaterial)
-    const innerRing = new THREE.Mesh(new THREE.TorusGeometry(1.04, 0.018, 16, 192), blueMaterial.clone())
-    innerRing.material.opacity = 0.42
-    portal.add(coreRing, outerRing, innerRing)
+    const ringSpecs = [
+      { radius: 1.1, tube: 0.018, opacity: 0.52, speed: 0.18, color: 0x8b5cf6 },
+      { radius: 1.42, tube: 0.055, opacity: 0.94, speed: -0.12, color: 0xa78bfa },
+      { radius: 1.68, tube: 0.014, opacity: 0.34, speed: 0.08, color: 0x8b5cf6 },
+      { radius: 1.96, tube: 0.01, opacity: 0.22, speed: -0.05, color: 0x60a5fa },
+    ]
+    const ringMeshes = ringSpecs.map((spec) => {
+      const material = new THREE.MeshBasicMaterial({
+        color: spec.color,
+        transparent: true,
+        opacity: spec.opacity,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      })
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(spec.radius, spec.tube, 24, 192), material)
+      portal.add(ring)
+      return { ring, material, speed: spec.speed }
+    })
+    const coreRing = ringMeshes[1]!.ring
 
     const halo = new THREE.Mesh(
       new THREE.RingGeometry(1.18, 2.12, 192),
+      haloMaterial,
+    )
+    portal.add(halo)
+
+    const platform = new THREE.Group()
+    platform.position.set(0, -1.73, 0.78)
+    scene.add(platform)
+    const platformBase = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 1.02, 0.22, 32), darkRockMaterial)
+    const platformTop = new THREE.Mesh(new THREE.CylinderGeometry(0.56, 0.72, 0.08, 32), darkRockMaterial)
+    platformTop.position.y = 0.14
+    const platformGlow = new THREE.Mesh(
+      new THREE.TorusGeometry(0.9, 0.018, 16, 128),
       new THREE.MeshBasicMaterial({
-        color: 0x7c3aed,
+        color: 0xa78bfa,
         transparent: true,
-        opacity: 0.12,
+        opacity: 0.5,
         blending: THREE.AdditiveBlending,
-        side: THREE.DoubleSide,
         depthWrite: false,
       }),
     )
-    portal.add(halo)
+    platformGlow.rotation.x = Math.PI / 2
+    platformGlow.position.y = 0.18
+    platform.add(platformBase, platformTop, platformGlow)
+
+    const character = new THREE.Group()
+    character.position.set(0, -1.26, 0.98)
+    scene.add(character)
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.09, 24, 16), silhouetteMaterial)
+    head.position.y = 0.58
+    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.085, 0.48, 8, 16), silhouetteMaterial)
+    body.position.y = 0.25
+    const leftLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.035, 0.42, 12), silhouetteMaterial)
+    leftLeg.position.set(-0.045, -0.17, 0)
+    const rightLeg = leftLeg.clone()
+    rightLeg.position.x = 0.045
+    const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.026, 0.4, 12), silhouetteMaterial)
+    leftArm.position.set(-0.13, 0.22, 0)
+    leftArm.rotation.z = -0.1
+    const rightArm = leftArm.clone()
+    rightArm.position.x = 0.13
+    rightArm.rotation.z = 0.1
+    character.add(head, body, leftLeg, rightLeg, leftArm, rightArm)
+
+    const mountains = new THREE.Group()
+    mountains.position.set(0, -1.82, -1.65)
+    scene.add(mountains)
+    Array.from({ length: 13 }, (_, index) => {
+      const mountain = new THREE.Mesh(new THREE.ConeGeometry(0.55 + Math.random() * 0.62, 0.7 + Math.random() * 0.95, 4), mountainMaterial)
+      mountain.position.set(-4.1 + index * 0.68, -0.12 + Math.random() * 0.08, -0.25 - Math.random() * 0.9)
+      mountain.rotation.y = Math.PI / 4 + Math.random() * 0.3
+      mountain.scale.y = 0.75 + Math.random() * 0.9
+      mountains.add(mountain)
+      return mountain
+    })
 
     const particleCount = 520
     const particlePositions = new Float32Array(particleCount * 3)
@@ -277,12 +376,12 @@ function PortalScene() {
     scene.add(particles)
 
     const asteroidGeometry = new THREE.DodecahedronGeometry(0.28, 1)
-    const asteroids = Array.from({ length: 10 }, (_, index) => {
+    const asteroids = Array.from({ length: 12 }, (_, index) => {
       const asteroid = new THREE.Mesh(asteroidGeometry, darkRockMaterial)
       const side = index % 2 === 0 ? 1 : -1
       asteroid.position.set(
-        side * (1.65 + Math.random() * 2.1),
-        -0.75 + Math.random() * 2.8,
+        side * (1.75 + Math.random() * 2.15),
+        -0.65 + Math.random() * 2.95,
         -1.7 + Math.random() * 1.9,
       )
       asteroid.scale.setScalar(0.45 + Math.random() * 1.55)
@@ -302,9 +401,12 @@ function PortalScene() {
       const t = time * 0.001
       portal.rotation.z = Math.sin(t * 0.3) * 0.03
       coreRing.scale.setScalar(1 + Math.sin(t * 2.2) * 0.018)
-      outerRing.rotation.z = t * 0.12
-      innerRing.rotation.z = -t * 0.18
+      ringMeshes.forEach(({ ring, speed }, index) => {
+        ring.rotation.z = t * speed + index * 0.35
+      })
       halo.rotation.z = t * 0.05
+      platformGlow.rotation.z = t * 0.18
+      character.scale.y = 1 + Math.sin(t * 1.3) * 0.012
       particles.rotation.z = t * 0.018
       particles.rotation.x = Math.sin(t * 0.28) * 0.05
 
@@ -324,15 +426,24 @@ function PortalScene() {
       if (frameRef.current) window.cancelAnimationFrame(frameRef.current)
       resizeObserver.disconnect()
       renderer.dispose()
-      coreRing.geometry.dispose()
-      outerRing.geometry.dispose()
-      innerRing.geometry.dispose()
+      ringMeshes.forEach(({ ring, material }) => {
+        ring.geometry.dispose()
+        material.dispose()
+      })
       halo.geometry.dispose()
       particles.geometry.dispose()
       asteroidGeometry.dispose()
-      glowMaterial.dispose()
-      blueMaterial.dispose()
+      platformBase.geometry.dispose()
+      platformTop.geometry.dispose()
+      platformGlow.geometry.dispose()
+      head.geometry.dispose()
+      body.geometry.dispose()
+      leftLeg.geometry.dispose()
+      leftArm.geometry.dispose()
+      haloMaterial.dispose()
       darkRockMaterial.dispose()
+      silhouetteMaterial.dispose()
+      mountainMaterial.dispose()
     }
   }, [])
 
@@ -345,61 +456,111 @@ function PortalScene() {
 
 function Hero() {
   return (
-    <section id="produit" className="relative min-h-screen overflow-hidden bg-black text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_48%,rgba(124,58,237,0.34),transparent_34%),radial-gradient(circle_at_58%_42%,rgba(37,99,235,0.22),transparent_34%),linear-gradient(90deg,#030305_0%,#050516_46%,#080315_100%)]" />
-      <div className="absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_25%_25%,rgba(255,255,255,0.24)_0_1px,transparent_1.8px),radial-gradient(circle_at_75%_15%,rgba(139,92,246,0.38)_0_1px,transparent_2px)] [background-size:180px_140px,230px_190px]" />
-      <div className="absolute inset-x-0 bottom-0 h-[44%] bg-[radial-gradient(ellipse_at_64%_100%,rgba(124,58,237,0.44),transparent_56%),linear-gradient(180deg,transparent,#020204_84%)]" />
-      <div className="absolute bottom-0 left-0 right-0 h-[22%] bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.88)),radial-gradient(ellipse_at_63%_10%,rgba(167,139,250,0.22),transparent_52%)]" />
+    <section id="produit" className="relative overflow-hidden bg-[#030305] px-4 py-5 text-white sm:px-6 lg:px-8">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_68%_18%,rgba(124,58,237,0.2),transparent_34%),linear-gradient(180deg,#020204_0%,#050816_100%)]" />
 
-      <div className="absolute right-0 top-0 h-full w-[64%] overflow-hidden">
-        <PortalScene />
-        <div className="absolute left-[50%] top-[50%] flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl border border-white/20 bg-[linear-gradient(135deg,#4f46e5,#7c3aed)] shadow-[0_0_60px_rgba(167,139,250,0.85)]">
-          <BrandIcon className="h-12 w-12 text-white" />
+      <div className="relative mx-auto min-h-[720px] max-w-[1586px] overflow-hidden rounded-[22px] border border-white/12 bg-[#050816] shadow-[0_32px_120px_rgba(0,0,0,0.62)]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_68%_44%,rgba(124,58,237,0.38),transparent_30%),radial-gradient(circle_at_74%_66%,rgba(139,92,246,0.2),transparent_36%),linear-gradient(90deg,#050506_0%,#070719_48%,#080316_100%)]" />
+        <div className="absolute inset-0 opacity-70 [background-image:radial-gradient(circle_at_25%_25%,rgba(255,255,255,0.22)_0_1px,transparent_1.8px),radial-gradient(circle_at_75%_15%,rgba(139,92,246,0.36)_0_1px,transparent_2px)] [background-size:180px_140px,230px_190px]" />
+        <div className="absolute inset-y-0 left-0 w-[56%] bg-gradient-to-r from-black via-black/90 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-[34%] bg-[radial-gradient(ellipse_at_66%_0%,rgba(124,58,237,0.34),transparent_56%),linear-gradient(180deg,transparent,rgba(0,0,0,0.9)_82%)]" />
+
+        <div className="absolute bottom-[3%] right-[3%] top-[14%] w-[60%] overflow-hidden max-lg:opacity-45">
+          <PortalScene />
+          <div className="absolute left-[50%] top-[38%] flex h-[72px] w-[72px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl border border-white/20 bg-[linear-gradient(135deg,#4f46e5,#7c3aed)] shadow-[0_0_70px_rgba(167,139,250,0.95)]">
+            <BrandIcon className="h-11 w-11 text-white" />
+          </div>
+          <div className="absolute bottom-[14%] left-[34%] h-[2px] w-[34%] rounded-full bg-violet-200/70 blur-[1px]" />
+          <div className="absolute bottom-[10%] left-[22%] h-[23%] w-[58%] rounded-[50%] border-t border-violet-300/28 bg-violet-500/10" />
+          <div className="absolute bottom-0 left-0 right-0 h-[32%] bg-gradient-to-t from-black via-black/72 to-transparent" />
+
+          {heroCallouts.map(({ icon: Icon, title, text, className, dotClassName }) => (
+            <div key={title}>
+              <div className={`absolute ${dotClassName} z-20 h-4 w-4 rounded-full border-2 border-violet-100 bg-violet-500 shadow-[0_0_24px_rgba(167,139,250,0.95)]`} />
+              <article className={`absolute ${className} z-20 flex min-w-[168px] items-center gap-4 rounded-xl border border-violet-300/30 bg-black/42 px-4 py-3 backdrop-blur-md`}>
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-violet-300/20 bg-violet-500/12 text-violet-200">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <span>
+                  <span className="block text-xs font-black uppercase tracking-[0.06em] text-white">{title}</span>
+                  <span className="text-xs font-medium text-white/68">{text}</span>
+                </span>
+              </article>
+            </div>
+          ))}
         </div>
-        <div className="absolute bottom-[10%] left-[39%] h-[2px] w-[30%] rounded-full bg-violet-300/75 blur-[1px]" />
-        <div className="absolute bottom-[7%] left-[18%] h-[20%] w-[58%] rounded-[50%] border-t border-violet-300/28 bg-violet-500/10 blur-[0.2px]" />
-        <div className="absolute bottom-0 left-0 right-0 h-[30%] bg-gradient-to-t from-black via-black/70 to-transparent" />
-      </div>
 
-      <div className="absolute inset-y-0 left-0 w-[58%] bg-gradient-to-r from-black via-black/88 to-transparent" />
-
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[1586px] flex-col px-8 py-10 sm:px-12 lg:px-[76px]">
-        <header className="flex items-center justify-between">
-          <BrandMark />
-          <Link
-            href="/app/dashboard"
-            className="inline-flex items-center gap-3 rounded-[22px] border border-violet-400/45 bg-black/38 px-7 py-4 text-sm font-black uppercase tracking-[0.04em] text-white shadow-[0_0_32px_rgba(124,58,237,0.22)] backdrop-blur-md transition hover:bg-violet-500/10"
-          >
-            <LogIn className="h-5 w-5" />
-            Accéder à l'app
-          </Link>
-        </header>
-
-        <div className="flex flex-1 items-center pb-8 pt-14">
-          <div className="max-w-[710px]">
-            <h1 className="text-[44px] font-black uppercase leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_5px_18px_rgba(0,0,0,0.55)] sm:text-[64px] lg:text-[76px] 2xl:text-[82px]">
-              Devenez le trader
-              <br />
-              que vos <span className="text-[#8b5cf6] drop-shadow-[0_0_26px_rgba(139,92,246,0.5)]">émotions</span>
-              <br />
-              <span className="text-[#7c3aed] drop-shadow-[0_0_30px_rgba(124,58,237,0.55)]">empêchent d'être.</span>
-            </h1>
-
-            <p className="mt-9 max-w-[460px] text-[20px] font-bold leading-[1.7] text-white/78">
-              MERKURE analyse vos décisions en profondeur, détecte vos biais comportementaux et vous donne un plan d'amélioration clair pour performer durablement.
-            </p>
-
-            <div className="mt-12 flex flex-col gap-5 sm:flex-row">
-              <PrimaryCta href="/sign-up" className="min-h-[72px] rounded-xl px-9 text-base font-black uppercase tracking-[0.02em] shadow-[0_0_42px_rgba(168,85,247,0.34)]">
-                Lancer mon analyse IA
+        <div className="relative z-10 flex min-h-[720px] flex-col px-6 py-7 sm:px-10 lg:px-12">
+          <header className="flex items-center justify-between gap-6">
+            <BrandMark />
+            <nav className="hidden items-center gap-10 xl:flex">
+              {navLinks.map((link) => (
+                <a key={link.href} href={link.href} className="text-sm font-semibold text-white/86 transition hover:text-white">
+                  {link.label}
+                </a>
+              ))}
+            </nav>
+            <div className="flex items-center gap-3">
+              <Link href="/sign-in" className="hidden rounded-lg border border-white/15 bg-black/22 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/8 sm:inline-flex">
+                Se connecter
+              </Link>
+              <PrimaryCta href="/sign-up" className="rounded-lg px-6 py-3">
+                Démarrer gratuitement
               </PrimaryCta>
-              <a
-                href="#fonctionnalites"
-                className="inline-flex min-h-[72px] items-center justify-center gap-4 rounded-xl border border-violet-300/28 bg-white/[0.035] px-9 text-base font-black uppercase tracking-[0.02em] text-white shadow-[0_0_28px_rgba(124,58,237,0.14)] backdrop-blur-md transition hover:bg-white/[0.07]"
-              >
-                Voir comment ça marche
-                <PlayCircle className="h-6 w-6" />
-              </a>
+            </div>
+          </header>
+
+          <div className="flex flex-1 items-center py-12 lg:py-16">
+            <div className="max-w-[610px]">
+              <p className="text-sm font-medium uppercase tracking-[0.12em] text-[#c084fc]">Plateforme de performance trading</p>
+              <h1 className="mt-7 text-[40px] font-black uppercase leading-[1.08] tracking-[-0.035em] text-white drop-shadow-[0_5px_18px_rgba(0,0,0,0.55)] sm:text-[56px] lg:text-[64px] 2xl:text-[72px]">
+                Devenez le trader
+                <br />
+                que vos <span className="text-[#8b5cf6] drop-shadow-[0_0_26px_rgba(139,92,246,0.5)]">émotions</span>
+                <br />
+                <span className="text-[#7c3aed] drop-shadow-[0_0_30px_rgba(124,58,237,0.55)]">empêchent d'être.</span>
+              </h1>
+
+              <p className="mt-8 max-w-[480px] text-base font-normal leading-[1.75] text-white/78">
+                MERKURE analyse vos décisions en profondeur, détecte vos biais comportementaux et vous donne un plan d'amélioration clair pour performer durablement.
+              </p>
+
+              <div className="mt-9 flex flex-col gap-4 sm:flex-row">
+                <PrimaryCta href="/sign-up" className="min-h-[60px] rounded-xl px-8 text-base font-bold">
+                  Démarrer mon analyse IA
+                </PrimaryCta>
+                <a
+                  href="#fonctionnalites"
+                  className="inline-flex min-h-[60px] items-center justify-center gap-4 rounded-xl border border-white/18 bg-black/22 px-8 text-base font-medium text-white shadow-[0_0_28px_rgba(124,58,237,0.12)] backdrop-blur-md transition hover:bg-white/[0.07]"
+                >
+                  Voir comment ça marche
+                  <PlayCircle className="h-5 w-5" />
+                </a>
+              </div>
+
+              <div className="mt-7 flex flex-wrap gap-x-8 gap-y-3">
+                {heroAssurances.map((item) => (
+                  <span key={item} className="inline-flex items-center gap-2 text-sm font-medium text-white/86">
+                    <Check className="h-4 w-4 rounded-full border border-emerald-400/40 bg-emerald-400/10 p-0.5 text-emerald-300" />
+                    {item}
+                  </span>
+                ))}
+              </div>
+
+              <div className="mt-10 flex flex-wrap items-center gap-5">
+                <div className="flex -space-x-3">
+                  {['YD', 'AM', 'JL', '+10K'].map((initials) => (
+                    <span key={initials} className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#080816] bg-[linear-gradient(135deg,#1f2937,#8b5cf6)] text-xs font-black text-white shadow-[0_0_20px_rgba(124,58,237,0.28)]">
+                      {initials}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-lg font-semibold leading-snug text-white">
+                  +10 000 traders
+                  <br />
+                  <span className="font-normal text-white/72">nous font déjà confiance</span>
+                </p>
+              </div>
             </div>
           </div>
         </div>
