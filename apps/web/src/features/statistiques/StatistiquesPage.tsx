@@ -32,15 +32,15 @@ export function StatistiquesPage() {
     <div className="space-y-6 px-4 py-5 sm:px-6 lg:px-8">
 
       {/* ── Header ──────────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-3 border-b border-slate-800/80 pb-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Analyse</p>
+          <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Analyse</p>
           <h1 className="mt-0.5 text-lg font-black text-white">Statistiques</h1>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           {/* Period selector */}
-          <div className="grid grid-cols-5 overflow-hidden rounded-md border border-slate-800 bg-[#071017] text-xs font-black sm:inline-flex">
+          <div className="grid grid-cols-5 overflow-hidden rounded-md border border-border bg-[#071017] text-xs font-black sm:inline-flex">
             {PERIODS.map(p => (
               <button
                 key={p.value}
@@ -49,7 +49,7 @@ export function StatistiquesPage() {
                 className={`px-3 py-2 transition-colors ${
                   period === p.value
                     ? 'bg-violet-700 text-white'
-                    : 'text-slate-500 hover:bg-white/[0.04] hover:text-slate-300'
+                    : 'text-muted-foreground hover:bg-white/[0.04] hover:text-muted-foreground'
                 }`}
               >
                 {p.label}
@@ -59,7 +59,7 @@ export function StatistiquesPage() {
 
           <button
             onClick={refresh}
-            className="flex items-center gap-1.5 rounded-md border border-slate-800 bg-[#071017] px-3 py-2 text-xs font-semibold text-slate-500 transition-colors hover:text-white"
+            className="flex items-center gap-1.5 rounded-md border border-border bg-[#071017] px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             Actualiser

@@ -27,9 +27,9 @@ function StatCard({
           {icon}
         </div>
         <div className="min-w-0">
-          <p className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500">{label}</p>
+          <p className="text-[11px] font-black uppercase tracking-[0.14em] text-muted-foreground">{label}</p>
           <p className="mt-2 font-mono text-3xl font-black text-white">{value}</p>
-          <p className="mt-1 text-xs font-semibold text-slate-500">{helper}</p>
+          <p className="mt-1 text-xs font-semibold text-muted-foreground">{helper}</p>
         </div>
       </div>
     </article>
@@ -89,10 +89,10 @@ export function ComptesPage() {
             <div className="relative">
               <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#56bf6b]">Connexions broker</p>
               <h2 className="mt-3 text-2xl font-black text-white">Centralisez vos comptes de trading</h2>
-              <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-slate-400">
+              <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-muted-foreground">
                 Connectez vos brokers en lecture seule, synchronisez l’historique et retrouvez vos trades dans un espace unique.
               </p>
-              <div className="mt-5 flex flex-wrap gap-x-7 gap-y-2 text-xs font-semibold text-slate-500">
+              <div className="mt-5 flex flex-wrap gap-x-7 gap-y-2 text-xs font-semibold text-muted-foreground">
                 <span className="flex items-center gap-2">
                   <ShieldCheck className="h-4 w-4 text-[#56bf6b]" />
                   Lecture seule
@@ -112,7 +112,7 @@ export function ComptesPage() {
               <button
                 onClick={handleSyncAll}
                 disabled={syncingAll || isLoading || comptes.length === 0}
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-black text-slate-300 transition-colors hover:bg-white/[0.07] hover:text-white disabled:cursor-not-allowed disabled:opacity-45"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-black text-muted-foreground transition-colors hover:bg-white/[0.07] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-45"
               >
                 <RefreshCw className={`h-4 w-4 ${syncingAll ? 'animate-spin' : ''}`} />
                 Tout synchroniser
@@ -168,7 +168,7 @@ export function ComptesPage() {
             <div className="mb-4 flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-base font-black text-white">Comptes connectés</h2>
-                <p className="mt-1 text-xs font-semibold text-slate-500">
+                <p className="mt-1 text-xs font-semibold text-muted-foreground">
                   {comptes.length} compte{comptes.length > 1 ? 's' : ''} configuré{comptes.length > 1 ? 's' : ''}
                 </p>
               </div>
@@ -191,7 +191,7 @@ export function ComptesPage() {
               <Link2 className="h-9 w-9 text-[#56bf6b]" />
             </div>
             <h3 className="mt-6 text-lg font-black text-white">Aucun compte connecté</h3>
-            <p className="mt-3 max-w-md text-sm font-medium leading-7 text-slate-400">
+            <p className="mt-3 max-w-md text-sm font-medium leading-7 text-muted-foreground">
               Connectez votre premier compte broker pour commencer à suivre vos performances et synchroniser votre historique.
             </p>
             <button

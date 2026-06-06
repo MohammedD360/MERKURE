@@ -14,18 +14,18 @@ function Card({
   loading: boolean
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-slate-800 bg-background p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+    <div className="flex items-start gap-3 rounded-lg border border-border bg-background p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
       <div className={`mt-0.5 rounded-lg p-2 ${color}`}>
         <Icon className="w-4 h-4" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500">{label}</p>
+        <p className="text-[11px] font-black uppercase tracking-[0.14em] text-muted-foreground">{label}</p>
         {loading ? (
-          <div className="mt-1 h-7 w-24 animate-pulse rounded bg-slate-800/70" />
+          <div className="mt-1 h-7 w-24 animate-pulse rounded bg-accent/70" />
         ) : (
           <>
             <p className="mt-0.5 font-mono text-2xl font-black text-white">{value}</p>
-            {sub && <p className="mt-0.5 text-xs text-slate-500">{sub}</p>}
+            {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
           </>
         )}
       </div>
@@ -63,7 +63,7 @@ export function ExposureCards() {
         color="bg-cyan-400/[0.08] text-cyan-300"
         loading={isLoading}
       />
-      <div className="flex items-start gap-3 rounded-lg border border-slate-800 bg-background p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+      <div className="flex items-start gap-3 rounded-lg border border-border bg-background p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
         <div className={`mt-0.5 rounded-lg p-2 ${(data?.totalPnlOpen ?? 0) >= 0 ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'}`}>
           {(data?.totalPnlOpen ?? 0) >= 0
             ? <TrendingUp className="w-4 h-4" />
@@ -71,15 +71,15 @@ export function ExposureCards() {
           }
         </div>
         <div className="flex-1">
-          <p className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500">P&L flottant</p>
+          <p className="text-[11px] font-black uppercase tracking-[0.14em] text-muted-foreground">P&L flottant</p>
           {isLoading ? (
-            <div className="mt-1 h-7 w-24 animate-pulse rounded bg-slate-800/70" />
+            <div className="mt-1 h-7 w-24 animate-pulse rounded bg-accent/70" />
           ) : (
             <>
               <p className={`mt-0.5 font-mono text-2xl font-black ${pnlColor}`}>
                 {pnlPrefix}{fmt(data?.totalPnlOpen ?? 0)}
               </p>
-              <p className="mt-0.5 text-xs text-slate-500">
+              <p className="mt-0.5 text-xs text-muted-foreground">
                 risque : {data?.riskPct.toFixed(1)} % du capital
               </p>
             </>

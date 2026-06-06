@@ -46,26 +46,26 @@ function Field({
   const isPassword = type === 'password'
   return (
     <div>
-      <label className="block text-[11px] font-black uppercase tracking-wider text-slate-400 mb-1.5">{label}</label>
+      <label className="block text-[11px] font-black uppercase tracking-wider text-muted-foreground mb-1.5">{label}</label>
       <div className="relative">
         <input
           type={isPassword ? (show ? 'text' : 'password') : type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full h-11 rounded-lg border border-white/10 bg-[#0a0f18] px-3.5 text-sm font-semibold text-white outline-none transition-all placeholder:text-slate-600 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/15"
+          className="w-full h-11 rounded-lg border border-white/10 bg-[#0a0f18] px-3.5 text-sm font-semibold text-white outline-none transition-all placeholder:text-muted-foreground/60 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/15"
         />
         {isPassword && (
           <button
             type="button"
             onClick={() => setShow((s) => !s)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-500 hover:text-white hover:bg-white/5 transition-all"
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all"
           >
             {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         )}
       </div>
-      {hint && <p className="text-[11px] text-slate-600 mt-1">{hint}</p>}
+      {hint && <p className="text-[11px] text-muted-foreground/60 mt-1">{hint}</p>}
     </div>
   )
 }
@@ -106,7 +106,7 @@ export function StepBroker({ onConnect, onSkip, loading }: Props) {
   if (!selected) {
     return (
       <div className="space-y-3">
-        <p className="text-sm font-semibold text-slate-400 mb-4">
+        <p className="text-sm font-semibold text-muted-foreground mb-4">
           Connectez votre broker pour synchroniser automatiquement vos trades.
           Vous pourrez en ajouter d&apos;autres plus tard.
         </p>
@@ -119,9 +119,9 @@ export function StepBroker({ onConnect, onSkip, loading }: Props) {
                 <BrokerLogo broker={b.id} />
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-white">{b.name}</div>
-                  <div className="text-xs text-slate-500 mt-0.5">{b.desc}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{b.desc}</div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-300 transition-colors" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground/60 group-hover:text-muted-foreground transition-colors" />
               </button>
             ))}
             {COMING_SOON.map((b) => (
@@ -131,17 +131,17 @@ export function StepBroker({ onConnect, onSkip, loading }: Props) {
               >
                 <BrokerLogo broker={b.id} />
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-slate-400">{b.name}</div>
-                  <div className="text-xs text-slate-600 mt-0.5">{b.desc}</div>
+                  <div className="text-sm font-semibold text-muted-foreground">{b.name}</div>
+                  <div className="text-xs text-muted-foreground/60 mt-0.5">{b.desc}</div>
                 </div>
-                <span className="rounded border border-slate-600/40 bg-slate-800/50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-slate-500">
+                <span className="rounded border border-slate-600/40 bg-slate-800/50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
                   Bientôt
                 </span>
               </div>
             ))}
         <button
           onClick={onSkip}
-          className="w-full flex items-center justify-center gap-2 py-3 text-xs font-semibold text-slate-600 hover:text-slate-400 transition-colors mt-2"
+          className="w-full flex items-center justify-center gap-2 py-3 text-xs font-semibold text-muted-foreground/60 hover:text-muted-foreground transition-colors mt-2"
         >
           <SkipForward className="w-4 h-4" />
           Passer cette étape
@@ -156,7 +156,7 @@ export function StepBroker({ onConnect, onSkip, loading }: Props) {
     <div className="space-y-5">
       <button
         onClick={() => setSelected(null)}
-        className="flex items-center gap-1.5 text-xs font-black text-slate-500 hover:text-slate-300 transition-colors"
+        className="flex items-center gap-1.5 text-xs font-black text-muted-foreground hover:text-muted-foreground transition-colors"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Changer de broker
       </button>
@@ -165,7 +165,7 @@ export function StepBroker({ onConnect, onSkip, loading }: Props) {
         <BrokerLogo broker={broker.id} />
         <div>
           <p className="text-sm font-semibold text-white">{broker.name}</p>
-          <p className="text-[11px] text-slate-500">{broker.desc}</p>
+          <p className="text-[11px] text-muted-foreground">{broker.desc}</p>
         </div>
       </div>
 
@@ -198,7 +198,7 @@ export function StepBroker({ onConnect, onSkip, loading }: Props) {
 
       <div className="flex items-start gap-2">
         <Lock className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#56bf6b]" />
-        <span className="text-[11px] text-slate-600">
+        <span className="text-[11px] text-muted-foreground/60">
           Identifiants chiffrés AES-256. MERKURE ne peut jamais placer d&apos;ordres en votre nom.
         </span>
       </div>
@@ -212,7 +212,7 @@ export function StepBroker({ onConnect, onSkip, loading }: Props) {
       </button>
       <button
         onClick={onSkip}
-        className="w-full py-2 text-xs font-semibold text-slate-600 hover:text-slate-400 transition-colors"
+        className="w-full py-2 text-xs font-semibold text-muted-foreground/60 hover:text-muted-foreground transition-colors"
       >
         Passer cette étape
       </button>

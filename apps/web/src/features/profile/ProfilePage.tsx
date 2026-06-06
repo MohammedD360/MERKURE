@@ -136,7 +136,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.12em] text-slate-500">
+      <span className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.12em] text-muted-foreground">
         <Icon className="h-3.5 w-3.5" />
         {label}
       </span>
@@ -146,7 +146,7 @@ function Field({
 }
 
 function inputClass() {
-  return 'w-full rounded-lg border border-white/10 bg-[#071017] px-4 py-3 text-sm font-semibold text-white outline-none transition-colors placeholder:text-slate-600 focus:border-[#56bf6b]/60 focus:ring-1 focus:ring-[#56bf6b]/20'
+  return 'w-full rounded-lg border border-white/10 bg-[#071017] px-4 py-3 text-sm font-semibold text-white outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-[#56bf6b]/60 focus:ring-1 focus:ring-[#56bf6b]/20'
 }
 
 function ProfileSkeleton() {
@@ -206,7 +206,7 @@ function PasswordCard() {
         </div>
         <div>
           <h2 className="text-base font-black text-white">Sécurité</h2>
-          <p className="mt-1 text-sm font-medium text-slate-400">Mettez à jour votre mot de passe local.</p>
+          <p className="mt-1 text-sm font-medium text-muted-foreground">Mettez à jour votre mot de passe local.</p>
         </div>
       </div>
 
@@ -366,7 +366,7 @@ export function ProfilePage() {
           <div className="relative">
           <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#56bf6b]">Profil utilisateur</p>
           <h1 className="mt-2 text-2xl font-black text-white">Gérez votre identité MERKURE</h1>
-          <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-slate-400">
+          <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-muted-foreground">
             Votre photo et vos informations apparaissent dans l’espace connecté. Gardez un profil clair pour identifier rapidement votre compte.
           </p>
           </div>
@@ -376,7 +376,7 @@ export function ProfilePage() {
           <aside className="border-b border-white/[0.06] p-6 xl:border-b-0 xl:border-r">
             <div className="flex flex-col items-center text-center">
               <div
-                className="relative flex h-32 w-32 items-center justify-center rounded-full border border-slate-700 bg-slate-800 bg-cover bg-center text-3xl font-black text-white shadow-[0_18px_50px_rgba(0,0,0,0.28)]"
+                className="relative flex h-32 w-32 items-center justify-center rounded-full border border-border bg-slate-800 bg-cover bg-center text-3xl font-black text-white shadow-[0_18px_50px_rgba(0,0,0,0.28)]"
                 style={avatarStyle}
                 aria-label={`Photo de profil de ${displayName}`}
               >
@@ -400,14 +400,14 @@ export function ProfilePage() {
               />
 
               <h2 className="mt-5 text-xl font-black text-white">{displayName}</h2>
-              <p className="mt-1 text-sm font-semibold text-slate-400">{profile?.email ?? '—'}</p>
+              <p className="mt-1 text-sm font-semibold text-muted-foreground">{profile?.email ?? '—'}</p>
 
               <div className="mt-6 grid w-full gap-3">
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={avatarMutation.isPending}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-black text-slate-200 transition-colors hover:bg-white/[0.07] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-black text-slate-200 transition-colors hover:bg-white/[0.07] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {avatarMutation.isPending && avatarPreview ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                   Importer une photo
@@ -425,7 +425,7 @@ export function ProfilePage() {
                 )}
               </div>
 
-              <p className="mt-4 max-w-xs text-xs font-medium leading-5 text-slate-500">
+              <p className="mt-4 max-w-xs text-xs font-medium leading-5 text-muted-foreground">
                 Formats acceptés : JPG, PNG, WebP. L’image est redimensionnée automatiquement.
               </p>
 
@@ -434,11 +434,11 @@ export function ProfilePage() {
 
             <div className="mt-8 grid gap-3 text-left">
               <div className="rounded-lg border border-white/[0.06] bg-[#071017] p-4">
-                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-600">Plan actif</p>
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-muted-foreground/60">Plan actif</p>
                 <p className="mt-2 text-sm font-black text-white">{planLabel(profile?.subscription?.plan)}</p>
               </div>
               <div className="rounded-lg border border-white/[0.06] bg-[#071017] p-4">
-                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-600">Inscription</p>
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-muted-foreground/60">Inscription</p>
                 <p className="mt-2 text-sm font-black text-white">{formatDate(profile?.createdAt)}</p>
               </div>
             </div>
@@ -494,11 +494,11 @@ export function ProfilePage() {
               </Field>
 
               <div className="rounded-lg border border-white/[0.06] bg-[#071017] p-4">
-                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.12em] text-slate-500">
+                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.12em] text-muted-foreground">
                   <CalendarDays className="h-3.5 w-3.5" />
                   Préférences
                 </div>
-                <p className="mt-3 text-sm font-semibold leading-6 text-slate-400">
+                <p className="mt-3 text-sm font-semibold leading-6 text-muted-foreground">
                   La devise et le fuseau horaire servent à normaliser les rapports, les graphiques et les exports.
                 </p>
               </div>

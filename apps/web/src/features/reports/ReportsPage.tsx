@@ -28,20 +28,20 @@ export function ReportsPage() {
 
   return (
     <div className="space-y-5 px-4 py-5 sm:px-6 lg:px-8">
-      <div className="border-b border-slate-800/80 pb-4">
-        <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Analyse</p>
+      <div className="border-b border-border pb-4">
+        <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Analyse</p>
         <h1 className="mt-1 text-xl font-black text-white">Rapports</h1>
-        <p className="mt-1 text-sm font-medium text-slate-500">Téléchargez votre rapport hebdomadaire au format PDF.</p>
+        <p className="mt-1 text-sm font-medium text-muted-foreground">Téléchargez votre rapport hebdomadaire au format PDF.</p>
       </div>
 
-      <div className="rounded-lg border border-slate-800 bg-background p-8 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
+      <div className="rounded-lg border border-border bg-background p-8 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
         <div className="flex flex-col items-center justify-center gap-4 text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-lg border border-blue-400/20 bg-blue-400/[0.08]">
             <FileText className="h-6 w-6 text-blue-300" />
           </div>
           <div>
             <p className="text-base font-bold text-white">Rapport hebdomadaire</p>
-            <p className="mt-1 text-sm text-slate-400">
+            <p className="mt-1 text-sm text-muted-foreground">
               Synthèse de votre performance, trades clés et axes de travail pour la semaine.
             </p>
           </div>
@@ -59,7 +59,7 @@ export function ReportsPage() {
             {loading ? 'Génération…' : 'Télécharger le rapport PDF'}
           </button>
 
-          <p className="text-[11px] text-slate-600">Plan Pro requis · Rapport généré à la demande</p>
+          <p className="text-[11px] text-muted-foreground/60">Plan Pro requis · Rapport généré à la demande</p>
         </div>
       </div>
     </div>

@@ -13,8 +13,8 @@ import { ChartDownloadButton } from '@/shared/components/ChartDownloadButton'
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-lg border border-slate-700 bg-[#101827] px-3 py-2 text-xs shadow-xl">
-      <p className="mb-1 text-slate-400">{label}</p>
+    <div className="rounded-lg border border-border bg-[#101827] px-3 py-2 text-xs shadow-xl">
+      <p className="mb-1 text-muted-foreground">{label}</p>
       <p className="font-mono text-blue-300">
         Equity : {Number(payload[0]?.value ?? 0).toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
       </p>
@@ -42,11 +42,11 @@ export function EquityCurveChart() {
     : 0
 
   return (
-    <div ref={ref} className="rounded-lg border border-slate-800 bg-background p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+    <div ref={ref} className="rounded-lg border border-border bg-background p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-sm font-black text-white">Historique equity (90 jours)</h2>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-4 text-[10px] text-slate-500">
+          <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <span className="inline-block h-0.5 w-2.5 rounded bg-blue-400" />Equity
             </span>
@@ -59,9 +59,9 @@ export function EquityCurveChart() {
       </div>
 
       {isLoading ? (
-        <div className="h-48 animate-pulse rounded-lg bg-slate-800/70" />
+        <div className="h-48 animate-pulse rounded-lg bg-accent/70" />
       ) : data.length === 0 ? (
-        <div className="flex h-48 items-center justify-center text-sm text-slate-600">
+        <div className="flex h-48 items-center justify-center text-sm text-muted-foreground/60">
           Aucune donnée historique
         </div>
       ) : (

@@ -11,10 +11,10 @@ interface Props {
 
 function StatCard({ label, value, loading }: { label: string; value: string; loading: boolean }) {
   return (
-    <div className="flex flex-col gap-1 rounded-lg border border-slate-800 bg-background p-4 shadow-[0_10px_34px_rgba(0,0,0,0.14)]">
-      <span className="text-[11px] font-black uppercase tracking-wider text-slate-500">{label}</span>
+    <div className="flex flex-col gap-1 rounded-lg border border-border bg-background p-4 shadow-[0_10px_34px_rgba(0,0,0,0.14)]">
+      <span className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">{label}</span>
       {loading ? (
-        <div className="mt-1 h-7 w-20 animate-pulse rounded bg-slate-800" />
+        <div className="mt-1 h-7 w-20 animate-pulse rounded bg-accent" />
       ) : (
         <span className="font-mono text-2xl font-black text-white">{value}</span>
       )}

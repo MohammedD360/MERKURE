@@ -17,7 +17,7 @@ export function StepDone({ brokerConnected, onFinish, loading }: Props) {
 
       <div>
         <h3 className="text-xl font-black text-white mb-2">Tout est prêt !</h3>
-        <p className="text-sm font-semibold text-slate-400 leading-relaxed max-w-xs mx-auto">
+        <p className="text-sm font-semibold text-muted-foreground leading-relaxed max-w-xs mx-auto">
           Votre profil est configuré.{' '}
           {brokerConnected
             ? "La synchronisation de l'historique démarre en arrière-plan."
@@ -34,7 +34,7 @@ export function StepDone({ brokerConnected, onFinish, loading }: Props) {
         ].map((item) => (
           <div key={item} className="flex items-center gap-3 bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3">
             <Check className="h-4 w-4 text-[#56bf6b] shrink-0" />
-            <span className="text-sm font-semibold text-slate-300">{item}</span>
+            <span className="text-sm font-semibold text-muted-foreground">{item}</span>
           </div>
         ))}
       </div>

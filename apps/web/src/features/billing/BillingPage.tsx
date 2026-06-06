@@ -34,8 +34,8 @@ function getPlanRank(plan: string): number {
 
 function PlanBadge({ plan }: { plan: string }) {
   const styles: Record<string, string> = {
-    FREE:    'border-slate-600/40 bg-slate-700/30 text-slate-400',
-    STARTER: 'border-slate-500/40 bg-slate-700/30 text-slate-300',
+    FREE:    'border-slate-600/40 bg-slate-700/30 text-muted-foreground',
+    STARTER: 'border-slate-500/40 bg-slate-700/30 text-muted-foreground',
     PRO:     'border-emerald-500/40 bg-emerald-500/10 text-emerald-300',
     ELITE:   'border-amber-500/40 bg-amber-500/20 text-amber-300',
   }
@@ -132,7 +132,7 @@ function PlanCard({ plan, currentPlan, onCheckout, isCheckoutPending }: PlanCard
       {/* Nom + prix */}
       <div className="mb-4 pt-1">
         <div className="flex items-center justify-between mb-1">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">{plan.name}</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{plan.name}</p>
           {isCurrent && (
             <span className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold text-emerald-300">
               Plan actuel
@@ -150,7 +150,7 @@ function PlanCard({ plan, currentPlan, onCheckout, isCheckoutPending }: PlanCard
       {/* Features */}
       <ul className="mb-6 flex-1 space-y-2">
         {plan.features.map((feature) => (
-          <li key={feature} className="flex items-start gap-2.5 text-sm text-slate-300">
+          <li key={feature} className="flex items-start gap-2.5 text-sm text-muted-foreground">
             <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-emerald-400" />
             {feature}
           </li>
@@ -178,7 +178,7 @@ function PlanCard({ plan, currentPlan, onCheckout, isCheckoutPending }: PlanCard
       ) : isDowngrade ? (
         <button
           disabled
-          className="w-full cursor-default rounded-lg border border-[#1e2f4a] bg-[#0f1c30] py-2.5 text-xs font-bold text-slate-600"
+          className="w-full cursor-default rounded-lg border border-[#1e2f4a] bg-[#0f1c30] py-2.5 text-xs font-bold text-muted-foreground/60"
         >
           Rétrograder
         </button>
@@ -218,9 +218,9 @@ export function BillingPage() {
         {!subLoading && subscription && subscription.plan !== 'FREE' && (
           <div className="flex items-center gap-3">
             {subscription.currentPeriodEnd && (
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-muted-foreground">
                 Renouvellement le{' '}
-                <span className="text-slate-300 font-medium">
+                <span className="text-muted-foreground font-medium">
                   {formatDate(subscription.currentPeriodEnd)}
                 </span>
               </p>
@@ -228,7 +228,7 @@ export function BillingPage() {
             <button
               onClick={() => portal()}
               disabled={portalPending}
-            className="flex items-center gap-2 rounded-lg border border-[#1e2f4a] bg-[#0f1c30] px-4 py-2 text-xs font-semibold text-slate-300 transition-colors hover:border-[#263a5b] hover:text-white disabled:opacity-60"
+            className="flex items-center gap-2 rounded-lg border border-[#1e2f4a] bg-[#0f1c30] px-4 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:border-[#263a5b] hover:text-foreground disabled:opacity-60"
             >
               <ExternalLink className="h-3.5 w-3.5" />
               {portalPending ? 'Redirection…' : 'Gérer mon abonnement'}
@@ -258,12 +258,12 @@ export function BillingPage() {
         <div className="flex items-center justify-between rounded-lg border border-[#1e2f4a] bg-[#0b1527] px-5 py-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-slate-400">Statut :</span>
+              <span className="text-sm text-muted-foreground">Statut :</span>
               <StatusBadge status={subscription.status} />
             </div>
             {subscription.currentPeriodEnd && (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-400">Renouvellement le</span>
+                <span className="text-sm text-muted-foreground">Renouvellement le</span>
                 <span className="text-sm font-semibold text-white">
                   {formatDate(subscription.currentPeriodEnd)}
                 </span>

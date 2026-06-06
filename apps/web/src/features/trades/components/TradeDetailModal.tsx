@@ -84,7 +84,7 @@ export function TradeDetailModal({ tradeId, onClose }: Props) {
             )}
             {isLoading && <div className="animate-pulse bg-gray-700 rounded h-9 w-32" />}
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-800 text-gray-500 hover:text-white transition-colors">
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-800 text-gray-500 hover:text-foreground transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -153,7 +153,7 @@ export function TradeDetailModal({ tradeId, onClose }: Props) {
         <div className="flex items-center justify-end gap-3 px-5 pb-5">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+            className="px-4 py-2 rounded-lg text-xs text-gray-400 hover:text-foreground hover:bg-gray-800 transition-colors"
           >
             Annuler
           </button>

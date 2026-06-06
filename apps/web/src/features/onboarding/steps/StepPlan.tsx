@@ -81,7 +81,7 @@ function PlanCard({ plan, onSelect, disabled }: PlanCardProps) {
       )}
 
       <div className="mb-4">
-        <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">{plan.name}</p>
+        <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">{plan.name}</p>
         <p className="mt-1 text-2xl font-black text-white">
           {formatPrice(plan.priceMonthly)}
         </p>
@@ -91,7 +91,7 @@ function PlanCard({ plan, onSelect, disabled }: PlanCardProps) {
         {plan.features.map((feature) => (
           <li key={feature} className="flex items-start gap-2">
             <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#56bf6b]" />
-            <span className="text-sm text-slate-300">{feature}</span>
+            <span className="text-sm text-muted-foreground">{feature}</span>
           </li>
         ))}
       </ul>

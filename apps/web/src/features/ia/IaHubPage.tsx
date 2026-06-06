@@ -140,7 +140,7 @@ function AiHero() {
           <h2 className="mt-5 max-w-md text-2xl font-black leading-tight text-white sm:text-3xl">
             Analyse de performance IA
           </h2>
-          <p className="mt-4 max-w-md text-sm font-semibold leading-7 text-slate-400">
+          <p className="mt-4 max-w-md text-sm font-semibold leading-7 text-muted-foreground">
             Générez votre première analyse pour obtenir des insights personnalisés sur votre trading.
           </p>
 
@@ -154,7 +154,7 @@ function AiHero() {
             {isPending ? 'Analyse en cours...' : hasAnalysis ? 'Actualiser l’analyse' : 'Générer une analyse'}
           </button>
 
-          <p className="mt-5 flex items-center gap-2 text-xs font-semibold text-slate-500">
+          <p className="mt-5 flex items-center gap-2 text-xs font-semibold text-muted-foreground">
             <Clock3 className="h-4 w-4" />
             Analyse complète en moins de 60 secondes
           </p>
@@ -162,7 +162,7 @@ function AiHero() {
 
         <div className="flex items-center px-6 py-8 sm:px-8">
           <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">Ce que vous obtiendrez</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.16em] text-muted-foreground">Ce que vous obtiendrez</p>
             <div className="mt-5 space-y-4">
               {[
                 'Analyse de vos forces et faiblesses',
@@ -170,7 +170,7 @@ function AiHero() {
                 'Recommandations personnalisées',
                 'Plan d’amélioration sur mesure',
               ].map((item) => (
-                <div key={item} className="flex items-center gap-3 text-sm font-semibold text-slate-300">
+                <div key={item} className="flex items-center gap-3 text-sm font-semibold text-muted-foreground">
                   <Check className="h-4 w-4 shrink-0 text-[#56bf6b]" />
                   {item}
                 </div>
@@ -206,7 +206,7 @@ function ModuleCard({ module }: { module: (typeof modules)[number] }) {
                 {module.badge}
               </span>
             </div>
-            <p className="mt-3 text-sm font-semibold leading-6 text-slate-400">{module.description}</p>
+            <p className="mt-3 text-sm font-semibold leading-6 text-muted-foreground">{module.description}</p>
           </div>
         </div>
       </div>
@@ -216,9 +216,9 @@ function ModuleCard({ module }: { module: (typeof modules)[number] }) {
           <span className={`rounded-lg px-2.5 py-1 font-mono text-xl font-black ${module.tone}`}>
             {module.metric}
           </span>
-          <span className="truncate text-sm font-semibold text-slate-400">{module.metricLabel}</span>
+          <span className="truncate text-sm font-semibold text-muted-foreground">{module.metricLabel}</span>
         </div>
-        <ArrowRight className="h-5 w-5 shrink-0 text-slate-500 transition-transform group-hover:translate-x-1 group-hover:text-white" />
+        <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-foreground" />
       </div>
     </Link>
   )
@@ -250,17 +250,17 @@ function SummaryStrip() {
 
   return (
     <section className="rounded-xl border border-white/10 bg-background p-5 shadow-[0_10px_40px_rgba(0,0,0,0.18)]">
-      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">Votre résumé IA</p>
+      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-muted-foreground">Votre résumé IA</p>
       <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         {cards.map(({ icon: Icon, label, value, color }) => (
           <div key={label} className="flex items-center gap-4 border-white/[0.06] xl:border-r xl:last:border-r-0">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-slate-300">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-muted-foreground">
               <Icon className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-slate-500">{label}</p>
+              <p className="text-xs font-semibold text-muted-foreground">{label}</p>
               <p className="mt-1 font-mono text-2xl font-black text-white">
-                {value}<span className="text-sm text-slate-500">/100</span>
+                {value}<span className="text-sm text-muted-foreground">/100</span>
               </p>
             </div>
             <div className="ml-auto hidden 2xl:block">
@@ -279,7 +279,7 @@ export function IaHubPage() {
       <AiHero />
 
       <section>
-        <p className="mb-4 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">4 modules disponibles</p>
+        <p className="mb-4 text-[11px] font-black uppercase tracking-[0.18em] text-muted-foreground">4 modules disponibles</p>
         <div className="grid gap-5 xl:grid-cols-2 2xl:grid-cols-3">
           {modules.map(module => (
             <ModuleCard key={module.href} module={module} />

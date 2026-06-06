@@ -46,10 +46,10 @@ export function StatsCles({ period = '30d', accountId }: { period?: KpiPeriod; a
   ]
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-background p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
+    <div className="rounded-lg border border-border bg-background p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
       <div className="mb-5 flex items-center justify-between gap-3">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Lecture rapide</p>
+          <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Lecture rapide</p>
           <h3 className="mt-1 text-base font-black text-white">Statistiques clés</h3>
         </div>
         <Link href="/app/trades" className="text-xs font-black text-blue-300 transition-colors hover:text-blue-200">Voir toutes</Link>
@@ -57,8 +57,8 @@ export function StatsCles({ period = '30d', accountId }: { period?: KpiPeriod; a
       {isLoading ? <Skeleton /> : (
         <div className="space-y-2.5">
           {rows.map(({ label, value, color }) => (
-            <div key={label} className="flex items-center justify-between rounded-md border border-slate-800 bg-[#071017] px-3 py-2.5">
-              <span className="text-sm font-semibold text-slate-500">{label}</span>
+            <div key={label} className="flex items-center justify-between rounded-md border border-border bg-[#071017] px-3 py-2.5">
+              <span className="text-sm font-semibold text-muted-foreground">{label}</span>
               <span className={`text-xs font-semibold font-mono ${color}`}>{value}</span>
             </div>
           ))}
@@ -82,10 +82,10 @@ export function StrategyPerformance({
     : 1
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-background p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
+    <div className="rounded-lg border border-border bg-background p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
       <div className="mb-5 flex items-center justify-between gap-3">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Edges</p>
+          <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Edges</p>
           <h3 className="mt-1 text-base font-black text-white">Performance par stratégie</h3>
         </div>
         <Link href="/app/performance" className="text-xs font-black text-blue-300 transition-colors hover:text-blue-200">Voir toutes</Link>
@@ -98,13 +98,13 @@ export function StrategyPerformance({
           ))}
         </div>
       ) : strategies.length === 0 ? (
-        <div className="flex min-h-32 flex-col items-center justify-center rounded-lg border border-dashed border-slate-800 bg-[#071017] px-4 py-6 text-center">
-          <p className="text-xs font-semibold text-slate-500">
+        <div className="flex min-h-32 flex-col items-center justify-center rounded-lg border border-dashed border-border bg-[#071017] px-4 py-6 text-center">
+          <p className="text-xs font-semibold text-muted-foreground">
             Annotez vos trades avec une stratégie pour voir cette section.
           </p>
           <Link
             href="/app/trades"
-            className="mt-3 rounded-md border border-slate-700 px-3 py-2 text-xs font-black text-slate-200 transition-colors hover:border-blue-500 hover:text-white"
+            className="mt-3 rounded-md border border-border px-3 py-2 text-xs font-black text-foreground/80 transition-colors hover:border-blue-500 hover:text-foreground"
           >
             Annoter un trade
           </Link>
@@ -116,12 +116,12 @@ export function StrategyPerformance({
             return (
               <div key={s.name}>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="max-w-[60%] truncate text-sm text-slate-300">{s.name}</span>
+                  <span className="max-w-[60%] truncate text-sm text-muted-foreground">{s.name}</span>
                   <span className={`text-xs font-semibold font-mono ${s.positive ? 'text-[#38e476]' : 'text-[#ff5e70]'}`}>
                     {s.positive ? '+' : ''}{s.pnl.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
                   </span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-slate-800">
+                <div className="h-2 overflow-hidden rounded-full bg-accent">
                   <div
                     className={`h-full rounded-full transition-all ${s.positive ? 'bg-[#38e476]' : 'bg-[#ff5e70]'}`}
                     style={{ width: `${barWidth}%` }}

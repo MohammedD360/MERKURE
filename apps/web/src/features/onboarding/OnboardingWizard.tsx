@@ -167,7 +167,7 @@ export function OnboardingWizard() {
       {/* Logo */}
       <div className="mb-10 text-center">
         <BrandMark />
-        <p className="text-sm font-semibold text-slate-500 mt-2">Configuration de votre espace</p>
+        <p className="text-sm font-semibold text-muted-foreground mt-2">Configuration de votre espace</p>
       </div>
 
       {/* Card */}
@@ -191,14 +191,14 @@ export function OnboardingWizard() {
                           ? 'border-[#56bf6b] bg-[#56bf6b] text-white'
                           : active
                           ? 'border-blue-400 bg-blue-400/10 text-blue-300'
-                          : 'border-white/15 bg-white/[0.04] text-slate-600'
+                          : 'border-white/15 bg-white/[0.04] text-muted-foreground/60'
                       }`}
                     >
                       {done ? <Check className="h-4 w-4" /> : s.num}
                     </div>
                     <span
                       className={`hidden sm:block text-[10px] font-black uppercase tracking-wider ${
-                        active ? 'text-white' : done ? 'text-slate-400' : 'text-slate-700'
+                        active ? 'text-white' : done ? 'text-muted-foreground' : 'text-slate-700'
                       }`}
                     >
                       {s.label}
@@ -220,7 +220,7 @@ export function OnboardingWizard() {
         {/* Step header */}
         <div className="px-6 pt-6 pb-2">
           <h2 className="text-lg font-black text-white">{meta.title}</h2>
-          <p className="text-sm font-medium text-slate-500 mt-1">{meta.description}</p>
+          <p className="text-sm font-medium text-muted-foreground mt-1">{meta.description}</p>
         </div>
 
         {/* Content */}

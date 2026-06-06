@@ -45,16 +45,16 @@ function OnboardingStrip({
   onDismiss: () => void
 }) {
   return (
-    <div className="rounded-lg border border-slate-800 bg-background p-3 shadow-[0_14px_40px_rgba(0,0,0,0.18)]">
+    <div className="rounded-lg border border-border bg-card p-3">
       <div className="mb-3 flex items-center justify-between gap-3 px-1">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Actions rapides</p>
-          <p className="mt-1 text-sm font-semibold text-white">Gardez les tâches opérationnelles à portée de main.</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Actions rapides</p>
+          <p className="mt-1 text-sm font-medium text-foreground">Gardez les tâches opérationnelles à portée de main.</p>
         </div>
         <button
           type="button"
           onClick={onDismiss}
-          className="rounded-md p-2 text-slate-500 transition-colors hover:bg-white/[0.04] hover:text-white"
+          className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           aria-label="Masquer les actions rapides"
         >
           <X className="h-4 w-4" />
@@ -64,55 +64,55 @@ function OnboardingStrip({
       <div className="grid gap-3 lg:grid-cols-3">
         <Link
           href="/app/accounts"
-          className="group rounded-lg border border-slate-800 bg-[#071017] p-4 transition-colors hover:border-slate-700 hover:bg-[#0f1724]"
+          className="group rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent"
         >
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-blue-400/20 bg-blue-400/10 text-blue-300">
               <WalletCards className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-black text-white">{hasAccounts ? 'Synchronisation broker' : 'Connecter un broker'}</p>
-              <p className="mt-1 text-xs font-medium leading-5 text-slate-500">
+              <p className="text-sm font-medium text-foreground">{hasAccounts ? 'Synchronisation broker' : 'Connecter un broker'}</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
                 {hasAccounts ? 'Contrôlez la fraîcheur des données importées.' : 'Importez vos trades en lecture seule pour alimenter le dashboard.'}
               </p>
             </div>
-            <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-slate-600 transition-colors group-hover:text-white" />
+            <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-foreground" />
           </div>
         </Link>
 
         <Link
           href="/app/journal"
-          className="group rounded-lg border border-slate-800 bg-[#071017] p-4 transition-colors hover:border-slate-700 hover:bg-[#0f1724]"
+          className="group rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent"
         >
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
               <Activity className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-black text-white">Revue de session</p>
-              <p className="mt-1 text-xs font-medium leading-5 text-slate-500">
+              <p className="text-sm font-medium text-foreground">Revue de session</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
                 Documentez vos erreurs récurrentes et vos setups propres.
               </p>
             </div>
-            <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-slate-600 transition-colors group-hover:text-white" />
+            <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-foreground" />
           </div>
         </Link>
 
         <Link
           href="/app/alerts"
-          className="group rounded-lg border border-slate-800 bg-[#071017] p-4 transition-colors hover:border-slate-700 hover:bg-[#0f1724]"
+          className="group rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent"
         >
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-amber-400/20 bg-amber-400/10 text-amber-300">
               <AlertTriangle className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-black text-white">Alertes de risque</p>
-              <p className="mt-1 text-xs font-medium leading-5 text-slate-500">
+              <p className="text-sm font-medium text-foreground">Alertes de risque</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
                 Surveillez drawdown, séries de pertes et anomalies de synchronisation.
               </p>
             </div>
-            <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-slate-600 transition-colors group-hover:text-white" />
+            <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-foreground" />
           </div>
         </Link>
       </div>
@@ -217,19 +217,19 @@ export function DashboardPage() {
         </div>
       )}
 
-      <div className="flex flex-col gap-3 border-b border-slate-800/80 pb-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-3 border-b border-border pb-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-          <span className="text-[11px] font-black uppercase tracking-wider text-slate-500">Période d&apos;analyse</span>
-          <div className="grid grid-cols-5 overflow-hidden rounded-md border border-slate-800 bg-[#071017] text-xs font-black sm:inline-flex">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Période</span>
+          <div className="inline-flex overflow-hidden rounded-md border border-border bg-muted text-xs font-medium">
             {DASHBOARD_PERIODS.map((item) => (
               <button
                 key={item}
                 type="button"
                 onClick={() => setChartPeriod(item)}
-                className={`px-3 py-2 transition-colors ${
+                className={`px-3 py-1.5 transition-colors ${
                   chartPeriod === item
-                    ? 'bg-blue-700 text-white'
-                    : 'text-slate-500 hover:bg-white/[0.04] hover:text-slate-300'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 {DASHBOARD_PERIOD_LABELS[item]}
@@ -239,14 +239,14 @@ export function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <label htmlFor="dashboard-account" className="text-[11px] font-black uppercase tracking-wider text-slate-500">
+          <label htmlFor="dashboard-account" className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             Compte
           </label>
           <select
             id="dashboard-account"
             value={accountId ?? ''}
             onChange={(event) => setAccountId(event.target.value || undefined)}
-            className="min-w-0 rounded-md border border-slate-800 bg-[#071017] px-3 py-2 text-xs font-semibold text-slate-300 outline-none transition-colors hover:bg-[#0f1724] focus:border-blue-500 sm:min-w-48"
+            className="min-w-0 rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground outline-none transition-colors hover:bg-accent focus:ring-1 focus:ring-ring sm:min-w-48"
           >
             <option value="">Tous les comptes</option>
             {accounts.map((account) => (

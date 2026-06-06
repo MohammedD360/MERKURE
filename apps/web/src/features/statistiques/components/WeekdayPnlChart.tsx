@@ -22,22 +22,22 @@ function CustomTooltip({ active, payload }: {
   if (!active || !payload?.length) return null
   const d = payload[0]!.payload
   return (
-    <div className="rounded-lg border border-slate-700/80 bg-card px-3 py-2.5 text-xs shadow-xl">
+    <div className="rounded-lg border border-border/80 bg-card px-3 py-2.5 text-xs shadow-xl">
       <p className="mb-1 font-bold text-white">{d.day}</p>
       <div className="space-y-1">
         <div className="flex items-center justify-between gap-4">
-          <span className="text-slate-500">P&L moyen</span>
+          <span className="text-muted-foreground">P&L moyen</span>
           <span className={`font-bold font-mono ${d.avgPnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
             {d.avgPnl >= 0 ? '+' : ''}{d.avgPnl.toLocaleString('fr-FR', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
           </span>
         </div>
         <div className="flex items-center justify-between gap-4">
-          <span className="text-slate-500">Win rate</span>
-          <span className="font-mono text-slate-300">{(d.winRate * 100).toFixed(0)} %</span>
+          <span className="text-muted-foreground">Win rate</span>
+          <span className="font-mono text-muted-foreground">{(d.winRate * 100).toFixed(0)} %</span>
         </div>
         <div className="flex items-center justify-between gap-4">
-          <span className="text-slate-500">Trades</span>
-          <span className="font-mono text-slate-300">{d.nbTrades}</span>
+          <span className="text-muted-foreground">Trades</span>
+          <span className="font-mono text-muted-foreground">{d.nbTrades}</span>
         </div>
       </div>
     </div>
@@ -53,11 +53,11 @@ export function WeekdayPnlChart({ defaultPeriod = '30d' }: Props) {
   const maxAbs = Math.max(...data.map(d => Math.abs(d.avgPnl)), 1)
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-800 bg-card">
-      <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
+    <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div>
           <h3 className="text-sm font-bold text-white">Performance par jour</h3>
-          <p className="mt-0.5 text-[11px] text-slate-500">P&L moyen selon le jour de la semaine</p>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">P&L moyen selon le jour de la semaine</p>
         </div>
         <div className="flex gap-1">
           {PERIODS.map(p => (
@@ -67,7 +67,7 @@ export function WeekdayPnlChart({ defaultPeriod = '30d' }: Props) {
               className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                 period === p.value
                   ? 'bg-violet-500/20 text-violet-300 ring-1 ring-violet-500/30'
-                  : 'text-slate-500 hover:text-slate-300'
+                  : 'text-muted-foreground hover:text-muted-foreground'
               }`}
             >
               {p.label}
@@ -125,7 +125,7 @@ export function WeekdayPnlChart({ defaultPeriod = '30d' }: Props) {
                   }`}
                   style={{ opacity: d.nbTrades > 0 ? 1 : 0.2 }}
                 />
-                <span className={`text-[9px] font-mono ${d.nbTrades > 0 ? 'text-slate-600' : 'text-slate-800'}`}>
+                <span className={`text-[9px] font-mono ${d.nbTrades > 0 ? 'text-muted-foreground/60' : 'text-slate-800'}`}>
                   {d.nbTrades > 0 ? `${(d.winRate * 100).toFixed(0)}%` : '—'}
                 </span>
               </div>

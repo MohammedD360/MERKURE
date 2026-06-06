@@ -18,7 +18,7 @@ export function PositionsPage() {
         </div>
         <button
           onClick={() => qc.invalidateQueries({ queryKey: ['portfolio'] })}
-          className="flex items-center gap-2 rounded-lg border border-gray-800/60 bg-card px-3 py-1.5 text-xs font-medium text-gray-400 transition-colors hover:text-white hover:border-gray-700"
+          className="flex items-center gap-2 rounded-lg border border-gray-800/60 bg-card px-3 py-1.5 text-xs font-medium text-gray-400 transition-colors hover:text-foreground hover:border-gray-700"
         >
           <RefreshCw className="h-3.5 w-3.5" />
           Actualiser

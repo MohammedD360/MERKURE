@@ -22,7 +22,7 @@ function AlertCard({ alert }: { alert: Alert }) {
     <div
       className={`group relative flex items-start gap-4 rounded-lg border p-4 transition-all ${
         alert.isRead
-          ? 'border-slate-800 bg-background/70 opacity-60'
+          ? 'border-border bg-background/70 opacity-60'
           : `${border} ${bg} cursor-pointer hover:opacity-90`
       }`}
       onClick={() => { if (!alert.isRead) markRead.mutate(alert.id) }}
@@ -36,9 +36,9 @@ function AlertCard({ alert }: { alert: Alert }) {
       </div>
 
       <div className="min-w-0 flex-1 pr-6">
-        <p className={`text-sm font-bold ${alert.isRead ? 'text-slate-400' : 'text-white'}`}>{alert.title}</p>
-        {alert.body && <p className="mt-1 text-xs text-slate-500 leading-relaxed">{alert.body}</p>}
-        <p className="mt-2 text-[11px] text-slate-600">
+        <p className={`text-sm font-bold ${alert.isRead ? 'text-muted-foreground' : 'text-white'}`}>{alert.title}</p>
+        {alert.body && <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{alert.body}</p>}
+        <p className="mt-2 text-[11px] text-muted-foreground/60">
           {new Date(alert.triggeredAt).toLocaleDateString('fr-FR', {
             day: 'numeric', month: 'long', year: 'numeric',
             hour: '2-digit', minute: '2-digit',
@@ -48,7 +48,7 @@ function AlertCard({ alert }: { alert: Alert }) {
 
       <button
         onClick={(e) => { e.stopPropagation(); deleteAlert.mutate(alert.id) }}
-        className="absolute right-4 bottom-4 hidden rounded-lg p-1.5 text-slate-600 transition-colors hover:bg-white/[0.06] hover:text-slate-300 group-hover:flex"
+        className="absolute right-4 bottom-4 hidden rounded-lg p-1.5 text-muted-foreground/60 transition-colors hover:bg-white/[0.06] hover:text-muted-foreground group-hover:flex"
       >
         <Trash2 className="h-3.5 w-3.5" />
       </button>
@@ -77,15 +77,15 @@ export function AlertsPage() {
 
   return (
     <div className="space-y-5 px-4 py-5 sm:px-6 lg:px-8">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-md border border-amber-400/20 bg-amber-400/[0.08]">
             <Bell className="h-5 w-5 text-amber-300" />
           </div>
           <div>
-            <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Compte</p>
+            <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Compte</p>
             <h1 className="mt-1 text-xl font-black text-white">Alertes</h1>
-            <p className="mt-1 text-sm font-medium text-slate-500">{total} alerte{total !== 1 ? 's' : ''} au total</p>
+            <p className="mt-1 text-sm font-medium text-muted-foreground">{total} alerte{total !== 1 ? 's' : ''} au total</p>
           </div>
           {unreadCount > 0 && (
             <span className="rounded-full bg-[#56bf6b] px-2.5 py-0.5 text-xs font-bold text-white">
@@ -95,11 +95,11 @@ export function AlertsPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="inline-flex overflow-hidden rounded-md border border-slate-800 bg-[#071017] p-1">
+          <div className="inline-flex overflow-hidden rounded-md border border-border bg-[#071017] p-1">
             <button
               onClick={() => setUnreadOnly(false)}
               className={`rounded-lg px-4 py-2 text-xs font-semibold transition-colors ${
-                !unreadOnly ? 'bg-[#56bf6b] text-white' : 'text-slate-400 hover:text-white'
+                !unreadOnly ? 'bg-[#56bf6b] text-white' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Toutes
@@ -107,7 +107,7 @@ export function AlertsPage() {
             <button
               onClick={() => setUnreadOnly(true)}
               className={`rounded-lg px-4 py-2 text-xs font-semibold transition-colors ${
-                unreadOnly ? 'bg-[#56bf6b] text-white' : 'text-slate-400 hover:text-white'
+                unreadOnly ? 'bg-[#56bf6b] text-white' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Non lues
@@ -118,7 +118,7 @@ export function AlertsPage() {
             <button
               onClick={() => markAll.mutate()}
               disabled={markAll.isPending}
-              className="inline-flex items-center gap-2 rounded-md border border-slate-800 bg-background px-4 py-2 text-xs font-black text-slate-400 transition-colors hover:bg-white/[0.04] hover:text-slate-200 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-xs font-black text-muted-foreground transition-colors hover:bg-white/[0.04] hover:text-slate-200 disabled:opacity-50"
             >
               <CheckCheck className="h-3.5 w-3.5" />
               Tout marquer comme lu
@@ -130,12 +130,12 @@ export function AlertsPage() {
       {isLoading ? (
         <Skeleton />
       ) : alerts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-slate-800 bg-[#071017]/70 py-20 text-center">
-          <BellOff className="mb-4 h-10 w-10 text-slate-600" />
-          <p className="text-sm font-semibold text-slate-400">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-[#071017]/70 py-20 text-center">
+          <BellOff className="mb-4 h-10 w-10 text-muted-foreground/60" />
+          <p className="text-sm font-semibold text-muted-foreground">
             {unreadOnly ? 'Aucune alerte non lue' : 'Aucune alerte'}
           </p>
-          <p className="mt-1 text-xs text-slate-600">
+          <p className="mt-1 text-xs text-muted-foreground/60">
             {unreadOnly
               ? 'Vous êtes à jour !'
               : 'Les alertes drawdown et erreurs de sync apparaîtront ici.'}

@@ -43,7 +43,7 @@ export function IaCoachPage() {
                 Prévention
               </span>
             </div>
-            <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-400">
+            <p className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">
               Le coach transforme vos analyses en garde-fous concrets : pause, réduction du risque, ou rappel de règle avant de forcer un trade.
             </p>
           </div>
@@ -67,20 +67,20 @@ export function IaCoachPage() {
             </div>
             <div>
               <p className="text-sm font-black text-white">Signal prioritaire</p>
-              <p className="mt-1 text-xs text-slate-500">Dernière lecture IA disponible</p>
+              <p className="mt-1 text-xs text-muted-foreground">Dernière lecture IA disponible</p>
             </div>
           </div>
 
           <div className="mt-5 rounded-lg border border-white/[0.06] bg-[#071017] p-5">
             {isLoading ? (
-              <div className="flex items-center gap-3 text-xs font-semibold text-slate-500">
+              <div className="flex items-center gap-3 text-xs font-semibold text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Analyse en cours de lecture...
               </div>
             ) : actions.length > 0 ? (
               <ul className="space-y-3">
                 {actions.slice(0, 4).map((action, index) => (
-                  <li key={action} className="flex items-start gap-3 text-xs leading-5 text-slate-300">
+                  <li key={action} className="flex items-start gap-3 text-xs leading-5 text-muted-foreground">
                     <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-400/10 text-[10px] font-black text-amber-300">
                       {index + 1}
                     </span>
@@ -89,8 +89,8 @@ export function IaCoachPage() {
                 ))}
               </ul>
             ) : (
-              <div className="flex items-start gap-3 text-xs leading-5 text-slate-400">
-                <PauseCircle className="mt-0.5 h-4 w-4 shrink-0 text-slate-600" />
+              <div className="flex items-start gap-3 text-xs leading-5 text-muted-foreground">
+                <PauseCircle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground/60" />
                 Aucune alerte prioritaire. Lancez une nouvelle analyse après votre prochaine session pour alimenter le coach.
               </div>
             )}
@@ -103,7 +103,7 @@ export function IaCoachPage() {
             {['Pause obligatoire après 2 pertes', 'Risque plafonné si drawdown journalier atteint', 'Aucun trade hors setup annoté'].map((item) => (
               <div key={item} className="flex items-center gap-3 rounded-lg border border-white/[0.06] bg-[#071017] px-4 py-3">
                 <CheckCircle2 className="h-4 w-4 shrink-0 text-[#56bf6b]" />
-                <span className="text-xs font-semibold text-slate-300">{item}</span>
+                <span className="text-xs font-semibold text-muted-foreground">{item}</span>
               </div>
             ))}
           </div>
@@ -116,7 +116,7 @@ export function IaCoachPage() {
             <ShieldCheck className="h-5 w-5" />
             <p className="mt-4 text-xs font-black uppercase tracking-wider">{title}</p>
             <p className="mt-1 text-xl font-black text-white">{value}</p>
-            <p className="mt-3 text-[11px] leading-5 text-slate-400">{text}</p>
+            <p className="mt-3 text-[11px] leading-5 text-muted-foreground">{text}</p>
           </article>
         ))}
       </div>

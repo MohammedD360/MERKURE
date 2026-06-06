@@ -21,8 +21,8 @@ function fmtDuration(sec: number): string {
 function Tip({ text }: { text: string }) {
   return (
     <span className="group relative inline-flex">
-      <Info className="h-3 w-3 text-slate-600 hover:text-slate-400 cursor-default transition-colors" />
-      <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-800 px-2 py-1 text-[11px] text-slate-300 opacity-0 shadow-lg group-hover:opacity-100 transition-opacity">
+      <Info className="h-3 w-3 text-muted-foreground/60 hover:text-muted-foreground cursor-default transition-colors" />
+      <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-md bg-accent px-2 py-1 text-[11px] text-muted-foreground opacity-0 shadow-lg group-hover:opacity-100 transition-opacity">
         {text}
       </span>
     </span>
@@ -34,8 +34,8 @@ function SkeletonRow() {
     <div className="space-y-2 p-4">
       {[1, 2, 3].map(i => (
         <div key={i} className="flex items-center justify-between">
-          <div className="h-3 w-20 animate-pulse rounded bg-slate-800" />
-          <div className="h-3 w-16 animate-pulse rounded bg-slate-800" />
+          <div className="h-3 w-20 animate-pulse rounded bg-accent" />
+          <div className="h-3 w-16 animate-pulse rounded bg-accent" />
         </div>
       ))}
     </div>
@@ -48,10 +48,10 @@ interface RowProps {
   valueClass?: string
   tip?: string
 }
-function Row({ label, value, valueClass = 'text-slate-300', tip }: RowProps) {
+function Row({ label, value, valueClass = 'text-muted-foreground', tip }: RowProps) {
   return (
     <div className="flex items-center justify-between py-1.5">
-      <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
+      <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
         {label}
         {tip && <Tip text={tip} />}
       </div>
@@ -65,10 +65,10 @@ function ProgressBar({ pct, color, label, value }: ProgressBarProps) {
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-[11px]">
-        <span className="text-slate-500 font-medium">{label}</span>
-        <span className="font-bold text-slate-300 font-mono">{value}</span>
+        <span className="text-muted-foreground font-medium">{label}</span>
+        <span className="font-bold text-muted-foreground font-mono">{value}</span>
       </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-accent">
         <div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${Math.min(pct, 100)}%` }} />
       </div>
     </div>
@@ -84,7 +84,7 @@ interface SectionProps {
 function Section({ title, children, isLoading, className = '' }: SectionProps) {
   return (
     <div className={`p-4 ${className}`}>
-      <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-slate-600">{title}</p>
+      <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">{title}</p>
       {isLoading ? <SkeletonRow /> : children}
     </div>
   )
@@ -111,7 +111,7 @@ export function StatsOverviewWidget({ period = '30d' }: Props) {
   const totalPnlClass = d.totalPnl >= 0 ? 'text-green-400' : 'text-red-400'
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-800 bg-card shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
+    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
       {/* 2×2 grid */}
       <div className="grid grid-cols-2 divide-x divide-slate-800 divide-y">
 
@@ -119,9 +119,9 @@ export function StatsOverviewWidget({ period = '30d' }: Props) {
         <Section title="Profit / Perte" isLoading={isLoading}>
           <Row label="Profits bruts"  value={fmt(d.grossProfit)} valueClass="text-green-400" />
           <Row label="Pertes brutes"  value={fmt(-d.grossLoss)}  valueClass="text-red-400" />
-          <Row label="Commissions"    value={fmt(-d.totalFees)}  valueClass="text-slate-400"
+          <Row label="Commissions"    value={fmt(-d.totalFees)}  valueClass="text-muted-foreground"
             tip="Total des frais de courtage déduits" />
-          <div className="mt-2 border-t border-slate-800/70 pt-2">
+          <div className="mt-2 border-t border-border/70 pt-2">
             <Row
               label="Résultat net"
               value={`${d.totalPnl >= 0 ? '+' : ''}${fmt(d.totalPnl)}`}
@@ -134,12 +134,12 @@ export function StatsOverviewWidget({ period = '30d' }: Props) {
         <Section title="Performance" isLoading={isLoading}>
           <div className="mb-3">
             <div className="flex items-end justify-between">
-              <span className="text-[11px] font-medium text-slate-500">Win Rate</span>
+              <span className="text-[11px] font-medium text-muted-foreground">Win Rate</span>
               <span className={`text-2xl font-black font-mono ${winRatePct >= 50 ? 'text-green-400' : 'text-red-400'}`}>
                 {winRatePct} %
               </span>
             </div>
-            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-accent">
               <div
                 className={`h-full rounded-full transition-all ${winRatePct >= 50 ? 'bg-green-500' : 'bg-red-500'}`}
                 style={{ width: `${winRatePct}%` }}
@@ -169,12 +169,12 @@ export function StatsOverviewWidget({ period = '30d' }: Props) {
         </Section>
 
         {/* ── Bottom-left : Activité ─────────────────────────────────────── */}
-        <Section title="Activité" isLoading={isLoading} className="border-t border-slate-800">
+        <Section title="Activité" isLoading={isLoading} className="border-t border-border">
           <Row label="Total trades"   value={String(d.nbTrades)} />
           <Row label="Gagnants"       value={String(d.winTrades)}  valueClass="text-green-400" />
           <Row label="Perdants"       value={String(d.lossTrades)} valueClass="text-red-400" />
           {d.beTrades > 0 && (
-            <Row label="Break-even"   value={String(d.beTrades)} valueClass="text-slate-400" />
+            <Row label="Break-even"   value={String(d.beTrades)} valueClass="text-muted-foreground" />
           )}
           <Row
             label="Durée moyenne"
@@ -184,7 +184,7 @@ export function StatsOverviewWidget({ period = '30d' }: Props) {
         </Section>
 
         {/* ── Bottom-right : Distribution ─────────────────────────────────── */}
-        <Section title="Distribution" isLoading={isLoading || streaksLoading} className="border-t border-slate-800">
+        <Section title="Distribution" isLoading={isLoading || streaksLoading} className="border-t border-border">
           <div className="space-y-3">
             <ProgressBar
               pct={d.longPct}
@@ -199,13 +199,13 @@ export function StatsOverviewWidget({ period = '30d' }: Props) {
               value={`${d.shortPct.toFixed(1)} %`}
             />
           </div>
-          <div className="mt-3 border-t border-slate-800/70 pt-3">
+          <div className="mt-3 border-t border-border/70 pt-3">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-medium text-slate-500">Série en cours</span>
+              <span className="text-[11px] font-medium text-muted-foreground">Série en cours</span>
               <span className={`text-sm font-black font-mono ${
                 streakType === 'win' ? 'text-green-400'
                 : streakType === 'loss' ? 'text-red-400'
-                : 'text-slate-500'
+                : 'text-muted-foreground'
               }`}>
                 {streakCurrent > 0
                   ? `${streakCurrent} ${streakType === 'win' ? 'W' : 'L'}`

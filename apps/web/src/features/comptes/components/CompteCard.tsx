@@ -60,7 +60,7 @@ function SyncBadge({ status, lastSyncAt }: { status: SyncStatus; lastSyncAt: str
     PENDING: {
       icon: <Clock className="h-3.5 w-3.5" />,
       text: 'En attente',
-      className: 'border-white/10 bg-white/[0.04] text-slate-400',
+      className: 'border-white/10 bg-white/[0.04] text-muted-foreground',
     },
   }
 
@@ -95,7 +95,7 @@ function ActionButton({
       className={`flex h-9 w-9 items-center justify-center rounded-lg border transition-colors disabled:cursor-not-allowed disabled:opacity-45 ${
         danger
           ? 'border-rose-400/30 bg-rose-400/[0.08] text-rose-300 hover:bg-rose-400/[0.14]'
-          : 'border-white/10 bg-white/[0.04] text-slate-500 hover:bg-white/[0.07] hover:text-white'
+          : 'border-white/10 bg-white/[0.04] text-muted-foreground hover:bg-white/[0.07] hover:text-foreground'
       }`}
     >
       {children}
@@ -106,9 +106,9 @@ function ActionButton({
 function InfoItem({ label, value, helper }: { label: string; value: string; helper: string }) {
   return (
     <div className="rounded-lg border border-white/[0.06] bg-[#071017] p-4">
-      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-600">{label}</p>
+      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground/60">{label}</p>
       <p className="mt-2 truncate text-sm font-black text-white">{value}</p>
-      <p className="mt-1 truncate text-[11px] font-semibold text-slate-500">{helper}</p>
+      <p className="mt-1 truncate text-[11px] font-semibold text-muted-foreground">{helper}</p>
     </div>
   )
 }
@@ -158,14 +158,14 @@ export function CompteCard({ compte, onNavigateToTrades }: Props) {
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="truncate text-sm font-black text-white">{compte.label}</h3>
-                <span className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] text-slate-500">
+                <span className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] text-muted-foreground">
                   {ACCOUNT_TYPE_LABEL[compte.accountType] ?? compte.accountType}
                 </span>
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-xs font-semibold">
                 <span style={{ color: meta.color }}>{meta.name}</span>
                 <span className="text-slate-700">/</span>
-                <span className="font-mono text-slate-500">#{compte.accountId}</span>
+                <span className="font-mono text-muted-foreground">#{compte.accountId}</span>
               </div>
             </div>
           </div>
@@ -204,7 +204,7 @@ export function CompteCard({ compte, onNavigateToTrades }: Props) {
             </p>
             <button
               onClick={() => setConfirmDelete(false)}
-              className="text-left text-xs font-black text-slate-400 transition-colors hover:text-white sm:text-right"
+              className="text-left text-xs font-black text-muted-foreground transition-colors hover:text-foreground sm:text-right"
             >
               Annuler
             </button>
@@ -218,7 +218,7 @@ export function CompteCard({ compte, onNavigateToTrades }: Props) {
             <button
               onClick={handleSync}
               disabled={syncing}
-              className="text-left text-xs font-black text-rose-200 transition-colors hover:text-white disabled:opacity-45 sm:text-right"
+              className="text-left text-xs font-black text-rose-200 transition-colors hover:text-foreground disabled:opacity-45 sm:text-right"
             >
               Relancer
             </button>

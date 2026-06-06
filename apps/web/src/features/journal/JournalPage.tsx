@@ -60,7 +60,7 @@ export function JournalPage() {
               setViewYear(now.getFullYear())
               setViewMonth(now.getMonth() + 1)
             }}
-            className="mt-6 w-full rounded-xl border border-gray-800/60 py-2 text-xs font-medium text-gray-500 hover:text-white hover:border-gray-700 transition-colors"
+            className="mt-6 w-full rounded-xl border border-gray-800/60 py-2 text-xs font-medium text-gray-500 hover:text-foreground hover:border-gray-700 transition-colors"
           >
             Revenir à aujourd'hui
           </button>

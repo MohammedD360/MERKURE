@@ -45,10 +45,10 @@ export function RiskPanel() {
   }
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-background p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
+    <div className="rounded-lg border border-border bg-background p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Contrôle</p>
+          <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Contrôle</p>
           <h3 className="mt-1 text-base font-black text-white">Gestion du risque</h3>
         </div>
         <div className="flex h-9 w-9 items-center justify-center rounded-md border border-red-400/20 bg-red-400/10 text-red-300">
@@ -61,27 +61,27 @@ export function RiskPanel() {
       ) : (
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-md border border-slate-800 bg-[#071017] p-3">
-              <p className="mb-1 text-[10px] font-black uppercase tracking-wider text-slate-500">P&L du jour</p>
+            <div className="rounded-md border border-border bg-[#071017] p-3">
+              <p className="mb-1 text-[10px] font-black uppercase tracking-wider text-muted-foreground">P&L du jour</p>
               <p className="text-sm font-bold">
                 <PnlValue value={data.todayPnl} />
               </p>
             </div>
 
-            <div className="rounded-md border border-slate-800 bg-[#071017] p-3">
-              <p className="mb-1 text-[10px] font-black uppercase tracking-wider text-slate-500">Trades aujourd&apos;hui</p>
+            <div className="rounded-md border border-border bg-[#071017] p-3">
+              <p className="mb-1 text-[10px] font-black uppercase tracking-wider text-muted-foreground">Trades aujourd&apos;hui</p>
               <p className="text-sm font-bold text-white">{data.todayTrades}</p>
             </div>
 
-            <div className="rounded-md border border-slate-800 bg-[#071017] p-3">
-              <p className="mb-1 text-[10px] font-black uppercase tracking-wider text-slate-500">Pertes consécutives</p>
+            <div className="rounded-md border border-border bg-[#071017] p-3">
+              <p className="mb-1 text-[10px] font-black uppercase tracking-wider text-muted-foreground">Pertes consécutives</p>
               <p className={`text-sm font-bold ${data.consecutiveLosses >= 3 ? 'text-[#ff5e70]' : 'text-[#38e476]'}`}>
                 {data.consecutiveLosses}
               </p>
             </div>
 
-            <div className="rounded-md border border-slate-800 bg-[#071017] p-3">
-              <p className="mb-1 text-[10px] font-black uppercase tracking-wider text-slate-500">P&L 7 jours</p>
+            <div className="rounded-md border border-border bg-[#071017] p-3">
+              <p className="mb-1 text-[10px] font-black uppercase tracking-wider text-muted-foreground">P&L 7 jours</p>
               <p className="text-sm font-bold">
                 <PnlValue value={data.weeklyPnl} />
               </p>
@@ -90,7 +90,7 @@ export function RiskPanel() {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Risque par trade</p>
+              <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Risque par trade</p>
               <span className="text-sm font-bold text-white">{displayedRisk.toFixed(1)}%</span>
             </div>
             <input

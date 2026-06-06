@@ -19,12 +19,12 @@ function AssistantPanel() {
   ]
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-background p-4 shadow-[0_14px_40px_rgba(0,0,0,0.18)]">
+    <div className="rounded-lg border border-border bg-background p-4 shadow-[0_14px_40px_rgba(0,0,0,0.18)]">
       <div className="mb-1 flex items-center gap-2">
         <h3 className="text-sm font-black text-white">Insights IA</h3>
         <span className="rounded border border-blue-400/20 bg-blue-400/[0.08] px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-blue-300">BETA</span>
         {entry?.score != null && (
-          <span className="ml-auto text-[11px] font-black text-slate-400">Score {entry.score}/100</span>
+          <span className="ml-auto text-[11px] font-black text-muted-foreground">Score {entry.score}/100</span>
         )}
       </div>
 
@@ -34,7 +34,7 @@ function AssistantPanel() {
             key={t}
             onClick={() => setTab(t)}
             className={`pb-2 px-1 text-[11px] font-semibold uppercase tracking-wider transition-colors border-b-2 -mb-px ${
-              tab === t ? 'text-blue-300 border-blue-400' : 'text-slate-600 border-transparent hover:text-slate-400'
+              tab === t ? 'text-blue-300 border-blue-400' : 'text-muted-foreground/60 border-transparent hover:text-muted-foreground'
             }`}
           >
             {t === 'insights' ? 'Insights' : `Alertes${alerts.length > 0 ? ` (${alerts.length})` : ''}`}
@@ -49,9 +49,9 @@ function AssistantPanel() {
           </div>
         ) : allInsights.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-6 text-center">
-            <Bot className="h-7 w-7 text-slate-600" />
-            <p className="text-xs font-semibold text-slate-500">Aucune analyse disponible</p>
-            <p className="text-[11px] text-slate-600">Générez depuis la section ci-dessus</p>
+            <Bot className="h-7 w-7 text-muted-foreground/60" />
+            <p className="text-xs font-semibold text-muted-foreground">Aucune analyse disponible</p>
+            <p className="text-[11px] text-muted-foreground/60">Générez depuis la section ci-dessus</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -65,7 +65,7 @@ function AssistantPanel() {
                 }`}
               >
                 <Sparkles className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${item.type === 'strength' ? 'text-emerald-400' : 'text-blue-300'}`} />
-                <p className="text-[11px] leading-relaxed text-slate-300">{item.text}</p>
+                <p className="text-[11px] leading-relaxed text-muted-foreground">{item.text}</p>
               </div>
             ))}
           </div>

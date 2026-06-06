@@ -73,7 +73,7 @@ export function TradesPage() {
         </div>
         <button
           onClick={handleExport}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-card border border-gray-800/60 hover:border-gray-700 text-gray-300 hover:text-white text-xs font-medium rounded-lg transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-card border border-gray-800/60 hover:border-gray-700 text-gray-300 hover:text-foreground text-xs font-medium rounded-lg transition-colors"
         >
           <Download className="w-3.5 h-3.5" />
           Export CSV
@@ -203,14 +203,14 @@ export function TradesPage() {
               <button
                 onClick={() => updateFilters({ page: currentPage - 1 })}
                 disabled={currentPage <= 1}
-                className="p-1.5 rounded-lg hover:bg-gray-800 text-gray-500 hover:text-white transition-colors disabled:opacity-30"
+                className="p-1.5 rounded-lg hover:bg-gray-800 text-gray-500 hover:text-foreground transition-colors disabled:opacity-30"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={() => updateFilters({ page: currentPage + 1 })}
                 disabled={currentPage >= totalPages}
-                className="p-1.5 rounded-lg hover:bg-gray-800 text-gray-500 hover:text-white transition-colors disabled:opacity-30"
+                className="p-1.5 rounded-lg hover:bg-gray-800 text-gray-500 hover:text-foreground transition-colors disabled:opacity-30"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>

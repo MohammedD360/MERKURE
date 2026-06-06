@@ -22,7 +22,7 @@ export function IaRapportPage() {
                 Hebdomadaire
               </span>
             </div>
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-xs text-muted-foreground">
               Un rapport rédigé chaque semaine : causes des pertes + 3 actions concrètes.
             </p>
           </div>
@@ -48,7 +48,7 @@ export function IaRapportPage() {
       ) : entries && entries.length > 0 ? (
         <div className="space-y-3">
           {entries.map((entry) => {
-            const color = !entry.score ? 'text-slate-500' : entry.score >= 70 ? 'text-emerald-400' : entry.score >= 50 ? 'text-amber-400' : 'text-red-400'
+            const color = !entry.score ? 'text-muted-foreground' : entry.score >= 70 ? 'text-emerald-400' : entry.score >= 50 ? 'text-amber-400' : 'text-red-400'
             const strengths = entry.insights?.strengths ?? []
             const improvements = entry.insights?.improvements ?? []
             const actions = entry.insights?.actions ?? []
@@ -65,7 +65,7 @@ export function IaRapportPage() {
                 </div>
 
                 {entry.aiAnalysis && (
-                  <p className="mt-3 text-xs leading-5 text-slate-400">{entry.aiAnalysis}</p>
+                  <p className="mt-3 text-xs leading-5 text-muted-foreground">{entry.aiAnalysis}</p>
                 )}
 
                 {(strengths.length > 0 || improvements.length > 0 || actions.length > 0) && (
@@ -75,7 +75,7 @@ export function IaRapportPage() {
                         <p className="mb-1.5 text-[10px] font-black uppercase tracking-wider text-emerald-400">Points forts</p>
                         <ul className="space-y-1">
                           {strengths.map((s, i) => (
-                            <li key={i} className="text-[11px] leading-4 text-slate-400">• {s}</li>
+                            <li key={i} className="text-[11px] leading-4 text-muted-foreground">• {s}</li>
                           ))}
                         </ul>
                       </div>
@@ -85,7 +85,7 @@ export function IaRapportPage() {
                         <p className="mb-1.5 text-[10px] font-black uppercase tracking-wider text-amber-400">À améliorer</p>
                         <ul className="space-y-1">
                           {improvements.map((s, i) => (
-                            <li key={i} className="text-[11px] leading-4 text-slate-400">• {s}</li>
+                            <li key={i} className="text-[11px] leading-4 text-muted-foreground">• {s}</li>
                           ))}
                         </ul>
                       </div>
@@ -95,7 +95,7 @@ export function IaRapportPage() {
                         <p className="mb-1.5 text-[10px] font-black uppercase tracking-wider text-blue-300">Actions</p>
                         <ul className="space-y-1">
                           {actions.map((s, i) => (
-                            <li key={i} className="text-[11px] leading-4 text-slate-400">• {s}</li>
+                            <li key={i} className="text-[11px] leading-4 text-muted-foreground">• {s}</li>
                           ))}
                         </ul>
                       </div>
@@ -108,9 +108,9 @@ export function IaRapportPage() {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-white/10 bg-background py-16 text-center">
-          <Sparkles className="h-7 w-7 text-slate-600" />
-          <p className="text-sm font-black text-slate-400">Aucun rapport disponible</p>
-          <p className="text-xs text-slate-500">
+          <Sparkles className="h-7 w-7 text-muted-foreground/60" />
+          <p className="text-sm font-black text-muted-foreground">Aucun rapport disponible</p>
+          <p className="text-xs text-muted-foreground">
             Clique sur "Générer" pour créer ton premier rapport IA.
           </p>
         </div>

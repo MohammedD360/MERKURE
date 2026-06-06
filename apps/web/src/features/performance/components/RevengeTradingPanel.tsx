@@ -36,7 +36,7 @@ export function RevengeTradingPanel({ period }: Props) {
 
   return (
     <PlanGateBanner required="PRO" featureName="Détection Revenge Trading">
-      <div className="space-y-4 rounded-lg border border-slate-800 bg-background p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+      <div className="space-y-4 rounded-lg border border-border bg-background p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
         <div className="flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 text-orange-400" />
           <h2 className="text-sm font-black text-white">Revenge Trading</h2>
@@ -47,10 +47,10 @@ export function RevengeTradingPanel({ period }: Props) {
           )}
         </div>
 
-        <div className="grid grid-cols-1 gap-4 rounded-lg border border-slate-800 bg-[#071017] p-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 rounded-lg border border-border bg-[#071017] p-3 sm:grid-cols-2">
           <div className="space-y-1">
             <div className="flex justify-between text-[11px]">
-              <span className="text-slate-400">Seuil temps entre trades</span>
+              <span className="text-muted-foreground">Seuil temps entre trades</span>
               <span className="font-mono font-semibold text-[#56bf6b]">{timeThreshold} min</span>
             </div>
             <input
@@ -61,7 +61,7 @@ export function RevengeTradingPanel({ period }: Props) {
               onChange={(e) => setTimeThreshold(Number(e.target.value))}
               className="h-1.5 w-full cursor-pointer rounded-full accent-[#56bf6b]"
             />
-            <div className="flex justify-between text-[10px] text-slate-600">
+            <div className="flex justify-between text-[10px] text-muted-foreground/60">
               <span>1 min</span>
               <span>120 min</span>
             </div>
@@ -69,7 +69,7 @@ export function RevengeTradingPanel({ period }: Props) {
 
           <div className="space-y-1">
             <div className="flex justify-between text-[11px]">
-              <span className="text-slate-400">Augmentation lotSize min.</span>
+              <span className="text-muted-foreground">Augmentation lotSize min.</span>
               <span className="font-mono font-semibold text-[#56bf6b]">{lotPct} %</span>
             </div>
             <input
@@ -80,7 +80,7 @@ export function RevengeTradingPanel({ period }: Props) {
               onChange={(e) => setLotPct(Number(e.target.value))}
               className="h-1.5 w-full cursor-pointer rounded-full accent-[#56bf6b]"
             />
-            <div className="flex justify-between text-[10px] text-slate-600">
+            <div className="flex justify-between text-[10px] text-muted-foreground/60">
               <span>5 %</span>
               <span>200 %</span>
             </div>
@@ -90,7 +90,7 @@ export function RevengeTradingPanel({ period }: Props) {
         {query.isLoading ? (
           <div className="space-y-2">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-14 animate-pulse rounded-lg bg-slate-800/70" />
+              <div key={i} className="h-14 animate-pulse rounded-lg bg-accent/70" />
             ))}
           </div>
         ) : alerts.length === 0 ? (
@@ -103,7 +103,7 @@ export function RevengeTradingPanel({ period }: Props) {
             {alerts.map(alert => (
               <div
                 key={alert.id}
-                className="flex items-center gap-3 rounded-lg border border-slate-800 bg-[#071017] px-3 py-2.5"
+                className="flex items-center gap-3 rounded-lg border border-border bg-[#071017] px-3 py-2.5"
               >
                 <span className={`text-[10px] font-bold border px-2 py-0.5 rounded-full shrink-0 ${BADGE_STYLES[alert.type]}`}>
                   {BADGE_LABELS[alert.type]}
@@ -111,11 +111,11 @@ export function RevengeTradingPanel({ period }: Props) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold text-white font-mono">{alert.symbol}</span>
-                    <span className="text-[11px] text-slate-500">
+                    <span className="text-[11px] text-muted-foreground">
                       {new Date(alert.openTime).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
-                  <div className="mt-0.5 flex items-center gap-3 text-[11px] text-slate-400">
+                  <div className="mt-0.5 flex items-center gap-3 text-[11px] text-muted-foreground">
                     <span>{alert.minutesBetweenTrades} min entre trades</span>
                     <span className="text-orange-400 font-mono">
                       Lots : {alert.prevLotSize.toFixed(2)} → {alert.currLotSize.toFixed(2)}

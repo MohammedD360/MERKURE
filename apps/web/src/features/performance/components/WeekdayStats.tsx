@@ -20,7 +20,7 @@ function Skeleton() {
       {Array.from({ length: 7 }).map((_, i) => (
         <div
           key={i}
-          className="flex-1 animate-pulse rounded-t bg-slate-800/60"
+          className="flex-1 animate-pulse rounded-t bg-accent/60"
           style={{ height: `${30 + Math.random() * 70}%` }}
         />
       ))}
@@ -31,9 +31,9 @@ function Skeleton() {
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-lg border border-slate-700/70 bg-[#071017] px-3 py-2 text-xs shadow-xl">
-      <p className="mb-1 font-medium text-slate-300">{label}</p>
-      <p className="text-slate-400">Trades : {payload[0]?.payload?.nbTrades ?? 0}</p>
+    <div className="rounded-lg border border-border/70 bg-[#071017] px-3 py-2 text-xs shadow-xl">
+      <p className="mb-1 font-medium text-muted-foreground">{label}</p>
+      <p className="text-muted-foreground">Trades : {payload[0]?.payload?.nbTrades ?? 0}</p>
       <p className={`font-mono ${Number(payload[0]?.value ?? 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
         P&L : {Number(payload[0]?.value ?? 0).toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
       </p>
@@ -56,7 +56,7 @@ export function WeekdayStats({ period, accountId }: Props) {
   })
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-background p-4 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
+    <div className="rounded-lg border border-border bg-background p-4 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
       <h2 className="mb-4 text-sm font-black text-white">Performance par jour</h2>
 
       {query.isLoading ? <Skeleton /> : (

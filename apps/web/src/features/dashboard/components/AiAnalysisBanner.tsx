@@ -23,7 +23,7 @@ function ScoreCircle({ score }: { score: number }) {
       </svg>
       <div className="z-10 text-center">
         <div className="font-mono text-2xl font-black leading-none text-white">{score}</div>
-        <div className="text-[10px] font-semibold text-slate-500">/100</div>
+        <div className="text-[10px] font-semibold text-muted-foreground">/100</div>
       </div>
     </div>
   )
@@ -60,7 +60,7 @@ export function AiAnalysisBanner() {
               </span>
             </div>
             {entry && (
-              <p className="text-[11px] font-semibold text-slate-500">
+              <p className="text-[11px] font-semibold text-muted-foreground">
                 Mise à jour le{' '}
                 {new Date(entry.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
               </p>
@@ -93,10 +93,10 @@ export function AiAnalysisBanner() {
         ) : !entry ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/[0.03]">
-              <Sparkles className="h-5 w-5 text-slate-500" />
+              <Sparkles className="h-5 w-5 text-muted-foreground" />
             </div>
             <p className="mt-3 text-sm font-semibold text-white">Aucune analyse disponible</p>
-            <p className="mt-1.5 max-w-xs text-xs font-medium leading-5 text-slate-500">
+            <p className="mt-1.5 max-w-xs text-xs font-medium leading-5 text-muted-foreground">
               Générez votre première analyse pour obtenir des insights personnalisés sur votre trading.
             </p>
           </div>
@@ -104,24 +104,24 @@ export function AiAnalysisBanner() {
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_auto]">
             {/* Points forts */}
             <div>
-              <p className="mb-3 text-[11px] font-black uppercase tracking-wider text-slate-400">Points forts</p>
+              <p className="mb-3 text-[11px] font-black uppercase tracking-wider text-muted-foreground">Points forts</p>
               {strengths.length > 0 ? (
                 <div className="space-y-2">
                   {strengths.map((s: string, i: number) => (
                     <div key={i} className="flex items-start gap-2">
                       <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
-                      <span className="text-xs font-medium leading-5 text-slate-300">{s}</span>
+                      <span className="text-xs font-medium leading-5 text-muted-foreground">{s}</span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-slate-600">—</p>
+                <p className="text-xs text-muted-foreground/60">—</p>
               )}
             </div>
 
             {/* Axes d'amélioration */}
             <div>
-              <p className="mb-3 text-[11px] font-black uppercase tracking-wider text-slate-400">
+              <p className="mb-3 text-[11px] font-black uppercase tracking-wider text-muted-foreground">
                 Axes d&apos;amélioration
               </p>
               {improv.length > 0 ? (
@@ -129,18 +129,18 @@ export function AiAnalysisBanner() {
                   {improv.map((s: string, i: number) => (
                     <div key={i} className="flex items-start gap-2">
                       <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
-                      <span className="text-xs font-medium leading-5 text-slate-300">{s}</span>
+                      <span className="text-xs font-medium leading-5 text-muted-foreground">{s}</span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-slate-600">—</p>
+                <p className="text-xs text-muted-foreground/60">—</p>
               )}
             </div>
 
             {/* Score */}
             <div className="flex flex-col items-center gap-2 sm:items-start xl:items-center">
-              <p className="text-[11px] font-black uppercase tracking-wider text-slate-400">Score</p>
+              <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Score</p>
               {score != null ? (
                 <>
                   <ScoreCircle score={score} />
@@ -149,7 +149,7 @@ export function AiAnalysisBanner() {
                   )}
                 </>
               ) : (
-                <div className="flex h-24 w-24 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] px-2 text-center text-[11px] font-semibold text-slate-500">
+                <div className="flex h-24 w-24 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] px-2 text-center text-[11px] font-semibold text-muted-foreground">
                   —
                 </div>
               )}
@@ -160,14 +160,14 @@ export function AiAnalysisBanner() {
         {/* Actions prioritaires */}
         {!isLoading && actions.length > 0 && (
           <div className="mt-5 border-t border-white/10 pt-4">
-            <p className="mb-3 text-[11px] font-black uppercase tracking-wider text-slate-400">Actions prioritaires</p>
+            <p className="mb-3 text-[11px] font-black uppercase tracking-wider text-muted-foreground">Actions prioritaires</p>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {actions.map((a: string, i: number) => (
                 <div key={i} className="flex items-start gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2.5">
                   <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-blue-400/15 text-[9px] font-black text-blue-300">
                     {i + 1}
                   </span>
-                  <span className="text-xs font-medium leading-5 text-slate-300">{a}</span>
+                  <span className="text-xs font-medium leading-5 text-muted-foreground">{a}</span>
                 </div>
               ))}
             </div>

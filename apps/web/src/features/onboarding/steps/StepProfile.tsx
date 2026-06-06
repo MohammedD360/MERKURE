@@ -51,7 +51,7 @@ export function StepProfile({ data, onChange }: Props) {
               }`}
             >
               <p className="text-sm font-black text-white">{s.label}</p>
-              <p className="text-[11px] text-slate-500 mt-0.5">{s.desc}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{s.desc}</p>
             </button>
           ))}
         </div>
@@ -74,7 +74,7 @@ export function StepProfile({ data, onChange }: Props) {
                   : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]'
               }`}
             >
-              <p className={`text-sm font-semibold ${data.riskAppetite === r.id ? r.color : 'text-slate-300'}`}>
+              <p className={`text-sm font-semibold ${data.riskAppetite === r.id ? r.color : 'text-muted-foreground'}`}>
                 {r.label}
               </p>
             </button>
@@ -87,7 +87,7 @@ export function StepProfile({ data, onChange }: Props) {
         <div className="flex items-center gap-2 mb-3">
           <Globe className="w-4 h-4 text-emerald-300" />
           <span className="text-sm font-black text-white">Marchés tradés</span>
-          <span className="text-[11px] text-slate-600">(plusieurs possibles)</span>
+          <span className="text-[11px] text-muted-foreground/60">(plusieurs possibles)</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {MARKETS.map((m) => {
@@ -99,7 +99,7 @@ export function StepProfile({ data, onChange }: Props) {
                 className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                   active
                     ? 'border-blue-500/60 bg-blue-500/10 text-blue-300'
-                    : 'border-white/10 text-slate-400 hover:border-white/20 hover:text-slate-300'
+                    : 'border-white/10 text-muted-foreground hover:border-white/20 hover:text-muted-foreground'
                 }`}
               >
                 {m}
@@ -123,7 +123,7 @@ export function StepProfile({ data, onChange }: Props) {
               className={`w-14 py-2 rounded-xl text-sm font-semibold border transition-all ${
                 data.experienceYears === y
                   ? 'border-blue-500/60 bg-blue-500/[0.08] text-blue-300'
-                  : 'border-white/10 text-slate-400 hover:border-white/20 hover:text-slate-300'
+                  : 'border-white/10 text-muted-foreground hover:border-white/20 hover:text-muted-foreground'
               }`}
             >
               {y === 15 ? '15+' : y === 0 ? '< 1' : y}

@@ -13,7 +13,7 @@ interface Props {
 
 const btnBase   = 'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border'
 const btnActive = 'bg-indigo-600 border-indigo-500 text-white'
-const btnIdle   = 'bg-gray-800/60 border-gray-700/60 text-gray-400 hover:text-white hover:bg-gray-700/60'
+const btnIdle   = 'bg-gray-800/60 border-gray-700/60 text-gray-400 hover:text-foreground hover:bg-gray-700/60'
 
 export function TradesFilters({ filters, accounts, onChange, onReset }: Props) {
   const hasActive = Boolean(

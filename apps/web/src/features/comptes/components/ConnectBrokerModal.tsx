@@ -47,7 +47,7 @@ function Field({
   const [show, setShow] = useState(false)
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-black text-slate-400">{label}</label>
+      <label className="mb-1.5 block text-xs font-black text-muted-foreground">{label}</label>
       <div className="relative">
         <input
           type={showToggle ? (show ? 'text' : 'password') : type}
@@ -58,12 +58,12 @@ function Field({
         />
         {showToggle && (
           <button type="button" onClick={() => setShow(s => !s)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 transition-colors hover:text-white">
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground">
             {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         )}
       </div>
-      {hint && <p className="mt-1 text-[10px] font-semibold leading-4 text-slate-600">{hint}</p>}
+      {hint && <p className="mt-1 text-[10px] font-semibold leading-4 text-muted-foreground/60">{hint}</p>}
     </div>
   )
 }
@@ -77,7 +77,7 @@ function AccountTypeSelect({ value, onChange }: { value: AccountType; onChange: 
   ]
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-black text-slate-400">Type de compte</label>
+      <label className="mb-1.5 block text-xs font-black text-muted-foreground">Type de compte</label>
       <div className="grid grid-cols-2 gap-1.5">
         {options.map(opt => (
           <button
@@ -87,7 +87,7 @@ function AccountTypeSelect({ value, onChange }: { value: AccountType; onChange: 
             className={`rounded-lg border py-2 text-xs font-black transition-colors ${
               value === opt.value
                 ? 'border-[#56bf6b]/30 bg-[#56bf6b]/[0.10] text-[#56bf6b]'
-                : 'border-white/10 bg-white/[0.03] text-slate-500 hover:bg-white/[0.06] hover:text-white'
+                : 'border-white/10 bg-white/[0.03] text-muted-foreground hover:bg-white/[0.06] hover:text-foreground'
             }`}
           >
             {opt.label}
@@ -227,7 +227,7 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
           <div className="flex items-center gap-2">
             {step === 'form' && (
               <button onClick={() => setStep('choose')}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-500 transition-colors hover:bg-white/[0.07] hover:text-white">
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-muted-foreground transition-colors hover:bg-white/[0.07] hover:text-foreground">
                 <ArrowLeft className="w-4 h-4" />
               </button>
             )}
@@ -237,7 +237,7 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
                 {step === 'form'    && selected && `Connexion ${brokerMeta[selected].name}`}
                 {step === 'success' && 'Compte connecté !'}
               </h2>
-              <p className="mt-0.5 text-[11px] font-semibold text-slate-500">
+              <p className="mt-0.5 text-[11px] font-semibold text-muted-foreground">
                 {step === 'choose'  && 'Choisissez votre broker pour commencer'}
                 {step === 'form'    && 'Renseignez vos identifiants'}
                 {step === 'success' && 'La synchronisation démarre…'}
@@ -245,7 +245,7 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
             </div>
           </div>
           <button onClick={handleClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-500 transition-colors hover:bg-white/[0.07] hover:text-white">
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-muted-foreground transition-colors hover:bg-white/[0.07] hover:text-foreground">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -263,9 +263,9 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
                   <BrokerLogo broker={broker} />
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-black text-white">{brokerMeta[broker].name}</div>
-                    <div className="mt-0.5 text-xs font-semibold text-slate-500">{brokerMeta[broker].desc}</div>
+                    <div className="mt-0.5 text-xs font-semibold text-muted-foreground">{brokerMeta[broker].desc}</div>
                   </div>
-                  <ChevronRight className="h-4 w-4 text-slate-600 transition-colors group-hover:text-[#56bf6b]" />
+                  <ChevronRight className="h-4 w-4 text-muted-foreground/60 transition-colors group-hover:text-[#56bf6b]" />
                 </button>
               ))}
               {COMING_SOON.map(broker => (
@@ -274,10 +274,10 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
                 >
                   <BrokerLogo broker={broker} />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-black text-slate-400">{brokerMeta[broker].name}</div>
-                    <div className="mt-0.5 text-xs font-semibold text-slate-600">{brokerMeta[broker].desc}</div>
+                    <div className="text-sm font-black text-muted-foreground">{brokerMeta[broker].name}</div>
+                    <div className="mt-0.5 text-xs font-semibold text-muted-foreground/60">{brokerMeta[broker].desc}</div>
                   </div>
-                  <span className="rounded border border-slate-600/40 bg-slate-800/50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-slate-500">
+                  <span className="rounded border border-slate-600/40 bg-slate-800/50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
                     Bientôt
                   </span>
                 </div>
@@ -292,7 +292,7 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
                 <BrokerLogo broker={selected} />
                 <div>
                   <p className="text-sm font-black text-white">{brokerMeta[selected].name}</p>
-                  <p className="text-[11px] font-semibold text-slate-500">{brokerMeta[selected].desc}</p>
+                  <p className="text-[11px] font-semibold text-muted-foreground">{brokerMeta[selected].desc}</p>
                 </div>
               </div>
 
@@ -309,7 +309,7 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
                 </div>
               )}
 
-              <div className="flex items-start gap-2 text-[11px] font-semibold leading-5 text-slate-500">
+              <div className="flex items-start gap-2 text-[11px] font-semibold leading-5 text-muted-foreground">
                 <Lock className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#56bf6b]" />
                 Vos identifiants sont chiffrés AES-256. MERKURE ne peut jamais placer d'ordres.
               </div>
@@ -324,7 +324,7 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
               </div>
               <div>
                 <p className="mb-1 text-base font-black text-white">Compte connecté !</p>
-                <p className="text-sm font-medium leading-6 text-slate-400">
+                <p className="text-sm font-medium leading-6 text-muted-foreground">
                   La synchronisation de l'historique est en cours.<br />
                   Cela peut prendre 1 à 2 minutes.
                 </p>
@@ -340,7 +340,7 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
         {step === 'form' && (
           <div className="flex gap-3 border-t border-white/[0.06] px-6 py-4">
             <button onClick={() => setStep('choose')}
-              className="flex-1 rounded-lg border border-white/10 bg-white/[0.04] py-2.5 text-sm font-black text-slate-400 transition-colors hover:bg-white/[0.07] hover:text-white">
+              className="flex-1 rounded-lg border border-white/10 bg-white/[0.04] py-2.5 text-sm font-black text-muted-foreground transition-colors hover:bg-white/[0.07] hover:text-foreground">
               Annuler
             </button>
             <button onClick={handleConnect} disabled={isPending || !isFormValid()}

@@ -78,7 +78,7 @@ function PercentileVisual() {
       <div className="absolute right-8 top-8 w-[340px] rounded-xl border border-white/10 bg-[#10182f]/80 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.30)]">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Votre classement</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-muted-foreground">Votre classement</p>
             <p className="mt-2 text-3xl font-black text-white">78%</p>
           </div>
           <Medal className="h-8 w-8 text-violet-300" />
@@ -90,7 +90,7 @@ function PercentileVisual() {
             { label: 'Niveau 1', value: '38%', width: '38%', color: 'bg-slate-700' },
           ].map(({ label, value, width, color }) => (
             <div key={label}>
-              <div className="mb-2 flex justify-between text-xs font-bold text-slate-400">
+              <div className="mb-2 flex justify-between text-xs font-bold text-muted-foreground">
                 <span>{label}</span>
                 <span>{value}</span>
               </div>
@@ -138,10 +138,10 @@ export function IaBenchmarkPage() {
             <h1 className="mt-5 max-w-2xl text-3xl font-black text-white">
               Comparez votre discipline à des profils similaires.
             </h1>
-            <p className="mt-4 max-w-2xl text-sm font-medium leading-7 text-slate-400">
+            <p className="mt-4 max-w-2xl text-sm font-medium leading-7 text-muted-foreground">
               MERKURE situe vos performances face à une cohorte anonymisée : risque moyen, régularité, drawdown et qualité d'exécution.
             </p>
-            <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-xs font-semibold text-slate-400">
+            <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-xs font-semibold text-muted-foreground">
               {[
                 { icon: Users, label: 'Cohortes anonymisées' },
                 { icon: BarChart3, label: 'Percentile de progression' },
@@ -166,9 +166,9 @@ export function IaBenchmarkPage() {
                 <Icon className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500">{label}</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.14em] text-muted-foreground">{label}</p>
                 <p className="mt-2 font-mono text-3xl font-black text-white">{value}</p>
-                <p className="mt-1 text-xs font-semibold text-slate-500">{helper}</p>
+                <p className="mt-1 text-xs font-semibold text-muted-foreground">{helper}</p>
               </div>
             </div>
           </article>
@@ -179,14 +179,14 @@ export function IaBenchmarkPage() {
         <div className="flex items-center justify-between gap-4 border-b border-white/[0.06] px-5 py-4">
           <div>
             <h2 className="text-base font-black text-white">Comparaison de cohorte</h2>
-            <p className="mt-1 text-xs font-semibold text-slate-500">Lecture illustrative basée sur votre profil de risque.</p>
+            <p className="mt-1 text-xs font-semibold text-muted-foreground">Lecture illustrative basée sur votre profil de risque.</p>
           </div>
           <LineChart className="h-5 w-5 text-violet-300" />
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left">
-            <thead className="bg-white/[0.025] text-xs font-black text-slate-500">
+            <thead className="bg-white/[0.025] text-xs font-black text-muted-foreground">
               <tr>
                 <th className="px-5 py-4">Profil</th>
                 <th className="px-5 py-4">Win rate</th>
@@ -200,9 +200,9 @@ export function IaBenchmarkPage() {
               {cohortRows.map(row => (
                 <tr key={row.label} className={row.highlight ? 'bg-violet-400/[0.04]' : undefined}>
                   <td className="px-5 py-4 text-sm font-black text-white">{row.label}</td>
-                  <td className="px-5 py-4 font-mono text-sm font-bold text-slate-300">{row.winRate}</td>
+                  <td className="px-5 py-4 font-mono text-sm font-bold text-muted-foreground">{row.winRate}</td>
                   <td className="px-5 py-4 font-mono text-sm font-bold text-rose-300">{row.drawdown}</td>
-                  <td className="px-5 py-4 font-mono text-sm font-bold text-slate-300">{row.risk}</td>
+                  <td className="px-5 py-4 font-mono text-sm font-bold text-muted-foreground">{row.risk}</td>
                   <td className="px-5 py-4 font-mono text-sm font-bold text-emerald-300">{row.consistency}/100</td>
                   <td className="px-5 py-4"><MiniTrend /></td>
                 </tr>
@@ -219,12 +219,12 @@ export function IaBenchmarkPage() {
               <Icon className="h-5 w-5" />
             </div>
             <h3 className="mt-5 text-sm font-black text-white">{title}</h3>
-            <p className="mt-3 text-xs font-medium leading-6 text-slate-400">{text}</p>
+            <p className="mt-3 text-xs font-medium leading-6 text-muted-foreground">{text}</p>
           </article>
         ))}
       </section>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-background px-5 py-4 text-sm font-semibold text-slate-400 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-background px-5 py-4 text-sm font-semibold text-muted-foreground sm:flex-row sm:items-center">
         <CheckCircle2 className="h-5 w-5 shrink-0 text-[#56bf6b]" />
         Les benchmarks sont anonymisés et servent à piloter votre progression. Ils ne constituent pas une promesse de résultat.
         <button className="inline-flex items-center gap-2 text-xs font-black text-violet-300 sm:ml-auto">

@@ -21,7 +21,7 @@ const PLAN_ICONS: Record<string, React.ElementType> = {
 }
 
 const PLAN_COLORS: Record<string, string> = {
-  FREE:    'text-slate-400',
+  FREE:    'text-muted-foreground',
   STARTER: 'text-blue-400',
   PRO:     'text-violet-400',
   ELITE:   'text-[#fbbf24]',
@@ -80,7 +80,7 @@ export function UpgradePage() {
     <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8 max-w-5xl mx-auto">
       <div>
         <h1 className="text-2xl font-black text-white">Changer de plan</h1>
-        <p className="text-sm text-slate-400 mt-1">
+        <p className="text-sm text-muted-foreground mt-1">
           Plan actuel : <span className={`font-bold ${PLAN_COLORS[currentPlan] ?? 'text-white'}`}>{getPlanDisplayName(currentPlan)}</span>
         </p>
       </div>
@@ -124,8 +124,8 @@ export function UpgradePage() {
 
               <div className="mb-4">
                 <div className="flex items-center gap-2 mb-2">
-                  {Icon && <Icon className={`w-4 h-4 ${PLAN_COLORS[plan.id] ?? 'text-slate-400'}`} />}
-                  <p className={`text-[11px] font-black uppercase tracking-wider ${PLAN_COLORS[plan.id] ?? 'text-slate-500'}`}>
+                  {Icon && <Icon className={`w-4 h-4 ${PLAN_COLORS[plan.id] ?? 'text-muted-foreground'}`} />}
+                  <p className={`text-[11px] font-black uppercase tracking-wider ${PLAN_COLORS[plan.id] ?? 'text-muted-foreground'}`}>
                     {plan.name}
                   </p>
                 </div>
@@ -136,7 +136,7 @@ export function UpgradePage() {
                 {plan.features.map((f) => (
                   <li key={f} className="flex items-start gap-2">
                     <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#56bf6b]" />
-                    <span className="text-sm text-slate-300">{f}</span>
+                    <span className="text-sm text-muted-foreground">{f}</span>
                   </li>
                 ))}
               </ul>
@@ -153,7 +153,7 @@ export function UpgradePage() {
                 <button
                   type="button"
                   onClick={() => router.push('/app/billing')}
-                  className="w-full rounded-xl h-11 text-sm font-black border border-white/10 bg-white/[0.04] text-slate-400 hover:bg-white/[0.08] transition-colors"
+                  className="w-full rounded-xl h-11 text-sm font-black border border-white/10 bg-white/[0.04] text-muted-foreground hover:bg-white/[0.08] transition-colors"
                 >
                   Gérer l&apos;abonnement
                 </button>
@@ -183,7 +183,7 @@ export function UpgradePage() {
         })}
       </div>
 
-      <p className="text-center text-xs text-slate-600">
+      <p className="text-center text-xs text-muted-foreground/60">
         Paiement sécurisé via Stripe · Résiliation à tout moment · Sans engagement
       </p>
     </div>

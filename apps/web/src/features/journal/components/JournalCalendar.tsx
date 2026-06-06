@@ -21,10 +21,10 @@ function pnlBg(pnl: number | null | undefined, isSelected: boolean, isToday: boo
 }
 
 function pnlTextColor(pnl: number | null | undefined) {
-  if (pnl == null) return 'text-slate-400'
+  if (pnl == null) return 'text-muted-foreground'
   if (pnl > 0) return 'text-green-400'
   if (pnl < 0) return 'text-red-400'
-  return 'text-slate-500'
+  return 'text-muted-foreground'
 }
 
 function fmtPnl(pnl: number): string {
@@ -80,17 +80,17 @@ export function JournalCalendar({ year, month, days, selectedDate, onSelectDate,
       {tradingDays > 0 && (
         <div className="mb-3 flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2">
           <div className="text-center">
-            <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-600">P&L</p>
+            <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">P&L</p>
             <p className={`text-xs font-black font-mono ${monthPnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
               {fmtPnl(monthPnl)}$
             </p>
           </div>
           <div className="text-center">
-            <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-600">Sessions</p>
+            <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">Sessions</p>
             <p className="text-xs font-black text-white">{tradingDays}</p>
           </div>
           <div className="text-center">
-            <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-600">Win days</p>
+            <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">Win days</p>
             <p className={`text-xs font-black font-mono ${winDays / tradingDays >= 0.5 ? 'text-green-400' : 'text-amber-400'}`}>
               {tradingDays > 0 ? `${Math.round((winDays / tradingDays) * 100)}%` : '—'}
             </p>
@@ -126,7 +126,7 @@ export function JournalCalendar({ year, month, days, selectedDate, onSelectDate,
               className={`
                 relative flex flex-col items-center justify-center rounded-lg py-1.5 text-xs font-medium transition-all
                 ${pnlBg(day.dailyPnl, isSel, isToday)}
-                ${isSel ? 'text-white' : isToday ? 'text-white' : hasPnl ? 'text-slate-200' : 'text-slate-500'}
+                ${isSel ? 'text-white' : isToday ? 'text-white' : hasPnl ? 'text-slate-200' : 'text-muted-foreground'}
                 hover:opacity-90
               `}
             >

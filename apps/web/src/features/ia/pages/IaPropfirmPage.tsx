@@ -96,7 +96,7 @@ function PropFirmVisual() {
       <div className="absolute right-8 top-7 w-[360px] rounded-xl border border-white/10 bg-[#10182f]/80 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.30)]">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Compatibilité</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-muted-foreground">Compatibilité</p>
             <p className="mt-2 text-3xl font-black text-white">94%</p>
           </div>
           <BriefcaseBusiness className="h-8 w-8 text-[#56bf6b]" />
@@ -109,7 +109,7 @@ function PropFirmVisual() {
             ['News trading', 'À surveiller', 'text-amber-300'],
           ].map(([label, value, color]) => (
             <div key={label} className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-[#071017] px-4 py-3">
-              <span className="text-xs font-semibold text-slate-400">{label}</span>
+              <span className="text-xs font-semibold text-muted-foreground">{label}</span>
               <span className={`text-xs font-black ${color}`}>{value}</span>
             </div>
           ))}
@@ -133,10 +133,10 @@ export function IaPropfirmPage() {
             <h1 className="mt-5 max-w-2xl text-3xl font-black text-white">
               Vérifiez si votre style respecte un challenge avant de payer.
             </h1>
-            <p className="mt-4 max-w-2xl text-sm font-medium leading-7 text-slate-400">
+            <p className="mt-4 max-w-2xl text-sm font-medium leading-7 text-muted-foreground">
               L’IA lit votre risque, votre drawdown et votre régularité pour estimer le format de challenge le plus cohérent avec vos données.
             </p>
-            <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-xs font-semibold text-slate-400">
+            <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-xs font-semibold text-muted-foreground">
               {[
                 { icon: ShieldAlert, label: 'Seuils de drawdown' },
                 { icon: ClipboardCheck, label: 'Règles de challenge' },
@@ -161,9 +161,9 @@ export function IaPropfirmPage() {
                 <Icon className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500">{label}</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.14em] text-muted-foreground">{label}</p>
                 <p className="mt-2 font-mono text-3xl font-black text-white">{value}</p>
-                <p className="mt-1 text-xs font-semibold text-slate-500">{helper}</p>
+                <p className="mt-1 text-xs font-semibold text-muted-foreground">{helper}</p>
               </div>
             </div>
           </article>
@@ -174,7 +174,7 @@ export function IaPropfirmPage() {
         <div className="mb-4 flex items-end justify-between gap-4">
           <div>
             <h2 className="text-base font-black text-white">Formats compatibles</h2>
-            <p className="mt-1 text-xs font-semibold text-slate-500">
+            <p className="mt-1 text-xs font-semibold text-muted-foreground">
               Exemples de formats. Les noms de prop firms réels seront ajoutés uniquement avec données vérifiées.
             </p>
           </div>
@@ -186,7 +186,7 @@ export function IaPropfirmPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h3 className="text-lg font-black text-white">{card.title}</h3>
-                    <p className="mt-2 text-xs font-medium leading-6 text-slate-400">{card.profile}</p>
+                    <p className="mt-2 text-xs font-medium leading-6 text-muted-foreground">{card.profile}</p>
                   </div>
                   <span className={`rounded-lg border px-3 py-2 font-mono text-xl font-black ${card.tone}`}>
                     {card.match}
@@ -197,7 +197,7 @@ export function IaPropfirmPage() {
                 {card.rules.map(rule => (
                   <div key={rule} className="flex items-start gap-3 rounded-lg border border-white/[0.06] bg-[#071017] px-4 py-3">
                     <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#56bf6b]" />
-                    <span className="text-xs font-semibold leading-5 text-slate-300">{rule}</span>
+                    <span className="text-xs font-semibold leading-5 text-muted-foreground">{rule}</span>
                   </div>
                 ))}
               </div>
@@ -212,7 +212,7 @@ export function IaPropfirmPage() {
             <ShieldAlert className="h-5 w-5" />
           </div>
           <h2 className="mt-5 text-base font-black text-white">Ce que MERKURE vérifie</h2>
-          <p className="mt-3 text-sm font-medium leading-7 text-slate-400">
+          <p className="mt-3 text-sm font-medium leading-7 text-muted-foreground">
             Le module ne choisit pas à votre place. Il signale les écarts entre votre historique et les contraintes habituelles : drawdown, taille moyenne, séries de pertes, news trading et fréquence de prise de position.
           </p>
         </article>
@@ -228,14 +228,14 @@ export function IaPropfirmPage() {
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#56bf6b]/10 text-[10px] font-black text-[#56bf6b]">
                   {index + 1}
                 </span>
-                <span className="text-xs font-semibold leading-5 text-slate-300">{item}</span>
+                <span className="text-xs font-semibold leading-5 text-muted-foreground">{item}</span>
               </div>
             ))}
           </div>
         </article>
       </section>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-background px-5 py-4 text-sm font-semibold text-slate-400 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-background px-5 py-4 text-sm font-semibold text-muted-foreground sm:flex-row sm:items-center">
         <ShieldCheck className="h-5 w-5 shrink-0 text-[#56bf6b]" />
         Les compatibilités sont des analyses de préparation. Elles ne garantissent pas l’acceptation ou la réussite d’un challenge.
         <button className="inline-flex items-center gap-2 text-xs font-black text-[#56bf6b] sm:ml-auto">

@@ -73,14 +73,14 @@ function SectionCard({
   }[tone]
 
   return (
-    <section className="rounded-lg border border-slate-800 bg-background p-5 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
+    <section className="rounded-lg border border-border bg-background p-5 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
       <div className="mb-5 flex items-start gap-3">
         <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md border ${iconClass}`}>
           <Icon className="h-5 w-5" />
         </div>
         <div>
           <h2 className="text-base font-black text-white">{title}</h2>
-          <p className="mt-1 text-sm font-medium leading-6 text-slate-500">{description}</p>
+          <p className="mt-1 text-sm font-medium leading-6 text-muted-foreground">{description}</p>
         </div>
       </div>
       {children}
@@ -100,10 +100,10 @@ function ToggleRow({
   onChange:    (enabled: boolean) => void
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-lg border border-slate-800 bg-[#071017] p-4">
+    <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-[#071017] p-4">
       <div>
         <p className="text-sm font-black text-white">{label}</p>
-        <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">{description}</p>
+        <p className="mt-1 text-xs font-semibold leading-5 text-muted-foreground">{description}</p>
       </div>
       <button
         type="button"
@@ -111,7 +111,7 @@ function ToggleRow({
         className={`relative h-7 w-12 shrink-0 rounded-full border transition-colors ${
           enabled
             ? 'border-[#56bf6b]/40 bg-[#56bf6b]/25'
-            : 'border-slate-700 bg-slate-900'
+            : 'border-border bg-card'
         }`}
         aria-pressed={enabled}
       >
@@ -152,11 +152,11 @@ function RiskSettingsCard() {
       description="Définissez le risque maximum par trade utilisé dans les alertes et les lectures de discipline."
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="rounded-lg border border-slate-800 bg-[#071017] p-4">
+        <div className="rounded-lg border border-border bg-[#071017] p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-sm font-black text-white">Risque par trade</p>
-              <p className="mt-1 text-xs font-semibold text-slate-500">Valeur acceptée entre 0,1 % et 10 %.</p>
+              <p className="mt-1 text-xs font-semibold text-muted-foreground">Valeur acceptée entre 0,1 % et 10 %.</p>
             </div>
             <div className="flex items-center gap-2">
               <input
@@ -167,9 +167,9 @@ function RiskSettingsCard() {
                 value={riskPerTrade}
                 disabled={isLoading}
                 onChange={(event) => setRiskPerTrade(event.target.value)}
-                className="w-24 rounded-lg border border-slate-800 bg-background px-3 py-2 text-right font-mono text-sm font-black text-white outline-none transition-colors focus:border-[#56bf6b]/60"
+                className="w-24 rounded-lg border border-border bg-background px-3 py-2 text-right font-mono text-sm font-black text-white outline-none transition-colors focus:border-[#56bf6b]/60"
               />
-              <span className="text-sm font-black text-slate-400">%</span>
+              <span className="text-sm font-black text-muted-foreground">%</span>
             </div>
           </div>
 
@@ -183,7 +183,7 @@ function RiskSettingsCard() {
             onChange={(event) => setRiskPerTrade(event.target.value)}
             className="mt-5 h-1.5 w-full cursor-pointer rounded-full accent-[#56bf6b]"
           />
-          <div className="mt-2 flex justify-between text-[10px] font-bold text-slate-600">
+          <div className="mt-2 flex justify-between text-[10px] font-bold text-muted-foreground/60">
             <span>0,1 %</span>
             <span>10 %</span>
           </div>
@@ -227,12 +227,12 @@ function AppearanceSettingsCard() {
           className={`rounded-lg border p-4 text-left transition-colors ${
             isDark
               ? 'border-[#56bf6b]/45 bg-[#56bf6b]/10'
-              : 'border-slate-800 bg-[#071017] hover:border-slate-700'
+              : 'border-border bg-[#071017] hover:border-border'
           }`}
         >
           <Moon className="h-5 w-5 text-blue-300" />
           <p className="mt-3 text-sm font-black text-white">Sombre</p>
-          <p className="mt-1 text-xs font-semibold text-slate-500">Lecture dense, adaptée au suivi quotidien.</p>
+          <p className="mt-1 text-xs font-semibold text-muted-foreground">Lecture dense, adaptée au suivi quotidien.</p>
         </button>
         <button
           type="button"
@@ -240,12 +240,12 @@ function AppearanceSettingsCard() {
           className={`rounded-lg border p-4 text-left transition-colors ${
             !isDark
               ? 'border-[#56bf6b]/45 bg-[#56bf6b]/10'
-              : 'border-slate-800 bg-[#071017] hover:border-slate-700'
+              : 'border-border bg-[#071017] hover:border-border'
           }`}
         >
           <Sun className="h-5 w-5 text-amber-300" />
           <p className="mt-3 text-sm font-black text-white">Clair</p>
-          <p className="mt-1 text-xs font-semibold text-slate-500">Pratique pour rapports, captures et revues.</p>
+          <p className="mt-1 text-xs font-semibold text-muted-foreground">Pratique pour rapports, captures et revues.</p>
         </button>
       </div>
     </SectionCard>
@@ -284,16 +284,16 @@ function DashboardSettingsCard() {
       description="Réglez le comportement d’ouverture du tableau de bord sur cet appareil."
     >
       <div className="space-y-4">
-        <div className="rounded-lg border border-slate-800 bg-[#071017] p-4">
+        <div className="rounded-lg border border-border bg-[#071017] p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-sm font-black text-white">Période par défaut</p>
-              <p className="mt-1 text-xs font-semibold text-slate-500">Le dashboard s’ouvrira sur {selectedPeriodLabel}.</p>
+              <p className="mt-1 text-xs font-semibold text-muted-foreground">Le dashboard s’ouvrira sur {selectedPeriodLabel}.</p>
             </div>
             <select
               value={defaultPeriod}
               onChange={(event) => setDefaultPeriod(event.target.value as DashboardPeriod)}
-              className="rounded-lg border border-slate-800 bg-background px-3 py-2 text-sm font-black text-white outline-none transition-colors focus:border-[#56bf6b]/60"
+              className="rounded-lg border border-border bg-background px-3 py-2 text-sm font-black text-white outline-none transition-colors focus:border-[#56bf6b]/60"
             >
               {DASHBOARD_PERIODS.map(period => (
                 <option key={period} value={period}>{DASHBOARD_PERIOD_LABELS[period]}</option>
@@ -326,18 +326,18 @@ function DashboardSettingsCard() {
 export function SettingsPage() {
   return (
     <div className="space-y-5 px-4 py-5 sm:px-6 lg:px-8">
-      <div className="flex flex-col gap-4 border-b border-slate-800/80 pb-4 lg:flex-row lg:items-end lg:justify-between">
+      <div className="flex flex-col gap-4 border-b border-border pb-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Compte</p>
+          <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Compte</p>
           <h1 className="mt-1 text-xl font-black text-white">Paramètres produit</h1>
-          <p className="mt-1 max-w-2xl text-sm font-medium leading-6 text-slate-500">
+          <p className="mt-1 max-w-2xl text-sm font-medium leading-6 text-muted-foreground">
             Configurez l’expérience MERKURE sans dupliquer la page Profil, qui reste dédiée à votre identité et à la sécurité.
           </p>
         </div>
 
         <Link
           href="/app/profile"
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-800 bg-background px-4 py-2.5 text-sm font-black text-slate-200 transition-colors hover:border-slate-700 hover:text-white"
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-black text-slate-200 transition-colors hover:border-border hover:text-foreground"
         >
           <User className="h-4 w-4" />
           Ouvrir le profil

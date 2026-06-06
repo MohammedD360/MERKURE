@@ -18,15 +18,15 @@ interface Props {
 
 function ChartSkeleton() {
   return (
-    <div className="h-32 animate-pulse rounded-lg bg-slate-800/60" />
+    <div className="h-32 animate-pulse rounded-lg bg-accent/60" />
   )
 }
 
 function PnlTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-lg border border-slate-700/70 bg-[#071017] px-3 py-2 text-xs shadow-xl">
-      <p className="mb-1 text-slate-400">{label}</p>
+    <div className="rounded-lg border border-border/70 bg-[#071017] px-3 py-2 text-xs shadow-xl">
+      <p className="mb-1 text-muted-foreground">{label}</p>
       <p className="font-mono text-[#56bf6b]">
         P&L cumulé : {Number(payload[0]?.value ?? 0).toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
       </p>
@@ -38,8 +38,8 @@ function DrawdownTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   const val = Number(payload[0]?.value ?? 0)
   return (
-    <div className="rounded-lg border border-slate-700/70 bg-[#071017] px-3 py-2 text-xs shadow-xl">
-      <p className="mb-1 text-slate-400">{label}</p>
+    <div className="rounded-lg border border-border/70 bg-[#071017] px-3 py-2 text-xs shadow-xl">
+      <p className="mb-1 text-muted-foreground">{label}</p>
       <p className="font-mono text-rose-300">
         Drawdown : {(val * 100).toFixed(2)} %
       </p>
@@ -58,7 +58,7 @@ export function PnlDrawdownChart({ from, to, accountId }: Props) {
   }))
 
   return (
-    <div ref={ref} className="space-y-4 rounded-lg border border-slate-800 bg-background p-4 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
+    <div ref={ref} className="space-y-4 rounded-lg border border-border bg-background p-4 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-white">P&L cumulé & Drawdown</h2>
         <ChartDownloadButton onClick={download} isExporting={isExporting} />
@@ -66,9 +66,9 @@ export function PnlDrawdownChart({ from, to, accountId }: Props) {
 
       {/* Courbe P&L */}
       <div>
-        <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-slate-500">P&L cumulé</p>
+        <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-muted-foreground">P&L cumulé</p>
         {query.isLoading ? <ChartSkeleton /> : data.length === 0 ? (
-          <div className="flex h-32 items-center justify-center text-sm text-slate-600">
+          <div className="flex h-32 items-center justify-center text-sm text-muted-foreground/60">
             Aucune donnée disponible
           </div>
         ) : (
@@ -102,9 +102,9 @@ export function PnlDrawdownChart({ from, to, accountId }: Props) {
 
       {/* Courbe Drawdown */}
       <div>
-        <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-slate-500">Drawdown %</p>
+        <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-muted-foreground">Drawdown %</p>
         {query.isLoading ? <ChartSkeleton /> : data.length === 0 ? (
-          <div className="flex h-24 items-center justify-center text-sm text-slate-600">
+          <div className="flex h-24 items-center justify-center text-sm text-muted-foreground/60">
             Aucune donnée disponible
           </div>
         ) : (

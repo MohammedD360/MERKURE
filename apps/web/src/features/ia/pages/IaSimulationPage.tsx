@@ -143,7 +143,7 @@ const recentScenarios = [
     asset:       'USD/JPY',
     period:      '01/05/2024 – 31/05/2024',
     result:      'En cours',
-    resultTone:  'bg-slate-400/[0.12] text-slate-300',
+    resultTone:  'bg-slate-400/[0.12] text-muted-foreground',
     performance: '+0,23R',
     perfTone:    'text-emerald-300',
     date:        '15 mai 2024',
@@ -189,7 +189,7 @@ function QuickStartCard({ icon: Icon, title, text, tone }: (typeof quickStarts)[
       </div>
       <div className="min-w-0 flex-1">
         <h3 className="text-sm font-black text-white">{title}</h3>
-        <p className="mt-4 text-xs font-medium leading-6 text-slate-400">{text}</p>
+        <p className="mt-4 text-xs font-medium leading-6 text-muted-foreground">{text}</p>
       </div>
       <ArrowRight className="mt-auto h-4 w-4 shrink-0 text-current transition-transform group-hover:translate-x-1" />
     </button>
@@ -222,10 +222,10 @@ export function IaSimulationPage() {
             </div>
             <div>
               <h2 className="text-2xl font-black text-white">Testez. Analysez. Progressez.</h2>
-              <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-slate-400">
+              <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-muted-foreground">
                 Simulez vos stratégies de trading sur des données historiques ou créez des scénarios personnalisés pour anticiper vos décisions.
               </p>
-              <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-xs font-semibold text-slate-400">
+              <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-xs font-semibold text-muted-foreground">
                 {heroFeatures.map(({ label, icon: Icon }) => (
                   <span key={label} className="flex items-center gap-2">
                     <Icon className="h-4 w-4 text-violet-300" />
@@ -261,7 +261,7 @@ export function IaSimulationPage() {
                   <Icon className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-medium leading-5 text-slate-400">{label}</p>
+                  <p className="text-xs font-medium leading-5 text-muted-foreground">{label}</p>
                   <p className="mt-2 font-mono text-3xl font-black text-white">{value}</p>
                   <p className={`mt-2 text-xs font-black ${helper.startsWith('-0') ? 'text-rose-300' : 'text-emerald-300'}`}>
                     {helper}
@@ -283,7 +283,7 @@ export function IaSimulationPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] text-left">
-            <thead className="bg-white/[0.025] text-xs font-black text-slate-500">
+            <thead className="bg-white/[0.025] text-xs font-black text-muted-foreground">
               <tr>
                 <th className="px-5 py-4">Nom du scénario</th>
                 <th className="px-5 py-4">Type</th>
@@ -297,7 +297,7 @@ export function IaSimulationPage() {
             </thead>
             <tbody className="divide-y divide-white/[0.05]">
               {recentScenarios.map((scenario) => (
-                <tr key={scenario.name} className="text-sm font-semibold text-slate-300">
+                <tr key={scenario.name} className="text-sm font-semibold text-muted-foreground">
                   <td className="px-5 py-4 font-black text-white">{scenario.name}</td>
                   <td className="px-5 py-4">
                     <span className={`rounded-md px-2.5 py-1 text-xs font-black ${scenario.typeTone}`}>{scenario.type}</span>
@@ -313,9 +313,9 @@ export function IaSimulationPage() {
                       <Sparkline trend={scenario.trend} />
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-slate-400">{scenario.date}</td>
+                  <td className="px-5 py-4 text-muted-foreground">{scenario.date}</td>
                   <td className="px-5 py-4 text-right">
-                    <button className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-white/[0.05] hover:text-white">
+                    <button className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-white/[0.05] hover:text-foreground">
                       <MoreVertical className="h-4 w-4" />
                     </button>
                   </td>
@@ -326,7 +326,7 @@ export function IaSimulationPage() {
         </div>
       </section>
 
-      <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-background px-5 py-4 text-sm font-semibold text-slate-400">
+      <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-background px-5 py-4 text-sm font-semibold text-muted-foreground">
         <Settings2 className="h-5 w-5 text-violet-300" />
         Les simulations utilisent vos trades importés et vos règles de risque. Les résultats restent des scénarios, pas des promesses de performance.
       </div>

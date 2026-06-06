@@ -10,10 +10,10 @@ export function TradesTable() {
   const trades = data?.items ?? []
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-background p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
+    <div className="rounded-lg border border-border bg-background p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
       <div className="mb-5 flex items-center justify-between gap-3">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Historique</p>
+          <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Historique</p>
           <h3 className="mt-1 text-base font-black text-white">Trades récents</h3>
         </div>
         <a href="/app/trades" className="text-xs font-black text-blue-300 transition-colors hover:text-blue-200">
@@ -28,18 +28,18 @@ export function TradesTable() {
           ))}
         </div>
       ) : trades.length === 0 ? (
-        <div className="flex h-28 items-center justify-center rounded-lg border border-dashed border-slate-800 bg-[#071017] text-sm font-semibold text-slate-500">
+        <div className="flex h-28 items-center justify-center rounded-lg border border-dashed border-border bg-[#071017] text-sm font-semibold text-muted-foreground">
           Aucun trade récent
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-800">
+              <tr className="border-b border-border">
                 {['Instrument', 'Direction', 'Ouverture', 'Fermeture', 'Lots', 'P&L'].map((h) => (
                   <th
                     key={h}
-                    className="pb-3 pr-4 text-left text-[11px] font-black uppercase tracking-wider text-slate-500"
+                    className="pb-3 pr-4 text-left text-[11px] font-black uppercase tracking-wider text-muted-foreground"
                   >
                     {h}
                   </th>
@@ -59,7 +59,7 @@ export function TradesTable() {
                   <tr key={trade.id} className="group transition-colors hover:bg-white/[0.03]">
                     <td className="py-3 pr-4">
                       <div className="flex items-center gap-2">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-800 bg-[#071017] text-[10px] font-bold text-slate-300 transition-colors group-hover:border-slate-700">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-[#071017] text-[10px] font-bold text-muted-foreground transition-colors group-hover:border-border">
                           {trade.symbol.slice(0, 2)}
                         </div>
                         <span className="font-medium text-white">{trade.symbol}</span>
@@ -84,9 +84,9 @@ export function TradesTable() {
                       </div>
                     </td>
 
-                    <td className="py-3 pr-4 font-mono text-xs text-slate-400">{fmtDate(trade.openTime)}</td>
+                    <td className="py-3 pr-4 font-mono text-xs text-muted-foreground">{fmtDate(trade.openTime)}</td>
 
-                    <td className="py-3 pr-4 font-mono text-xs text-slate-400">
+                    <td className="py-3 pr-4 font-mono text-xs text-muted-foreground">
                       {fmtDate(trade.closeTime) ?? (
                         <span className="flex items-center gap-1 text-indigo-400">
                           <Clock className="w-3 h-3" />
@@ -95,7 +95,7 @@ export function TradesTable() {
                       )}
                     </td>
 
-                    <td className="py-3 pr-4 font-mono text-xs text-slate-400">
+                    <td className="py-3 pr-4 font-mono text-xs text-muted-foreground">
                       {Number(trade.lotSize).toFixed(2)}
                     </td>
 

@@ -116,7 +116,7 @@ function BiasCard({
             <Icon className="h-8 w-8 shrink-0" strokeWidth={1.9} />
             <h2 className="text-base font-black text-white">{title}</h2>
           </div>
-          <p className="mt-5 max-w-xs text-sm font-semibold leading-6 text-slate-400">{description}</p>
+          <p className="mt-5 max-w-xs text-sm font-semibold leading-6 text-muted-foreground">{description}</p>
           <span className={`mt-5 inline-flex rounded-md border px-2.5 py-1 text-xs font-black ${tone}`}>
             {label}
           </span>
@@ -143,7 +143,7 @@ function EmptyAnalysis({
         <Sparkles className="relative h-8 w-8 text-violet-400" />
       </div>
       <h3 className="mt-6 text-base font-black text-white">Aucune analyse disponible pour le moment</h3>
-      <p className="mt-3 max-w-xl text-sm font-medium leading-7 text-slate-400">
+      <p className="mt-3 max-w-xl text-sm font-medium leading-7 text-muted-foreground">
         Générez une analyse depuis le dashboard pour voir vos biais détectés et obtenir des recommandations personnalisées.
       </p>
       <button
@@ -155,7 +155,7 @@ function EmptyAnalysis({
         {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
         {isPending ? 'Analyse en cours...' : 'Générer une analyse'}
       </button>
-      <p className="mt-5 flex items-center gap-2 text-xs font-semibold text-slate-500">
+      <p className="mt-5 flex items-center gap-2 text-xs font-semibold text-muted-foreground">
         <Clock3 className="h-4 w-4" />
         Analyse complète en moins de 60 secondes
       </p>
@@ -185,8 +185,8 @@ export function IaBiaisPage() {
       <section className="overflow-hidden rounded-xl border border-white/10 bg-background shadow-[0_12px_48px_rgba(0,0,0,0.20)]">
         <div className="flex items-center gap-2 px-6 py-5">
           <h2 className="text-base font-black text-white">Points d&apos;amélioration détectés</h2>
-          <Info className="h-4 w-4 text-slate-600" />
-          {isLoading && <Loader2 className="ml-auto h-4 w-4 animate-spin text-slate-600" />}
+          <Info className="h-4 w-4 text-muted-foreground/60" />
+          {isLoading && <Loader2 className="ml-auto h-4 w-4 animate-spin text-muted-foreground/60" />}
         </div>
 
         {isLoading ? (
@@ -202,7 +202,7 @@ export function IaBiaisPage() {
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-400/[0.10] text-[11px] font-black text-violet-300">
                   {index + 1}
                 </span>
-                <p className="text-sm font-medium leading-6 text-slate-300">{item}</p>
+                <p className="text-sm font-medium leading-6 text-muted-foreground">{item}</p>
               </div>
             ))}
           </div>
@@ -212,7 +212,7 @@ export function IaBiaisPage() {
 
         {!isLoading && hasEntries && improvements.length === 0 && (
           <div className="border-t border-white/[0.06] px-6 py-4">
-            <p className="text-xs font-semibold text-slate-500">
+            <p className="text-xs font-semibold text-muted-foreground">
               Dernière analyse disponible, mais aucun biais majeur n’a été identifié dans les recommandations.
             </p>
           </div>
@@ -230,7 +230,7 @@ export function IaBiaisPage() {
                 </div>
                 <div>
                   <h3 className="text-sm font-black text-white">{title}</h3>
-                  <p className="mt-3 text-xs font-medium leading-6 text-slate-400">{text}</p>
+                  <p className="mt-3 text-xs font-medium leading-6 text-muted-foreground">{text}</p>
                 </div>
               </div>
             </article>
@@ -243,7 +243,7 @@ export function IaBiaisPage() {
           <Sparkles className="h-5 w-5 text-violet-400" />
           <span className="text-sm font-black text-white">Conseil IA</span>
         </div>
-        <p className="text-sm font-medium leading-6 text-slate-400 sm:border-l sm:border-white/[0.06] sm:pl-5">
+        <p className="text-sm font-medium leading-6 text-muted-foreground sm:border-l sm:border-white/[0.06] sm:pl-5">
           La clé n’est pas d’éviter les erreurs, mais d’apprendre à les reconnaître et à ne plus les répéter.
         </p>
         <button className="inline-flex items-center gap-2 text-sm font-black text-violet-300 sm:ml-auto">

@@ -41,7 +41,7 @@ try {
     }
   })
 
-  // Redis is optional — cache degraded gracefully if unavailable
+  // Redis is optional — cache degraded gracefully if unavail         able
   redis.connect().catch((err: unknown) => {
     app.log.warn(`[Redis] Could not connect, cache disabled: ${err instanceof Error ? err.message : String(err)}`)
   })
