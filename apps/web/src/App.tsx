@@ -85,7 +85,7 @@ const mobileListVariant = {
 const mobileItemVariant = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }
 
 const navLinks = [
-  { href: '#features', label: 'Fonctionnalites' },
+  { href: '#features', label: 'Fonctionnalités' },
   { href: '#tarifs', label: 'Tarifs' },
   { href: '#faq', label: 'FAQ' },
 ]
@@ -94,6 +94,7 @@ function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null)
 
   useEffect(() => {
     const control = () => {
@@ -116,24 +117,40 @@ function Navbar() {
 
   return (
     <>
+      {/* Backdrop blur sur hover des nav items — identique deltalytix */}
+      <div className={`fixed inset-0 bg-background/80 backdrop-blur-sm z-40 transition-opacity duration-300 ${hoveredItem ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
+
       <span className={cn('h-14 fixed top-0 left-0 right-0 bg-background z-50', transCls)} />
       <header className={cn('max-w-7xl mx-auto fixed top-0 left-0 right-0 px-4 lg:px-6 h-14 flex items-center justify-between z-50 text-foreground', transCls)}>
         <Link href="/" className="flex items-center space-x-2">
           <BrandIcon className="h-6 w-6 text-[hsl(var(--sidebar-primary))]" />
-          <span className="font-black text-xl tracking-[0.12em] text-foreground">MERKURE</span>
+          <span className="font-bold text-xl">MERKURE</span>
         </Link>
-        <nav className="hidden lg:flex items-center gap-8">
-          {navLinks.map((l) => (
-            <a key={l.href} href={l.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              {l.label}
-            </a>
-          ))}
-          <span className="h-6 w-px bg-border" />
-          <Link href="/sign-in" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+
+        {/* Desktop nav */}
+        <div className="hidden lg:flex items-center">
+          <nav className="flex items-center">
+            {navLinks.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                onMouseEnter={() => setHoveredItem(l.label)}
+                onMouseLeave={() => setHoveredItem(null)}
+                className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none"
+              >
+                {l.label}
+              </a>
+            ))}
+          </nav>
+          <span className="h-6 w-px bg-border mx-4" />
+          <Link
+            href="/sign-in"
+            className="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none"
+          >
             Se connecter
           </Link>
-          <PrimaryButton href="/sign-up">Demarrer gratuitement</PrimaryButton>
-        </nav>
+        </div>
+
         <button type="button" className="lg:hidden p-2 text-foreground" onClick={() => setIsOpen(true)}>
           <Menu className="h-5 w-5" />
         </button>
