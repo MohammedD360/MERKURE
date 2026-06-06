@@ -8,7 +8,7 @@ export function getStripe(): Stripe {
     throw new Error('STRIPE_SECRET_KEY is not configured')
   }
   if (!_stripe) {
-    _stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2026-04-22.dahlia' })
+    _stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' })
   }
   return _stripe
 }

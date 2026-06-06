@@ -79,13 +79,20 @@ export async function billingRoutes(app: FastifyInstance) {
         })
       }
 
+      // En production, FRONTEND_URL doit être https://merkure360.com
+      const baseUrl = env.FRONTEND_URL.replace(/\/$/, '')
+      const successUrl = `${baseUrl}/app/dashboard?checkout=success`
+      const cancelUrl  = `${baseUrl}/app/billing?checkout=cancelled`
+
+      console.log('[checkout] success_url=%s cancel_url=%s', successUrl, cancelUrl)
+
       try {
         const session = await stripe.checkout.sessions.create({
           mode: 'subscription',
           customer: customerId,
           line_items: [{ price: planConfig.stripePriceId, quantity: 1 }],
-          success_url: `${env.FRONTEND_URL}/app/dashboard?checkout=success`,
-          cancel_url: `${env.FRONTEND_URL}/pricing?checkout=cancelled`,
+          success_url: successUrl,
+          cancel_url:  cancelUrl,
           metadata: { userId: request.user.id, plan: body.data.plan },
           subscription_data: {
             metadata: { userId: request.user.id, plan: body.data.plan },
@@ -94,7 +101,7 @@ export async function billingRoutes(app: FastifyInstance) {
         console.log('[checkout] session created url=%s', session.url)
         return { url: session.url }
       } catch (err) {
-        console.error('[checkout] Stripe error:', err)
+        console.error('[checkout] Stripe error: success_url=%s cancel_url=%s err=%s', successUrl, cancelUrl, err instanceof Error ? err.message : String(err))
         return reply.code(502).send({ error: 'stripe_error', detail: err instanceof Error ? err.message : String(err) })
       }
     },
