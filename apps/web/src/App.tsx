@@ -11,17 +11,7 @@ import {
 import { setToken } from '@/lib/api-client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-
-/* ─── Brand ─────────────────────────────────────────────────────────────── */
-
-function BrandIcon({ className = 'h-6 w-6' }: { className?: string }) {
-  return (
-    <svg className={cn('text-current', className)} viewBox="0 0 40 40" fill="none" aria-hidden="true">
-      <path d="M7 9.5L20 4l13 5.5v21L20 36 7 30.5v-21Z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
-      <path d="M12 27V13l8 8 8-8v14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
+import { BrandLogo } from '@/shared/components/BrandLogo'
 
 /* ─── CTA / Demo buttons ─────────────────────────────────────────────────── */
 
@@ -123,9 +113,12 @@ function Navbar() {
 
       <span className={cn('h-14 fixed top-0 left-0 right-0 z-50 bg-black/10 backdrop-blur-[2px]', transCls)} />
       <header className={cn('max-w-7xl mx-auto fixed top-0 left-0 right-0 px-4 lg:px-6 h-14 flex items-center justify-between z-50 text-foreground', transCls)}>
-        <Link href="/" className="flex items-center space-x-2">
-          <BrandIcon className="h-6 w-6 text-[hsl(var(--sidebar-primary))]" />
-          <span className="font-bold text-xl">MERKURE</span>
+        <Link href="/" className="flex items-center">
+          <BrandLogo
+            className="text-white"
+            iconClassName="h-9 w-9 text-[hsl(var(--sidebar-primary))]"
+            textClassName="text-[28px] font-bold leading-none tracking-tight"
+          />
         </Link>
 
         {/* Desktop nav */}
@@ -174,9 +167,12 @@ function Navbar() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.1 }}
               >
-                <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
-                  <BrandIcon className="h-6 w-6 text-[hsl(var(--sidebar-primary))]" />
-                  <span className="font-black text-xl tracking-[0.12em]">MERKURE</span>
+                <Link href="/" className="flex items-center" onClick={() => setIsOpen(false)}>
+                  <BrandLogo
+                    className="text-white"
+                    iconClassName="h-9 w-9 text-[hsl(var(--sidebar-primary))]"
+                    textClassName="text-[28px] font-bold leading-none tracking-tight"
+                  />
                 </Link>
                 <button type="button" className="p-2" onClick={() => setIsOpen(false)}>
                   <X className="h-6 w-6" />
@@ -214,8 +210,11 @@ function DashboardMockup() {
       <div className="grid min-h-[280px] sm:min-h-[360px] md:min-h-[440px] lg:grid-cols-[178px_1fr]">
         <aside className="hidden border-r border-white/10 bg-white/[0.025] p-5 lg:block">
           <div className="flex items-center gap-2 mb-7">
-            <BrandIcon className="h-5 w-5 text-[hsl(var(--sidebar-primary))]" />
-            <span className="font-black text-sm tracking-[0.12em]">MERKURE</span>
+            <BrandLogo
+              className="gap-2 text-white"
+              iconClassName="h-5 w-5 text-[hsl(var(--sidebar-primary))]"
+              textClassName="text-sm font-black tracking-[0.12em]"
+            />
           </div>
           <nav className="grid gap-1 text-xs font-medium text-muted-foreground">
             {['Dashboard', 'Analyse', 'Journal', 'Objectifs', 'Alertes', 'Parametres'].map((item, i) => (
@@ -809,8 +808,11 @@ function Footer() {
         <div className="md:grid md:grid-cols-3 md:gap-8">
           <div className="space-y-8">
             <div className="flex items-center gap-2">
-              <BrandIcon className="h-7 w-7 text-[hsl(var(--sidebar-primary))]" />
-              <h3 className="text-lg font-black tracking-[0.12em] text-foreground">MERKURE</h3>
+              <BrandLogo
+                className="gap-2 text-foreground"
+                iconClassName="h-7 w-7 text-[hsl(var(--sidebar-primary))]"
+                textClassName="text-lg font-black tracking-[0.12em]"
+              />
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">La plateforme de performance trading qui transforme vos donnees en edge durable.</p>
             <div className="flex space-x-6">

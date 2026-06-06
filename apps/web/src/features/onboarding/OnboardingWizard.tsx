@@ -9,6 +9,7 @@ import { StepPlan } from './steps/StepPlan'
 import { StepDone } from './steps/StepDone'
 import { saveProfile, connectBroker, completeOnboarding } from './api'
 import type { ProfilePayload, BrokerPayload } from './api'
+import { BrandLogo } from '@/shared/components/BrandLogo'
 
 type Step = 'profile' | 'broker' | 'plan' | 'done'
 
@@ -36,29 +37,6 @@ const STEP_META: Record<Step, { title: string; description: string }> = {
     title: "C'est parti !",
     description: 'Votre espace MERKURE est prêt',
   },
-}
-
-function BrandMark() {
-  return (
-    <div className="flex items-center gap-2.5">
-      <svg className="h-8 w-8 text-white" viewBox="0 0 40 40" fill="none">
-        <path
-          d="M7 9.5L20 4l13 5.5v21L20 36 7 30.5v-21Z"
-          stroke="currentColor"
-          strokeWidth="3"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M12 27V13l8 8 8-8v14"
-          stroke="currentColor"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <span className="text-[22px] font-black tracking-[0.12em] text-white">MERKURE</span>
-    </div>
-  )
 }
 
 export function OnboardingWizard() {
@@ -166,7 +144,11 @@ export function OnboardingWizard() {
 
       {/* Logo */}
       <div className="mb-10 text-center">
-        <BrandMark />
+        <BrandLogo
+          className="justify-center text-white"
+          iconClassName="h-9 w-9"
+          textClassName="text-[22px] font-black tracking-[0.12em]"
+        />
         <p className="text-sm font-semibold text-muted-foreground mt-2">Configuration de votre espace</p>
       </div>
 

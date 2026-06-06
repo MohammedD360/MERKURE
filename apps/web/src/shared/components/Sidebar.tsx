@@ -10,6 +10,7 @@ import type { Page } from '@/lib/navigation'
 import { useCurrentUser } from '@/lib/hooks/use-current-user'
 import { getPlanDisplayLabel } from '@/lib/plans'
 import { cn } from '@/lib/utils'
+import { BrandLogo } from '@/shared/components/BrandLogo'
 
 interface Props {
   currentPage: Page
@@ -63,22 +64,6 @@ const sections: Array<{
   },
 ]
 
-function MerkuleLogo() {
-  return (
-    <div className="flex items-center gap-2.5">
-      <svg className="h-7 w-7 shrink-0 text-[hsl(var(--sidebar-primary))]" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-        <path d="M7 9.5L20 4l13 5.5v21L20 36 7 30.5v-21Z"
-          stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
-        <path d="M12 27V13l8 8 8-8v14"
-          stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      <span className="text-[15px] font-black tracking-[0.14em] text-[hsl(var(--sidebar-foreground))]">
-        MERKURE
-      </span>
-    </div>
-  )
-}
-
 export function Sidebar({ currentPage, onNavigate, mobileOpen = false, onClose }: Props) {
   const { data: user } = useCurrentUser()
   const planLabel = user?.plan ? getPlanDisplayLabel(user.plan) : null
@@ -93,7 +78,11 @@ export function Sidebar({ currentPage, onNavigate, mobileOpen = false, onClose }
 
       {/* Logo */}
       <div className="flex h-14 shrink-0 items-center justify-between border-b border-[hsl(var(--sidebar-border))] px-4">
-        <MerkuleLogo />
+        <BrandLogo
+          className="gap-2.5 text-[hsl(var(--sidebar-foreground))]"
+          iconClassName="h-7 w-7 text-[hsl(var(--sidebar-primary))]"
+          textClassName="text-[15px] font-black tracking-[0.14em]"
+        />
         <button
           type="button"
           onClick={onClose}

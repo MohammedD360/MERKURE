@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import { cn } from '@/lib/utils'
+import { BrandLogo } from '@/shared/components/BrandLogo'
 
 interface AuthShellProps {
   eyebrow: string
@@ -10,18 +11,6 @@ interface AuthShellProps {
   description: string
   children: ReactNode
   contentClassName?: string
-}
-
-function BrandMark() {
-  return (
-    <div className="flex items-center gap-3">
-      <svg className="h-10 w-10 text-white" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-        <path d="M7 9.5L20 4l13 5.5v21L20 36 7 30.5v-21Z" stroke="currentColor" strokeWidth="3" strokeLinejoin="round" />
-        <path d="M12 27V13l8 8 8-8v14" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      <span className="text-lg font-semibold tracking-tight text-white">MERKURE</span>
-    </div>
-  )
 }
 
 function VisualPanel() {
@@ -39,7 +28,7 @@ function VisualPanel() {
 
       <div className="relative z-20 flex items-center text-lg font-medium">
         <Link href="/" aria-label="Accueil MERKURE">
-          <BrandMark />
+          <BrandLogo iconClassName="h-10 w-10" textClassName="text-lg font-semibold tracking-tight" />
         </Link>
       </div>
 
@@ -63,7 +52,7 @@ export function AuthShell({ title, description, children, contentClassName }: Au
       <main className="relative flex min-h-screen items-center justify-center px-4 py-10 lg:px-8">
         <div className="absolute left-6 top-6 lg:hidden">
           <Link href="/" aria-label="Accueil MERKURE">
-            <BrandMark />
+            <BrandLogo iconClassName="h-10 w-10" textClassName="text-3xl font-semibold tracking-tight" />
           </Link>
         </div>
 
