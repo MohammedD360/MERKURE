@@ -104,7 +104,7 @@ export async function tradesRoutes(app: FastifyInstance) {
         // Empêche de remonter au-delà de la limite du plan
         dateFrom: 'dateFrom' in raw && typeof raw.dateFrom === 'string' && new Date(raw.dateFrom) >= earliest
           ? raw.dateFrom
-          : earliest.toISOString().slice(0, 10),
+          : earliest.toISOString(),
       })
       const queryHash = JSON.stringify(query)
       const cacheKey  = CacheKeys.trades(req.user.id, queryHash)

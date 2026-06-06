@@ -29,7 +29,7 @@ export function TradesPage() {
   const [filters, setFilters]       = useState<TradesFilters>(DEFAULT_FILTERS)
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
-  const { data, isLoading }  = useTrades(filters)
+  const { data, isLoading, isError }  = useTrades(filters)
   const { data: accounts = [] } = useAccounts()
 
   const totalPages = data ? Math.ceil(data.total / (filters.limit ?? 25)) : 0
@@ -104,7 +104,14 @@ export function TradesPage() {
 
             {isLoading ? <TableSkeleton /> : (
               <tbody className="divide-y divide-gray-800/40">
-                {data?.items.length === 0 && (
+                {isError && (
+                  <tr>
+                    <td colSpan={7} className="py-16 text-center text-red-400 text-sm">
+                      Erreur lors du chargement des trades — vérifiez la connexion au serveur.
+                    </td>
+                  </tr>
+                )}
+                {!isError && data?.items.length === 0 && (
                   <tr>
                     <td colSpan={7} className="py-16 text-center text-gray-600 text-sm">
                       Aucun trade sur cette période
