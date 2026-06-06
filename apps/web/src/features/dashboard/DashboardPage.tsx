@@ -7,10 +7,11 @@ import {
   AlertTriangle,
   ArrowRight,
   Check,
+  RefreshCw,
   WalletCards,
   X,
 } from 'lucide-react'
-import { useAccounts } from '@/lib/hooks/use-accounts'
+import { useAccounts, useSyncAccount, type BrokerAccount } from '@/lib/hooks/use-accounts'
 import { chartPeriodToApiPeriod, useKpiBreakdown, type ChartPeriod } from '@/lib/hooks/use-kpis'
 import { KpiCards }                         from './components/KpiCards'
 import { EquityChart }                       from './components/EquityChart'
@@ -116,6 +117,63 @@ function OnboardingStrip({
           </div>
         </Link>
       </div>
+    </div>
+  )
+}
+
+function relativeTime(iso: string): string {
+  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
+  if (diff < 60)  return `il y a ${diff}s`
+  if (diff < 3600) return `il y a ${Math.floor(diff / 60)}min`
+  if (diff < 86400) return `il y a ${Math.floor(diff / 3600)}h`
+  return `il y a ${Math.floor(diff / 86400)}j`
+}
+
+function SyncStatusBadge({ account }: { account: BrokerAccount | undefined }) {
+  const sync = useSyncAccount()
+
+  if (!account) return null
+
+  const { syncStatus, syncError, lastSyncAt, id } = account
+  const isSyncing = syncStatus === 'SYNCING' || sync.isPending
+
+  return (
+    <div className="flex items-center gap-2">
+      {/* Indicateur de statut */}
+      {syncStatus === 'ERROR' ? (
+        <div className="flex items-center gap-1.5 rounded-md border border-red-400/25 bg-red-400/[0.08] px-2.5 py-1 text-[11px] font-semibold text-red-300" title={syncError ?? ''}>
+          <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
+          Erreur de sync
+          {syncError && <span className="hidden sm:inline text-red-400/70"> — {syncError.slice(0, 40)}</span>}
+        </div>
+      ) : isSyncing ? (
+        <div className="flex items-center gap-1.5 rounded-md border border-amber-400/20 bg-amber-400/[0.08] px-2.5 py-1 text-[11px] font-semibold text-amber-300">
+          <RefreshCw className="h-3 w-3 animate-spin" />
+          Synchronisation…
+        </div>
+      ) : syncStatus === 'SUCCESS' && lastSyncAt ? (
+        <div className="flex items-center gap-1.5 rounded-md border border-emerald-400/20 bg-emerald-400/[0.08] px-2.5 py-1 text-[11px] font-semibold text-emerald-300">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          Mis à jour {relativeTime(lastSyncAt)}
+        </div>
+      ) : (
+        <div className="flex items-center gap-1.5 rounded-md border border-border bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+          <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" />
+          {lastSyncAt ? relativeTime(lastSyncAt) : 'Jamais synchronisé'}
+        </div>
+      )}
+
+      {/* Bouton sync manuel */}
+      <button
+        type="button"
+        disabled={isSyncing}
+        onClick={() => sync.mutate(id)}
+        className="flex items-center gap-1.5 rounded-md border border-border bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+        title="Synchroniser maintenant"
+      >
+        <RefreshCw className={`h-3 w-3 ${isSyncing ? 'animate-spin' : ''}`} />
+        Sync
+      </button>
     </div>
   )
 }
@@ -238,7 +296,7 @@ export function DashboardPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <label htmlFor="dashboard-account" className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             Compte
           </label>
@@ -253,6 +311,7 @@ export function DashboardPage() {
               <option key={account.id} value={account.id}>{account.label}</option>
             ))}
           </select>
+          <SyncStatusBadge account={accounts.find(a => a.id === accountId)} />
         </div>
       </div>
 
