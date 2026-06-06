@@ -66,7 +66,7 @@ function WinRateRing({ value }: { value: number | null }) {
   )
 }
 
-export function KpiCards({ period = '30d', accountId }: { period?: KpiPeriod; accountId?: string }) {
+export function KpiCards({ period = '30d', accountId }: { period?: KpiPeriod; accountId?: string | undefined }) {
   const { data, isLoading } = useKpiSummary(period, accountId)
 
   const totalPnl    = data?.totalPnl
