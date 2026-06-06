@@ -154,12 +154,21 @@ export function Sidebar({ currentPage, onNavigate, mobileOpen = false, onClose }
             onClick={() => onNavigate('profile')}
             className="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left transition-colors hover:bg-[hsl(var(--sidebar-accent))]"
           >
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--sidebar-primary)/0.15)] text-[11px] font-bold text-[hsl(var(--sidebar-primary))]">
-              {user.email?.[0]?.toUpperCase() ?? 'U'}
-            </div>
+            {user.avatarUrl ? (
+              <div
+                className="h-7 w-7 shrink-0 rounded-full bg-cover bg-center ring-1 ring-[hsl(var(--sidebar-border))]"
+                style={{ backgroundImage: `url(${user.avatarUrl})` }}
+              />
+            ) : (
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--sidebar-primary)/0.15)] text-[11px] font-bold text-[hsl(var(--sidebar-primary))]">
+                {(user.firstName?.[0] ?? user.email?.[0] ?? 'U').toUpperCase()}
+              </div>
+            )}
             <div className="min-w-0 flex-1">
               <p className="truncate text-[12px] font-medium text-[hsl(var(--sidebar-foreground))]">
-                {user.firstName ?? user.email}
+                {user.firstName
+                  ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ''}`
+                  : (user.email ?? '—')}
               </p>
               {planLabel && (
                 <p className="text-[10px] text-[hsl(var(--sidebar-foreground)/0.35)]">{planLabel}</p>

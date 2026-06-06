@@ -84,6 +84,31 @@ export function buildApp(): FastifyInstance {
   // ─── Current user ─────────────────────────────────────────────────────────────
   app.get('/api/v1/me', async (request, reply) => {
     if (env.AUTH_MODE === 'demo') {
+      // Si un JWT valide est présent, retourner le vrai profil DB
+      const token = getBearerToken(request)
+      if (token) {
+        try {
+          const payload = app.jwt.verify<{ id: string; email: string; plan?: string }>(token)
+          const dbUser = await prisma.user.findUnique({
+            where:  { id: payload.id },
+            select: {
+              id: true, email: true, firstName: true, lastName: true, avatarUrl: true,
+              subscription: { select: { plan: true } },
+            },
+          })
+          if (dbUser) {
+            return {
+              id:        dbUser.id,
+              email:     dbUser.email,
+              firstName: dbUser.firstName,
+              lastName:  dbUser.lastName,
+              avatarUrl: dbUser.avatarUrl,
+              plan:      dbUser.subscription?.plan ?? payload.plan ?? 'FREE',
+              authMode:  'jwt',
+            }
+          }
+        } catch { /* token invalide ou expiré → fallback demo */ }
+      }
       return getDemoUser()
     }
     if (!env.CLERK_SECRET_KEY) return reply.code(500).send({ error: 'clerk_not_configured' })

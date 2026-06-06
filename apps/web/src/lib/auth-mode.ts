@@ -8,7 +8,7 @@ export const isClerkEnabled =
 export const demoUser = {
   id: 'demo_user_merkure',
   email: 'demo@merkure.app',
-  firstName: 'Alexandre',
-  lastName: 'L.',
+  firstName: null,
+  lastName: null,
   plan: 'FREE',
 } as const
