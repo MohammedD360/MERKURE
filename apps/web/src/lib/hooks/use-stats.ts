@@ -65,3 +65,59 @@ export function useStreaks(period: KpiPeriod = '30d') {
     queryFn:  () => apiFetch<StreakData>(`/api/v1/stats/streaks?period=${period}`),
   })
 }
+
+export interface StatsOverview {
+  totalPnl:     number
+  grossProfit:  number
+  grossLoss:    number
+  totalFees:    number
+  nbTrades:     number
+  winTrades:    number
+  lossTrades:   number
+  beTrades:     number
+  winRate:      number
+  avgWin:       number
+  avgLoss:      number
+  profitFactor: number | null
+  longCount:    number
+  shortCount:   number
+  longPct:      number
+  shortPct:     number
+  avgDurationSec: number
+}
+
+export interface WeekdayStat {
+  day:       string
+  nbTrades:  number
+  avgPnl:    number
+  totalPnl:  number
+  winRate:   number
+}
+
+export interface DurationStat {
+  label:     string
+  nbTrades:  number
+  avgPnl:    number
+  winRate:   number
+}
+
+export function useStatsOverview(period: KpiPeriod = '30d') {
+  return useQuery({
+    queryKey: ['stats', 'overview', period],
+    queryFn:  () => apiFetch<StatsOverview>(`/api/v1/stats/overview?period=${period}`),
+  })
+}
+
+export function useWeekdayStats(period: KpiPeriod = '30d') {
+  return useQuery({
+    queryKey: ['stats', 'by-weekday', period],
+    queryFn:  () => apiFetch<WeekdayStat[]>(`/api/v1/stats/by-weekday?period=${period}`),
+  })
+}
+
+export function useDurationStats(period: KpiPeriod = '30d') {
+  return useQuery({
+    queryKey: ['stats', 'by-duration', period],
+    queryFn:  () => apiFetch<DurationStat[]>(`/api/v1/stats/by-duration?period=${period}`),
+  })
+}

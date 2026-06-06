@@ -1,39 +1,93 @@
 'use client'
 
+import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { RefreshCw } from 'lucide-react'
-import { MonthlyTable }    from './components/MonthlyTable'
-import { SymbolStatsTable } from './components/SymbolStatsTable'
-import { PnlDistribution }  from './components/PnlDistribution'
-import { StreakAnalysis }   from './components/StreakAnalysis'
+import type { KpiPeriod } from '@/lib/hooks/use-kpis'
+import { StatsOverviewWidget } from './components/StatsOverviewWidget'
+import { WeekdayPnlChart }     from './components/WeekdayPnlChart'
+import { DurationChart }        from './components/DurationChart'
+import { MonthlyTable }         from './components/MonthlyTable'
+import { SymbolStatsTable }     from './components/SymbolStatsTable'
+import { PnlDistribution }      from './components/PnlDistribution'
+import { StreakAnalysis }        from './components/StreakAnalysis'
+
+const PERIODS: { value: KpiPeriod; label: string }[] = [
+  { value: '7d',  label: '7j' },
+  { value: '30d', label: '30j' },
+  { value: '90d', label: '90j' },
+  { value: '1y',  label: '1 an' },
+  { value: 'all', label: 'Tout' },
+]
 
 export function StatistiquesPage() {
   const qc = useQueryClient()
+  const [period, setPeriod] = useState<KpiPeriod>('30d')
 
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: ['stats'] })
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-end">
-        <button
-          onClick={refresh}
-          className="flex items-center gap-2 rounded-xl border border-gray-700/60 bg-gray-800/40 px-3 py-2 text-xs font-medium text-gray-400 hover:text-white transition-colors"
-        >
-          <RefreshCw className="h-3.5 w-3.5" />
-          Actualiser
-        </button>
+    <div className="space-y-6 px-4 py-5 sm:px-6 lg:px-8">
+
+      {/* ── Header ──────────────────────────────────────────────────────── */}
+      <div className="flex flex-col gap-3 border-b border-slate-800/80 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Analyse</p>
+          <h1 className="mt-0.5 text-lg font-black text-white">Statistiques</h1>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Period selector */}
+          <div className="grid grid-cols-5 overflow-hidden rounded-md border border-slate-800 bg-[#071017] text-xs font-black sm:inline-flex">
+            {PERIODS.map(p => (
+              <button
+                key={p.value}
+                type="button"
+                onClick={() => setPeriod(p.value)}
+                className={`px-3 py-2 transition-colors ${
+                  period === p.value
+                    ? 'bg-violet-700 text-white'
+                    : 'text-slate-500 hover:bg-white/[0.04] hover:text-slate-300'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={refresh}
+            className="flex items-center gap-1.5 rounded-md border border-slate-800 bg-[#071017] px-3 py-2 text-xs font-semibold text-slate-500 transition-colors hover:text-white"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            Actualiser
+          </button>
+        </div>
       </div>
 
-      <MonthlyTable />
+      {/* ── Overview 4-section widget ────────────────────────────────────── */}
+      <StatsOverviewWidget period={period} />
 
-      <SymbolStatsTable />
+      {/* ── Charts row: Weekday + Duration ───────────────────────────────── */}
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+        <WeekdayPnlChart defaultPeriod={period} />
+        <DurationChart   defaultPeriod={period} />
+      </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      {/* ── Distribution + Streak ────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
         <PnlDistribution />
         <StreakAnalysis />
       </div>
+
+      {/* ── Monthly table ────────────────────────────────────────────────── */}
+      <MonthlyTable />
+
+      {/* ── By symbol ────────────────────────────────────────────────────── */}
+      <SymbolStatsTable />
+
     </div>
   )
 }

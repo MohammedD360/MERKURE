@@ -127,6 +127,154 @@ export const statsRepository = {
       }))
   },
 
+  async getOverview(userId: string, period: Period) {
+    const from = periodToDate(period)
+    const where = {
+      userId,
+      status: 'CLOSED' as const,
+      ...(from ? { closeTime: { gte: from } } : {}),
+    }
+
+    const trades = await prisma.trade.findMany({
+      where,
+      orderBy: { closeTime: 'asc' },
+      select: { pnl: true, commission: true, direction: true, openTime: true, closeTime: true },
+    })
+
+    if (trades.length === 0) {
+      return {
+        totalPnl: 0, grossProfit: 0, grossLoss: 0, totalFees: 0,
+        nbTrades: 0, winTrades: 0, lossTrades: 0, beTrades: 0,
+        winRate: 0, avgWin: 0, avgLoss: 0, profitFactor: null,
+        longCount: 0, shortCount: 0, longPct: 0, shortPct: 0,
+        avgDurationSec: 0,
+      }
+    }
+
+    const pnls    = trades.map(t => Number(t.pnl ?? 0))
+    const fees    = trades.map(t => Number(t.commission ?? 0))
+    const winners = pnls.filter(p => p > 0)
+    const losers  = pnls.filter(p => p < 0)
+    const bes     = pnls.filter(p => p === 0)
+
+    const grossProfit = winners.reduce((s, p) => s + p, 0)
+    const grossLoss   = Math.abs(losers.reduce((s, p) => s + p, 0))
+    const totalFees   = fees.reduce((s, f) => s + f, 0)
+    const totalPnl    = pnls.reduce((s, p) => s + p, 0)
+
+    const longCount  = trades.filter(t => t.direction === 'LONG').length
+    const shortCount = trades.filter(t => t.direction === 'SHORT').length
+    const total      = trades.length
+
+    const durations = trades
+      .filter(t => t.openTime && t.closeTime)
+      .map(t => (t.closeTime!.getTime() - t.openTime.getTime()) / 1000)
+    const avgDurationSec = durations.length > 0
+      ? durations.reduce((s, d) => s + d, 0) / durations.length
+      : 0
+
+    return {
+      totalPnl:    parseFloat(totalPnl.toFixed(2)),
+      grossProfit: parseFloat(grossProfit.toFixed(2)),
+      grossLoss:   parseFloat(grossLoss.toFixed(2)),
+      totalFees:   parseFloat(totalFees.toFixed(2)),
+      nbTrades:    total,
+      winTrades:   winners.length,
+      lossTrades:  losers.length,
+      beTrades:    bes.length,
+      winRate:     parseFloat((winners.length / total).toFixed(4)),
+      avgWin:      winners.length > 0 ? parseFloat((grossProfit / winners.length).toFixed(2)) : 0,
+      avgLoss:     losers.length  > 0 ? parseFloat((-grossLoss / losers.length).toFixed(2))   : 0,
+      profitFactor: grossLoss > 0 ? parseFloat((grossProfit / grossLoss).toFixed(2)) : null,
+      longCount,
+      shortCount,
+      longPct:     parseFloat(((longCount / total) * 100).toFixed(1)),
+      shortPct:    parseFloat(((shortCount / total) * 100).toFixed(1)),
+      avgDurationSec: parseFloat(avgDurationSec.toFixed(0)),
+    }
+  },
+
+  async getWeekdayStats(userId: string, period: Period) {
+    const from = periodToDate(period)
+    const trades = await prisma.trade.findMany({
+      where: {
+        userId,
+        status: 'CLOSED',
+        ...(from ? { closeTime: { gte: from } } : {}),
+      },
+      select: { pnl: true, closeTime: true },
+    })
+
+    // 0=Sun, 1=Mon ... 6=Sat → on réordonne en Lun=0..Dim=6 pour affichage FR
+    const dayLabels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
+    const dayData   = Array.from({ length: 7 }, (_, i) => ({ day: dayLabels[i]!, pnls: [] as number[] }))
+
+    for (const t of trades) {
+      if (!t.closeTime) continue
+      const dow = t.closeTime.getUTCDay() // 0=Sun
+      const idx = dow === 0 ? 6 : dow - 1 // Lun=0..Dim=6
+      dayData[idx]!.pnls.push(Number(t.pnl ?? 0))
+    }
+
+    return dayData.map(({ day, pnls }) => {
+      const nbTrades = pnls.length
+      const avgPnl   = nbTrades > 0 ? pnls.reduce((s, p) => s + p, 0) / nbTrades : 0
+      const totalPnl = pnls.reduce((s, p) => s + p, 0)
+      const winRate  = nbTrades > 0 ? pnls.filter(p => p > 0).length / nbTrades : 0
+      return {
+        day,
+        nbTrades,
+        avgPnl:    parseFloat(avgPnl.toFixed(2)),
+        totalPnl:  parseFloat(totalPnl.toFixed(2)),
+        winRate:   parseFloat(winRate.toFixed(4)),
+      }
+    })
+  },
+
+  async getDurationStats(userId: string, period: Period) {
+    const from = periodToDate(period)
+    const trades = await prisma.trade.findMany({
+      where: {
+        userId,
+        status: 'CLOSED',
+        ...(from ? { closeTime: { gte: from } } : {}),
+      },
+      select: { pnl: true, openTime: true, closeTime: true },
+    })
+
+    const BUCKETS = [
+      { key: '<1m',    label: '< 1 min',   max: 60 },
+      { key: '1-5m',   label: '1–5 min',   max: 300 },
+      { key: '5-15m',  label: '5–15 min',  max: 900 },
+      { key: '15-30m', label: '15–30 min', max: 1800 },
+      { key: '30-60m', label: '30–60 min', max: 3600 },
+      { key: '1-4h',   label: '1–4 h',     max: 14400 },
+      { key: '>4h',    label: '> 4 h',     max: Infinity },
+    ]
+
+    const bucketData = BUCKETS.map(b => ({ ...b, pnls: [] as number[] }))
+
+    for (const t of trades) {
+      if (!t.openTime || !t.closeTime) continue
+      const durSec = (t.closeTime.getTime() - t.openTime.getTime()) / 1000
+      const pnl    = Number(t.pnl ?? 0)
+      const bucket = bucketData.find(b => durSec < b.max)
+      if (bucket) bucket.pnls.push(pnl)
+    }
+
+    return bucketData.map(({ label, pnls }) => {
+      const nbTrades = pnls.length
+      const avgPnl   = nbTrades > 0 ? pnls.reduce((s, p) => s + p, 0) / nbTrades : 0
+      const winRate  = nbTrades > 0 ? pnls.filter(p => p > 0).length / nbTrades : 0
+      return {
+        label,
+        nbTrades,
+        avgPnl:  parseFloat(avgPnl.toFixed(2)),
+        winRate: parseFloat(winRate.toFixed(4)),
+      }
+    })
+  },
+
   async getStreaks(userId: string, period: Period) {
     const from = periodToDate(period)
     const trades = await prisma.trade.findMany({

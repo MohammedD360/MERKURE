@@ -66,4 +66,46 @@ export async function statsRoutes(app: FastifyInstance) {
       return data
     },
   )
+
+  app.get<{ Querystring: { period?: string } }>(
+    '/overview',
+    { preHandler: [authenticate] },
+    async (req) => {
+      const period = parsePeriod(req.query.period)
+      const key    = `stats:overview:${req.user.id}:${period}`
+      const cached = await cache.get<object>(key)
+      if (cached) return cached
+      const data = await statsRepository.getOverview(req.user.id, period)
+      await cache.set(key, data, TTL)
+      return data
+    },
+  )
+
+  app.get<{ Querystring: { period?: string } }>(
+    '/by-weekday',
+    { preHandler: [authenticate] },
+    async (req) => {
+      const period = parsePeriod(req.query.period)
+      const key    = `stats:by-weekday:${req.user.id}:${period}`
+      const cached = await cache.get<object[]>(key)
+      if (cached) return cached
+      const data = await statsRepository.getWeekdayStats(req.user.id, period)
+      await cache.set(key, data, TTL)
+      return data
+    },
+  )
+
+  app.get<{ Querystring: { period?: string } }>(
+    '/by-duration',
+    { preHandler: [authenticate] },
+    async (req) => {
+      const period = parsePeriod(req.query.period)
+      const key    = `stats:by-duration:${req.user.id}:${period}`
+      const cached = await cache.get<object[]>(key)
+      if (cached) return cached
+      const data = await statsRepository.getDurationStats(req.user.id, period)
+      await cache.set(key, data, TTL)
+      return data
+    },
+  )
 }
