@@ -183,7 +183,7 @@ function HeroVisual() {
 
 function QuickStartCard({ icon: Icon, title, text, tone }: (typeof quickStarts)[number]) {
   return (
-    <button className={`group flex min-h-[140px] items-start gap-4 rounded-xl border bg-[#0b111c] p-5 text-left transition-colors hover:border-white/20 ${tone}`}>
+    <button className={`group flex min-h-[140px] items-start gap-4 rounded-xl border bg-background p-5 text-left transition-colors hover:border-white/20 ${tone}`}>
       <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border ${tone}`}>
         <Icon className="h-6 w-6" />
       </div>
@@ -213,7 +213,7 @@ function Sparkline({ trend }: { trend: string }) {
 export function IaSimulationPage() {
   return (
     <div className="space-y-6 px-4 py-5 sm:px-6 lg:px-8">
-      <section className="overflow-hidden rounded-xl border border-white/10 bg-[#0b111c] shadow-[0_12px_52px_rgba(0,0,0,0.22)]">
+      <section className="overflow-hidden rounded-xl border border-white/10 bg-background shadow-[0_12px_52px_rgba(0,0,0,0.22)]">
         <div className="relative grid lg:grid-cols-[1fr_0.92fr]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_30%,rgba(124,92,255,0.20),transparent_28%),radial-gradient(circle_at_82%_45%,rgba(37,99,235,0.17),transparent_32%)]" />
           <div className="relative flex items-center gap-7 px-7 py-8">
@@ -251,7 +251,7 @@ export function IaSimulationPage() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-white/10 bg-[#0b111c] p-4 shadow-[0_12px_52px_rgba(0,0,0,0.18)]">
+      <section className="rounded-xl border border-white/10 bg-background p-4 shadow-[0_12px_52px_rgba(0,0,0,0.18)]">
         <h2 className="px-1 text-base font-black text-white">Aperçu de vos simulations</h2>
         <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
           {overviewStats.map(({ icon: Icon, label, value, helper, tone }) => (
@@ -273,7 +273,7 @@ export function IaSimulationPage() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-xl border border-white/10 bg-[#0b111c] shadow-[0_12px_52px_rgba(0,0,0,0.18)]">
+      <section className="overflow-hidden rounded-xl border border-white/10 bg-background shadow-[0_12px_52px_rgba(0,0,0,0.18)]">
         <div className="flex items-center justify-between gap-4 border-b border-white/[0.06] px-5 py-4">
           <h2 className="text-base font-black text-white">Mes scénarios récents</h2>
           <button className="rounded-lg border border-violet-400/20 px-4 py-2 text-xs font-black text-violet-300 transition-colors hover:bg-violet-400/[0.08]">
@@ -326,7 +326,7 @@ export function IaSimulationPage() {
         </div>
       </section>
 
-      <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#0b111c] px-5 py-4 text-sm font-semibold text-slate-400">
+      <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-background px-5 py-4 text-sm font-semibold text-slate-400">
         <Settings2 className="h-5 w-5 text-violet-300" />
         Les simulations utilisent vos trades importés et vos règles de risque. Les résultats restent des scénarios, pas des promesses de performance.
       </div>

@@ -60,7 +60,7 @@ export function IaCoachPage() {
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <section className="rounded-xl border border-white/10 bg-[#0b111c] p-5">
+        <section className="rounded-xl border border-white/10 bg-background p-5">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-red-400/20 bg-red-400/[0.08]">
               <AlertTriangle className="h-5 w-5 text-red-300" />
@@ -97,7 +97,7 @@ export function IaCoachPage() {
           </div>
         </section>
 
-        <section className="rounded-xl border border-white/10 bg-[#0b111c] p-5">
+        <section className="rounded-xl border border-white/10 bg-background p-5">
           <p className="text-sm font-black text-white">Cadre recommandé</p>
           <div className="mt-4 space-y-3">
             {['Pause obligatoire après 2 pertes', 'Risque plafonné si drawdown journalier atteint', 'Aucun trade hors setup annoté'].map((item) => (

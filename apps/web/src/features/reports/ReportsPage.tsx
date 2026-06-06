@@ -34,7 +34,7 @@ export function ReportsPage() {
         <p className="mt-1 text-sm font-medium text-slate-500">Téléchargez votre rapport hebdomadaire au format PDF.</p>
       </div>
 
-      <div className="rounded-lg border border-slate-800 bg-[#0b111c] p-8 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
+      <div className="rounded-lg border border-slate-800 bg-background p-8 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
         <div className="flex flex-col items-center justify-center gap-4 text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-lg border border-blue-400/20 bg-blue-400/[0.08]">
             <FileText className="h-6 w-6 text-blue-300" />

@@ -54,7 +54,7 @@ export function IaRapportPage() {
             const actions = entry.insights?.actions ?? []
 
             return (
-              <div key={entry.id} className="rounded-xl border border-white/10 bg-[#0b111c] p-5">
+              <div key={entry.id} className="rounded-xl border border-white/10 bg-background p-5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black text-white">
                     {new Date(entry.date).toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
@@ -107,7 +107,7 @@ export function IaRapportPage() {
           })}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-white/10 bg-[#0b111c] py-16 text-center">
+        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-white/10 bg-background py-16 text-center">
           <Sparkles className="h-7 w-7 text-slate-600" />
           <p className="text-sm font-black text-slate-400">Aucun rapport disponible</p>
           <p className="text-xs text-slate-500">

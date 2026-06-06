@@ -58,7 +58,7 @@ export function PnlDrawdownChart({ from, to, accountId }: Props) {
   }))
 
   return (
-    <div ref={ref} className="space-y-4 rounded-lg border border-slate-800 bg-[#0b111c] p-4 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
+    <div ref={ref} className="space-y-4 rounded-lg border border-slate-800 bg-background p-4 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-white">P&L cumulé & Drawdown</h2>
         <ChartDownloadButton onClick={download} isExporting={isExporting} />

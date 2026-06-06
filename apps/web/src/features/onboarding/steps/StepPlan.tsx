@@ -66,7 +66,7 @@ function PlanCard({ plan, onSelect, disabled }: PlanCardProps) {
 
   return (
     <div
-      className={`relative rounded-xl border bg-[#0b111c] p-5 flex flex-col transition-all ${
+      className={`relative rounded-xl border bg-background p-5 flex flex-col transition-all ${
         isRecommended
           ? 'border-blue-500/40 ring-1 ring-blue-500/20'
           : 'border-white/10 hover:border-white/20'

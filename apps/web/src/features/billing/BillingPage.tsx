@@ -116,7 +116,7 @@ function PlanCard({ plan, currentPlan, onCheckout, isCheckoutPending }: PlanCard
     <div
       className={`relative flex flex-col rounded-lg border p-5 transition-all duration-200 ${
         isRecommended
-          ? 'border-slate-500 bg-[#111827]'
+          ? 'border-slate-500 bg-card'
           : 'border-[#1e2f4a] bg-[#0b1527]'
       } ${isCurrent ? 'ring-1 ring-emerald-500/30' : ''}`}
     >

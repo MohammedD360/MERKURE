@@ -172,7 +172,7 @@ export function OnboardingWizard() {
 
       {/* Card */}
       <div
-        className={`relative w-full border border-white/10 bg-[#0b111c] rounded-2xl shadow-[0_32px_80px_rgba(0,0,0,0.40)] overflow-hidden ${
+        className={`relative w-full border border-white/10 bg-background rounded-2xl shadow-[0_32px_80px_rgba(0,0,0,0.40)] overflow-hidden ${
           isPlan ? 'max-w-3xl' : 'max-w-lg'
         }`}
       >

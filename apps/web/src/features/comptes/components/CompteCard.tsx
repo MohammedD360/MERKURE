@@ -138,7 +138,7 @@ export function CompteCard({ compte, onNavigateToTrades }: Props) {
 
   return (
     <article
-      className={`overflow-hidden rounded-xl border bg-[#0b111c] shadow-[0_12px_46px_rgba(0,0,0,0.18)] transition-colors ${
+      className={`overflow-hidden rounded-xl border bg-background shadow-[0_12px_46px_rgba(0,0,0,0.18)] transition-colors ${
         hasError ? 'border-rose-400/30' : 'border-white/10 hover:border-white/20'
       }`}
     >

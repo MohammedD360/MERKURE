@@ -39,7 +39,7 @@ function SymbolGroup({ symbol, positions, balance }: {
       {/* Group header */}
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center gap-3 px-4 py-3 bg-[#111827] hover:bg-gray-800/50 transition-colors"
+        className="w-full flex items-center gap-3 px-4 py-3 bg-card hover:bg-gray-800/50 transition-colors"
       >
         <div className="w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center text-[11px] font-bold text-gray-300 flex-shrink-0">
           {symbol.slice(0, 2)}
@@ -154,7 +154,7 @@ export function PositionsBySymbol() {
 
   if (positions.length === 0) {
     return (
-      <div className="bg-[#111827] border border-gray-800/60 rounded-xl p-12 text-center">
+      <div className="bg-card border border-gray-800/60 rounded-xl p-12 text-center">
         <p className="text-gray-500 text-sm">Aucune position ouverte</p>
         <p className="text-gray-700 text-xs mt-1">Les positions ouvertes apparaîtront ici lors de la prochaine synchronisation</p>
       </div>

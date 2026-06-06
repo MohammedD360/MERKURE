@@ -73,7 +73,7 @@ function SectionCard({
   }[tone]
 
   return (
-    <section className="rounded-lg border border-slate-800 bg-[#0b111c] p-5 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
+    <section className="rounded-lg border border-slate-800 bg-background p-5 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
       <div className="mb-5 flex items-start gap-3">
         <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md border ${iconClass}`}>
           <Icon className="h-5 w-5" />
@@ -167,7 +167,7 @@ function RiskSettingsCard() {
                 value={riskPerTrade}
                 disabled={isLoading}
                 onChange={(event) => setRiskPerTrade(event.target.value)}
-                className="w-24 rounded-lg border border-slate-800 bg-[#0b111c] px-3 py-2 text-right font-mono text-sm font-black text-white outline-none transition-colors focus:border-[#56bf6b]/60"
+                className="w-24 rounded-lg border border-slate-800 bg-background px-3 py-2 text-right font-mono text-sm font-black text-white outline-none transition-colors focus:border-[#56bf6b]/60"
               />
               <span className="text-sm font-black text-slate-400">%</span>
             </div>
@@ -293,7 +293,7 @@ function DashboardSettingsCard() {
             <select
               value={defaultPeriod}
               onChange={(event) => setDefaultPeriod(event.target.value as DashboardPeriod)}
-              className="rounded-lg border border-slate-800 bg-[#0b111c] px-3 py-2 text-sm font-black text-white outline-none transition-colors focus:border-[#56bf6b]/60"
+              className="rounded-lg border border-slate-800 bg-background px-3 py-2 text-sm font-black text-white outline-none transition-colors focus:border-[#56bf6b]/60"
             >
               {DASHBOARD_PERIODS.map(period => (
                 <option key={period} value={period}>{DASHBOARD_PERIOD_LABELS[period]}</option>
@@ -337,7 +337,7 @@ export function SettingsPage() {
 
         <Link
           href="/app/profile"
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-800 bg-[#0b111c] px-4 py-2.5 text-sm font-black text-slate-200 transition-colors hover:border-slate-700 hover:text-white"
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-800 bg-background px-4 py-2.5 text-sm font-black text-slate-200 transition-colors hover:border-slate-700 hover:text-white"
         >
           <User className="h-4 w-4" />
           Ouvrir le profil

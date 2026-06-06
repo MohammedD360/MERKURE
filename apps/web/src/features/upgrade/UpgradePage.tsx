@@ -101,7 +101,7 @@ export function UpgradePage() {
           return (
             <div
               key={plan.id}
-              className={`relative rounded-2xl border bg-[#0b111c] p-5 flex flex-col ${
+              className={`relative rounded-2xl border bg-background p-5 flex flex-col ${
                 isCurrent
                   ? 'border-emerald-500/40 ring-1 ring-emerald-500/20'
                   : PLAN_RING[plan.id] || 'border-white/10'

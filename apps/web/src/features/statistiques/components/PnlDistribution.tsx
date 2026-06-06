@@ -32,7 +32,7 @@ export function PnlDistribution() {
   const { ref, download, isExporting } = useChartExport('distribution-pnl')
 
   return (
-    <div ref={ref} className="bg-[#111827] border border-gray-800/60 rounded-xl overflow-hidden">
+    <div ref={ref} className="bg-card border border-gray-800/60 rounded-xl overflow-hidden">
       <div className="px-4 py-3 border-b border-gray-800/60 flex items-center justify-between">
         <div>
           <h2 className="text-sm font-semibold text-white">Distribution des P&L</h2>

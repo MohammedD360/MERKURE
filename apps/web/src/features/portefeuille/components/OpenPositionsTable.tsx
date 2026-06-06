@@ -41,7 +41,7 @@ export function OpenPositionsTable() {
   const { data: positions = [], isLoading } = useOpenPositions()
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-[#0b111c] shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+    <div className="rounded-lg border border-slate-800 bg-background shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
       <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
         <h2 className="text-sm font-black text-white">Positions ouvertes</h2>
         <span className="font-mono text-xs text-slate-500">

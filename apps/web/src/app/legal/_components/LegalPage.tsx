@@ -32,7 +32,7 @@ export function LegalPage({ eyebrow, title, description, updatedAt, children }: 
 
 export function LegalSection({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-xl border border-white/10 bg-[#0b111c] p-6 shadow-[0_14px_54px_rgba(0,0,0,0.20)]">
+    <section className="rounded-xl border border-white/10 bg-background p-6 shadow-[0_14px_54px_rgba(0,0,0,0.20)]">
       <h2 className="text-lg font-black text-white">{title}</h2>
       <div className="mt-4 space-y-4 text-sm font-medium leading-7 text-slate-300">{children}</div>
     </section>

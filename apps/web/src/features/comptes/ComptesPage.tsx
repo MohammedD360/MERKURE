@@ -21,7 +21,7 @@ function StatCard({
   tone?: string
 }) {
   return (
-    <article className="rounded-xl border border-white/10 bg-[#0b111c] p-5 shadow-[0_12px_46px_rgba(0,0,0,0.18)]">
+    <article className="rounded-xl border border-white/10 bg-background p-5 shadow-[0_12px_46px_rgba(0,0,0,0.18)]">
       <div className="flex items-start gap-4">
         <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border ${tone}`}>
           {icon}
@@ -40,7 +40,7 @@ function Skeleton() {
   return (
     <div className="grid gap-4 xl:grid-cols-2">
       {[1, 2].map(i => (
-        <div key={i} className="rounded-xl border border-white/10 bg-[#0b111c] p-5">
+        <div key={i} className="rounded-xl border border-white/10 bg-background p-5">
           <div className="flex items-center gap-4">
             <div className="h-12 w-12 animate-pulse rounded-lg bg-white/[0.05]" />
             <div className="space-y-2">
@@ -83,7 +83,7 @@ export function ComptesPage() {
   return (
     <>
       <div className="space-y-6 px-4 py-5 sm:px-6 lg:px-8">
-        <section className="overflow-hidden rounded-xl border border-white/10 bg-[#0b111c] shadow-[0_12px_52px_rgba(0,0,0,0.20)]">
+        <section className="overflow-hidden rounded-xl border border-white/10 bg-background shadow-[0_12px_52px_rgba(0,0,0,0.20)]">
           <div className="relative flex flex-col gap-6 px-6 py-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_8%_0%,rgba(86,191,107,0.14),transparent_32%),radial-gradient(circle_at_80%_15%,rgba(37,99,235,0.12),transparent_34%)]" />
             <div className="relative">
@@ -186,7 +186,7 @@ export function ComptesPage() {
         )}
 
         {!isLoading && !error && comptes.length === 0 && (
-          <section className="flex min-h-[360px] flex-col items-center justify-center rounded-xl border border-white/10 bg-[#0b111c] px-6 py-16 text-center">
+          <section className="flex min-h-[360px] flex-col items-center justify-center rounded-xl border border-white/10 bg-background px-6 py-16 text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-[#56bf6b]/20 bg-[#56bf6b]/[0.08]">
               <Link2 className="h-9 w-9 text-[#56bf6b]" />
             </div>

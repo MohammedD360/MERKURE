@@ -39,7 +39,7 @@ export function StreakAnalysis() {
       : 'aucune série'
 
   return (
-    <div className="bg-[#111827] border border-gray-800/60 rounded-xl overflow-hidden">
+    <div className="bg-card border border-gray-800/60 rounded-xl overflow-hidden">
       <div className="px-4 py-3 border-b border-gray-800/60 flex items-center justify-between">
         <div>
           <h2 className="text-sm font-semibold text-white">Analyse des séries</h2>

@@ -110,7 +110,7 @@ export function PerformancePage() {
           <button
             onClick={handleDownload}
             disabled={downloading}
-            className="flex items-center gap-2 rounded-md border border-slate-800 bg-[#0b111c] px-3 py-2 text-xs font-black text-slate-300 transition-colors hover:border-slate-700 hover:text-white disabled:opacity-60"
+            className="flex items-center gap-2 rounded-md border border-slate-800 bg-background px-3 py-2 text-xs font-black text-slate-300 transition-colors hover:border-slate-700 hover:text-white disabled:opacity-60"
           >
             {downloading
               ? <Loader2 className="h-3.5 w-3.5 animate-spin" />

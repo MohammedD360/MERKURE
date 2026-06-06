@@ -45,7 +45,7 @@ function OnboardingStrip({
   onDismiss: () => void
 }) {
   return (
-    <div className="rounded-lg border border-slate-800 bg-[#0b111c] p-3 shadow-[0_14px_40px_rgba(0,0,0,0.18)]">
+    <div className="rounded-lg border border-slate-800 bg-background p-3 shadow-[0_14px_40px_rgba(0,0,0,0.18)]">
       <div className="mb-3 flex items-center justify-between gap-3 px-1">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Actions rapides</p>

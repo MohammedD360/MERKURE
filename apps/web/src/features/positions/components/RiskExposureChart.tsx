@@ -36,7 +36,7 @@ export function RiskExposureChart() {
   const maxRisk = Math.max(...rows.map(r => r.riskPct), 0.01)
 
   return (
-    <div className="bg-[#111827] border border-gray-800/60 rounded-xl p-4">
+    <div className="bg-card border border-gray-800/60 rounded-xl p-4">
       <h2 className="text-sm font-semibold text-white mb-4">Exposition au risque par instrument</h2>
 
       {loading ? (

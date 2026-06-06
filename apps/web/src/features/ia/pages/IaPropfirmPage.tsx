@@ -123,7 +123,7 @@ function PropFirmVisual() {
 export function IaPropfirmPage() {
   return (
     <div className="space-y-6 px-4 py-5 sm:px-6 lg:px-8">
-      <section className="overflow-hidden rounded-xl border border-white/10 bg-[#0b111c] shadow-[0_12px_52px_rgba(0,0,0,0.22)]">
+      <section className="overflow-hidden rounded-xl border border-white/10 bg-background shadow-[0_12px_52px_rgba(0,0,0,0.22)]">
         <div className="relative grid lg:grid-cols-[1fr_0.92fr]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(86,191,107,0.18),transparent_30%),radial-gradient(circle_at_82%_42%,rgba(124,92,255,0.14),transparent_32%)]" />
           <div className="relative px-7 py-8">
@@ -155,7 +155,7 @@ export function IaPropfirmPage() {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {criteria.map(({ icon: Icon, label, value, helper, tone }) => (
-          <article key={label} className="rounded-xl border border-white/10 bg-[#0b111c] p-5 shadow-[0_12px_46px_rgba(0,0,0,0.18)]">
+          <article key={label} className="rounded-xl border border-white/10 bg-background p-5 shadow-[0_12px_46px_rgba(0,0,0,0.18)]">
             <div className="flex items-start gap-4">
               <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border ${tone}`}>
                 <Icon className="h-5 w-5" />
@@ -181,7 +181,7 @@ export function IaPropfirmPage() {
         </div>
         <div className="grid gap-4 xl:grid-cols-3">
           {compatibilityCards.map(card => (
-            <article key={card.title} className="overflow-hidden rounded-xl border border-white/10 bg-[#0b111c] shadow-[0_12px_52px_rgba(0,0,0,0.18)]">
+            <article key={card.title} className="overflow-hidden rounded-xl border border-white/10 bg-background shadow-[0_12px_52px_rgba(0,0,0,0.18)]">
               <div className="border-b border-white/[0.06] p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -207,7 +207,7 @@ export function IaPropfirmPage() {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-        <article className="rounded-xl border border-white/10 bg-[#0b111c] p-5">
+        <article className="rounded-xl border border-white/10 bg-background p-5">
           <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-amber-400/20 bg-amber-400/[0.08] text-amber-300">
             <ShieldAlert className="h-5 w-5" />
           </div>
@@ -217,7 +217,7 @@ export function IaPropfirmPage() {
           </p>
         </article>
 
-        <article className="rounded-xl border border-white/10 bg-[#0b111c] p-5">
+        <article className="rounded-xl border border-white/10 bg-background p-5">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-base font-black text-white">Plan d’action avant challenge</h2>
             <BadgeCheck className="h-5 w-5 text-[#56bf6b]" />
@@ -235,7 +235,7 @@ export function IaPropfirmPage() {
         </article>
       </section>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-[#0b111c] px-5 py-4 text-sm font-semibold text-slate-400 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-background px-5 py-4 text-sm font-semibold text-slate-400 sm:flex-row sm:items-center">
         <ShieldCheck className="h-5 w-5 shrink-0 text-[#56bf6b]" />
         Les compatibilités sont des analyses de préparation. Elles ne garantissent pas l’acceptation ou la réussite d’un challenge.
         <button className="inline-flex items-center gap-2 text-xs font-black text-[#56bf6b] sm:ml-auto">

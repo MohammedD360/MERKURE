@@ -25,7 +25,7 @@ export function PortefeuillePage() {
         </div>
         <button
           onClick={refresh}
-          className="flex items-center gap-2 rounded-md border border-slate-800 bg-[#0b111c] px-3 py-2 text-xs font-black text-slate-300 transition-colors hover:border-slate-700 hover:text-white"
+          className="flex items-center gap-2 rounded-md border border-slate-800 bg-background px-3 py-2 text-xs font-black text-slate-300 transition-colors hover:border-slate-700 hover:text-white"
         >
           <RefreshCw className="h-3.5 w-3.5" />
           Actualiser

@@ -45,7 +45,7 @@ export function CapitalBreakdown() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* By symbol — Pie chart */}
-      <div className="rounded-lg border border-slate-800 bg-[#0b111c] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+      <div className="rounded-lg border border-slate-800 bg-background p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-black text-white">Répartition par instrument</h2>
           <span className="text-[10px] text-slate-600">{sourceLabel}</span>
@@ -93,7 +93,7 @@ export function CapitalBreakdown() {
       </div>
 
       {/* By strategy — Bar chart */}
-      <div className="rounded-lg border border-slate-800 bg-[#0b111c] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+      <div className="rounded-lg border border-slate-800 bg-background p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-black text-white">Performance par stratégie</h2>
           <span className="text-[10px] text-slate-600">{sourceLabel}</span>

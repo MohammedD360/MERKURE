@@ -45,7 +45,7 @@ export function AiAnalysisBanner() {
   const scoreColor = score == null ? '' : score >= 70 ? 'text-emerald-400' : score >= 50 ? 'text-amber-400' : 'text-red-400'
 
   return (
-    <div className="overflow-hidden rounded-xl border border-white/10 bg-[#0b111c]">
+    <div className="overflow-hidden rounded-xl border border-white/10 bg-background">
       {/* Header */}
       <div className="flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4">
         <div className="flex items-center gap-3">

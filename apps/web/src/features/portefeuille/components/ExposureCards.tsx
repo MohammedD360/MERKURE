@@ -14,7 +14,7 @@ function Card({
   loading: boolean
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-slate-800 bg-[#0b111c] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+    <div className="flex items-start gap-3 rounded-lg border border-slate-800 bg-background p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
       <div className={`mt-0.5 rounded-lg p-2 ${color}`}>
         <Icon className="w-4 h-4" />
       </div>
@@ -63,7 +63,7 @@ export function ExposureCards() {
         color="bg-cyan-400/[0.08] text-cyan-300"
         loading={isLoading}
       />
-      <div className="flex items-start gap-3 rounded-lg border border-slate-800 bg-[#0b111c] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+      <div className="flex items-start gap-3 rounded-lg border border-slate-800 bg-background p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
         <div className={`mt-0.5 rounded-lg p-2 ${(data?.totalPnlOpen ?? 0) >= 0 ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'}`}>
           {(data?.totalPnlOpen ?? 0) >= 0
             ? <TrendingUp className="w-4 h-4" />

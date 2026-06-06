@@ -61,16 +61,16 @@ export function JournalCalendar({ year, month, days, selectedDate, onSelectDate,
       <div className="mb-3 flex items-center justify-between">
         <button
           onClick={onPrevMonth}
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-800/60 hover:text-white"
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
-        <span className="text-sm font-bold text-white">
+        <span className="text-sm font-bold text-foreground">
           {MONTHS_FR[month - 1]} {year}
         </span>
         <button
           onClick={onNextMonth}
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-800/60 hover:text-white"
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         >
           <ChevronRight className="h-4 w-4" />
         </button>
@@ -78,7 +78,7 @@ export function JournalCalendar({ year, month, days, selectedDate, onSelectDate,
 
       {/* Monthly summary */}
       {tradingDays > 0 && (
-        <div className="mb-3 flex items-center justify-between rounded-lg border border-slate-800/60 bg-[#0d1521] px-3 py-2">
+        <div className="mb-3 flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2">
           <div className="text-center">
             <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-600">P&L</p>
             <p className={`text-xs font-black font-mono ${monthPnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
@@ -101,7 +101,7 @@ export function JournalCalendar({ year, month, days, selectedDate, onSelectDate,
       {/* Day-of-week headers */}
       <div className="mb-1 grid grid-cols-7">
         {DAYS_SHORT.map((d, i) => (
-          <div key={i} className="py-1 text-center text-[10px] font-bold text-slate-700">
+          <div key={i} className="py-1 text-center text-[10px] font-bold text-muted-foreground/40">
             {d}
           </div>
         ))}
@@ -149,7 +149,7 @@ export function JournalCalendar({ year, month, days, selectedDate, onSelectDate,
       </div>
 
       {/* Legend */}
-      <div className="mt-4 space-y-1.5 text-[10px] text-slate-700">
+      <div className="mt-4 space-y-1.5 text-[10px] text-muted-foreground/50">
         <div className="flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-violet-400 shrink-0" />
           Entrée de journal

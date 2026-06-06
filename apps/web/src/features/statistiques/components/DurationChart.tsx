@@ -21,7 +21,7 @@ function CustomTooltip({ active, payload }: {
   if (!active || !payload?.length) return null
   const d = payload[0]!.payload
   return (
-    <div className="rounded-lg border border-slate-700/80 bg-[#0d1521] px-3 py-2.5 text-xs shadow-xl">
+    <div className="rounded-lg border border-slate-700/80 bg-card px-3 py-2.5 text-xs shadow-xl">
       <p className="mb-1 font-bold text-white">{d.label}</p>
       <div className="space-y-1">
         <div className="flex items-center justify-between gap-4">
@@ -52,7 +52,7 @@ export function DurationChart({ defaultPeriod = '30d' }: Props) {
   const maxAbs = Math.max(...data.map(d => Math.abs(d.avgPnl)), 1)
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-800 bg-[#0d1521]">
+    <div className="overflow-hidden rounded-xl border border-slate-800 bg-card">
       <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
         <div>
           <h3 className="text-sm font-bold text-white">Durée de position</h3>

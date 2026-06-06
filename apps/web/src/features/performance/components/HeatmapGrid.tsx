@@ -65,7 +65,7 @@ export function HeatmapGrid({ period, accountId }: Props) {
   }
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-[#0b111c] p-4 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
+    <div className="rounded-lg border border-slate-800 bg-background p-4 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
       <h2 className="mb-4 text-sm font-black text-white">Heatmap P&L (jour × heure)</h2>
 
       {query.isLoading ? <Skeleton /> : (

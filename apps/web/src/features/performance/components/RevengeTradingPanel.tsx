@@ -36,7 +36,7 @@ export function RevengeTradingPanel({ period }: Props) {
 
   return (
     <PlanGateBanner required="PRO" featureName="Détection Revenge Trading">
-      <div className="space-y-4 rounded-lg border border-slate-800 bg-[#0b111c] p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+      <div className="space-y-4 rounded-lg border border-slate-800 bg-background p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
         <div className="flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 text-orange-400" />
           <h2 className="text-sm font-black text-white">Revenge Trading</h2>

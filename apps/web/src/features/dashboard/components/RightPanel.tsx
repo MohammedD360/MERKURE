@@ -19,7 +19,7 @@ function AssistantPanel() {
   ]
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-[#0b111c] p-4 shadow-[0_14px_40px_rgba(0,0,0,0.18)]">
+    <div className="rounded-lg border border-slate-800 bg-background p-4 shadow-[0_14px_40px_rgba(0,0,0,0.18)]">
       <div className="mb-1 flex items-center gap-2">
         <h3 className="text-sm font-black text-white">Insights IA</h3>
         <span className="rounded border border-blue-400/20 bg-blue-400/[0.08] px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-blue-300">BETA</span>

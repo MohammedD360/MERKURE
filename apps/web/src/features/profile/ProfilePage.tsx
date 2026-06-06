@@ -199,7 +199,7 @@ function PasswordCard() {
   }
 
   return (
-    <section className="rounded-xl border border-white/10 bg-[#0b111c] p-6 shadow-[0_12px_46px_rgba(0,0,0,0.18)]">
+    <section className="rounded-xl border border-white/10 bg-background p-6 shadow-[0_12px_46px_rgba(0,0,0,0.18)]">
       <div className="flex items-start gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-blue-400/20 bg-blue-400/10 text-blue-300">
           <Lock className="h-5 w-5" />
@@ -360,7 +360,7 @@ export function ProfilePage() {
 
   return (
     <div className="space-y-6 px-4 py-5 sm:px-6 lg:px-8">
-      <section className="overflow-hidden rounded-xl border border-white/10 bg-[#0b111c] shadow-[0_12px_52px_rgba(0,0,0,0.20)]">
+      <section className="overflow-hidden rounded-xl border border-white/10 bg-background shadow-[0_12px_52px_rgba(0,0,0,0.20)]">
         <div className="relative border-b border-white/[0.06] px-6 py-6">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_8%_0%,rgba(86,191,107,0.14),transparent_32%),radial-gradient(circle_at_78%_5%,rgba(124,92,255,0.12),transparent_34%)]" />
           <div className="relative">

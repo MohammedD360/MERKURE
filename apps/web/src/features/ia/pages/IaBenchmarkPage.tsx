@@ -128,7 +128,7 @@ function MiniTrend() {
 export function IaBenchmarkPage() {
   return (
     <div className="space-y-6 px-4 py-5 sm:px-6 lg:px-8">
-      <section className="overflow-hidden rounded-xl border border-white/10 bg-[#0b111c] shadow-[0_12px_52px_rgba(0,0,0,0.22)]">
+      <section className="overflow-hidden rounded-xl border border-white/10 bg-background shadow-[0_12px_52px_rgba(0,0,0,0.22)]">
         <div className="relative grid lg:grid-cols-[1fr_0.9fr]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(124,92,255,0.20),transparent_30%),radial-gradient(circle_at_82%_42%,rgba(37,99,235,0.16),transparent_32%)]" />
           <div className="relative px-7 py-8">
@@ -160,7 +160,7 @@ export function IaBenchmarkPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         {benchmarkStats.map(({ icon: Icon, label, value, helper, tone }) => (
-          <article key={label} className="rounded-xl border border-white/10 bg-[#0b111c] p-5 shadow-[0_12px_46px_rgba(0,0,0,0.18)]">
+          <article key={label} className="rounded-xl border border-white/10 bg-background p-5 shadow-[0_12px_46px_rgba(0,0,0,0.18)]">
             <div className="flex items-start gap-4">
               <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border ${tone}`}>
                 <Icon className="h-5 w-5" />
@@ -175,7 +175,7 @@ export function IaBenchmarkPage() {
         ))}
       </div>
 
-      <section className="overflow-hidden rounded-xl border border-white/10 bg-[#0b111c] shadow-[0_12px_52px_rgba(0,0,0,0.18)]">
+      <section className="overflow-hidden rounded-xl border border-white/10 bg-background shadow-[0_12px_52px_rgba(0,0,0,0.18)]">
         <div className="flex items-center justify-between gap-4 border-b border-white/[0.06] px-5 py-4">
           <div>
             <h2 className="text-base font-black text-white">Comparaison de cohorte</h2>
@@ -214,7 +214,7 @@ export function IaBenchmarkPage() {
 
       <section className="grid gap-4 lg:grid-cols-3">
         {benchmarkSignals.map(({ title, text, icon: Icon, tone }) => (
-          <article key={title} className="rounded-xl border border-white/10 bg-[#0b111c] p-5">
+          <article key={title} className="rounded-xl border border-white/10 bg-background p-5">
             <div className={`flex h-11 w-11 items-center justify-center rounded-lg border ${tone}`}>
               <Icon className="h-5 w-5" />
             </div>
@@ -224,7 +224,7 @@ export function IaBenchmarkPage() {
         ))}
       </section>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-[#0b111c] px-5 py-4 text-sm font-semibold text-slate-400 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-background px-5 py-4 text-sm font-semibold text-slate-400 sm:flex-row sm:items-center">
         <CheckCircle2 className="h-5 w-5 shrink-0 text-[#56bf6b]" />
         Les benchmarks sont anonymisés et servent à piloter votre progression. Ils ne constituent pas une promesse de résultat.
         <button className="inline-flex items-center gap-2 text-xs font-black text-violet-300 sm:ml-auto">

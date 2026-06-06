@@ -221,7 +221,7 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={handleClose} />
 
-      <div className="relative w-full max-w-md overflow-hidden rounded-xl border border-white/10 bg-[#0b111c] shadow-[0_24px_80px_rgba(0,0,0,0.42)]">
+      <div className="relative w-full max-w-md overflow-hidden rounded-xl border border-white/10 bg-background shadow-[0_24px_80px_rgba(0,0,0,0.42)]">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/[0.06] px-6 py-4">
           <div className="flex items-center gap-2">

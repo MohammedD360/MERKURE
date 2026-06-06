@@ -15,7 +15,7 @@ function CustomTooltip({ active, payload, mode }: {
   if (!active || !payload?.length) return null
   const d = payload[0]!.payload
   return (
-    <div className="rounded-md border border-slate-700 bg-[#0b111c] px-3 py-2 text-xs shadow-2xl">
+    <div className="rounded-md border border-slate-700 bg-background px-3 py-2 text-xs shadow-2xl">
       <div className="font-medium text-white">{d.label}</div>
       {mode === 'volume' ? (
         <div className="mt-0.5 text-slate-400">{d.pct}% des trades ({d.nbTrades})</div>
@@ -52,7 +52,7 @@ export function AssetBreakdown({
       }
 
   return (
-    <div className="h-full rounded-lg border border-slate-800 bg-[#0b111c] p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
+    <div className="h-full rounded-lg border border-slate-800 bg-background p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Allocation trades</p>

@@ -111,7 +111,7 @@ export function StatsOverviewWidget({ period = '30d' }: Props) {
   const totalPnlClass = d.totalPnl >= 0 ? 'text-green-400' : 'text-red-400'
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-800 bg-[#0d1521] shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
+    <div className="overflow-hidden rounded-xl border border-slate-800 bg-card shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
       {/* 2×2 grid */}
       <div className="grid grid-cols-2 divide-x divide-slate-800 divide-y">
 

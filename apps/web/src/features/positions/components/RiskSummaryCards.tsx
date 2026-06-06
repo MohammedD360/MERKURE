@@ -20,7 +20,7 @@ function Card({ label, value, sub, icon: Icon, iconClass, loading }: {
   icon: React.ElementType; iconClass: string; loading: boolean
 }) {
   return (
-    <div className="bg-[#111827] border border-gray-800/60 rounded-xl p-4 flex items-start gap-3">
+    <div className="bg-card border border-gray-800/60 rounded-xl p-4 flex items-start gap-3">
       <div className={`mt-0.5 rounded-lg p-2 ${iconClass}`}>
         <Icon className="w-4 h-4" />
       </div>
@@ -62,7 +62,7 @@ export function RiskSummaryCards() {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {/* P&L flottant */}
-      <div className="bg-[#111827] border border-gray-800/60 rounded-xl p-4 flex items-start gap-3">
+      <div className="bg-card border border-gray-800/60 rounded-xl p-4 flex items-start gap-3">
         <div className={`mt-0.5 rounded-lg p-2 ${totalPnl >= 0 ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'}`}>
           {totalPnl >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
         </div>
@@ -80,7 +80,7 @@ export function RiskSummaryCards() {
       </div>
 
       {/* Risque courant */}
-      <div className="bg-[#111827] border border-gray-800/60 rounded-xl p-4 flex items-start gap-3">
+      <div className="bg-card border border-gray-800/60 rounded-xl p-4 flex items-start gap-3">
         <div className="mt-0.5 rounded-lg p-2 bg-amber-500/15 text-amber-400">
           <AlertTriangle className="w-4 h-4" />
         </div>
@@ -96,7 +96,7 @@ export function RiskSummaryCards() {
       </div>
 
       {/* Meilleure position */}
-      <div className="bg-[#111827] border border-gray-800/60 rounded-xl p-4 flex items-start gap-3">
+      <div className="bg-card border border-gray-800/60 rounded-xl p-4 flex items-start gap-3">
         <div className="mt-0.5 rounded-lg p-2 bg-green-500/15 text-green-400">
           <TrendingUp className="w-4 h-4" />
         </div>

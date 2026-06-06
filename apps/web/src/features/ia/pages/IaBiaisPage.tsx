@@ -109,7 +109,7 @@ function BiasCard({
   points,
 }: (typeof biasCards)[number]) {
   return (
-    <article className={`overflow-hidden rounded-xl border bg-[#0b111c] p-5 shadow-[0_12px_46px_rgba(0,0,0,0.22)] ${tone}`}>
+    <article className={`overflow-hidden rounded-xl border bg-background p-5 shadow-[0_12px_46px_rgba(0,0,0,0.22)] ${tone}`}>
       <div className="flex min-h-[132px] items-center justify-between gap-5">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
@@ -182,7 +182,7 @@ export function IaBiaisPage() {
         ))}
       </div>
 
-      <section className="overflow-hidden rounded-xl border border-white/10 bg-[#0b111c] shadow-[0_12px_48px_rgba(0,0,0,0.20)]">
+      <section className="overflow-hidden rounded-xl border border-white/10 bg-background shadow-[0_12px_48px_rgba(0,0,0,0.20)]">
         <div className="flex items-center gap-2 px-6 py-5">
           <h2 className="text-base font-black text-white">Points d&apos;amélioration détectés</h2>
           <Info className="h-4 w-4 text-slate-600" />
@@ -219,7 +219,7 @@ export function IaBiaisPage() {
         )}
       </section>
 
-      <section className="rounded-xl border border-white/10 bg-[#0b111c] p-6 shadow-[0_12px_48px_rgba(0,0,0,0.18)]">
+      <section className="rounded-xl border border-white/10 bg-background p-6 shadow-[0_12px_48px_rgba(0,0,0,0.18)]">
         <h2 className="text-base font-black text-white">Comprendre les biais</h2>
         <div className="mt-5 grid gap-4 xl:grid-cols-3">
           {educationCards.map(({ icon: Icon, title, text, tone }) => (
@@ -238,7 +238,7 @@ export function IaBiaisPage() {
         </div>
       </section>
 
-      <div className="flex flex-col gap-4 rounded-xl border border-white/10 bg-[#0b111c] px-5 py-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-4 rounded-xl border border-white/10 bg-background px-5 py-4 sm:flex-row sm:items-center">
         <div className="flex items-center gap-3">
           <Sparkles className="h-5 w-5 text-violet-400" />
           <span className="text-sm font-black text-white">Conseil IA</span>

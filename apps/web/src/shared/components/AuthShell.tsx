@@ -61,7 +61,7 @@ function ProductPanel() {
           </div>
 
           {/* Dashboard preview */}
-          <div className="mt-8 overflow-hidden rounded-xl border border-white/10 bg-[#0b111c] shadow-[0_24px_80px_rgba(0,0,0,0.40)]">
+          <div className="mt-8 overflow-hidden rounded-xl border border-white/10 bg-background shadow-[0_24px_80px_rgba(0,0,0,0.40)]">
             <div className="flex items-center justify-between border-b border-white/10 px-5 py-3.5">
               <p className="text-xs font-black text-white">Dashboard · 30 derniers jours</p>
               <span className="flex items-center gap-1.5 rounded-md border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-black text-emerald-300">

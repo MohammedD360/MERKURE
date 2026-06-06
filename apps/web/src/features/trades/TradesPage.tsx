@@ -73,7 +73,7 @@ export function TradesPage() {
         </div>
         <button
           onClick={handleExport}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#111827] border border-gray-800/60 hover:border-gray-700 text-gray-300 hover:text-white text-xs font-medium rounded-lg transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-card border border-gray-800/60 hover:border-gray-700 text-gray-300 hover:text-white text-xs font-medium rounded-lg transition-colors"
         >
           <Download className="w-3.5 h-3.5" />
           Export CSV
@@ -89,7 +89,7 @@ export function TradesPage() {
       />
 
       {/* Table */}
-      <div className="bg-[#111827] border border-gray-800/60 rounded-xl overflow-hidden">
+      <div className="bg-card border border-gray-800/60 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>

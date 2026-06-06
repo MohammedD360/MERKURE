@@ -45,7 +45,7 @@ export function RiskPanel() {
   }
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-[#0b111c] p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
+    <div className="rounded-lg border border-slate-800 bg-background p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Contrôle</p>

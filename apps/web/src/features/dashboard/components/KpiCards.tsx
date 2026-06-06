@@ -46,7 +46,7 @@ function KpiCard({
   children: ReactNode
 }) {
   return (
-    <div className="h-full min-h-[124px] rounded-lg border border-slate-800 bg-[#0b111c] p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)]">
+    <div className="h-full min-h-[124px] rounded-lg border border-slate-800 bg-background p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)]">
       <div className="flex h-full flex-col">
         <div className="mb-5 flex items-center justify-between gap-3">
           <p className="truncate text-[11px] font-black uppercase tracking-wider text-slate-500">{title}</p>

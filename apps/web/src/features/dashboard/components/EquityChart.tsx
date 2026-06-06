@@ -53,7 +53,7 @@ export function EquityChart({
   }
 
   return (
-    <div ref={ref} className="h-full rounded-lg border border-slate-800 bg-[#0b111c] p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
+    <div ref={ref} className="h-full rounded-lg border border-slate-800 bg-background p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] lg:p-6">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Courbe equity</p>
@@ -157,7 +157,7 @@ export function EquityChart({
               if (!active || !payload?.length) return null
               const val = Number(payload[0]?.value ?? 0)
               return (
-                <div className="rounded-md border border-slate-700 bg-[#0b111c] px-3 py-2 text-xs shadow-2xl">
+                <div className="rounded-md border border-slate-700 bg-background px-3 py-2 text-xs shadow-2xl">
                   <div className="mb-1 text-slate-400">{label}</div>
                   <div className="font-semibold text-white">
                     {view === 'cumul' ? 'P&L cumulé' : 'P&L journalier'} :{' '}

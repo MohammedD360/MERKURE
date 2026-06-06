@@ -191,7 +191,7 @@ function ModuleCard({ module }: { module: (typeof modules)[number] }) {
   return (
     <Link
       href={module.href}
-      className="group overflow-hidden rounded-xl border border-white/10 bg-[#0b111c] shadow-[0_10px_40px_rgba(0,0,0,0.20)] transition-colors hover:border-white/20"
+      className="group overflow-hidden rounded-xl border border-white/10 bg-background shadow-[0_10px_40px_rgba(0,0,0,0.20)] transition-colors hover:border-white/20"
     >
       <div className="relative min-h-[142px] p-5">
         <div className="absolute inset-0 bg-gradient-to-br from-white/[0.035] to-transparent opacity-90" />
@@ -249,7 +249,7 @@ function SummaryStrip() {
   const cards = summaryCards.map((card, index) => index === 0 ? { ...card, value: score } : card)
 
   return (
-    <section className="rounded-xl border border-white/10 bg-[#0b111c] p-5 shadow-[0_10px_40px_rgba(0,0,0,0.18)]">
+    <section className="rounded-xl border border-white/10 bg-background p-5 shadow-[0_10px_40px_rgba(0,0,0,0.18)]">
       <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">Votre résumé IA</p>
       <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         {cards.map(({ icon: Icon, label, value, color }) => (

@@ -29,7 +29,7 @@ export function MonthlyTable() {
     : 0
 
   return (
-    <div className="bg-[#111827] border border-gray-800/60 rounded-xl overflow-hidden">
+    <div className="bg-card border border-gray-800/60 rounded-xl overflow-hidden">
       <div className="px-4 py-3 border-b border-gray-800/60">
         <h2 className="text-sm font-semibold text-white">Bilan mensuel</h2>
         <p className="text-[11px] text-gray-500 mt-0.5">12 derniers mois</p>

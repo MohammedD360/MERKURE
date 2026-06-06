@@ -22,7 +22,7 @@ function AlertCard({ alert }: { alert: Alert }) {
     <div
       className={`group relative flex items-start gap-4 rounded-lg border p-4 transition-all ${
         alert.isRead
-          ? 'border-slate-800 bg-[#0b111c]/70 opacity-60'
+          ? 'border-slate-800 bg-background/70 opacity-60'
           : `${border} ${bg} cursor-pointer hover:opacity-90`
       }`}
       onClick={() => { if (!alert.isRead) markRead.mutate(alert.id) }}
@@ -118,7 +118,7 @@ export function AlertsPage() {
             <button
               onClick={() => markAll.mutate()}
               disabled={markAll.isPending}
-              className="inline-flex items-center gap-2 rounded-md border border-slate-800 bg-[#0b111c] px-4 py-2 text-xs font-black text-slate-400 transition-colors hover:bg-white/[0.04] hover:text-slate-200 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-md border border-slate-800 bg-background px-4 py-2 text-xs font-black text-slate-400 transition-colors hover:bg-white/[0.04] hover:text-slate-200 disabled:opacity-50"
             >
               <CheckCheck className="h-3.5 w-3.5" />
               Tout marquer comme lu

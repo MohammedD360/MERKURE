@@ -156,7 +156,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--shell-bg)] text-slate-100 transition-colors duration-200">
+    <div className="min-h-screen bg-background text-foreground">
       <WebSocketProvider />
       {sidebarOpen && (
         <button
