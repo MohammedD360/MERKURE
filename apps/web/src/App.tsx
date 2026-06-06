@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -298,10 +299,109 @@ function Hero() {
 
 /* ─── Partners ───────────────────────────────────────────────────────────── */
 
-function Partners() {
-  const brokers = ['MT4', 'MT5', 'cTrader', 'Binance', 'TopStep', 'FTMO']
+const platformLogos = [
+  {
+    name: 'MetaTrader 4',
+    src: '/partners/metatrader-4.png',
+    width: 500,
+    height: 250,
+    tone: 'light',
+    logoClass: 'h-16 w-[150px] scale-[1.45]',
+  },
+  {
+    name: 'MetaTrader 5',
+    src: '/partners/metatrader-5.png',
+    width: 1200,
+    height: 600,
+    tone: 'light',
+    logoClass: 'h-16 w-[150px] scale-[1.7]',
+  },
+  {
+    name: 'cTrader',
+    src: '/brokers/ctrader.png',
+    width: 36,
+    height: 35,
+    tone: 'light',
+    logoClass: 'h-11 w-11',
+  },
+  {
+    name: 'Binance',
+    src: '/brokers/binance.svg',
+    width: 127,
+    height: 127,
+    tone: 'dark',
+    logoClass: 'h-11 w-11',
+  },
+  {
+    name: 'Interactive Brokers',
+    src: '/partners/interactive-brokers.png',
+    width: 486,
+    height: 75,
+    tone: 'dark',
+    logoClass: 'h-10 w-[142px] scale-110',
+  },
+  {
+    name: 'TradingView',
+    src: '/partners/tradingview.svg',
+    width: 32,
+    height: 16,
+    tone: 'light',
+    logoClass: 'h-10 w-20',
+  },
+  {
+    name: 'OANDA',
+    src: '/partners/oanda.svg',
+    width: 128,
+    height: 35,
+    tone: 'light',
+    logoClass: 'h-10 w-[136px]',
+  },
+  {
+    name: 'TradeLocker',
+    src: '/partners/tradelocker.svg',
+    width: 199,
+    height: 61,
+    tone: 'dark',
+    logoClass: 'h-11 w-[144px]',
+  },
+  {
+    name: 'Pepperstone',
+    src: '/partners/pepperstone.svg',
+    width: 233,
+    height: 46,
+    tone: 'dark',
+    logoClass: 'h-10 w-[150px]',
+  },
+] as const
+
+function PlatformLogoTile({ logo }: { logo: (typeof platformLogos)[number] }) {
   return (
-    <div className="container px-4 md:px-6">
+    <div
+      className={cn(
+        'group flex h-20 w-[174px] shrink-0 items-center justify-center overflow-hidden rounded-lg border px-6 shadow-[0_16px_44px_rgba(0,0,0,0.18)] transition-transform duration-300 hover:-translate-y-0.5',
+        logo.tone === 'light'
+          ? 'border-white/20 bg-white'
+          : 'border-white/10 bg-neutral-950',
+      )}
+    >
+      <div className={cn('flex items-center justify-center', logo.logoClass)}>
+        <Image
+          src={logo.src}
+          alt={logo.name}
+          width={logo.width}
+          height={logo.height}
+          unoptimized={logo.src.endsWith('.svg')}
+          sizes="174px"
+          className="h-full w-full object-contain"
+        />
+      </div>
+    </div>
+  )
+}
+
+function Partners() {
+  return (
+    <div className="container px-4 md:px-6 overflow-hidden">
       <div className="flex flex-col items-center space-y-4 text-center">
         <div className="space-y-2">
           <h2 className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-5xl">Compatible avec vos plateformes</h2>
@@ -309,12 +409,18 @@ function Partners() {
             Synchronisez vos comptes en lecture seule depuis n'importe quel broker ou prop firm.
           </p>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 md:gap-6 items-center justify-items-center w-full mt-8">
-          {brokers.map((b) => (
-            <div key={b} className="flex h-12 w-full max-w-[140px] items-center justify-center rounded-lg border border-border bg-card px-4">
-              <span className="text-sm font-semibold text-muted-foreground">{b}</span>
-            </div>
-          ))}
+        <div className="platform-marquee relative mt-8 w-full max-w-5xl overflow-hidden py-2">
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-background to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-background to-transparent" />
+          <div className="flex w-max animate-platform-marquee">
+            {[0, 1].map((loop) => (
+              <div key={loop} className="flex shrink-0 items-center gap-4 pr-4" aria-hidden={loop === 1}>
+                {platformLogos.map((logo) => (
+                  <PlatformLogoTile key={`${loop}-${logo.name}`} logo={logo} />
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

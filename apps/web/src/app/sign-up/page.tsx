@@ -92,6 +92,7 @@ export default function SignUpPage() {
       eyebrow="Inscription"
       title="Créez votre espace d'analyse."
       description="Connectez vos données progressivement et gardez une lecture claire de votre trading dès le premier jour."
+      contentClassName="sm:w-[520px]"
     >
       <div className="space-y-4">
         {/* Google — option principale, friction réduite */}

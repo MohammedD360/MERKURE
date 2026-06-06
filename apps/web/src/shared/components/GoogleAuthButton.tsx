@@ -34,7 +34,7 @@ export function GoogleAuthButton({ label = 'Continuer avec Google', variant = 's
   return (
     <a
       href={`${API}/api/v1/auth/google`}
-      className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] text-sm font-semibold text-white transition-colors hover:border-white/20 hover:bg-white/[0.08]"
+      className="flex h-11 w-full items-center justify-center gap-3 rounded-md border border-white/10 bg-black text-sm font-semibold text-white transition-colors hover:border-white/25 hover:bg-white/[0.04]"
     >
       <GoogleSvg />
       {label}
