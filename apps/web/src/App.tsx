@@ -210,7 +210,7 @@ function DashboardMockup() {
   const pts = '0,146 52,138 104,120 156,132 208,96 260,72 312,88 364,56 416,42 468,24 520,18'
   return (
     <div className="overflow-hidden rounded-[14.5867px] border-[1.82333px] border-gray-800 bg-card">
-      <div className="grid min-h-[440px] lg:grid-cols-[164px_1fr]">
+      <div className="grid min-h-[260px] sm:min-h-[360px] md:min-h-[440px] lg:grid-cols-[164px_1fr]">
         <aside className="hidden border-r border-border bg-[hsl(var(--sidebar-background))] p-4 lg:block">
           <div className="flex items-center gap-2 mb-7">
             <BrandIcon className="h-5 w-5 text-[hsl(var(--sidebar-primary))]" />
@@ -227,7 +227,7 @@ function DashboardMockup() {
             <h3 className="text-sm font-semibold text-foreground">Vue d'ensemble - 30 jours</h3>
             <span className="rounded-md border border-[hsl(var(--sidebar-primary)/0.3)] bg-[hsl(var(--sidebar-primary)/0.08)] px-3 py-1 text-[11px] text-[hsl(var(--sidebar-primary))]">Mai 2026</span>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-2 grid-cols-2 xl:grid-cols-4">
             {[
               { label: 'Profit net', value: '+2 450 EUR', up: true },
               { label: 'Win Rate', value: '61,4%', up: true },
@@ -265,7 +265,7 @@ function DashboardMockup() {
 function Hero() {
   return (
     <div className="container px-4 md:px-6 mx-auto">
-      <div className="flex flex-col w-full gap-y-24">
+      <div className="flex flex-col w-full gap-y-10 sm:gap-y-16 md:gap-y-24">
         <div className="flex flex-col justify-center space-y-4 text-center">
           <div className="space-y-2">
             <div className="mx-auto sm:mb-8 inline-flex items-center px-4 py-2 h-[26px] bg-[hsl(var(--sidebar-primary)/0.08)] border border-[hsl(var(--sidebar-primary)/0.3)] rounded-[26px] text-[10px] font-semibold leading-5 tracking-[0.35px] uppercase text-[hsl(var(--sidebar-primary)/0.8)]">
@@ -304,12 +304,12 @@ function Partners() {
     <div className="container px-4 md:px-6">
       <div className="flex flex-col items-center space-y-4 text-center">
         <div className="space-y-2">
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Compatible avec vos plateformes</h2>
+          <h2 className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-5xl">Compatible avec vos plateformes</h2>
           <p className="mx-auto max-w-[700px] text-gray-500 dark:text-gray-400 md:text-xl/relaxed">
             Synchronisez vos comptes en lecture seule depuis n'importe quel broker ou prop firm.
           </p>
         </div>
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-4 md:gap-8 items-center justify-items-center w-full mt-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 md:gap-6 items-center justify-items-center w-full mt-8">
           {brokers.map((b) => (
             <div key={b} className="flex h-12 w-full max-w-[140px] items-center justify-center rounded-lg border border-border bg-card px-4">
               <span className="text-sm font-semibold text-muted-foreground">{b}</span>
@@ -406,8 +406,8 @@ function Features() {
 
   return (
     <main id="features" className="container mx-auto px-4 py-16">
-      <h2 className="text-4xl font-bold text-center mb-4">Des outils pour chaque dimension du trading</h2>
-      <p className="text-xl text-center text-gray-600 dark:text-gray-400 mb-12">Identifiez vos forces, corrigez vos faiblesses, progressez vraiment.</p>
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">Des outils pour chaque dimension du trading</h2>
+      <p className="text-base sm:text-lg md:text-xl text-center text-gray-600 dark:text-gray-400 mb-8 md:mb-12">Identifiez vos forces, corrigez vos faiblesses, progressez vraiment.</p>
       <div className="grid grid-cols-1 lg:grid-cols-6 gap-4">
         {cards.map((f, index) => (
           <Card id={f.id} key={f.id} className={cn('bg-card', index < 2 ? 'lg:col-span-3' : index === 2 ? 'lg:col-span-4' : 'lg:col-span-2')}>
@@ -436,19 +436,19 @@ function Features() {
 /* ─── Pricing ────────────────────────────────────────────────────────────── */
 
 const PLANS = [
-  { name: 'Free', price: '0', sub: 'Pour decouvrir', features: ['Import CSV uniquement', 'Metriques de base', 'Journal limite'] },
-  { name: 'Starter', price: '9', sub: 'Pour commencer', features: ['1 compte MT4/MT5', 'Toutes les metriques', 'Journal IA de base', 'Support prioritaire'] },
-  { name: 'Pro', price: '19', sub: 'Pour traders actifs', features: ['2 comptes MT4/MT5', 'Analyses avancees', 'Insights IA illimites', 'Alertes intelligentes'], popular: true },
-  { name: 'Elite', price: '49', sub: 'Pour traders exigeants', features: ['5 comptes MT4/MT5', 'Deep analytics', 'Backtesting avance', 'Export & rapports pro'] },
-  { name: 'Agency', price: '149', sub: 'Pour prop firms & coachs', features: ['20 comptes MT4/MT5', 'Multi-utilisateurs', 'API complete', 'Support dedie'] },
+  { name: 'Starter', price: '9', sub: 'Pour commencer', features: ['1 compte MT4/MT5', 'Toutes les métriques', 'Journal IA de base', 'Support prioritaire'] },
+  { name: 'Pro', price: '19', sub: 'Pour traders actifs', features: ['2 comptes MT4/MT5', 'Analyses avancées', 'Insights IA illimités', 'Alertes intelligentes'], popular: true },
+  { name: 'Elite', price: '49', sub: 'Pour traders exigeants', features: ['5 comptes MT4/MT5', 'Deep analytics', 'Backtesting avancé', 'Export & rapports pro'] },
+  { name: 'Agency', price: '149', sub: 'Pour prop firms & coachs', features: ['20 comptes MT4/MT5', 'Multi-utilisateurs', 'API complète', 'Support dédié'] },
+  { name: 'Free', price: '0', sub: 'Pour découvrir', features: ['Import CSV uniquement', 'Métriques de base', 'Journal limité'] },
 ]
 
 function PricingSection() {
   return (
     <section id="tarifs" className="container mx-auto px-4 py-16">
-      <h2 className="text-4xl font-bold text-center mb-4">Un plan pour chaque trader</h2>
-      <p className="text-xl text-center text-gray-600 dark:text-gray-400 mb-12">Du debutant a la prop firm.</p>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">Un plan pour chaque trader</h2>
+      <p className="text-base sm:text-xl text-center text-gray-600 dark:text-gray-400 mb-8 md:mb-12">Du débutant à la prop firm.</p>
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
         {PLANS.map((plan) => (
           <article key={plan.name} className={cn('relative rounded-xl border p-5 flex flex-col', (plan as { popular?: boolean }).popular ? 'border-[hsl(var(--sidebar-primary)/0.5)] bg-[hsl(var(--sidebar-primary)/0.05)]' : 'border-border bg-card')}>
             {(plan as { popular?: boolean }).popular && (
@@ -456,7 +456,7 @@ function PricingSection() {
             )}
             <h3 className="text-base font-semibold text-foreground">{plan.name}</h3>
             <p className="mt-0.5 text-xs text-muted-foreground">{plan.sub}</p>
-            <p className="mt-5 font-mono text-4xl font-bold text-foreground">{plan.price}EUR<span className="text-sm font-medium text-muted-foreground"> /mois</span></p>
+            <p className="mt-5 font-mono text-4xl font-bold text-foreground">{plan.price}€<span className="text-sm font-medium text-muted-foreground"> /mois</span></p>
             <ul className="mt-5 flex-1 grid gap-2.5">
               {plan.features.map((f) => (
                 <li key={f} className="flex items-start gap-2 text-xs text-muted-foreground">
@@ -490,7 +490,7 @@ function FAQSection() {
   return (
     <section id="faq" className="py-16">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-8">Questions frequentes</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8">Questions fréquentes</h2>
         <div className="max-w-3xl mx-auto space-y-6">
           {FAQS.map(({ q, a }) => (
             <details key={q} className="border-b border-border pb-4 group">
@@ -586,7 +586,7 @@ function Footer() {
   return (
     <footer className="py-12 max-w-7xl mx-auto">
       <div className="container mx-auto px-4">
-        <div className="xl:grid xl:grid-cols-3 xl:gap-8">
+        <div className="md:grid md:grid-cols-3 md:gap-8">
           <div className="space-y-8">
             <div className="flex items-center gap-2">
               <BrandIcon className="h-7 w-7 text-[hsl(var(--sidebar-primary))]" />
@@ -602,7 +602,7 @@ function Footer() {
               </a>
             </div>
           </div>
-          <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
+          <div className="mt-10 grid grid-cols-2 gap-8 md:col-span-2 md:mt-0">
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
                 <h4 className="text-sm font-semibold leading-6 text-foreground">Produit</h4>
@@ -648,7 +648,7 @@ export default function App() {
       <div className="px-2 sm:px-6 lg:px-32">
         <Navbar />
         <div className="mt-8 sm:mt-20 max-w-screen-xl mx-auto">
-          <main className="flex flex-col sm:gap-28">
+          <main className="flex flex-col gap-16 sm:gap-24 md:gap-28">
             <section className="w-full py-14 md:py-12 lg:py-16 xl:py-24">
               <Hero />
             </section>
