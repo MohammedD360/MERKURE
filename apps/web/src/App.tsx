@@ -121,7 +121,7 @@ function Navbar() {
       {/* Backdrop blur sur hover des nav items — identique deltalytix */}
       <div className={`fixed inset-0 bg-background/80 backdrop-blur-sm z-40 transition-opacity duration-300 ${hoveredItem ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
 
-      <span className={cn('h-14 fixed top-0 left-0 right-0 bg-background z-50', transCls)} />
+      <span className={cn('h-14 fixed top-0 left-0 right-0 z-50 bg-black/10 backdrop-blur-[2px]', transCls)} />
       <header className={cn('max-w-7xl mx-auto fixed top-0 left-0 right-0 px-4 lg:px-6 h-14 flex items-center justify-between z-50 text-foreground', transCls)}>
         <Link href="/" className="flex items-center space-x-2">
           <BrandIcon className="h-6 w-6 text-[hsl(var(--sidebar-primary))]" />
@@ -210,9 +210,9 @@ function Navbar() {
 function DashboardMockup() {
   const pts = '0,146 52,138 104,120 156,132 208,96 260,72 312,88 364,56 416,42 468,24 520,18'
   return (
-    <div className="overflow-hidden rounded-[14.5867px] border-[1.82333px] border-gray-800 bg-card">
-      <div className="grid min-h-[260px] sm:min-h-[360px] md:min-h-[440px] lg:grid-cols-[164px_1fr]">
-        <aside className="hidden border-r border-border bg-[hsl(var(--sidebar-background))] p-4 lg:block">
+    <div className="overflow-hidden rounded-xl border border-violet-300/25 bg-black/65 shadow-[0_0_0_1px_rgba(139,92,246,0.10),0_30px_100px_rgba(0,0,0,0.72),0_0_80px_rgba(124,58,237,0.16)] backdrop-blur-xl">
+      <div className="grid min-h-[280px] sm:min-h-[360px] md:min-h-[440px] lg:grid-cols-[178px_1fr]">
+        <aside className="hidden border-r border-white/10 bg-white/[0.025] p-5 lg:block">
           <div className="flex items-center gap-2 mb-7">
             <BrandIcon className="h-5 w-5 text-[hsl(var(--sidebar-primary))]" />
             <span className="font-black text-sm tracking-[0.12em]">MERKURE</span>
@@ -223,7 +223,7 @@ function DashboardMockup() {
             ))}
           </nav>
         </aside>
-        <div className="p-4 sm:p-5">
+        <div className="p-4 sm:p-5 md:p-6">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-foreground">Vue d'ensemble - 30 jours</h3>
             <span className="rounded-md border border-[hsl(var(--sidebar-primary)/0.3)] bg-[hsl(var(--sidebar-primary)/0.08)] px-3 py-1 text-[11px] text-[hsl(var(--sidebar-primary))]">Mai 2026</span>
@@ -235,13 +235,13 @@ function DashboardMockup() {
               { label: 'Profit Factor', value: '1,72', up: true },
               { label: 'Drawdown Max', value: '-8,4%', up: false },
             ].map(({ label, value, up }) => (
-              <div key={label} className="rounded-lg border border-border bg-background p-4">
+              <div key={label} className="rounded-lg border border-white/10 bg-black/45 p-4">
                 <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
                 <p className={cn('mt-2 font-mono text-lg font-semibold', up ? 'text-emerald-400' : 'text-red-400')}>{value}</p>
               </div>
             ))}
           </div>
-          <div className="mt-4 rounded-lg border border-border bg-background p-4">
+          <div className="mt-4 rounded-lg border border-white/10 bg-black/45 p-4">
             <p className="mb-3 text-xs font-medium text-foreground">Evolution de la performance</p>
             <svg viewBox="0 0 520 160" className="h-36 w-full" aria-hidden="true">
               <defs>
@@ -263,32 +263,146 @@ function DashboardMockup() {
 
 /* ─── Hero ───────────────────────────────────────────────────────────────── */
 
+const heroCandles = [
+  { x: 2, y: 22, h: 86, b: 30, up: true, delay: 0 },
+  { x: 7, y: 31, h: 140, b: 42, up: false, delay: 0.3 },
+  { x: 13, y: 18, h: 72, b: 24, up: true, delay: 0.9 },
+  { x: 22, y: 44, h: 98, b: 38, up: false, delay: 1.2 },
+  { x: 27, y: 39, h: 112, b: 36, up: true, delay: 0.4 },
+  { x: 73, y: 34, h: 96, b: 30, up: true, delay: 0.7 },
+  { x: 78, y: 27, h: 126, b: 40, up: true, delay: 1.1 },
+  { x: 84, y: 23, h: 74, b: 28, up: false, delay: 0.2 },
+  { x: 89, y: 16, h: 156, b: 48, up: true, delay: 1.4 },
+  { x: 94, y: 11, h: 118, b: 36, up: true, delay: 0.6 },
+] as const
+
+const heroParticles = [
+  { x: 6, y: 20, s: 2, delay: 0.1 },
+  { x: 15, y: 35, s: 5, delay: 1.5 },
+  { x: 22, y: 18, s: 3, delay: 0.7 },
+  { x: 31, y: 27, s: 2, delay: 2.2 },
+  { x: 44, y: 22, s: 4, delay: 1.1 },
+  { x: 57, y: 34, s: 2, delay: 0.4 },
+  { x: 66, y: 18, s: 3, delay: 1.8 },
+  { x: 76, y: 30, s: 2, delay: 0.9 },
+  { x: 86, y: 24, s: 4, delay: 1.3 },
+  { x: 95, y: 15, s: 2, delay: 2.6 },
+] as const
+
+function HeroPerformanceLabels() {
+  return (
+    <div className="pointer-events-none absolute inset-0 hidden text-xs font-mono font-semibold md:block" aria-hidden="true">
+      <span className="hero-performance-label left-[12%] top-[30%] border-emerald-400/20 text-emerald-300">+2.45%</span>
+      <span className="hero-performance-label left-[18%] top-[42%] border-red-400/20 text-red-300">-1.23%</span>
+      <span className="hero-performance-label right-[15%] top-[31%] border-emerald-400/20 text-emerald-300">+3.72%</span>
+      <span className="hero-performance-label right-[9%] top-[47%] border-violet-400/25 text-violet-300">+1.18%</span>
+    </div>
+  )
+}
+
+function HeroAnimatedBackground() {
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_22%,rgba(124,58,237,0.18),transparent_32%),radial-gradient(circle_at_16%_44%,rgba(139,92,246,0.20),transparent_24%),radial-gradient(circle_at_86%_40%,rgba(45,212,191,0.08),transparent_26%)]" />
+      <div className="hero-grid absolute inset-0 opacity-45" />
+
+      {heroCandles.map((candle) => (
+        <span
+          key={`${candle.x}-${candle.y}`}
+          className="hero-candle absolute hidden md:block"
+          style={{ left: `${candle.x}%`, top: `${candle.y}%`, animationDelay: `${candle.delay}s` }}
+        >
+          <span className="hero-candle-line" style={{ height: `${candle.h}px` }} />
+          <span
+            className={cn('hero-candle-body', candle.up ? 'bg-violet-500/35' : 'bg-violet-950/70')}
+            style={{ height: `${candle.b}px` }}
+          />
+        </span>
+      ))}
+
+      {heroParticles.map((particle) => (
+        <span
+          key={`${particle.x}-${particle.y}`}
+          className="hero-particle absolute rounded-full bg-violet-300"
+          style={{
+            left: `${particle.x}%`,
+            top: `${particle.y}%`,
+            width: `${particle.s}px`,
+            height: `${particle.s}px`,
+            animationDelay: `${particle.delay}s`,
+          }}
+        />
+      ))}
+
+      <svg className="hero-waves absolute inset-x-[-8%] bottom-[18%] h-[44%] w-[116%] md:bottom-[16%]" viewBox="0 0 1440 420" preserveAspectRatio="none">
+        <defs>
+          <filter id="heroWaveGlow" x="-20%" y="-60%" width="140%" height="220%">
+            <feGaussianBlur stdDeviation="7" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <linearGradient id="heroWaveGradient" x1="0" x2="1" y1="0" y2="0">
+            <stop stopColor="#8b5cf6" stopOpacity="0" />
+            <stop offset="0.17" stopColor="#a855f7" stopOpacity="0.85" />
+            <stop offset="0.5" stopColor="#7c3aed" stopOpacity="0.55" />
+            <stop offset="0.82" stopColor="#8b5cf6" stopOpacity="0.95" />
+            <stop offset="1" stopColor="#8b5cf6" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <g className="hero-wave-drift" filter="url(#heroWaveGlow)">
+          <path d="M-80 160 C120 65 230 255 420 188 C585 130 690 285 850 234 C990 188 1070 90 1210 150 C1310 195 1385 176 1520 110" fill="none" stroke="url(#heroWaveGradient)" strokeWidth="2.4" />
+          <path d="M-80 196 C120 104 270 282 440 228 C610 176 710 318 878 258 C1010 210 1080 130 1228 185 C1320 220 1400 222 1520 162" fill="none" stroke="#7c3aed" strokeOpacity="0.36" strokeWidth="1.2" />
+          {Array.from({ length: 18 }).map((_, index) => (
+            <path
+              key={index}
+              d={`M-80 ${178 + index * 9} C130 ${86 + index * 4} 285 ${272 + index * 5} 455 ${218 + index * 4} C625 ${166 + index * 3} 735 ${314 + index * 2} 900 ${252 + index * 3} C1030 ${206 + index * 2} 1086 ${142 + index * 3} 1230 ${196 + index * 3} C1330 ${232 + index * 2} 1410 ${222 + index * 3} 1520 ${166 + index * 2}`}
+              fill="none"
+              stroke="#8b5cf6"
+              strokeOpacity={0.14 - index * 0.004}
+              strokeWidth="0.8"
+            />
+          ))}
+        </g>
+      </svg>
+
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background via-background/50 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-black via-black/70 to-transparent" />
+      <HeroPerformanceLabels />
+    </div>
+  )
+}
+
 function Hero() {
   return (
-    <div className="container px-4 md:px-6 mx-auto">
-      <div className="flex flex-col w-full gap-y-10 sm:gap-y-16 md:gap-y-24">
-        <div className="flex flex-col justify-center space-y-4 text-center">
-          <div className="space-y-2">
-            <div className="mx-auto sm:mb-8 inline-flex items-center px-4 py-2 h-[26px] bg-[hsl(var(--sidebar-primary)/0.08)] border border-[hsl(var(--sidebar-primary)/0.3)] rounded-[26px] text-[10px] font-semibold leading-5 tracking-[0.35px] uppercase text-[hsl(var(--sidebar-primary)/0.8)]">
+    <div className="relative isolate min-h-[820px] overflow-hidden bg-[#020106] pt-28 sm:pt-32 lg:min-h-[920px] lg:pt-36">
+      <HeroAnimatedBackground />
+
+      <div className="relative z-10 mx-auto flex w-full max-w-screen-xl flex-col items-center px-4 md:px-6">
+        <div className="flex max-w-5xl flex-col justify-center space-y-5 text-center">
+          <div className="space-y-5">
+            <div className="mx-auto inline-flex h-[30px] items-center rounded-full border border-[hsl(var(--sidebar-primary)/0.45)] bg-black/35 px-5 py-2 text-[11px] font-semibold uppercase leading-5 tracking-[0.12em] text-[hsl(var(--sidebar-primary))] shadow-[0_0_28px_rgba(124,58,237,0.18)] backdrop-blur">
               Plateforme de performance trading
             </div>
-            <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-              Devenez le trader que vos emotions empechent d'etre.
+            <h1 className="mx-auto max-w-6xl text-4xl font-bold leading-[0.95] tracking-tight text-white sm:text-6xl lg:text-7xl">
+              Devenez le trader que vos <span className="text-[hsl(var(--sidebar-primary))]">émotions</span>{' '}empêchent d&apos;être.
             </h1>
-            <p className="mx-auto max-w-[600px] text-gray-500 dark:text-gray-400 md:text-xl">
-              MERKURE analyse vos trades en profondeur, detecte vos biais comportementaux et vous donne un plan d'amelioration clair pour performer durablement.
+            <p className="mx-auto max-w-[660px] text-balance text-base font-medium leading-8 text-zinc-400 md:text-xl">
+              MERKURE analyse vos trades en profondeur, détecte vos biais comportementaux et vous donne un plan d&apos;amélioration clair pour performer durablement.
             </p>
           </div>
-          <div className="flex w-full justify-center gap-3 flex-wrap">
-            <PrimaryButton href="/sign-up">Demarrer mon analyse IA</PrimaryButton>
-            <DemoButton />
+          <div className="flex w-full flex-wrap justify-center gap-4 pt-2">
+            <PrimaryButton href="/sign-up" className="h-14 min-w-[236px] rounded-xl px-9 shadow-[0_0_0_6px_hsl(var(--sidebar-primary)/0.14),0_0_28px_hsl(var(--sidebar-primary)/0.55)]">
+              Demarrer mon analyse IA
+            </PrimaryButton>
+            <DemoButton className="h-14 min-w-[190px] rounded-xl border-white/15 bg-black/45 text-white backdrop-blur hover:bg-white/10" />
           </div>
         </div>
-        <div className="flex w-full items-center justify-center relative rounded-lg">
-          <div className="relative w-full h-full">
-            <span className="absolute inset-[-12px] md:inset-[-24px] bg-[hsl(var(--sidebar-primary)/0.15)] rounded-[14.5867px] -z-10 animate-pulse" />
-            <span className="absolute inset-[-4px] md:inset-[-8px] bg-[hsl(var(--sidebar-primary)/0.25)] rounded-[14.5867px] -z-20 animate-pulse" />
-            <span className="absolute inset-0 shadow-[0_9.1167px_13.675px_-2.735px_hsl(var(--sidebar-primary)/0.1)] md:shadow-[0_18.2333px_27.35px_-5.47px_hsl(var(--sidebar-primary)/0.1)] rounded-[14.5867px] -z-30" />
+
+        <div className="relative mt-16 flex w-full max-w-6xl items-center justify-center rounded-xl md:mt-20">
+          <div className="relative w-full">
+            <span className="absolute inset-[-18px] rounded-[22px] bg-[hsl(var(--sidebar-primary)/0.13)] blur-2xl" />
             <DashboardMockup />
           </div>
         </div>
@@ -753,9 +867,9 @@ export default function App() {
     <div className="min-h-screen bg-background">
       <div className="px-2 sm:px-6 lg:px-32">
         <Navbar />
-        <div className="mt-8 sm:mt-20 max-w-screen-xl mx-auto">
+        <div className="mx-auto max-w-screen-xl">
           <main className="flex flex-col gap-16 sm:gap-24 md:gap-28">
-            <section className="w-full py-14 md:py-12 lg:py-16 xl:py-24">
+            <section className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden">
               <Hero />
             </section>
             <section className="w-full">
