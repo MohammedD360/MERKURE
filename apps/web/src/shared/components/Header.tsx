@@ -2,11 +2,12 @@
 
 import { useState, useRef, useEffect, useMemo, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, Bell, LogOut, User, ChevronDown, Menu } from 'lucide-react'
+import { Search, Bell, LogOut, User, ChevronDown, Menu, RefreshCw, Upload, Command } from 'lucide-react'
 import { useCurrentUser } from '@/lib/hooks/use-current-user'
 import { clearToken } from '@/lib/api-client'
 import { getPlanDisplayLabel } from '@/lib/plans'
 import { useAlerts } from '@/lib/hooks/use-alerts'
+import { useAccounts, useSyncAccount } from '@/lib/hooks/use-accounts'
 import { cn } from '@/lib/utils'
 
 interface HeaderProps {
@@ -47,6 +48,8 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
   const searchInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const { data: user } = useCurrentUser()
+  const { data: accounts = [] } = useAccounts()
+  const sync = useSyncAccount()
   const { data: unreadAlertsData } = useAlerts(true)
   const unreadAlertsCount = unreadAlertsData?.total ?? 0
 
@@ -111,6 +114,15 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
     if (firstResult) navigateTo(firstResult.href)
   }
 
+  const handleSync = () => {
+    const account = accounts.find((item) => item.isActive) ?? accounts[0]
+    if (!account) {
+      router.push('/app/accounts')
+      return
+    }
+    sync.mutate(account.id)
+  }
+
   const handleLogout = async () => {
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('merkure_token') : null
@@ -124,12 +136,12 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
   }
 
   const iconBtn = cn(
-    'flex h-8 w-8 items-center justify-center rounded-md border border-border',
-    'text-muted-foreground transition-colors hover:bg-accent hover:text-foreground',
+    'flex h-10 w-10 items-center justify-center rounded-md border border-white/10',
+    'bg-[#080d15] text-slate-400 transition-colors hover:bg-white/[0.04] hover:text-white',
   )
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between gap-4 border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
+    <header className="sticky top-0 z-40 flex min-h-20 shrink-0 items-center justify-between gap-5 border-b border-white/10 bg-[#070b12]/95 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
 
       {/* Left: hamburger + page title */}
       <div className="flex min-w-0 items-center gap-3">
@@ -142,11 +154,11 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
           <Menu className="h-4 w-4" />
         </button>
         <div className="min-w-0">
-          <h1 className="truncate text-sm font-semibold leading-none text-foreground sm:text-base">
+          <h1 className="truncate text-2xl font-black leading-none tracking-tight text-white">
             {title}
           </h1>
           {description && (
-            <p className="mt-0.5 hidden truncate text-xs text-muted-foreground sm:block">
+            <p className="mt-2 hidden truncate text-sm font-medium text-slate-400 sm:block">
               {description}
             </p>
           )}
@@ -161,12 +173,19 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
           <button
             type="button"
             onClick={() => setSearchOpen((open) => !open)}
-            className={iconBtn}
+            className={cn(
+              iconBtn,
+              'w-10 justify-center gap-3 px-0 lg:w-64 lg:justify-start lg:px-4',
+            )}
             aria-label="Rechercher une page"
             aria-expanded={searchOpen}
             title="Rechercher (Ctrl K)"
           >
             <Search className="h-4 w-4" />
+            <span className="hidden flex-1 text-left text-sm font-medium text-slate-400 lg:block">Rechercher...</span>
+            <span className="hidden items-center gap-1 rounded border border-white/10 px-1.5 py-0.5 font-mono text-[11px] font-bold text-slate-400 lg:inline-flex">
+              <Command className="h-3 w-3" /> K
+            </span>
           </button>
 
           {searchOpen && (
@@ -203,13 +222,32 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
                 ) : (
                   <div className="px-3 py-8 text-center">
                     <p className="text-sm font-medium text-foreground">Aucun résultat</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Essayez « journal », « alertes » ou « simulation ».</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Essayez « journal », « alertes » ou « simulation ».</p>
                   </div>
                 )}
               </div>
             </div>
           )}
         </div>
+
+        <button
+          type="button"
+          onClick={() => router.push('/app/trades')}
+          className="hidden h-10 items-center gap-2 rounded-md border border-white/10 bg-[#080d15] px-4 text-sm font-black text-white transition-colors hover:bg-white/[0.04] xl:inline-flex"
+        >
+          <Upload className="h-4 w-4" />
+          Importer CSV
+        </button>
+
+        <button
+          type="button"
+          onClick={handleSync}
+          disabled={sync.isPending}
+          className="hidden h-10 items-center gap-2 rounded-md bg-violet-600 px-4 text-sm font-black text-white shadow-[0_12px_28px_rgba(124,58,237,0.28)] transition-colors hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-70 sm:inline-flex"
+        >
+          <RefreshCw className={cn('h-4 w-4', sync.isPending && 'animate-spin')} />
+          Synchroniser
+        </button>
 
         {/* Bell */}
         <button
@@ -226,27 +264,23 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
           )}
         </button>
 
-        <div className="mx-1 hidden h-5 w-px bg-border sm:block" />
+        <div className="mx-2 hidden h-7 w-px bg-white/10 sm:block" />
 
         {/* User menu */}
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setMenuOpen(v => !v)}
-            className="flex items-center gap-2.5 rounded-md px-1.5 py-1 transition-colors hover:bg-accent"
+            className="flex items-center gap-2 rounded-md px-1 py-1 transition-colors hover:bg-white/[0.04]"
           >
-            <div className="hidden text-right sm:block">
-              <div className="text-xs font-medium leading-none text-foreground">{displayName}</div>
-              <div className="mt-0.5 text-[10px] text-muted-foreground">{modeLabel}</div>
-            </div>
             <div
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border bg-muted bg-cover bg-center text-[11px] font-semibold text-foreground"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-violet-500/20 bg-violet-600/30 bg-cover bg-center text-sm font-black text-white"
               style={avatarStyle}
               aria-label={`Profil de ${displayName}`}
             >
               {!user?.avatarUrl && initials}
             </div>
             <ChevronDown
-              className="h-3.5 w-3.5 text-muted-foreground transition-transform duration-200"
+              className="hidden h-3.5 w-3.5 text-slate-400 transition-transform duration-200 sm:block"
               style={{ transform: menuOpen ? 'rotate(180deg)' : undefined }}
             />
           </button>

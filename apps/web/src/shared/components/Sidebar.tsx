@@ -1,9 +1,9 @@
 'use client'
 
 import {
-  LayoutDashboard, Wallet, BriefcaseBusiness, TrendingUp, ArrowLeftRight,
-  BarChart2, PieChart, FileText, NotebookPen, Sparkles, Brain, Target,
-  CreditCard, Bell, Settings2, X, ChevronRight,
+  LayoutDashboard, Wallet, BriefcaseBusiness, ArrowLeftRight,
+  BarChart2, PieChart, FileText, NotebookPen, Sparkles, Target,
+  Bell, Settings2, X, ChevronDown, ArrowLeft,
 } from 'lucide-react'
 import type { ElementType } from 'react'
 import type { Page } from '@/lib/navigation'
@@ -24,42 +24,38 @@ const sections: Array<{
   items: Array<{ icon: ElementType; label: string; page: Page; badge?: string; soon?: boolean }>
 }> = [
   {
-    label: 'Pilotage',
+    label: '',
     items: [
-      { icon: LayoutDashboard,   label: 'Dashboard',    page: 'dashboard' },
-      { icon: Wallet,            label: 'Comptes',      page: 'comptes' },
-      { icon: BriefcaseBusiness, label: 'Portefeuille', page: 'portefeuille' },
-      { icon: TrendingUp,        label: 'Positions',    page: 'positions' },
-      { icon: ArrowLeftRight,    label: 'Transactions', page: 'transactions' },
+      { icon: LayoutDashboard,   label: 'Overview',  page: 'dashboard' },
+      { icon: Wallet,            label: 'Accounts',  page: 'comptes' },
+      { icon: BriefcaseBusiness, label: 'Portfolio', page: 'portefeuille' },
+      { icon: ArrowLeftRight,    label: 'Trades',    page: 'transactions' },
+      { icon: NotebookPen,       label: 'Journal',   page: 'journal' },
     ],
   },
   {
-    label: 'Analyse',
+    label: 'Analytics',
     items: [
       { icon: BarChart2,   label: 'Performance',  page: 'performance' },
-      { icon: PieChart,    label: 'Statistiques', page: 'statistiques' },
-      { icon: NotebookPen, label: 'Journal',       page: 'journal' },
-      { icon: FileText,    label: 'Rapports',      page: 'rapports' },
+      { icon: PieChart,    label: 'Statistics',   page: 'statistiques' },
+      { icon: FileText,    label: 'Reports',      page: 'rapports' },
+      { icon: Sparkles,    label: 'AI Coach',     page: 'iaCoach', badge: 'AI' },
     ],
   },
   {
-    label: 'IA',
+    label: 'Tools',
     items: [
-      { icon: Sparkles,       label: 'Vue IA',     page: 'ia', badge: 'NEW' },
-      { icon: Brain,          label: 'Biais',      page: 'iaBiais' },
-      { icon: FileText,       label: 'Rapport IA', page: 'iaRapport' },
-      { icon: Bell,           label: 'Coach',      page: 'iaCoach' },
       { icon: ArrowLeftRight, label: 'Simulation', page: 'iaSimulation' },
       { icon: BarChart2,      label: 'Benchmark',  page: 'iaBenchmark' },
-      { icon: Target,         label: 'Prop firms', page: 'iaPropfirm' },
+      { icon: Target,         label: 'Prop Firms', page: 'iaPropfirm' },
     ],
   },
   {
-    label: 'Compte',
+    label: 'Settings',
     items: [
-      { icon: CreditCard, label: 'Abonnement', page: 'billing' },
-      { icon: Bell,       label: 'Alertes',    page: 'alerts' },
-      { icon: Settings2,  label: 'Paramètres', page: 'settings' },
+      { icon: Bell,       label: 'Alerts',       page: 'alerts' },
+      { icon: Settings2,  label: 'Settings',     page: 'settings' },
+      { icon: Sparkles,   label: 'Integrations', page: 'ia' },
     ],
   },
 ]
@@ -67,26 +63,30 @@ const sections: Array<{
 export function Sidebar({ currentPage, onNavigate, mobileOpen = false, onClose }: Props) {
   const { data: user } = useCurrentUser()
   const planLabel = user?.plan ? getPlanDisplayLabel(user.plan) : null
+  const displayName = user?.firstName
+    ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ''}`
+    : 'Alexandre L.'
+  const initials = displayName.slice(0, 2).toUpperCase()
 
   return (
     <aside className={cn(
       'fixed left-0 top-0 z-30 flex h-screen w-64 flex-col overflow-hidden',
-      'border-r border-[hsl(var(--sidebar-border))] bg-[hsl(var(--sidebar-background))]',
+      'border-r border-white/10 bg-[#070b12]',
       'transition-transform duration-200 lg:translate-x-0',
       mobileOpen ? 'translate-x-0' : '-translate-x-full',
     )}>
 
       {/* Logo */}
-      <div className="flex h-14 shrink-0 items-center justify-between border-b border-[hsl(var(--sidebar-border))] px-4">
+      <div className="flex h-20 shrink-0 items-center justify-between px-5">
         <BrandLogo
-          className="gap-2.5 text-[hsl(var(--sidebar-foreground))]"
-          iconClassName="h-7 w-7 text-[hsl(var(--sidebar-primary))]"
-          textClassName="text-[15px] font-black tracking-[0.14em]"
+          className="gap-3 text-white"
+          iconClassName="h-8 w-8 text-violet-500"
+          textClassName="text-lg font-black tracking-[0.12em]"
         />
         <button
           type="button"
           onClick={onClose}
-          className="flex h-7 w-7 items-center justify-center rounded-md text-[hsl(var(--sidebar-foreground)/0.4)] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-foreground))] lg:hidden transition-colors"
+          className="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-white/[0.05] hover:text-white lg:hidden"
           aria-label="Fermer"
         >
           <X className="h-4 w-4" />
@@ -94,13 +94,15 @@ export function Sidebar({ currentPage, onNavigate, mobileOpen = false, onClose }
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-2 py-3 [scrollbar-width:thin]">
-        <div className="space-y-5">
+      <nav className="flex-1 overflow-y-auto px-3 py-2 [scrollbar-width:thin]">
+        <div className="space-y-6">
           {sections.map((section) => (
             <div key={section.label}>
-              <p className="mb-1 px-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[hsl(var(--sidebar-foreground)/0.35)]">
-                {section.label}
-              </p>
+              {section.label && (
+                <p className="mb-3 px-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  {section.label}
+                </p>
+              )}
               <div className="space-y-0.5">
                 {section.items.map(({ icon: Icon, label, page, badge, soon }) => {
                   const active = currentPage === page
@@ -110,26 +112,26 @@ export function Sidebar({ currentPage, onNavigate, mobileOpen = false, onClose }
                       onClick={() => !soon && onNavigate(page)}
                       disabled={soon}
                       className={cn(
-                        'group flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-sm transition-colors',
+                        'group flex min-h-10 w-full items-center gap-3 rounded-md px-3 text-sm transition-colors',
                         active
-                          ? 'bg-[hsl(var(--sidebar-accent))] text-[hsl(var(--sidebar-foreground))] font-medium'
+                          ? 'bg-violet-600/20 text-violet-300 shadow-[inset_0_0_0_1px_rgba(139,92,246,0.12)]'
                           : soon
-                            ? 'cursor-default text-[hsl(var(--sidebar-foreground)/0.2)]'
-                            : 'text-[hsl(var(--sidebar-foreground)/0.55)] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-foreground))]',
+                            ? 'cursor-default text-slate-700'
+                            : 'text-slate-300/80 hover:bg-white/[0.04] hover:text-white',
                       )}
                     >
                       <Icon className={cn(
                         'h-4 w-4 shrink-0 transition-colors',
                         active
-                          ? 'text-[hsl(var(--sidebar-primary))]'
+                          ? 'text-violet-400'
                           : soon
-                            ? 'text-[hsl(var(--sidebar-foreground)/0.15)]'
-                            : 'text-[hsl(var(--sidebar-foreground)/0.35)] group-hover:text-[hsl(var(--sidebar-foreground)/0.6)]',
+                            ? 'text-slate-800'
+                            : 'text-slate-400 group-hover:text-slate-200',
                       )} />
-                      <span className="flex-1 truncate">{label}</span>
+                      <span className="flex-1 truncate font-semibold">{label}</span>
 
                       {badge && (
-                        <span className="rounded px-1.5 py-0.5 text-[9px] font-bold bg-[hsl(var(--sidebar-primary)/0.15)] text-[hsl(var(--sidebar-primary))]">
+                        <span className="rounded-full bg-violet-600 px-2 py-0.5 text-[10px] font-black text-white">
                           {badge}
                         </span>
                       )}
@@ -148,36 +150,41 @@ export function Sidebar({ currentPage, onNavigate, mobileOpen = false, onClose }
       </nav>
 
       {/* Footer: user info */}
-      {user && (
-        <div className="shrink-0 border-t border-[hsl(var(--sidebar-border))] p-2">
+      <div className="shrink-0 space-y-4 p-3">
+        <div className="rounded-lg border border-white/10 bg-[#0a0f18] p-3">
           <button
             onClick={() => onNavigate('profile')}
-            className="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left transition-colors hover:bg-[hsl(var(--sidebar-accent))]"
+            className="flex w-full items-center gap-3 text-left"
           >
-            {user.avatarUrl ? (
+            {user?.avatarUrl ? (
               <div
-                className="h-7 w-7 shrink-0 rounded-full bg-cover bg-center ring-1 ring-[hsl(var(--sidebar-border))]"
+                className="h-10 w-10 shrink-0 rounded-full bg-cover bg-center ring-1 ring-white/10"
                 style={{ backgroundImage: `url(${user.avatarUrl})` }}
               />
             ) : (
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--sidebar-primary)/0.15)] text-[11px] font-bold text-[hsl(var(--sidebar-primary))]">
-                {(user.firstName?.[0] ?? user.email?.[0] ?? 'U').toUpperCase()}
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-violet-600/30 text-sm font-black text-white">
+                {initials}
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[12px] font-medium text-[hsl(var(--sidebar-foreground))]">
-                {user.firstName
-                  ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ''}`
-                  : (user.email ?? '—')}
+              <p className="truncate text-sm font-black text-white">
+                {displayName}
               </p>
-              {planLabel && (
-                <p className="text-[10px] text-[hsl(var(--sidebar-foreground)/0.35)]">{planLabel}</p>
-              )}
+              <p className="mt-0.5 text-xs font-medium text-slate-400">{planLabel ?? 'Plan Pro'}</p>
             </div>
-            <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[hsl(var(--sidebar-foreground)/0.25)]" />
+            <ChevronDown className="h-4 w-4 shrink-0 text-slate-500" />
           </button>
         </div>
-      )}
+        <button
+          type="button"
+          className="flex h-10 items-center gap-3 rounded-md px-3 text-sm font-semibold text-slate-400 transition-colors hover:bg-white/[0.04] hover:text-white"
+        >
+          <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10">
+            <ArrowLeft className="h-4 w-4" />
+          </span>
+          Collapse
+        </button>
+      </div>
     </aside>
   )
 }

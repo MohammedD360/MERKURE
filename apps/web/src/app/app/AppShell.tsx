@@ -44,7 +44,7 @@ const headerCopy: Record<KnownPage, { title: string; description: string }> = {
   },
   dashboard: {
     title:       'Vue d’ensemble',
-    description: 'Performance, risque et synchronisation des comptes',
+    description: 'Dernière synchro : il y a 2 min  •  3 comptes connectés',
   },
   comptes: {
     title:       'Comptes',
