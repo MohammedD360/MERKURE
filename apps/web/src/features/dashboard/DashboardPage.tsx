@@ -12,6 +12,7 @@ import {
   ChevronRight,
   CircleDot,
   Filter,
+  HelpCircle,
   MoreVertical,
   ShieldCheck,
   Sparkles,
@@ -22,6 +23,8 @@ import {
   X,
   Zap,
 } from 'lucide-react'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import {
   Area,
   AreaChart,
@@ -138,12 +141,9 @@ function MiniSparkline({ data, color }: { data: number[]; color: string }) {
 
 function Panel({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <section className={cn(
-      'rounded-lg border border-white/10 bg-[#0b1019]/95 shadow-[0_18px_60px_rgba(0,0,0,0.24)]',
-      className,
-    )}>
+    <Card className={cn('shadow-xs', className)}>
       {children}
-    </section>
+    </Card>
   )
 }
 
