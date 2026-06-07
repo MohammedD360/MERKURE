@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import {
   Activity,
@@ -471,6 +471,7 @@ export function DashboardPage() {
   const [equityView, setEquityView] = useState<EquityView>('cumul')
   const [showCheckoutBanner, setShowCheckoutBanner] = useState(false)
   const [emailUnverified, setEmailUnverified] = useState(true)
+  const [resendStatus, setResendStatus] = useState<'idle' | 'loading' | 'sent' | 'error'>('idle')
 
   const apiPeriod = chartPeriodToApiPeriod(chartPeriod)
   const { data: accounts = [] } = useAccounts()
@@ -516,6 +517,22 @@ export function DashboardPage() {
         .catch(() => {})
     }
   }, [])
+
+  const handleResendVerification = useCallback(async () => {
+    if (resendStatus === 'loading' || resendStatus === 'sent') return
+    setResendStatus('loading')
+    try {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+      const authToken = localStorage.getItem('merkure_token')
+      const res = await fetch(`${apiBase}/api/v1/auth/resend-verification`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${authToken ?? ''}` },
+      })
+      setResendStatus(res.ok ? 'sent' : 'error')
+    } catch {
+      setResendStatus('error')
+    }
+  }, [resendStatus])
 
   const updatePeriod = (period: DashboardPeriod) => {
     setChartPeriod(period)
@@ -581,12 +598,17 @@ export function DashboardPage() {
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-3">
-              <Link
-                href="/verify-email"
-                className="hidden rounded-md border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-black text-white transition-colors hover:bg-white/[0.08] sm:inline-flex"
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                disabled={resendStatus === 'loading' || resendStatus === 'sent'}
+                className="hidden rounded-md border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-black text-white transition-colors hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-60 sm:inline-flex"
               >
-                Valider maintenant
-              </Link>
+                {resendStatus === 'loading' && 'Envoi…'}
+                {resendStatus === 'sent' && 'Email envoyé !'}
+                {resendStatus === 'error' && 'Réessayer'}
+                {resendStatus === 'idle' && 'Valider maintenant'}
+              </button>
               <button
                 type="button"
                 onClick={() => setEmailUnverified(false)}

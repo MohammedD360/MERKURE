@@ -202,6 +202,27 @@ export async function authRoutes(app: FastifyInstance) {
     return { token, plan }
   })
 
+  // POST /api/v1/auth/resend-verification — renvoie l'email de vérification
+  app.post('/resend-verification', { preHandler: authenticate }, async (req, reply) => {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { id: true, email: true, firstName: true, emailVerified: true },
+    })
+    if (!user) return reply.code(404).send({ error: 'user_not_found' })
+    if (user.emailVerified) return reply.code(400).send({ error: 'already_verified' })
+
+    const rawVerifyToken = crypto.randomBytes(32).toString('hex')
+    const verifyUrl = `${env.FRONTEND_URL}/verify-email?token=${rawVerifyToken}`
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { emailVerifyToken: rawVerifyToken },
+    })
+    await emailService.sendEmailVerification(user.email!, verifyUrl)
+
+    return { ok: true }
+  })
+
   // GET /api/v1/auth/verify-email?token=xxx
   app.get<{ Querystring: { token?: string } }>('/verify-email', async (req, reply) => {
     const { token } = req.query
