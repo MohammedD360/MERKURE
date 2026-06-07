@@ -551,6 +551,17 @@ export function DashboardPage() {
   const riskGrade = maxDrawdownPct <= 4 ? 'A-' : maxDrawdownPct <= 10 ? 'B+' : 'C+'
   const riskLabel = maxDrawdownPct <= 10 ? 'Drawdown faible' : 'Drawdown à surveiller'
 
+  const behavioralSignal =
+    maxDrawdownPct > 15 || winRatePct < 40 ? 'Risque élevé'
+    : maxDrawdownPct > 8 || winRatePct < 50 ? 'Risque modéré'
+    : 'Risque faible'
+
+  const nextAction =
+    maxDrawdownPct > 15 || winRatePct < 40 ? 'Réduire la taille'
+    : winRatePct < 50 ? 'Revoir la stratégie'
+    : nbTrades < 5 ? 'Ouvrir une position'
+    : 'Analyser la session'
+
   const latestSync = accounts
     .map((account) => account.lastSyncAt)
     .filter(Boolean)
@@ -780,9 +791,9 @@ export function DashboardPage() {
 
         <div className="grid gap-4 md:grid-cols-3">
           {[
-            { icon: <Zap className="h-4 w-4 text-violet-300" />, label: 'Signal comportemental', value: 'Risque faible' },
+            { icon: <Zap className="h-4 w-4 text-violet-300" />, label: 'Signal comportemental', value: behavioralSignal },
             { icon: <Activity className="h-4 w-4 text-emerald-400" />, label: 'Rythme de trading', value: `${nbTrades} trades` },
-            { icon: <ArrowRight className="h-4 w-4 text-amber-300" />, label: 'Prochaine action', value: 'Analyser la session' },
+            { icon: <ArrowRight className="h-4 w-4 text-amber-300" />, label: 'Prochaine action', value: nextAction },
           ].map((item) => (
             <Panel key={item.label} className="flex items-center gap-3 px-4 py-3">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/[0.05]">{item.icon}</div>
