@@ -9,6 +9,7 @@ import { getPlanDisplayLabel } from '@/lib/plans'
 import { useAlerts } from '@/lib/hooks/use-alerts'
 import { useAccounts, useSyncAccount } from '@/lib/hooks/use-accounts'
 import { cn } from '@/lib/utils'
+import { CsvImportModal } from '@/features/trades/components/CsvImportModal'
 
 interface HeaderProps {
   title:       string
@@ -51,6 +52,7 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [csvOpen, setCsvOpen] = useState(false)
   const menuRef        = useRef<HTMLDivElement>(null)
   const searchRef      = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -240,7 +242,7 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
 
         <button
           type="button"
-          onClick={() => router.push('/app/trades')}
+          onClick={() => setCsvOpen(true)}
           className="hidden h-10 items-center gap-2 rounded-md border border-[hsl(var(--border))] bg-white px-4 text-sm font-black text-foreground transition-colors hover:bg-[hsl(var(--accent))] xl:inline-flex"
         >
           <Upload className="h-4 w-4" />
@@ -320,6 +322,8 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
           )}
         </div>
       </div>
+
+      <CsvImportModal open={csvOpen} onClose={() => setCsvOpen(false)} />
     </header>
   )
 }
