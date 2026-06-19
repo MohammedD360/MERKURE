@@ -16,10 +16,10 @@ const STYLES = [
 ] as const
 
 const RISKS = [
-  { id: 'LOW', label: 'Conservateur', color: 'text-green-400', border: 'border-green-500/40', bg: 'bg-green-500/[0.08]' },
-  { id: 'MEDIUM', label: 'Modéré', color: 'text-blue-400', border: 'border-blue-500/40', bg: 'bg-blue-500/[0.08]' },
-  { id: 'HIGH', label: 'Dynamique', color: 'text-amber-400', border: 'border-amber-500/40', bg: 'bg-amber-500/[0.08]' },
-  { id: 'AGGRESSIVE', label: 'Agressif', color: 'text-red-400', border: 'border-red-500/40', bg: 'bg-red-500/[0.08]' },
+  { id: 'LOW', label: 'Conservateur', color: 'text-emerald-600', border: 'border-emerald-200', bg: 'bg-emerald-50' },
+  { id: 'MEDIUM', label: 'Modéré', color: 'text-[hsl(var(--primary))]', border: 'border-[hsl(var(--primary)/0.2)]', bg: 'bg-[hsl(var(--primary)/0.08)]' },
+  { id: 'HIGH', label: 'Dynamique', color: 'text-amber-600', border: 'border-amber-200', bg: 'bg-amber-50' },
+  { id: 'AGGRESSIVE', label: 'Agressif', color: 'text-red-500', border: 'border-red-200', bg: 'bg-red-50' },
 ] as const
 
 const MARKETS = ['Forex', 'Indices', 'Crypto', 'Actions', 'Matières premières', 'Obligations', 'Options', 'Futures']
@@ -36,8 +36,8 @@ export function StepProfile({ data, onChange }: Props) {
       {/* Style de trading */}
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <TrendingUp className="w-4 h-4 text-blue-300" />
-          <span className="text-sm font-black text-white">Style de trading</span>
+          <TrendingUp className="w-4 h-4 text-[hsl(var(--primary))]" />
+          <span className="text-sm font-black text-foreground">Style de trading</span>
         </div>
         <div className="grid grid-cols-2 gap-2.5">
           {STYLES.map((s) => (
@@ -46,11 +46,11 @@ export function StepProfile({ data, onChange }: Props) {
               onClick={() => onChange({ style: s.id })}
               className={`p-3.5 rounded-xl border text-left transition-all ${
                 data.style === s.id
-                  ? 'border-blue-500/60 bg-blue-500/[0.08] ring-1 ring-blue-500/25'
-                  : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]'
+                  ? 'border-[hsl(var(--primary)/0.4)] bg-[hsl(var(--primary)/0.08)] ring-1 ring-[hsl(var(--primary)/0.25)]'
+                  : 'border-[hsl(var(--border))] bg-background hover:border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]'
               }`}
             >
-              <p className="text-sm font-black text-white">{s.label}</p>
+              <p className="text-sm font-black text-foreground">{s.label}</p>
               <p className="text-[11px] text-muted-foreground mt-0.5">{s.desc}</p>
             </button>
           ))}
@@ -60,8 +60,8 @@ export function StepProfile({ data, onChange }: Props) {
       {/* Appétit au risque */}
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <AlertTriangle className="w-4 h-4 text-amber-300" />
-          <span className="text-sm font-black text-white">Appétit au risque</span>
+          <AlertTriangle className="w-4 h-4 text-amber-600" />
+          <span className="text-sm font-black text-foreground">Appétit au risque</span>
         </div>
         <div className="grid grid-cols-2 gap-2.5">
           {RISKS.map((r) => (
@@ -71,7 +71,7 @@ export function StepProfile({ data, onChange }: Props) {
               className={`p-3 rounded-xl border text-left transition-all ${
                 data.riskAppetite === r.id
                   ? `${r.border} ${r.bg} ring-1 ring-current`
-                  : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]'
+                  : 'border-[hsl(var(--border))] bg-background hover:border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]'
               }`}
             >
               <p className={`text-sm font-semibold ${data.riskAppetite === r.id ? r.color : 'text-muted-foreground'}`}>
@@ -85,8 +85,8 @@ export function StepProfile({ data, onChange }: Props) {
       {/* Marchés */}
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <Globe className="w-4 h-4 text-emerald-300" />
-          <span className="text-sm font-black text-white">Marchés tradés</span>
+          <Globe className="w-4 h-4 text-emerald-600" />
+          <span className="text-sm font-black text-foreground">Marchés tradés</span>
           <span className="text-[11px] text-muted-foreground/60">(plusieurs possibles)</span>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -98,8 +98,8 @@ export function StepProfile({ data, onChange }: Props) {
                 onClick={() => toggleMarket(m)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                   active
-                    ? 'border-blue-500/60 bg-blue-500/10 text-blue-300'
-                    : 'border-white/10 text-muted-foreground hover:border-white/20 hover:text-muted-foreground'
+                    ? 'border-[hsl(var(--primary)/0.4)] bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]'
+                    : 'border-[hsl(var(--border))] text-muted-foreground hover:border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]'
                 }`}
               >
                 {m}
@@ -112,8 +112,8 @@ export function StepProfile({ data, onChange }: Props) {
       {/* Expérience */}
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <Clock className="w-4 h-4 text-violet-300" />
-          <span className="text-sm font-black text-white">Années d'expérience</span>
+          <Clock className="w-4 h-4 text-[hsl(var(--primary))]" />
+          <span className="text-sm font-black text-foreground">Années d&apos;expérience</span>
         </div>
         <div className="flex gap-2 flex-wrap">
           {[0, 1, 2, 3, 5, 7, 10, 15].map((y) => (
@@ -122,8 +122,8 @@ export function StepProfile({ data, onChange }: Props) {
               onClick={() => onChange({ experienceYears: y })}
               className={`w-14 py-2 rounded-xl text-sm font-semibold border transition-all ${
                 data.experienceYears === y
-                  ? 'border-blue-500/60 bg-blue-500/[0.08] text-blue-300'
-                  : 'border-white/10 text-muted-foreground hover:border-white/20 hover:text-muted-foreground'
+                  ? 'border-[hsl(var(--primary)/0.4)] bg-[hsl(var(--primary)/0.08)] text-[hsl(var(--primary))]'
+                  : 'border-[hsl(var(--border))] text-muted-foreground hover:border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]'
               }`}
             >
               {y === 15 ? '15+' : y === 0 ? '< 1' : y}

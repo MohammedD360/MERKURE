@@ -17,26 +17,34 @@ interface HeaderProps {
 }
 
 const SEARCH_ITEMS = [
-  { title: 'Vue d’ensemble', description: 'Performance, risque et comptes', href: '/app/dashboard', keywords: ['dashboard', 'tableau de bord', 'pilotage'] },
-  { title: 'Comptes', description: 'Brokers connectés et synchronisation', href: '/app/accounts', keywords: ['broker', 'connexion', 'sync'] },
-  { title: 'Portefeuille', description: 'Exposition, positions ouvertes et equity', href: '/app/portefeuille', keywords: ['capital', 'exposition', 'equity'] },
-  { title: 'Positions', description: 'Risque et positions ouvertes', href: '/app/positions', keywords: ['risque', 'positions'] },
-  { title: 'Transactions', description: 'Historique des trades', href: '/app/trades', keywords: ['trades', 'historique'] },
-  { title: 'Performance', description: 'Analyse détaillée des résultats', href: '/app/performance', keywords: ['pnl', 'drawdown', 'analyse'] },
-  { title: 'Statistiques', description: 'Bilan mensuel, instruments et séries', href: '/app/statistiques', keywords: ['stats', 'mensuel'] },
-  { title: 'Journal', description: 'Revue de session et annotations', href: '/app/journal', keywords: ['notes', 'mindset', 'session'] },
-  { title: 'Rapports', description: 'Exports et rapports PDF', href: '/app/reports', keywords: ['pdf', 'export'] },
-  { title: 'Vue IA', description: 'Modules IA et coaching comportemental', href: '/app/ia', keywords: ['ia', 'intelligence artificielle'] },
-  { title: 'Biais comportementaux', description: 'Revenge trading et overtrading', href: '/app/ia/biais', keywords: ['biais', 'revenge', 'overtrading'] },
-  { title: 'Rapport IA', description: 'Synthèse narrative hebdomadaire', href: '/app/ia/rapport', keywords: ['rapport', 'hebdomadaire'] },
-  { title: 'Coach IA', description: 'Alertes de discipline', href: '/app/ia/coach', keywords: ['coach', 'discipline'] },
-  { title: 'Simulation', description: 'Scénarios et what-if', href: '/app/ia/simulation', keywords: ['simulation', 'what if', 'backtest'] },
-  { title: 'Benchmark', description: 'Comparaison anonymisée', href: '/app/ia/benchmark', keywords: ['benchmark', 'classement'] },
-  { title: 'Prop firms', description: 'Compatibilité avec votre profil', href: '/app/ia/propfirm', keywords: ['prop firm', 'challenge'] },
-  { title: 'Alertes', description: 'Notifications de risque et synchronisation', href: '/app/alerts', keywords: ['notification', 'cloche'] },
-  { title: 'Abonnement', description: 'Plan et facturation', href: '/app/billing', keywords: ['billing', 'tarif', 'stripe'] },
-  { title: 'Paramètres', description: 'Préférences produit', href: '/app/settings', keywords: ['settings', 'préférences'] },
-  { title: 'Profil', description: 'Identité, photo et sécurité', href: '/app/profile', keywords: ['avatar', 'mot de passe'] },
+  { title: "Vue d'ensemble", description: 'Performance, risque et comptes', href: "/app/dashboard", keywords: ["dashboard", "tableau de bord", "pilotage"] },
+  { title: "Comptes", description: "Brokers connectés et synchronisation", href: "/app/accounts", keywords: ["broker", "connexion", "sync"] },
+  { title: "Portefeuille", description: "Exposition, positions ouvertes et equity", href: "/app/portefeuille", keywords: ["capital", "exposition", "equity"] },
+  { title: "Positions", description: "Risque et positions ouvertes", href: "/app/positions", keywords: ["risque", 'positions'] },
+  { title: "Transactions", description: "Historique des trades", href: "/app/trades", keywords: ["trades", 'historique'] },
+  { title: "Performance", description: "Analyse détaillée des résultats", href: "/app/performance", keywords: ["pnl", "drawdown", "analyse"] },
+  { title: "Statistiques", description: "Bilan mensuel, instruments et séries", href: "/app/statistiques", keywords: ["stats", 'mensuel'] },
+  { title: "Journal", description: "Revue de session et annotations", href: "/app/journal", keywords: ["notes", "mindset", "session"] },
+  { title: "Rapports", description: "Exports et rapports PDF", href: "/app/reports", keywords: ["pdf", 'export'] },
+  { title: "Vue IA", description: "Modules IA et coaching comportemental", href: "/app/ia", keywords: ["ia", 'intelligence artificielle'] },
+  { title: "Rapport de Performance", description: "Synthèse IA de vos performances", href: "/app/ia/rapport", keywords: ["rapport", "performance", "ia"] },
+  { title: "Validateur de Stratégie", description: "Contrôle des règles et du risque", href: "/app/ia/strategy-validator", keywords: ["stratégie", "validation", "setup"] },
+  { title: "Chat IA", description: "Assistant Elite pour interroger vos données", href: "/app/ia/chat", keywords: ["chat", "assistant", "elite"] },
+  { title: "Historique IA", description: "Archives des analyses et recommandations", href: "/app/ia/history", keywords: ["historique", "analyse", "ia"] },
+  { title: "Biais comportementaux", description: "Revenge trading et overtrading", href: "/app/ia/biais", keywords: ["biais", "revenge", "overtrading"] },
+  { title: "Coach IA", description: "Alertes de discipline", href: "/app/ia/coach", keywords: ["coach", 'discipline'] },
+  { title: "Simulation", description: "Scénarios et what-if", href: "/app/ia/simulation", keywords: ["simulation", "what if", "backtest"] },
+  { title: "Benchmark", description: "Comparaison anonymisée", href: "/app/ia/benchmark", keywords: ["benchmark", 'classement'] },
+  { title: "Prop firms", description: "Compatibilité avec votre profil", href: "/app/ia/propfirm", keywords: ["prop firm", 'challenge'] },
+  { title: "Académie", description: "Parcours et ressources de formation", href: "/app/academy", keywords: ["académie", "formation", "ressources"] },
+  { title: "Bot Trading", description: "Supervision des automatisations", href: "/app/bots", keywords: ["bot", "trading automatique", "algo"] },
+  { title: "Créer un Bot", description: "Configurer une automatisation", href: "/app/bots/create", keywords: ["bot", "créer", "automatisation"] },
+  { title: "Performance des Bots", description: "Résultats et stabilité des bots", href: "/app/bots/performance", keywords: ["bot", "performance", "drawdown"] },
+  { title: "Trades Auto", description: "Historique des exécutions automatiques", href: "/app/bots/history", keywords: ["bot", "historique", "trades auto"] },
+  { title: "Alertes", description: "Notifications de risque et synchronisation", href: "/app/alerts", keywords: ["notification", 'cloche'] },
+  { title: "Abonnement", description: "Plan et facturation", href: "/app/billing", keywords: ["billing", "tarif", "stripe"] },
+  { title: "Paramètres", description: "Préférences produit", href: "/app/settings", keywords: ["settings", 'préférences'] },
+  { title: "Profil", description: "Identité, photo et sécurité", href: "/app/profile", keywords: ["avatar", 'mot de passe'] },
 ]
 
 export function Header({ title, description, onMenuClick }: HeaderProps) {
@@ -57,7 +65,7 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
     ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ''}`
     : (user?.email?.split('@')[0] ?? '—')
   const initials  = displayName.slice(0, 2).toUpperCase()
-  const modeLabel = user?.authMode === 'clerk' ? getPlanDisplayLabel(user.plan) : 'Mode démo'
+  const modeLabel = user?.authMode === "clerk" ? getPlanDisplayLabel(user.plan) : "Mode démo"
   const avatarStyle = user?.avatarUrl
     ? { backgroundImage: `url(${user.avatarUrl})` }
     : undefined
@@ -125,7 +133,7 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
 
   const handleLogout = async () => {
     try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('merkure_token') : null
+      const token = typeof window !== "undefined" ? localStorage.getItem("merkure_token") : null
       await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'}/api/v1/auth/logout`, {
         method:  'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -136,12 +144,12 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
   }
 
   const iconBtn = cn(
-    'flex h-10 w-10 items-center justify-center rounded-md border border-white/10',
-    'bg-[#080d15] text-slate-400 transition-colors hover:bg-white/[0.04] hover:text-white',
+    'flex h-10 w-10 items-center justify-center rounded-md border border-[hsl(var(--border))]',
+    'bg-white text-[hsl(var(--foreground-soft))] transition-colors hover:bg-[hsl(var(--accent))] hover:text-foreground',
   )
 
   return (
-    <header className="sticky top-0 z-40 flex min-h-20 shrink-0 items-center justify-between gap-5 border-b border-white/10 bg-[#070b12]/95 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-40 flex min-h-20 shrink-0 items-center justify-between gap-5 border-b border-[hsl(var(--border))] bg-white/90 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
 
       {/* Left: hamburger + page title */}
       <div className="flex min-w-0 items-center gap-3">
@@ -154,11 +162,11 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
           <Menu className="h-4 w-4" />
         </button>
         <div className="min-w-0">
-          <h1 className="truncate text-2xl font-black leading-none tracking-tight text-white">
+          <h1 className="truncate text-2xl font-black leading-none tracking-tight text-foreground">
             {title}
           </h1>
           {description && (
-            <p className="mt-2 hidden truncate text-sm font-medium text-slate-400 sm:block">
+            <p className="mt-2 hidden truncate text-sm font-medium text-[hsl(var(--foreground-soft))] sm:block">
               {description}
             </p>
           )}
@@ -182,8 +190,8 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
             title="Rechercher (Ctrl K)"
           >
             <Search className="h-4 w-4" />
-            <span className="hidden flex-1 text-left text-sm font-medium text-slate-400 lg:block">Rechercher...</span>
-            <span className="hidden items-center gap-1 rounded border border-white/10 px-1.5 py-0.5 font-mono text-[11px] font-bold text-slate-400 lg:inline-flex">
+            <span className="hidden flex-1 text-left text-sm font-medium text-[hsl(var(--foreground-soft))] lg:block">Rechercher...</span>
+            <span className="hidden items-center gap-1 rounded border border-[hsl(var(--border))] px-1.5 py-0.5 font-mono text-[11px] font-bold text-[hsl(var(--foreground-soft))] lg:inline-flex">
               <Command className="h-3 w-3" /> K
             </span>
           </button>
@@ -216,7 +224,7 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
                         <span className="block truncate text-sm font-medium text-foreground">{item.title}</span>
                         <span className="mt-0.5 block truncate text-xs text-muted-foreground">{item.description}</span>
                       </span>
-                      <span className="text-xs text-muted-foreground/40 transition-colors group-hover:text-[hsl(var(--sidebar-primary))]">↵</span>
+                      <span className="text-xs text-muted-foreground/40 transition-colors group-hover:text-[hsl(var(--primary))]">↵</span>
                     </button>
                   ))
                 ) : (
@@ -233,7 +241,7 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
         <button
           type="button"
           onClick={() => router.push('/app/trades')}
-          className="hidden h-10 items-center gap-2 rounded-md border border-white/10 bg-[#080d15] px-4 text-sm font-black text-white transition-colors hover:bg-white/[0.04] xl:inline-flex"
+          className="hidden h-10 items-center gap-2 rounded-md border border-[hsl(var(--border))] bg-white px-4 text-sm font-black text-foreground transition-colors hover:bg-[hsl(var(--accent))] xl:inline-flex"
         >
           <Upload className="h-4 w-4" />
           Importer CSV
@@ -243,9 +251,9 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
           type="button"
           onClick={handleSync}
           disabled={sync.isPending}
-          className="hidden h-10 items-center gap-2 rounded-md bg-violet-600 px-4 text-sm font-black text-white shadow-[0_12px_28px_rgba(124,58,237,0.28)] transition-colors hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-70 sm:inline-flex"
+          className="hidden h-10 items-center gap-2 rounded-md bg-[hsl(var(--primary))] px-4 text-sm font-black text-white shadow-[0_4px_14px_hsl(244_42%_51%/0.25)] transition-colors hover:bg-[hsl(244_42%_44%)] disabled:cursor-not-allowed disabled:opacity-70 sm:inline-flex"
         >
-          <RefreshCw className={cn('h-4 w-4', sync.isPending && 'animate-spin')} />
+          <RefreshCw className={cn("h-4 w-4", sync.isPending && "animate-spin")} />
           Synchroniser
         </button>
 
@@ -258,29 +266,29 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
         >
           <Bell className="h-4 w-4" />
           {unreadAlertsCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[hsl(var(--sidebar-primary))] px-1 text-[9px] font-bold text-white">
+            <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[hsl(var(--primary))] px-1 text-[9px] font-bold text-white">
               {unreadAlertsCount > 9 ? '9+' : unreadAlertsCount}
             </span>
           )}
         </button>
 
-        <div className="mx-2 hidden h-7 w-px bg-white/10 sm:block" />
+        <div className="mx-2 hidden h-7 w-px bg-[hsl(var(--border))] sm:block" />
 
         {/* User menu */}
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setMenuOpen(v => !v)}
-            className="flex items-center gap-2 rounded-md px-1 py-1 transition-colors hover:bg-white/[0.04]"
+            className="flex items-center gap-2 rounded-md px-1 py-1 transition-colors hover:bg-[hsl(var(--accent))]"
           >
             <div
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-violet-500/20 bg-violet-600/30 bg-cover bg-center text-sm font-black text-white"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[hsl(var(--primary)/0.25)] bg-[hsl(var(--primary)/0.1)] bg-cover bg-center text-sm font-black text-[hsl(var(--primary))]"
               style={avatarStyle}
               aria-label={`Profil de ${displayName}`}
             >
               {!user?.avatarUrl && initials}
             </div>
             <ChevronDown
-              className="hidden h-3.5 w-3.5 text-slate-400 transition-transform duration-200 sm:block"
+              className="hidden h-3.5 w-3.5 text-[hsl(var(--foreground-soft))] transition-transform duration-200 sm:block"
               style={{ transform: menuOpen ? 'rotate(180deg)' : undefined }}
             />
           </button>
@@ -302,7 +310,7 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-xs text-red-400/80 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                  className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-xs text-red-500 transition-colors hover:bg-red-50 hover:text-red-600"
                 >
                   <LogOut className="h-3.5 w-3.5" />
                   Se déconnecter

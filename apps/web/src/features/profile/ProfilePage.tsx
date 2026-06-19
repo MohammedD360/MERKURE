@@ -22,8 +22,8 @@ import {
 import { api, type UserProfile } from '@/lib/api-client'
 import { getPlanDisplayName } from '@/lib/plans'
 
-const CURRENCIES = ['EUR', 'USD', 'GBP', 'CHF', 'CAD'] as const
-const TIMEZONES = ['Europe/Paris', 'Europe/London', 'America/New_York', 'America/Toronto', 'Asia/Dubai'] as const
+const CURRENCIES = ["EUR", "USD", "GBP", "CHF", 'CAD'] as const
+const TIMEZONES = ["Europe/Paris", "Europe/London", "America/New_York", "America/Toronto", 'Asia/Dubai'] as const
 
 type ProfileForm = {
   firstName: string
@@ -34,7 +34,7 @@ type ProfileForm = {
 
 function getDisplayName(profile?: UserProfile) {
   const fullName = [profile?.firstName, profile?.lastName].filter(Boolean).join(' ').trim()
-  return fullName || profile?.email?.split('@')[0] || 'Trader MERKURE'
+  return fullName || profile?.email?.split("@")[0] || "Trader MERKURE"
 }
 
 function getInitials(profile?: UserProfile) {
@@ -109,7 +109,7 @@ async function createAvatarDataUrl(file: File) {
 
 function SuccessBanner({ children }: { children: string }) {
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-emerald-400/20 bg-emerald-400/[0.08] px-4 py-3 text-sm font-semibold text-emerald-300">
+    <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-600">
       <CheckCircle2 className="h-4 w-4 shrink-0" />
       {children}
     </div>
@@ -118,7 +118,7 @@ function SuccessBanner({ children }: { children: string }) {
 
 function ErrorBanner({ children }: { children: string }) {
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-rose-400/20 bg-rose-400/[0.08] px-4 py-3 text-sm font-semibold text-rose-300">
+    <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-500">
       <AlertCircle className="h-4 w-4 shrink-0" />
       {children}
     </div>
@@ -146,16 +146,16 @@ function Field({
 }
 
 function inputClass() {
-  return 'w-full rounded-lg border border-white/10 bg-[#071017] px-4 py-3 text-sm font-semibold text-white outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-[#56bf6b]/60 focus:ring-1 focus:ring-[#56bf6b]/20'
+  return 'w-full rounded-lg border border-[hsl(var(--border))] bg-white px-4 py-3 text-sm font-semibold text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-[hsl(var(--primary)/0.6)] focus:ring-1 focus:ring-[hsl(var(--primary)/0.2)]'
 }
 
 function ProfileSkeleton() {
   return (
     <div className="space-y-5 px-4 py-5 sm:px-6 lg:px-8">
-      <div className="h-52 animate-pulse rounded-xl bg-white/[0.04]" />
+      <div className="h-52 animate-pulse rounded-xl bg-[hsl(var(--accent))]" />
       <div className="grid gap-5 xl:grid-cols-[360px_1fr]">
-        <div className="h-80 animate-pulse rounded-xl bg-white/[0.04]" />
-        <div className="h-80 animate-pulse rounded-xl bg-white/[0.04]" />
+        <div className="h-80 animate-pulse rounded-xl bg-[hsl(var(--accent))]" />
+        <div className="h-80 animate-pulse rounded-xl bg-[hsl(var(--accent))]" />
       </div>
     </div>
   )
@@ -178,8 +178,8 @@ function PasswordCard() {
       window.setTimeout(() => setSuccess(false), 3200)
     },
     onError: (err: Error) => {
-      if (err.message.includes('wrong_password')) setError('Le mot de passe actuel est incorrect.')
-      else if (err.message.includes('no_password_set')) setError('Ce compte utilise une connexion externe. Aucun mot de passe local n’est défini.')
+      if (err.message.includes("wrong_password")) setError("Le mot de passe actuel est incorrect.")
+      else if (err.message.includes("no_password_set")) setError("Ce compte utilise une connexion externe. Aucun mot de passe local n'est défini.")
       else setError('Impossible de modifier le mot de passe pour le moment.')
     },
   })
@@ -199,13 +199,13 @@ function PasswordCard() {
   }
 
   return (
-    <section className="rounded-xl border border-white/10 bg-background p-6 shadow-[0_12px_46px_rgba(0,0,0,0.18)]">
+    <section className="rounded-xl border border-[hsl(var(--border))] bg-background p-6 shadow-sm">
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-blue-400/20 bg-blue-400/10 text-blue-300">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary)/0.08)] text-[hsl(var(--primary))]">
           <Lock className="h-5 w-5" />
         </div>
         <div>
-          <h2 className="text-base font-black text-white">Sécurité</h2>
+          <h2 className="text-base font-black text-foreground">Sécurité</h2>
           <p className="mt-1 text-sm font-medium text-muted-foreground">Mettez à jour votre mot de passe local.</p>
         </div>
       </div>
@@ -251,7 +251,7 @@ function PasswordCard() {
           <button
             type="submit"
             disabled={mutation.isPending}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#56bf6b] px-5 py-3 text-sm font-black text-white transition-colors hover:bg-[#49ab5e] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-5 py-3 text-sm font-black text-white transition-colors hover:bg-[hsl(244_42%_44%)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {mutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
             Mettre à jour
@@ -277,7 +277,7 @@ export function ProfilePage() {
   const [profileSaved, setProfileSaved] = useState(false)
 
   const { data: profile, isLoading } = useQuery({
-    queryKey: ['users', 'me'],
+    queryKey: ["users", "me"],
     queryFn:  api.users.me,
   })
 
@@ -294,7 +294,7 @@ export function ProfilePage() {
 
   const invalidateUser = async () => {
     await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['users', 'me'] }),
+      queryClient.invalidateQueries({ queryKey: ["users", "me"] }),
       queryClient.invalidateQueries({ queryKey: ['me'] }),
     ])
   }
@@ -349,7 +349,7 @@ export function ProfilePage() {
       await avatarMutation.mutateAsync(optimized)
     } catch (err) {
       setAvatarPreview(null)
-      setAvatarError(err instanceof Error ? err.message : 'Impossible d’enregistrer cette photo.')
+      setAvatarError(err instanceof Error ? err.message : "Impossible d'enregistrer cette photo.")
     }
   }
 
@@ -360,23 +360,23 @@ export function ProfilePage() {
 
   return (
     <div className="space-y-6 px-4 py-5 sm:px-6 lg:px-8">
-      <section className="overflow-hidden rounded-xl border border-white/10 bg-background shadow-[0_12px_52px_rgba(0,0,0,0.20)]">
-        <div className="relative border-b border-white/[0.06] px-6 py-6">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_8%_0%,rgba(86,191,107,0.14),transparent_32%),radial-gradient(circle_at_78%_5%,rgba(124,92,255,0.12),transparent_34%)]" />
+      <section className="overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-background shadow-sm">
+        <div className="relative border-b border-[hsl(var(--border))] px-6 py-6">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_8%_0%,hsl(var(--primary)/0.06),transparent_32%),radial-gradient(circle_at_78%_5%,hsl(var(--primary)/0.04),transparent_34%)]" />
           <div className="relative">
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#56bf6b]">Profil utilisateur</p>
-          <h1 className="mt-2 text-2xl font-black text-white">Gérez votre identité MERKURE</h1>
+          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[hsl(var(--primary))]">Profil utilisateur</p>
+          <h1 className="mt-2 text-2xl font-black text-foreground">Gérez votre identité MERKURE</h1>
           <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-muted-foreground">
-            Votre photo et vos informations apparaissent dans l’espace connecté. Gardez un profil clair pour identifier rapidement votre compte.
+            Votre photo et vos informations apparaissent dans l'espace connecté. Gardez un profil clair pour identifier rapidement votre compte.
           </p>
           </div>
         </div>
 
         <div className="grid gap-0 xl:grid-cols-[380px_1fr]">
-          <aside className="border-b border-white/[0.06] p-6 xl:border-b-0 xl:border-r">
+          <aside className="border-b border-[hsl(var(--border))] p-6 xl:border-b-0 xl:border-r">
             <div className="flex flex-col items-center text-center">
               <div
-                className="relative flex h-32 w-32 items-center justify-center rounded-full border border-border bg-slate-800 bg-cover bg-center text-3xl font-black text-white shadow-[0_18px_50px_rgba(0,0,0,0.28)]"
+                className="relative flex h-32 w-32 items-center justify-center rounded-full border border-border bg-[hsl(var(--accent))] bg-cover bg-center text-3xl font-black text-foreground shadow-sm"
                 style={avatarStyle}
                 aria-label={`Photo de profil de ${displayName}`}
               >
@@ -384,7 +384,7 @@ export function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="absolute -bottom-1 -right-1 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-[#56bf6b] text-white shadow-lg transition-colors hover:bg-[#49ab5e]"
+                  className="absolute -bottom-1 -right-1 flex h-10 w-10 items-center justify-center rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--primary))] text-white shadow-sm transition-colors hover:bg-[hsl(244_42%_44%)]"
                   aria-label="Changer la photo de profil"
                 >
                   {avatarMutation.isPending && avatarPreview ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
@@ -399,7 +399,7 @@ export function ProfilePage() {
                 onChange={onAvatarChange}
               />
 
-              <h2 className="mt-5 text-xl font-black text-white">{displayName}</h2>
+              <h2 className="mt-5 text-xl font-black text-foreground">{displayName}</h2>
               <p className="mt-1 text-sm font-semibold text-muted-foreground">{profile?.email ?? '—'}</p>
 
               <div className="mt-6 grid w-full gap-3">
@@ -407,7 +407,7 @@ export function ProfilePage() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={avatarMutation.isPending}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-black text-slate-200 transition-colors hover:bg-white/[0.07] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-4 py-3 text-sm font-black text-foreground/80 transition-colors hover:bg-[hsl(var(--accent))] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {avatarMutation.isPending && avatarPreview ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                   Importer une photo
@@ -417,7 +417,7 @@ export function ProfilePage() {
                     type="button"
                     onClick={removeAvatar}
                     disabled={avatarMutation.isPending}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-rose-400/25 px-4 py-3 text-sm font-black text-rose-300 transition-colors hover:bg-rose-400/[0.08] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 px-4 py-3 text-sm font-black text-red-500 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {avatarMutation.isPending && !avatarPreview ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                     Supprimer la photo
@@ -426,20 +426,20 @@ export function ProfilePage() {
               </div>
 
               <p className="mt-4 max-w-xs text-xs font-medium leading-5 text-muted-foreground">
-                Formats acceptés : JPG, PNG, WebP. L’image est redimensionnée automatiquement.
+                Formats acceptés : JPG, PNG, WebP. L'image est redimensionnée automatiquement.
               </p>
 
               {avatarError && <div className="mt-4 w-full"><ErrorBanner>{avatarError}</ErrorBanner></div>}
             </div>
 
             <div className="mt-8 grid gap-3 text-left">
-              <div className="rounded-lg border border-white/[0.06] bg-[#071017] p-4">
+              <div className="rounded-lg border border-[hsl(var(--border))] bg-white p-4">
                 <p className="text-xs font-black uppercase tracking-[0.14em] text-muted-foreground/60">Plan actif</p>
-                <p className="mt-2 text-sm font-black text-white">{planLabel(profile?.subscription?.plan)}</p>
+                <p className="mt-2 text-sm font-black text-foreground">{planLabel(profile?.subscription?.plan)}</p>
               </div>
-              <div className="rounded-lg border border-white/[0.06] bg-[#071017] p-4">
+              <div className="rounded-lg border border-[hsl(var(--border))] bg-white p-4">
                 <p className="text-xs font-black uppercase tracking-[0.14em] text-muted-foreground/60">Inscription</p>
-                <p className="mt-2 text-sm font-black text-white">{formatDate(profile?.createdAt)}</p>
+                <p className="mt-2 text-sm font-black text-foreground">{formatDate(profile?.createdAt)}</p>
               </div>
             </div>
           </aside>
@@ -493,7 +493,7 @@ export function ProfilePage() {
                 </select>
               </Field>
 
-              <div className="rounded-lg border border-white/[0.06] bg-[#071017] p-4">
+              <div className="rounded-lg border border-[hsl(var(--border))] bg-white p-4">
                 <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.12em] text-muted-foreground">
                   <CalendarDays className="h-3.5 w-3.5" />
                   Préférences
@@ -506,12 +506,12 @@ export function ProfilePage() {
 
             <div className="mt-6 space-y-4">
               {profileSaved && <SuccessBanner>Profil mis à jour.</SuccessBanner>}
-              {profileMutation.isError && <ErrorBanner>Impossible d’enregistrer le profil pour le moment.</ErrorBanner>}
+              {profileMutation.isError && <ErrorBanner>Impossible d'enregistrer le profil pour le moment.</ErrorBanner>}
 
               <button
                 type="submit"
                 disabled={profileMutation.isPending}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#56bf6b] px-5 py-3 text-sm font-black text-white transition-colors hover:bg-[#49ab5e] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-5 py-3 text-sm font-black text-white transition-colors hover:bg-[hsl(244_42%_44%)] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {profileMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 Enregistrer le profil

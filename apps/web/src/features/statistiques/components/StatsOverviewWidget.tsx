@@ -21,8 +21,8 @@ function fmtDuration(sec: number): string {
 function Tip({ text }: { text: string }) {
   return (
     <span className="group relative inline-flex">
-      <Info className="h-3 w-3 text-muted-foreground/60 hover:text-muted-foreground cursor-default transition-colors" />
-      <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-md bg-accent px-2 py-1 text-[11px] text-muted-foreground opacity-0 shadow-lg group-hover:opacity-100 transition-opacity">
+      <Info className="h-3 w-3 text-[hsl(var(--foreground-soft))] hover:text-foreground cursor-default transition-colors" />
+      <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-md bg-[hsl(var(--accent))] border border-[hsl(var(--border))] px-2 py-1 text-[11px] text-[hsl(var(--foreground-soft))] opacity-0 shadow-lg group-hover:opacity-100 transition-opacity">
         {text}
       </span>
     </span>
@@ -34,8 +34,8 @@ function SkeletonRow() {
     <div className="space-y-2 p-4">
       {[1, 2, 3].map(i => (
         <div key={i} className="flex items-center justify-between">
-          <div className="h-3 w-20 animate-pulse rounded bg-accent" />
-          <div className="h-3 w-16 animate-pulse rounded bg-accent" />
+          <div className="h-3 w-20 animate-pulse rounded bg-[hsl(var(--accent))]" />
+          <div className="h-3 w-16 animate-pulse rounded bg-[hsl(var(--accent))]" />
         </div>
       ))}
     </div>
@@ -48,10 +48,10 @@ interface RowProps {
   valueClass?: string
   tip?: string
 }
-function Row({ label, value, valueClass = 'text-muted-foreground', tip }: RowProps) {
+function Row({ label, value, valueClass = 'text-[hsl(var(--foreground-soft))]', tip }: RowProps) {
   return (
     <div className="flex items-center justify-between py-1.5">
-      <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+      <div className="flex items-center gap-1.5 text-[11px] font-medium text-[hsl(var(--foreground-soft))]">
         {label}
         {tip && <Tip text={tip} />}
       </div>
@@ -65,10 +65,10 @@ function ProgressBar({ pct, color, label, value }: ProgressBarProps) {
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-[11px]">
-        <span className="text-muted-foreground font-medium">{label}</span>
-        <span className="font-bold text-muted-foreground font-mono">{value}</span>
+        <span className="text-[hsl(var(--foreground-soft))] font-medium">{label}</span>
+        <span className="font-bold text-[hsl(var(--foreground-soft))] font-mono">{value}</span>
       </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-accent">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[hsl(var(--accent))]">
         <div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${Math.min(pct, 100)}%` }} />
       </div>
     </div>
@@ -84,7 +84,7 @@ interface SectionProps {
 function Section({ title, children, isLoading, className = '' }: SectionProps) {
   return (
     <div className={`p-4 ${className}`}>
-      <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">{title}</p>
+      <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-[hsl(var(--foreground-soft))]">{title}</p>
       {isLoading ? <SkeletonRow /> : children}
     </div>
   )
@@ -108,18 +108,18 @@ export function StatsOverviewWidget({ period = '30d' }: Props) {
   const streakCurrent = streaks?.current ?? 0
   const streakType    = streaks?.currentType
 
-  const totalPnlClass = d.totalPnl >= 0 ? 'text-green-400' : 'text-red-400'
+  const totalPnlClass = d.totalPnl >= 0 ? 'text-emerald-600' : 'text-red-500'
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
+    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
       {/* 2×2 grid */}
-      <div className="grid grid-cols-2 divide-x divide-slate-800 divide-y">
+      <div className="grid grid-cols-2 divide-x divide-[hsl(var(--border))] divide-y">
 
         {/* ── Top-left : P&L ─────────────────────────────────────────────── */}
         <Section title="Profit / Perte" isLoading={isLoading}>
-          <Row label="Profits bruts"  value={fmt(d.grossProfit)} valueClass="text-green-400" />
-          <Row label="Pertes brutes"  value={fmt(-d.grossLoss)}  valueClass="text-red-400" />
-          <Row label="Commissions"    value={fmt(-d.totalFees)}  valueClass="text-muted-foreground"
+          <Row label="Profits bruts"  value={fmt(d.grossProfit)} valueClass="text-emerald-600" />
+          <Row label="Pertes brutes"  value={fmt(-d.grossLoss)}  valueClass="text-red-500" />
+          <Row label="Commissions"    value={fmt(-d.totalFees)}  valueClass="text-[hsl(var(--foreground-soft))]"
             tip="Total des frais de courtage déduits" />
           <div className="mt-2 border-t border-border/70 pt-2">
             <Row
@@ -134,14 +134,14 @@ export function StatsOverviewWidget({ period = '30d' }: Props) {
         <Section title="Performance" isLoading={isLoading}>
           <div className="mb-3">
             <div className="flex items-end justify-between">
-              <span className="text-[11px] font-medium text-muted-foreground">Win Rate</span>
-              <span className={`text-2xl font-black font-mono ${winRatePct >= 50 ? 'text-green-400' : 'text-red-400'}`}>
+              <span className="text-[11px] font-medium text-[hsl(var(--foreground-soft))]">Win Rate</span>
+              <span className={`text-2xl font-black font-mono ${winRatePct >= 50 ? 'text-emerald-600' : 'text-red-500'}`}>
                 {winRatePct} %
               </span>
             </div>
-            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-accent">
+            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[hsl(var(--accent))]">
               <div
-                className={`h-full rounded-full transition-all ${winRatePct >= 50 ? 'bg-green-500' : 'bg-red-500'}`}
+                className={`h-full rounded-full transition-all ${winRatePct >= 50 ? 'bg-emerald-500' : 'bg-red-500'}`}
                 style={{ width: `${winRatePct}%` }}
               />
             </div>
@@ -149,20 +149,20 @@ export function StatsOverviewWidget({ period = '30d' }: Props) {
           <Row
             label="Gain moyen"
             value={fmt(d.avgWin)}
-            valueClass="text-green-400"
+            valueClass="text-emerald-600"
             tip="P&L moyen des trades gagnants"
           />
           <Row
             label="Perte moyenne"
             value={fmt(d.avgLoss)}
-            valueClass="text-red-400"
+            valueClass="text-red-500"
             tip="P&L moyen des trades perdants"
           />
           {d.profitFactor !== null && (
             <Row
               label="Profit Factor"
               value={d.profitFactor.toFixed(2)}
-              valueClass={d.profitFactor >= 1.5 ? 'text-green-400' : d.profitFactor >= 1 ? 'text-amber-400' : 'text-red-400'}
+              valueClass={d.profitFactor >= 1.5 ? 'text-emerald-600' : d.profitFactor >= 1 ? 'text-amber-600' : 'text-red-500'}
               tip="Gains bruts / Pertes brutes"
             />
           )}
@@ -171,10 +171,10 @@ export function StatsOverviewWidget({ period = '30d' }: Props) {
         {/* ── Bottom-left : Activité ─────────────────────────────────────── */}
         <Section title="Activité" isLoading={isLoading} className="border-t border-border">
           <Row label="Total trades"   value={String(d.nbTrades)} />
-          <Row label="Gagnants"       value={String(d.winTrades)}  valueClass="text-green-400" />
-          <Row label="Perdants"       value={String(d.lossTrades)} valueClass="text-red-400" />
+          <Row label="Gagnants"       value={String(d.winTrades)}  valueClass="text-emerald-600" />
+          <Row label="Perdants"       value={String(d.lossTrades)} valueClass="text-red-500" />
           {d.beTrades > 0 && (
-            <Row label="Break-even"   value={String(d.beTrades)} valueClass="text-muted-foreground" />
+            <Row label="Break-even"   value={String(d.beTrades)} valueClass="text-[hsl(var(--foreground-soft))]" />
           )}
           <Row
             label="Durée moyenne"
@@ -188,24 +188,24 @@ export function StatsOverviewWidget({ period = '30d' }: Props) {
           <div className="space-y-3">
             <ProgressBar
               pct={d.longPct}
-              color="bg-violet-500"
+              color="bg-[hsl(var(--primary))]"
               label="Long"
               value={`${d.longPct.toFixed(1)} %`}
             />
             <ProgressBar
               pct={d.shortPct}
-              color="bg-blue-500"
+              color="bg-[hsl(var(--primary)/0.6)]"
               label="Short"
               value={`${d.shortPct.toFixed(1)} %`}
             />
           </div>
           <div className="mt-3 border-t border-border/70 pt-3">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-medium text-muted-foreground">Série en cours</span>
+              <span className="text-[11px] font-medium text-[hsl(var(--foreground-soft))]">Série en cours</span>
               <span className={`text-sm font-black font-mono ${
-                streakType === 'win' ? 'text-green-400'
-                : streakType === 'loss' ? 'text-red-400'
-                : 'text-muted-foreground'
+                streakType === 'win' ? 'text-emerald-600'
+                : streakType === 'loss' ? 'text-red-500'
+                : 'text-[hsl(var(--foreground-soft))]'
               }`}>
                 {streakCurrent > 0
                   ? `${streakCurrent} ${streakType === 'win' ? 'W' : 'L'}`

@@ -34,10 +34,10 @@ function getPlanRank(plan: string): number {
 
 function PlanBadge({ plan }: { plan: string }) {
   const styles: Record<string, string> = {
-    FREE:    'border-slate-600/40 bg-slate-700/30 text-muted-foreground',
-    STARTER: 'border-slate-500/40 bg-slate-700/30 text-muted-foreground',
-    PRO:     'border-emerald-500/40 bg-emerald-500/10 text-emerald-300',
-    ELITE:   'border-amber-500/40 bg-amber-500/20 text-amber-300',
+    FREE:    'border-[hsl(var(--border))] bg-[hsl(var(--accent))] text-muted-foreground',
+    STARTER: 'border-[hsl(var(--border))] bg-[hsl(var(--accent))] text-muted-foreground',
+    PRO:     'border-emerald-200 bg-emerald-50 text-emerald-600',
+    ELITE:   'border-amber-200 bg-amber-50 text-amber-600',
   }
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold tracking-wide ${styles[plan] ?? styles.FREE}`}>
@@ -53,10 +53,10 @@ function PlanBadge({ plan }: { plan: string }) {
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    ACTIVE:   'border-emerald-500/30 bg-emerald-500/10 text-emerald-400',
-    TRIALING: 'border-blue-500/30 bg-blue-500/10 text-blue-400',
-    PAST_DUE: 'border-orange-500/30 bg-orange-500/10 text-orange-400',
-    CANCELED: 'border-red-500/30 bg-red-500/10 text-red-400',
+    ACTIVE:   'border-emerald-200 bg-emerald-50 text-emerald-600',
+    TRIALING: 'border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]',
+    PAST_DUE: 'border-orange-200 bg-orange-50 text-orange-600',
+    CANCELED: 'border-red-200 bg-red-50 text-red-500',
   }
   const labels: Record<string, string> = {
     ACTIVE: 'Actif', TRIALING: 'Actif', PAST_DUE: 'Paiement en retard', CANCELED: 'Annulé',
@@ -74,20 +74,20 @@ function SkeletonCards() {
   return (
     <div className="grid grid-cols-4 gap-4">
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="rounded-lg border border-[#1e2f4a] bg-[#0b1527] p-5 space-y-4">
+        <div key={i} className="rounded-lg border border-[hsl(var(--border))] bg-white p-5 space-y-4">
           <div className="space-y-2">
-            <div className="h-4 w-20 rounded-lg bg-[#1e2f4a] animate-pulse" />
-            <div className="h-6 w-28 rounded-lg bg-[#1e2f4a] animate-pulse" />
+            <div className="h-4 w-20 rounded-lg bg-[hsl(var(--accent))] animate-pulse" />
+            <div className="h-6 w-28 rounded-lg bg-[hsl(var(--accent))] animate-pulse" />
           </div>
           <div className="space-y-2 pt-2">
             {[1, 2, 3, 4].map((j) => (
               <div key={j} className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-[#1e2f4a] animate-pulse" />
-                <div className="h-3 w-full rounded bg-[#1e2f4a] animate-pulse" />
+                <div className="h-3 w-3 rounded-full bg-[hsl(var(--accent))] animate-pulse" />
+                <div className="h-3 w-full rounded bg-[hsl(var(--accent))] animate-pulse" />
               </div>
             ))}
           </div>
-          <div className="h-10 w-full rounded-lg bg-[#1e2f4a] animate-pulse" />
+          <div className="h-10 w-full rounded-lg bg-[hsl(var(--accent))] animate-pulse" />
         </div>
       ))}
     </div>
@@ -116,14 +116,14 @@ function PlanCard({ plan, currentPlan, onCheckout, isCheckoutPending }: PlanCard
     <div
       className={`relative flex flex-col rounded-lg border p-5 transition-all duration-200 ${
         isRecommended
-          ? 'border-slate-500 bg-card'
-          : 'border-[#1e2f4a] bg-[#0b1527]'
+          ? 'border-[hsl(var(--border))] bg-card'
+          : 'border-[hsl(var(--border))] bg-white'
       } ${isCurrent ? 'ring-1 ring-emerald-500/30' : ''}`}
     >
       {/* Badge Populaire */}
       {isRecommended && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <span className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-0.5 text-[10px] font-bold tracking-wider text-emerald-300">
+          <span className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-0.5 text-[10px] font-bold tracking-wider text-emerald-600">
             RECOMMANDÉ
           </span>
         </div>
@@ -134,24 +134,24 @@ function PlanCard({ plan, currentPlan, onCheckout, isCheckoutPending }: PlanCard
         <div className="flex items-center justify-between mb-1">
           <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{plan.name}</p>
           {isCurrent && (
-            <span className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold text-emerald-300">
+            <span className="rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-600">
               Plan actuel
             </span>
           )}
         </div>
-        <p className="text-2xl font-black text-white">
+        <p className="text-2xl font-black text-foreground">
           {formatPrice(plan.priceMonthly, plan.currency)}
         </p>
       </div>
 
       {/* Séparateur */}
-      <div className="mb-4 h-px bg-[#1e2f4a]" />
+      <div className="mb-4 h-px bg-[hsl(var(--border))]" />
 
       {/* Features */}
       <ul className="mb-6 flex-1 space-y-2">
         {plan.features.map((feature) => (
           <li key={feature} className="flex items-start gap-2.5 text-sm text-muted-foreground">
-            <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-emerald-400" />
+            <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-emerald-600" />
             {feature}
           </li>
         ))}
@@ -161,7 +161,7 @@ function PlanCard({ plan, currentPlan, onCheckout, isCheckoutPending }: PlanCard
       {isCurrent ? (
         <button
           disabled
-          className="w-full cursor-default rounded-lg border border-emerald-500/20 bg-emerald-500/10 py-2.5 text-xs font-bold text-emerald-400"
+          className="w-full cursor-default rounded-lg border border-emerald-200 bg-emerald-50 py-2.5 text-xs font-bold text-emerald-600"
         >
           Plan actuel
         </button>
@@ -171,14 +171,14 @@ function PlanCard({ plan, currentPlan, onCheckout, isCheckoutPending }: PlanCard
         <button
           onClick={() => onCheckout(plan.id)}
           disabled={isCheckoutPending}
-          className="w-full rounded-lg bg-white py-2.5 text-xs font-bold text-slate-950 transition-colors hover:bg-slate-200 disabled:opacity-60"
+          className="w-full rounded-lg bg-[hsl(var(--primary))] py-2.5 text-xs font-bold text-white transition-colors hover:bg-[hsl(244_42%_44%)] disabled:opacity-60"
         >
           {isCheckoutPending ? 'Redirection…' : `Passer à ${plan.name}`}
         </button>
       ) : isDowngrade ? (
         <button
           disabled
-          className="w-full cursor-default rounded-lg border border-[#1e2f4a] bg-[#0f1c30] py-2.5 text-xs font-bold text-muted-foreground/60"
+          className="w-full cursor-default rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))] py-2.5 text-xs font-bold text-muted-foreground/60"
         >
           Rétrograder
         </button>
@@ -211,7 +211,7 @@ export function BillingPage() {
       {/* ── En-tête ──────────────────────────────────── */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold text-white">Abonnement</h2>
+          <h2 className="text-xl font-bold text-foreground">Abonnement</h2>
           {!subLoading && <PlanBadge plan={currentPlan} />}
         </div>
 
@@ -228,7 +228,7 @@ export function BillingPage() {
             <button
               onClick={() => portal()}
               disabled={portalPending}
-            className="flex items-center gap-2 rounded-lg border border-[#1e2f4a] bg-[#0f1c30] px-4 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:border-[#263a5b] hover:text-foreground disabled:opacity-60"
+              className="flex items-center gap-2 rounded-lg border border-[hsl(var(--border))] bg-white px-4 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:border-[hsl(var(--border))] hover:text-foreground disabled:opacity-60"
             >
               <ExternalLink className="h-3.5 w-3.5" />
               {portalPending ? 'Redirection…' : 'Gérer mon abonnement'}
@@ -239,23 +239,23 @@ export function BillingPage() {
 
       {/* ── Erreur API ───────────────────────────────── */}
       {hasError && (
-        <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3">
-          <ShieldAlert className="h-4 w-4 flex-shrink-0 text-red-400" />
-          <p className="text-sm text-red-300">
+        <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+          <ShieldAlert className="h-4 w-4 flex-shrink-0 text-red-500" />
+          <p className="text-sm text-red-500">
             Impossible de charger les informations de facturation. Vérifiez que l'API est disponible.
           </p>
         </div>
       )}
       {checkoutError && (
-        <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3">
-          <ShieldAlert className="h-4 w-4 flex-shrink-0 text-red-400" />
-          <p className="text-sm text-red-300">{checkoutError.message}</p>
+        <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+          <ShieldAlert className="h-4 w-4 flex-shrink-0 text-red-500" />
+          <p className="text-sm text-red-500">{checkoutError.message}</p>
         </div>
       )}
 
       {/* ── Bannière abonnement actuel (si pas FREE) ─── */}
       {!subLoading && subscription && subscription.plan !== 'FREE' && (
-        <div className="flex items-center justify-between rounded-lg border border-[#1e2f4a] bg-[#0b1527] px-5 py-4">
+        <div className="flex items-center justify-between rounded-lg border border-[hsl(var(--border))] bg-white px-5 py-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Statut :</span>
@@ -264,14 +264,14 @@ export function BillingPage() {
             {subscription.currentPeriodEnd && (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Renouvellement le</span>
-                <span className="text-sm font-semibold text-white">
+                <span className="text-sm font-semibold text-foreground">
                   {formatDate(subscription.currentPeriodEnd)}
                 </span>
               </div>
             )}
           </div>
           {subscription.cancelAtPeriodEnd && (
-            <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold text-orange-400">
+            <span className="rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-600">
               Annulation prévue
             </span>
           )}

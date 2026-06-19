@@ -70,7 +70,7 @@ export function JournalEntryEditor({ date }: Props) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-5 w-5 animate-spin text-gray-600" />
+        <Loader2 className="h-5 w-5 animate-spin text-[hsl(var(--foreground-soft))]" />
       </div>
     )
   }
@@ -80,9 +80,9 @@ export function JournalEntryEditor({ date }: Props) {
       {/* Date header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base font-bold text-white capitalize">{formatDateFr(date)}</h2>
+          <h2 className="text-base font-bold text-foreground capitalize">{formatDateFr(date)}</h2>
           {entry && (
-            <p className="text-[11px] text-gray-500 mt-0.5">
+            <p className="text-[11px] text-[hsl(var(--foreground-soft))] mt-0.5">
               Dernière mise à jour : {new Date(entry.updatedAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
             </p>
           )}
@@ -92,7 +92,7 @@ export function JournalEntryEditor({ date }: Props) {
             <button
               onClick={handleDelete}
               disabled={del.isPending}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-red-400/80 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-colors"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-red-500/80 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors"
             >
               <Trash2 className="h-3.5 w-3.5" />
               Supprimer
@@ -103,8 +103,8 @@ export function JournalEntryEditor({ date }: Props) {
             disabled={upsert.isPending || !dirty}
             className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
               dirty
-                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30'
-                : 'text-gray-600 border border-transparent cursor-default'
+                ? 'bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] border border-[hsl(var(--primary)/0.25)] hover:bg-[hsl(var(--primary)/0.15)]'
+                : 'text-[hsl(var(--foreground-soft))] border border-transparent cursor-default'
             }`}
           >
             {upsert.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
@@ -115,7 +115,7 @@ export function JournalEntryEditor({ date }: Props) {
 
       {/* Mood */}
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-2">Humeur du jour</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-[hsl(var(--foreground-soft))] mb-2">Humeur du jour</p>
         <div className="flex flex-wrap gap-2">
           {MOODS.map(m => (
             <button
@@ -123,8 +123,8 @@ export function JournalEntryEditor({ date }: Props) {
               onClick={() => { setMood(mood === m.key ? null : m.key); markDirty() }}
               className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
                 mood === m.key
-                  ? 'bg-indigo-500/20 text-white border border-indigo-500/40 ring-1 ring-indigo-500/20'
-                  : 'text-gray-400 border border-gray-800/60 hover:border-gray-700 hover:text-foreground'
+                  ? 'bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] border border-[hsl(var(--primary)/0.25)] ring-1 ring-[hsl(var(--primary)/0.15)]'
+                  : 'text-[hsl(var(--foreground-soft))] border border-[hsl(var(--border))] hover:border-[hsl(var(--border))] hover:text-foreground'
               }`}
             >
               <span className="text-sm">{m.emoji}</span>
@@ -136,7 +136,7 @@ export function JournalEntryEditor({ date }: Props) {
 
       {/* Plan pré-marché */}
       <div>
-        <label className="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-2">
+        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[hsl(var(--foreground-soft))] mb-2">
           Plan pré-marché
         </label>
         <textarea
@@ -144,13 +144,13 @@ export function JournalEntryEditor({ date }: Props) {
           onChange={e => { setPlanBefore(e.target.value); markDirty() }}
           rows={4}
           placeholder="Quelles paires surveilles-tu ? Niveaux clés, biais directionnel, conditions d'entrée…"
-          className="w-full resize-none rounded-xl border border-gray-800/60 bg-gray-900/40 px-4 py-3 text-sm text-gray-200 placeholder-gray-700 outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+          className="w-full resize-none rounded-xl border border-[hsl(var(--border))] bg-white px-4 py-3 text-sm text-foreground placeholder-[hsl(var(--foreground-soft))]/40 outline-none focus:border-[hsl(var(--primary)/0.35)] focus:ring-1 focus:ring-[hsl(var(--primary)/0.15)] transition-all"
         />
       </div>
 
       {/* Revue post-séance */}
       <div>
-        <label className="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-2">
+        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[hsl(var(--foreground-soft))] mb-2">
           Revue post-séance
         </label>
         <textarea
@@ -158,13 +158,13 @@ export function JournalEntryEditor({ date }: Props) {
           onChange={e => { setReviewAfter(e.target.value); markDirty() }}
           rows={4}
           placeholder="Comment s'est passée la séance ? As-tu respecté ton plan ? Qu'est-ce qui t'a surpris ?"
-          className="w-full resize-none rounded-xl border border-gray-800/60 bg-gray-900/40 px-4 py-3 text-sm text-gray-200 placeholder-gray-700 outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+          className="w-full resize-none rounded-xl border border-[hsl(var(--border))] bg-white px-4 py-3 text-sm text-foreground placeholder-[hsl(var(--foreground-soft))]/40 outline-none focus:border-[hsl(var(--primary)/0.35)] focus:ring-1 focus:ring-[hsl(var(--primary)/0.15)] transition-all"
         />
       </div>
 
       {/* Notes libres */}
       <div>
-        <label className="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-2">
+        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[hsl(var(--foreground-soft))] mb-2">
           Notes libres
         </label>
         <textarea
@@ -172,7 +172,7 @@ export function JournalEntryEditor({ date }: Props) {
           onChange={e => { setNotes(e.target.value); markDirty() }}
           rows={3}
           placeholder="Observations du marché, setups ratés, leçons apprises, idées pour demain…"
-          className="w-full resize-none rounded-xl border border-gray-800/60 bg-gray-900/40 px-4 py-3 text-sm text-gray-200 placeholder-gray-700 outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+          className="w-full resize-none rounded-xl border border-[hsl(var(--border))] bg-white px-4 py-3 text-sm text-foreground placeholder-[hsl(var(--foreground-soft))]/40 outline-none focus:border-[hsl(var(--primary)/0.35)] focus:ring-1 focus:ring-[hsl(var(--primary)/0.15)] transition-all"
         />
       </div>
     </div>

@@ -8,8 +8,8 @@ function DirectionBadge({ dir }: { dir: 'LONG' | 'SHORT' }) {
   return (
     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
       dir === 'LONG'
-        ? 'bg-green-500/15 text-green-400 border-green-500/30'
-        : 'bg-red-500/15 text-red-400 border-red-500/30'
+        ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+        : 'bg-red-50 text-red-500 border-red-200'
     }`}>
       {dir}
     </span>
@@ -19,7 +19,7 @@ function DirectionBadge({ dir }: { dir: 'LONG' | 'SHORT' }) {
 function PnlCell({ pnl }: { pnl: number }) {
   const pos = pnl >= 0
   return (
-    <span className={`font-mono font-semibold ${pos ? 'text-green-400' : 'text-red-400'}`}>
+    <span className={`font-mono font-semibold ${pos ? 'text-emerald-600' : 'text-red-500'}`}>
       {pos ? '+' : ''}{pnl.toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
     </span>
   )
@@ -41,9 +41,9 @@ export function OpenPositionsTable() {
   const { data: positions = [], isLoading } = useOpenPositions()
 
   return (
-    <div className="rounded-lg border border-border bg-background shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+    <div className="rounded-lg border border-border bg-background shadow-sm">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <h2 className="text-sm font-black text-white">Positions ouvertes</h2>
+        <h2 className="text-sm font-black text-foreground">Positions ouvertes</h2>
         <span className="font-mono text-xs text-muted-foreground">
           {positions.length} actif{positions.length !== 1 ? 's' : ''}
         </span>
@@ -60,7 +60,7 @@ export function OpenPositionsTable() {
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800">
+          <tbody className="divide-y divide-[hsl(var(--border))]">
             {isLoading ? (
               Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} />)
             ) : positions.length === 0 ? (
@@ -71,9 +71,9 @@ export function OpenPositionsTable() {
               </tr>
             ) : (
               positions.map(pos => (
-                <tr key={pos.id} className="hover:bg-white/[0.02] transition-colors">
+                <tr key={pos.id} className="hover:bg-[hsl(var(--accent))] transition-colors">
                   <td className="px-4 py-3">
-                    <span className="font-semibold text-white font-mono">{pos.symbol}</span>
+                    <span className="font-semibold text-foreground font-mono">{pos.symbol}</span>
                   </td>
                   <td className="px-4 py-3">
                     <DirectionBadge dir={pos.direction} />
@@ -92,7 +92,7 @@ export function OpenPositionsTable() {
                   </td>
                   <td className="px-4 py-3">
                     {pos.strategyTag ? (
-                      <span className="rounded-full bg-blue-400/[0.08] px-2 py-0.5 text-xs text-blue-300">
+                      <span className="rounded-full bg-[hsl(var(--primary)/0.08)] px-2 py-0.5 text-xs text-[hsl(var(--primary))]">
                         {pos.strategyTag}
                       </span>
                     ) : (

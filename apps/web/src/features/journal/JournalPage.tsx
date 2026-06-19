@@ -32,11 +32,11 @@ export function JournalPage() {
     <div className="flex min-h-[calc(100vh-64px)]">
 
       {/* ── Left: Calendar sidebar ─────────────────────────────── */}
-      <aside className="w-64 shrink-0 border-r border-gray-800/60 px-4 py-6">
+      <aside className="w-64 shrink-0 border-r border-[hsl(var(--border))] px-4 py-6">
         {calLoading ? (
           <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-8 animate-pulse rounded-lg bg-gray-800" />
+              <div key={i} className="h-8 animate-pulse rounded-lg bg-[hsl(var(--accent))]" />
             ))}
           </div>
         ) : (
@@ -60,7 +60,7 @@ export function JournalPage() {
               setViewYear(now.getFullYear())
               setViewMonth(now.getMonth() + 1)
             }}
-            className="mt-6 w-full rounded-xl border border-gray-800/60 py-2 text-xs font-medium text-gray-500 hover:text-foreground hover:border-gray-700 transition-colors"
+            className="mt-6 w-full rounded-xl border border-[hsl(var(--border))] py-2 text-xs font-medium text-[hsl(var(--foreground-soft))] hover:text-foreground hover:border-[hsl(var(--border))] transition-colors"
           >
             Revenir à aujourd'hui
           </button>
@@ -73,8 +73,8 @@ export function JournalPage() {
           <JournalEntryEditor key={selectedDate} date={selectedDate} />
         ) : (
           <div className="flex flex-col items-center justify-center h-64 gap-3 text-center">
-            <BookOpen className="h-10 w-10 text-gray-700" />
-            <p className="text-sm text-gray-600">Sélectionne un jour dans le calendrier</p>
+            <BookOpen className="h-10 w-10 text-[hsl(var(--foreground-soft))]" />
+            <p className="text-sm text-[hsl(var(--foreground-soft))]">Sélectionne un jour dans le calendrier</p>
           </div>
         )}
       </main>

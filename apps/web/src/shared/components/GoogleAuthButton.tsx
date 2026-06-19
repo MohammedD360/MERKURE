@@ -19,22 +19,10 @@ interface Props {
 }
 
 export function GoogleAuthButton({ label = 'Continuer avec Google', variant = 'subtle' }: Props) {
-  if (variant === 'prominent') {
-    return (
-      <a
-        href={`${API}/api/v1/auth/google`}
-        className="flex h-12 w-full items-center justify-center gap-3 rounded-lg bg-white px-4 text-sm font-semibold text-slate-800 shadow-[0_2px_10px_rgba(0,0,0,0.20)] transition-all hover:bg-slate-50 hover:shadow-[0_4px_16px_rgba(0,0,0,0.26)] active:scale-[0.99]"
-      >
-        <GoogleSvg />
-        {label}
-      </a>
-    )
-  }
-
   return (
     <a
       href={`${API}/api/v1/auth/google`}
-      className="flex h-11 w-full items-center justify-center gap-3 rounded-md border border-white/10 bg-black text-sm font-semibold text-white transition-colors hover:border-white/25 hover:bg-white/[0.04]"
+      className="flex h-11 w-full items-center justify-center gap-3 rounded-md border border-[hsl(var(--border))] bg-white text-sm font-medium text-foreground shadow-sm transition-all hover:border-[hsl(var(--primary)/0.4)] hover:bg-[hsl(var(--accent))] hover:shadow-md active:scale-[0.99]"
     >
       <GoogleSvg />
       {label}

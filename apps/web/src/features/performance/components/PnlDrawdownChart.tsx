@@ -25,9 +25,9 @@ function ChartSkeleton() {
 function PnlTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-lg border border-border/70 bg-[#071017] px-3 py-2 text-xs shadow-xl">
-      <p className="mb-1 text-muted-foreground">{label}</p>
-      <p className="font-mono text-[#56bf6b]">
+    <div className="rounded-lg border border-[hsl(var(--border))] bg-white px-3 py-2 text-xs shadow-xl">
+      <p className="mb-1 text-[hsl(var(--foreground-soft))]">{label}</p>
+      <p className="font-mono text-emerald-600">
         P&L cumulé : {Number(payload[0]?.value ?? 0).toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
       </p>
     </div>
@@ -38,9 +38,9 @@ function DrawdownTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   const val = Number(payload[0]?.value ?? 0)
   return (
-    <div className="rounded-lg border border-border/70 bg-[#071017] px-3 py-2 text-xs shadow-xl">
-      <p className="mb-1 text-muted-foreground">{label}</p>
-      <p className="font-mono text-rose-300">
+    <div className="rounded-lg border border-[hsl(var(--border))] bg-white px-3 py-2 text-xs shadow-xl">
+      <p className="mb-1 text-[hsl(var(--foreground-soft))]">{label}</p>
+      <p className="font-mono text-red-500">
         Drawdown : {(val * 100).toFixed(2)} %
       </p>
     </div>
@@ -58,17 +58,17 @@ export function PnlDrawdownChart({ from, to, accountId }: Props) {
   }))
 
   return (
-    <div ref={ref} className="space-y-4 rounded-lg border border-border bg-background p-4 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
+    <div ref={ref} className="space-y-4 rounded-lg border border-border bg-background p-4 shadow-sm">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-white">P&L cumulé & Drawdown</h2>
+        <h2 className="text-sm font-semibold text-foreground">P&L cumulé & Drawdown</h2>
         <ChartDownloadButton onClick={download} isExporting={isExporting} />
       </div>
 
       {/* Courbe P&L */}
       <div>
-        <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-muted-foreground">P&L cumulé</p>
+        <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-[hsl(var(--foreground-soft))]">P&L cumulé</p>
         {query.isLoading ? <ChartSkeleton /> : data.length === 0 ? (
-          <div className="flex h-32 items-center justify-center text-sm text-muted-foreground/60">
+          <div className="flex h-32 items-center justify-center text-sm text-[hsl(var(--foreground-soft))]">
             Aucune donnée disponible
           </div>
         ) : (
@@ -76,24 +76,24 @@ export function PnlDrawdownChart({ from, to, accountId }: Props) {
             <AreaChart data={data} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="pnlGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="#56bf6b" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#56bf6b" stopOpacity={0} />
+                  <stop offset="5%"  stopColor="#16a34a" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#16a34a" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-              <XAxis dataKey="label" tick={{ fill: '#6b7280', fontSize: 10 }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fill: '#6b7280', fontSize: 10 }} tickLine={false} axisLine={false}
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="label" tick={{ fill: '#9ca3af', fontSize: 10 }} tickLine={false} axisLine={false} />
+              <YAxis tick={{ fill: '#9ca3af', fontSize: 10 }} tickLine={false} axisLine={false}
                 tickFormatter={(v) => `${v > 0 ? '+' : ''}${Number(v).toFixed(0)}`} />
               <Tooltip content={<PnlTooltip />} />
-              <ReferenceLine y={0} stroke="#374151" strokeDasharray="4 4" />
+              <ReferenceLine y={0} stroke="#e5e7eb" strokeDasharray="4 4" />
               <Area
                 type="monotone"
                 dataKey="cumPnl"
-                stroke="#56bf6b"
+                stroke="#16a34a"
                 strokeWidth={2}
                 fill="url(#pnlGrad)"
                 dot={false}
-                activeDot={{ r: 4, fill: '#56bf6b' }}
+                activeDot={{ r: 4, fill: '#16a34a' }}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -102,9 +102,9 @@ export function PnlDrawdownChart({ from, to, accountId }: Props) {
 
       {/* Courbe Drawdown */}
       <div>
-        <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-muted-foreground">Drawdown %</p>
+        <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-[hsl(var(--foreground-soft))]">Drawdown %</p>
         {query.isLoading ? <ChartSkeleton /> : data.length === 0 ? (
-          <div className="flex h-24 items-center justify-center text-sm text-muted-foreground/60">
+          <div className="flex h-24 items-center justify-center text-sm text-[hsl(var(--foreground-soft))]">
             Aucune donnée disponible
           </div>
         ) : (
@@ -112,14 +112,14 @@ export function PnlDrawdownChart({ from, to, accountId }: Props) {
             <AreaChart data={data} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="ddGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="#ef4444" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                  <stop offset="5%"  stopColor="#dc2626" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#dc2626" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-              <XAxis dataKey="label" tick={{ fill: '#6b7280', fontSize: 10 }} tickLine={false} axisLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="label" tick={{ fill: '#9ca3af', fontSize: 10 }} tickLine={false} axisLine={false} />
               <YAxis
-                tick={{ fill: '#6b7280', fontSize: 10 }} tickLine={false} axisLine={false}
+                tick={{ fill: '#9ca3af', fontSize: 10 }} tickLine={false} axisLine={false}
                 tickFormatter={(v) => `${(Number(v) * 100).toFixed(0)}%`}
                 reversed
               />
@@ -127,11 +127,11 @@ export function PnlDrawdownChart({ from, to, accountId }: Props) {
               <Area
                 type="monotone"
                 dataKey="drawdownPct"
-                stroke="#ef4444"
+                stroke="#dc2626"
                 strokeWidth={2}
                 fill="url(#ddGrad)"
                 dot={false}
-                activeDot={{ r: 4, fill: '#ef4444' }}
+                activeDot={{ r: 4, fill: '#dc2626' }}
               />
             </AreaChart>
           </ResponsiveContainer>

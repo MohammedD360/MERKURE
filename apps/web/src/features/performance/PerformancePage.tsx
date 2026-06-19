@@ -70,20 +70,20 @@ export function PerformancePage() {
       <div className="flex flex-col gap-3 border-b border-border pb-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Analyse</p>
-          <h1 className="mt-1 text-xl font-black text-white">Performance</h1>
+          <h1 className="mt-1 text-xl font-black text-foreground">Performance</h1>
           <p className="mt-1 text-sm font-medium text-muted-foreground">Analyse détaillée de vos résultats de trading</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Sélecteur période */}
-          <div className="flex rounded-md border border-border bg-[#071017] p-0.5">
+          <div className="flex rounded-md border border-border bg-background p-0.5">
             {PERIODS.map(({ label, value }) => (
               <button
                 key={value}
                 onClick={() => setPeriod(value)}
                 className={`rounded px-3 py-1.5 text-xs font-black transition-colors ${
                   period === value
-                    ? 'bg-[#56bf6b] text-white'
+                    ? 'bg-[hsl(var(--primary))] text-white'
                     : 'text-muted-foreground hover:text-foreground/80'
                 }`}
               >
@@ -97,7 +97,7 @@ export function PerformancePage() {
             <select
               value={accountId ?? ''}
               onChange={(e) => setAccountId(e.target.value || undefined)}
-              className="rounded-md border border-border bg-[#071017] px-3 py-2 text-xs font-semibold text-muted-foreground outline-none transition-colors focus:border-[#56bf6b]/60"
+              className="rounded-md border border-border bg-background px-3 py-2 text-xs font-semibold text-muted-foreground outline-none transition-colors focus:border-[hsl(var(--primary)/0.6)]"
             >
               <option value="">Tous les comptes</option>
               {accounts.map(acc => (

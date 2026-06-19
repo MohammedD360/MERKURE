@@ -14,7 +14,7 @@ function Card({
   loading: boolean
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-border bg-background p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+    <div className="flex items-start gap-3 rounded-lg border border-border bg-background p-4 shadow-sm">
       <div className={`mt-0.5 rounded-lg p-2 ${color}`}>
         <Icon className="w-4 h-4" />
       </div>
@@ -24,7 +24,7 @@ function Card({
           <div className="mt-1 h-7 w-24 animate-pulse rounded bg-accent/70" />
         ) : (
           <>
-            <p className="mt-0.5 font-mono text-2xl font-black text-white">{value}</p>
+            <p className="mt-0.5 font-mono text-2xl font-black text-foreground">{value}</p>
             {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
           </>
         )}
@@ -42,7 +42,7 @@ function fmt(n: number, currency = true) {
 export function ExposureCards() {
   const { data, isLoading } = usePortfolioSummary()
 
-  const pnlColor   = (data?.totalPnlOpen ?? 0) >= 0 ? 'text-green-400' : 'text-red-400'
+  const pnlColor   = (data?.totalPnlOpen ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-500'
   const pnlPrefix  = (data?.totalPnlOpen ?? 0) >= 0 ? '+' : ''
 
   return (
@@ -52,7 +52,7 @@ export function ExposureCards() {
         value={String(data?.openPositionsCount ?? 0)}
         sub="trades actifs"
         icon={Activity}
-        color="bg-blue-400/[0.08] text-blue-300"
+        color="bg-[hsl(var(--primary)/0.08)] text-[hsl(var(--primary))]"
         loading={isLoading}
       />
       <Card
@@ -60,11 +60,11 @@ export function ExposureCards() {
         value={data ? `${data.totalExposureLots.toFixed(2)} L` : '—'}
         sub="volume total engagé"
         icon={TrendingUp}
-        color="bg-cyan-400/[0.08] text-cyan-300"
+        color="bg-cyan-50 text-cyan-600"
         loading={isLoading}
       />
-      <div className="flex items-start gap-3 rounded-lg border border-border bg-background p-4 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
-        <div className={`mt-0.5 rounded-lg p-2 ${(data?.totalPnlOpen ?? 0) >= 0 ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'}`}>
+      <div className="flex items-start gap-3 rounded-lg border border-border bg-background p-4 shadow-sm">
+        <div className={`mt-0.5 rounded-lg p-2 ${(data?.totalPnlOpen ?? 0) >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'}`}>
           {(data?.totalPnlOpen ?? 0) >= 0
             ? <TrendingUp className="w-4 h-4" />
             : <TrendingDown className="w-4 h-4" />
@@ -91,7 +91,7 @@ export function ExposureCards() {
         value={data ? fmt(data.equity) : '—'}
         sub={data ? `Balance : ${fmt(data.balance)}` : undefined}
         icon={Wallet}
-        color="bg-amber-500/15 text-amber-400"
+        color="bg-amber-50 text-amber-600"
         loading={isLoading}
       />
     </div>

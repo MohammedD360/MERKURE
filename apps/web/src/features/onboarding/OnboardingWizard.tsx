@@ -135,17 +135,17 @@ export function OnboardingWizard() {
   const isPlan = step === 'plan'
 
   return (
-    <div className="relative min-h-screen bg-[#070b10] flex flex-col items-center justify-center px-4 py-12">
+    <div className="relative min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12">
       {/* Background halos */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-32 -left-32 h-[600px] w-[600px] rounded-full bg-blue-600/[0.07] blur-[120px]" />
-        <div className="absolute -bottom-32 -right-32 h-[500px] w-[500px] rounded-full bg-emerald-600/[0.05] blur-[100px]" />
+        <div className="absolute -top-32 -left-32 h-[600px] w-[600px] rounded-full bg-[hsl(var(--primary)/0.06)] blur-[120px]" />
+        <div className="absolute -bottom-32 -right-32 h-[500px] w-[500px] rounded-full bg-[hsl(var(--primary)/0.04)] blur-[100px]" />
       </div>
 
       {/* Logo */}
       <div className="mb-10 text-center">
         <BrandLogo
-          className="justify-center text-white"
+          className="justify-center text-foreground"
           iconClassName="h-9 w-9"
           textClassName="text-[22px] font-black tracking-[0.12em]"
         />
@@ -154,12 +154,12 @@ export function OnboardingWizard() {
 
       {/* Card */}
       <div
-        className={`relative w-full border border-white/10 bg-background rounded-2xl shadow-[0_32px_80px_rgba(0,0,0,0.40)] overflow-hidden ${
+        className={`relative w-full border border-[hsl(var(--border))] bg-background rounded-2xl shadow-[0_32px_80px_rgba(0,0,0,0.08)] overflow-hidden ${
           isPlan ? 'max-w-3xl' : 'max-w-lg'
         }`}
       >
         {/* Stepper */}
-        <div className="px-6 pt-6 pb-5 border-b border-white/10">
+        <div className="px-6 pt-6 pb-5 border-b border-[hsl(var(--border))]">
           <div className="flex items-center">
             {STEPS.map((s, i) => {
               const done = s.num < currentNum
@@ -170,17 +170,17 @@ export function OnboardingWizard() {
                     <div
                       className={`h-9 w-9 rounded-full border-2 flex items-center justify-center text-xs font-black transition-all ${
                         done
-                          ? 'border-[#56bf6b] bg-[#56bf6b] text-white'
+                          ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))] text-white'
                           : active
-                          ? 'border-blue-400 bg-blue-400/10 text-blue-300'
-                          : 'border-white/15 bg-white/[0.04] text-muted-foreground/60'
+                          ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]'
+                          : 'border-[hsl(var(--border))] bg-[hsl(var(--accent))] text-muted-foreground/60'
                       }`}
                     >
                       {done ? <Check className="h-4 w-4" /> : s.num}
                     </div>
                     <span
                       className={`hidden sm:block text-[10px] font-black uppercase tracking-wider ${
-                        active ? 'text-white' : done ? 'text-muted-foreground' : 'text-slate-700'
+                        active ? 'text-foreground' : done ? 'text-muted-foreground' : 'text-foreground/30'
                       }`}
                     >
                       {s.label}
@@ -189,7 +189,7 @@ export function OnboardingWizard() {
                   {i < STEPS.length - 1 && (
                     <div
                       className={`h-px flex-1 mx-3 mb-4 transition-all ${
-                        done ? 'bg-[#56bf6b]' : 'bg-white/10'
+                        done ? 'bg-[hsl(var(--primary))]' : 'bg-[hsl(var(--border))]'
                       }`}
                     />
                   )}
@@ -201,14 +201,14 @@ export function OnboardingWizard() {
 
         {/* Step header */}
         <div className="px-6 pt-6 pb-2">
-          <h2 className="text-lg font-black text-white">{meta.title}</h2>
+          <h2 className="text-lg font-black text-foreground">{meta.title}</h2>
           <p className="text-sm font-medium text-muted-foreground mt-1">{meta.description}</p>
         </div>
 
         {/* Content */}
         <div className="px-6 py-5">
           {error && (
-            <div className="mb-4 border border-red-400/25 bg-red-400/[0.08] px-4 py-3 rounded-lg text-sm text-red-200">
+            <div className="mb-4 border border-red-200 bg-red-50 px-4 py-3 rounded-lg text-sm text-red-500">
               {error}
             </div>
           )}
@@ -233,11 +233,11 @@ export function OnboardingWizard() {
 
         {/* Footer — profile step only */}
         {step === 'profile' && (
-          <div className="flex justify-end border-t border-white/10 px-6 py-4">
+          <div className="flex justify-end border-t border-[hsl(var(--border))] px-6 py-4">
             <button
               onClick={handleProfileNext}
               disabled={loading}
-              className="px-6 py-2.5 rounded-lg text-sm font-black text-white bg-[#56bf6b] hover:bg-[#49ab5e] disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              className="px-6 py-2.5 rounded-lg text-sm font-black text-white bg-[hsl(var(--primary))] hover:bg-[hsl(244_42%_44%)] disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               {loading ? (
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -249,7 +249,7 @@ export function OnboardingWizard() {
         )}
       </div>
 
-      <p className="text-xs text-slate-700 mt-6">
+      <p className="text-xs text-foreground/30 mt-6">
         Vous pouvez modifier ces informations à tout moment dans votre profil.
       </p>
     </div>

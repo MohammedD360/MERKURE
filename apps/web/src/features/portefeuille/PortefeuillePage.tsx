@@ -20,7 +20,7 @@ export function PortefeuillePage() {
       <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Pilotage</p>
-          <h1 className="mt-1 text-xl font-black text-white">Portefeuille</h1>
+          <h1 className="mt-1 text-xl font-black text-foreground">Portefeuille</h1>
           <p className="mt-1 text-sm font-medium text-muted-foreground">Positions ouvertes, exposition et historique equity</p>
         </div>
         <button

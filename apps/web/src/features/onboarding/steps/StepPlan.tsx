@@ -38,7 +38,7 @@ const FALLBACK_PLANS: Plan[] = [
     name: 'Trader',
     priceMonthly: 1900,
     currency: 'EUR',
-    features: ['Toutes les fonctionnalités Starter', 'Analyses avancées', 'Suivi du risque', 'Rapports personnalisés', 'Jusqu’à 3 comptes brokers'],
+    features: ['Toutes les fonctionnalités Starter', 'Analyses avancées', 'Suivi du risque', 'Rapports personnalisés', "Jusqu’à 3 comptes brokers"],
   },
   {
     id: 'ELITE',
@@ -68,13 +68,13 @@ function PlanCard({ plan, onSelect, disabled }: PlanCardProps) {
     <div
       className={`relative rounded-xl border bg-background p-5 flex flex-col transition-all ${
         isRecommended
-          ? 'border-blue-500/40 ring-1 ring-blue-500/20'
-          : 'border-white/10 hover:border-white/20'
+          ? 'border-[hsl(var(--primary)/0.4)] ring-1 ring-[hsl(var(--primary)/0.2)]'
+          : 'border-[hsl(var(--border))] hover:border-[hsl(var(--border))]'
       }`}
     >
       {isRecommended && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <span className="rounded-md border border-blue-300/20 bg-blue-300/10 px-3 py-0.5 text-[10px] font-black uppercase tracking-widest text-blue-200">
+          <span className="rounded-md border border-[hsl(var(--primary)/0.25)] bg-[hsl(var(--primary)/0.1)] px-3 py-0.5 text-[10px] font-black uppercase tracking-widest text-[hsl(var(--primary))]">
             Recommandé
           </span>
         </div>
@@ -82,7 +82,7 @@ function PlanCard({ plan, onSelect, disabled }: PlanCardProps) {
 
       <div className="mb-4">
         <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">{plan.name}</p>
-        <p className="mt-1 text-2xl font-black text-white">
+        <p className="mt-1 text-2xl font-black text-foreground">
           {formatPrice(plan.priceMonthly)}
         </p>
       </div>
@@ -90,7 +90,7 @@ function PlanCard({ plan, onSelect, disabled }: PlanCardProps) {
       <ul className="mb-6 flex-1 space-y-2">
         {plan.features.map((feature) => (
           <li key={feature} className="flex items-start gap-2">
-            <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#56bf6b]" />
+            <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[hsl(var(--primary))]" />
             <span className="text-sm text-muted-foreground">{feature}</span>
           </li>
         ))}
@@ -102,10 +102,10 @@ function PlanCard({ plan, onSelect, disabled }: PlanCardProps) {
         disabled={disabled}
         className={`w-full rounded-lg h-11 text-sm font-black transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
           isFree
-            ? 'border border-white/15 bg-white/[0.04] text-slate-200 hover:bg-white/[0.08]'
+            ? 'border border-[hsl(var(--border))] bg-[hsl(var(--accent))] text-foreground/80 hover:bg-[hsl(var(--accent))]'
             : isRecommended
-            ? 'bg-[#56bf6b] hover:bg-[#49ab5e] text-white shadow-[0_6px_20px_rgba(86,191,107,0.22)]'
-            : 'border border-white/15 bg-white/[0.04] text-slate-200 hover:bg-white/[0.08]'
+            ? 'bg-[hsl(var(--primary))] hover:bg-[hsl(244_42%_44%)] text-white shadow-sm'
+            : 'border border-[hsl(var(--border))] bg-[hsl(var(--accent))] text-foreground/80 hover:bg-[hsl(var(--accent))]'
         }`}
       >
         {isFree ? 'Continuer en gratuit' : `Choisir ${plan.name}`}

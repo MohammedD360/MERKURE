@@ -83,3 +83,49 @@ export function useAnnotateTrade() {
     },
   })
 }
+
+export interface CreateTradePayload {
+  brokerAccountId: string
+  symbol:          string
+  direction:       'LONG' | 'SHORT'
+  status:          'OPEN' | 'CLOSED'
+  openTime:        string
+  closeTime?:      string | null
+  openPrice:       number
+  closePrice?:     number | null
+  lotSize:         number
+  pnl?:            number | null
+  swap?:           number
+  commission?:     number
+  strategyTag?:    string | null
+  note?:           string | null
+}
+
+export function useCreateTrade() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (payload: CreateTradePayload) =>
+      apiFetch<Trade>('/api/v1/trades', {
+        method: 'POST',
+        body:   JSON.stringify(payload),
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['trades'] })
+      void queryClient.invalidateQueries({ queryKey: ['kpis'] })
+    },
+  })
+}
+
+export function useDeleteTrade() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: string) =>
+      apiFetch<void>(`/api/v1/trades/${id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['trades'] })
+      void queryClient.invalidateQueries({ queryKey: ['kpis'] })
+    },
+  })
+}

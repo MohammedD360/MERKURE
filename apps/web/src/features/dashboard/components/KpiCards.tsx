@@ -31,11 +31,11 @@ function formatPct(value: number) {
 
 function KpiCard({ title, icon, children }: { title: string; icon: ReactNode; children: ReactNode }) {
   return (
-    <Card className="h-full min-h-[120px]">
+    <Card className="h-full min-h-[120px] border-border bg-white shadow-sm">
       <CardContent className="flex h-full flex-col p-5">
         <div className="mb-4 flex items-center justify-between gap-3">
           <p className="truncate text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{title}</p>
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border bg-muted text-muted-foreground">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border bg-[#f8fafc] text-muted-foreground">
             {icon}
           </div>
         </div>
@@ -56,7 +56,7 @@ function WinRateRing({ value }: { value: number | null }) {
       <circle cx="28" cy="28" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="5" />
       <circle
         cx="28" cy="28" r={radius} fill="none"
-        stroke="hsl(var(--sidebar-primary))"
+        stroke="hsl(var(--primary))"
         strokeWidth="5"
         strokeDasharray={`${filled} ${circumference - filled}`}
         strokeLinecap="round"
@@ -90,8 +90,8 @@ export function KpiCards({ period = '30d', accountId }: { period?: KpiPeriod; ac
       <KpiCard
         title={`P&L ${PERIOD_LABELS[period]}`}
         icon={pnlPositive
-          ? <TrendingUp className="h-4 w-4 text-emerald-400" />
-          : <TrendingDown className="h-4 w-4 text-red-400" />}
+          ? <TrendingUp className="h-4 w-4 text-emerald-600" />
+          : <TrendingDown className="h-4 w-4 text-red-500" />}
       >
         {isLoading ? (
           <><Skeleton className="mb-2 h-8 w-32" /><Skeleton className="h-3.5 w-20" /></>
@@ -99,7 +99,7 @@ export function KpiCards({ period = '30d', accountId }: { period?: KpiPeriod; ac
           <p className="font-mono text-2xl font-bold text-muted-foreground">—</p>
         ) : (
           <>
-            <p className={cn('font-mono text-2xl font-bold tracking-tight', pnlPositive ? 'text-emerald-400' : 'text-red-400')}>
+            <p className={cn('font-mono text-2xl font-bold tracking-tight', pnlPositive ? 'text-emerald-600' : 'text-red-500')}>
               {formatMoney(totalPnl, true)}
             </p>
             <p className="mt-2 text-xs text-muted-foreground">
@@ -110,7 +110,7 @@ export function KpiCards({ period = '30d', accountId }: { period?: KpiPeriod; ac
       </KpiCard>
 
       {/* Trades */}
-      <KpiCard title="Trades" icon={<Activity className="h-4 w-4 text-[hsl(var(--sidebar-primary))]" />}>
+      <KpiCard title="Trades" icon={<Activity className="h-4 w-4 text-[hsl(var(--primary))]" />}>
         {isLoading ? (
           <><Skeleton className="mb-2 h-8 w-16" /><Skeleton className="h-3.5 w-24" /></>
         ) : data ? (
@@ -126,14 +126,14 @@ export function KpiCards({ period = '30d', accountId }: { period?: KpiPeriod; ac
       </KpiCard>
 
       {/* Drawdown */}
-      <KpiCard title="Drawdown Max" icon={<TrendingDown className="h-4 w-4 text-red-400" />}>
+      <KpiCard title="Drawdown Max" icon={<TrendingDown className="h-4 w-4 text-red-500" />}>
         {isLoading ? (
           <><Skeleton className="mb-2 h-8 w-24" /><Skeleton className="h-3.5 w-20" /></>
         ) : drawdownPct == null ? (
           <p className="font-mono text-2xl font-bold text-muted-foreground">—</p>
         ) : (
           <>
-            <p className="font-mono text-2xl font-bold tracking-tight text-red-400">
+            <p className="font-mono text-2xl font-bold tracking-tight text-red-500">
               -{formatPct(drawdownPct)}
             </p>
             {drawdownLabel && <p className="mt-2 text-xs text-muted-foreground">{drawdownLabel}</p>}
@@ -142,7 +142,7 @@ export function KpiCards({ period = '30d', accountId }: { period?: KpiPeriod; ac
       </KpiCard>
 
       {/* Win Rate */}
-      <KpiCard title="Win Rate" icon={<Target className="h-4 w-4 text-[hsl(var(--sidebar-primary))]" />}>
+      <KpiCard title="Win Rate" icon={<Target className="h-4 w-4 text-[hsl(var(--primary))]" />}>
         {isLoading ? (
           <div className="flex items-end gap-3">
             <Skeleton className="h-[52px] w-[52px] rounded-full" />
@@ -164,7 +164,7 @@ export function KpiCards({ period = '30d', accountId }: { period?: KpiPeriod; ac
       </KpiCard>
 
       {/* Profit Factor */}
-      <KpiCard title="Profit Factor" icon={<Target className="h-4 w-4 text-emerald-400" />}>
+      <KpiCard title="Profit Factor" icon={<Target className="h-4 w-4 text-emerald-600" />}>
         {isLoading ? (
           <><Skeleton className="mb-2 h-8 w-20" /><Skeleton className="h-3.5 w-16" /></>
         ) : data?.profitFactor == null ? (
@@ -175,7 +175,7 @@ export function KpiCards({ period = '30d', accountId }: { period?: KpiPeriod; ac
               {data.profitFactor.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
             {profitLabel && (
-              <p className={cn('mt-2 text-xs font-medium', data.profitFactor >= 1 ? 'text-emerald-400' : 'text-red-400')}>
+              <p className={cn('mt-2 text-xs font-medium', data.profitFactor >= 1 ? 'text-emerald-600' : 'text-red-500')}>
                 {profitLabel}
               </p>
             )}
@@ -184,14 +184,14 @@ export function KpiCards({ period = '30d', accountId }: { period?: KpiPeriod; ac
       </KpiCard>
 
       {/* Meilleur jour */}
-      <KpiCard title="Meilleur jour" icon={<CalendarDays className="h-4 w-4 text-emerald-400" />}>
+      <KpiCard title="Meilleur jour" icon={<CalendarDays className="h-4 w-4 text-emerald-600" />}>
         {isLoading ? (
           <><Skeleton className="mb-2 h-8 w-28" /><Skeleton className="h-3.5 w-20" /></>
         ) : data?.bestDay == null ? (
           <p className="font-mono text-2xl font-bold text-muted-foreground">—</p>
         ) : (
           <>
-            <p className="font-mono text-2xl font-bold tracking-tight text-emerald-400">
+            <p className="font-mono text-2xl font-bold tracking-tight text-emerald-600">
               {formatMoney(data.bestDay.pnl, true)}
             </p>
             <p className="mt-2 text-xs text-muted-foreground">

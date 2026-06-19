@@ -2,38 +2,57 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Shadcn-style CSS variables (dark, inspired by Deltalytix) ─────────── */
+/* ─── Fonts ─────────────────────────────────────────────────────────────── */
+/* font-primary = Instrument Serif (équivalent Reckless Neue) — titres display */
+/* font-body    = DM Sans (équivalent Neue Haas Display) — corps de texte      */
+
+/* ─── CSS variables — palette Maven (violet remplace orange) ────────────── */
 @layer base {
   :root {
-    --background:               228 40% 6%;
-    --foreground:               220 20% 94%;
-    --card:                     228 43% 9%;
-    --card-foreground:          220 20% 94%;
-    --popover:                  228 43% 9%;
-    --popover-foreground:       220 20% 94%;
-    --primary:                  244 42% 51%;
-    --primary-foreground:       0 0% 100%;
-    --secondary:                228 30% 14%;
-    --secondary-foreground:     220 20% 94%;
-    --muted:                    228 30% 14%;
-    --muted-foreground:         220 10% 55%;
-    --accent:                   228 30% 16%;
-    --accent-foreground:        220 20% 94%;
-    --destructive:              350 80% 60%;
-    --destructive-foreground:   0 0% 98%;
-    --border:                   228 30% 14%;
-    --input:                    228 30% 14%;
-    --ring:                     244 42% 51%;
-    --radius:                   0.5rem;
+    /* Backgrounds */
+    --background:               0 0% 100%;          /* #ffffff — fond principal */
+    --background-alt:           40 33% 95%;          /* #f7f4ef — sections beige Maven */
 
-    /* ── Sidebar ── */
-    --sidebar-background:          228 40% 6%;
-    --sidebar-foreground:          220 20% 94%;
+    /* Text */
+    --foreground:               0 0% 18%;            /* #2f2f2f — texte sombre Maven */
+    --foreground-soft:          20 7% 36%;            /* #655f5b — texte doux Maven */
+
+    /* Cards */
+    --card:                     0 0% 100%;
+    --card-foreground:          0 0% 18%;
+    --popover:                  0 0% 100%;
+    --popover-foreground:       0 0% 18%;
+
+    /* Primary — bleu-violet MERKURE (inchangé) */
+    --primary:                  244 42% 51%;          /* #534AB7 */
+    --primary-foreground:       0 0% 100%;
+
+    /* Secondary / Muted — beige Maven */
+    --secondary:                40 33% 95%;
+    --secondary-foreground:     0 0% 18%;
+    --muted:                    40 33% 95%;
+    --muted-foreground:         20 7% 36%;
+    --accent:                   244 42% 95%;          /* violet très clair au hover */
+    --accent-foreground:        244 42% 35%;
+
+    /* States */
+    --destructive:              0 84% 60%;
+    --destructive-foreground:   0 0% 98%;
+
+    /* Borders / Inputs */
+    --border:                   0 0% 80%;             /* #cccccc — Maven */
+    --input:                    0 0% 80%;
+    --ring:                     244 42% 51%;
+    --radius:                   0.375rem;             /* légèrement arrondi, style Maven */
+
+    /* ── Sidebar (app — thème clair) ── */
+    --sidebar-background:          0 0% 100%;
+    --sidebar-foreground:          0 0% 18%;
     --sidebar-primary:             244 42% 51%;
     --sidebar-primary-foreground:  0 0% 100%;
-    --sidebar-accent:              228 30% 14%;
-    --sidebar-accent-foreground:   220 20% 94%;
-    --sidebar-border:              228 30% 12%;
+    --sidebar-accent:              244 42% 96%;
+    --sidebar-accent-foreground:   0 0% 18%;
+    --sidebar-border:              0 0% 80%;
     --sidebar-ring:                244 42% 51%;
 
     /* ── Charts ── */
@@ -45,7 +64,7 @@
     --chart-4:      43 85% 60%;
     --chart-5:      27 85% 60%;
 
-    /* ── Profit / Loss raw ── */
+    /* ── Profit / Loss ── */
     --color-profit: 34 197 94;
     --color-loss:   239 68 68;
   }
@@ -57,37 +76,42 @@
   body {
     background-color: hsl(var(--background));
     color:            hsl(var(--foreground));
-    font-family: Inter, "SF Pro Display", -apple-system, BlinkMacSystemFont,
-                 "Segoe UI", sans-serif;
+    font-family: var(--font-body), DM Sans, Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
     font-feature-settings: "cv02","cv03","cv04","cv11";
     @apply antialiased;
   }
 
   html { scroll-behavior: smooth; }
 
-  /* Scrollbar */
   ::-webkit-scrollbar       { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: hsl(var(--background)); }
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.25);
+    background: hsl(var(--border));
     border-radius: 3px;
   }
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.4);
-  }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--foreground-soft) / 0.4); }
 
   ::selection {
-    background-color: hsl(var(--sidebar-primary) / 0.25);
-    color: #fff;
+    background-color: hsl(var(--primary) / 0.2);
+    color: hsl(var(--foreground));
   }
 }
 
-/* ─── Component helpers ─────────────────────────────────────────────────── */
+/* ─── Font utilities ────────────────────────────────────────────────────── */
 @layer components {
+  /* Police display — Instrument Serif (Reckless Neue) pour les grands titres */
+  .font-primary {
+    font-family: var(--font-primary), 'Georgia', 'Times New Roman', serif;
+  }
+  /* Police corps — DM Sans (Neue Haas Display) */
+  .font-body {
+    font-family: var(--font-body), 'DM Sans', 'Inter', sans-serif;
+  }
+
   .text-profit { color: #22c55e; }
   .text-loss   { color: #ef4444; }
 
-  /* Sidebar nav item */
+  /* ── Sidebar nav item ── */
   .nav-item {
     @apply flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm
            text-[hsl(var(--sidebar-foreground)/0.65)] transition-colors
@@ -98,159 +122,143 @@
     @apply bg-[hsl(var(--sidebar-accent))]
            text-[hsl(var(--sidebar-foreground))] font-medium;
   }
+
+  /* ── Background utilitaire pour les sections alternées ── */
+  .bg-section-alt {
+    background-color: hsl(var(--background-alt));
+  }
 }
 
-/* ─── Keyframe animations ───────────────────────────────────────────────── */
+/* ─── Keyframe animations Maven-style ──────────────────────────────────── */
 @layer utilities {
-  @keyframes shimmer {
-    0%   { background-position: -200% 0; }
-    100% { background-position:  200% 0; }
-  }
-  @keyframes float {
-    0%, 100% { transform: translateY(0);   }
-    50%       { transform: translateY(-8px); }
-  }
-  @keyframes fade-in {
+  /* Animations Maven */
+  @keyframes maven-fade-in {
     from { opacity: 0; }
     to   { opacity: 1; }
   }
-  @keyframes slide-up {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0);    }
+  @keyframes maven-fade-in-up {
+    from { opacity: 0; transform: translateY(0.75rem); }
+    to   { opacity: 1; transform: translateY(0); }
   }
+  @keyframes maven-slide-up-bounce {
+    0%   { opacity: 0; transform: translateY(120px); }
+    70%  { transform: translateY(-8px); }
+    85%  { transform: translateY(3px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes maven-scale-in {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  /* Classes d'animation avec délais échelonnés */
+  .animate-fade-in       { animation: maven-fade-in 0.5s ease-out both; }
+  .animate-fade-in-up    { animation: maven-fade-in-up 0.6s cubic-bezier(.33,1,.68,1) both; }
+  .animate-fade-in-up-1  { animation: maven-fade-in-up 0.8s cubic-bezier(.33,1,.68,1) 0.15s both; }
+  .animate-fade-in-up-2  { animation: maven-fade-in-up 0.8s cubic-bezier(.33,1,.68,1) 0.3s both; }
+  .animate-fade-in-up-3  { animation: maven-fade-in-up 0.8s cubic-bezier(.33,1,.68,1) 0.45s both; }
+  .animate-slide-up      { animation: maven-slide-up-bounce 1s ease-out both; }
+  .animate-scale-in      { animation: maven-scale-in 0.4s ease-out both; }
+
+  /* Marquee partenaires */
   @keyframes platform-marquee {
     from { transform: translate3d(0, 0, 0); }
     to   { transform: translate3d(-50%, 0, 0); }
   }
-  @keyframes merkure-hero-wave-drift {
-    0%, 100% { transform: translate3d(-2.5%, 0, 0) scaleY(1); }
-    50%      { transform: translate3d(2.5%, -10px, 0) scaleY(1.04); }
-  }
-  @keyframes merkure-hero-twinkle {
-    0%, 100% {
-      opacity: 0.25;
-      transform: translate3d(0, 0, 0) scale(1);
-      box-shadow: 0 0 10px rgba(168, 85, 247, 0.35);
-    }
-    50% {
-      opacity: 1;
-      transform: translate3d(0, -8px, 0) scale(1.45);
-      box-shadow: 0 0 22px rgba(168, 85, 247, 0.9);
-    }
-  }
-  @keyframes merkure-hero-candle {
-    0%, 100% { opacity: 0.22; transform: translate3d(0, 8px, 0); }
-    45%, 70% { opacity: 0.74; transform: translate3d(0, -6px, 0); }
-  }
-
-  .animate-shimmer  { animation: shimmer 3s linear infinite; }
-  .animate-float    { animation: float   4s ease-in-out infinite; }
-  .animate-fade-in  { animation: fade-in  0.4s ease-out; }
-  .animate-slide-up { animation: slide-up 0.5s ease-out; }
   .animate-platform-marquee { animation: platform-marquee 34s linear infinite; }
   .platform-marquee:hover .animate-platform-marquee { animation-play-state: paused; }
-  .hero-wave-drift {
-    animation: merkure-hero-wave-drift 18s ease-in-out infinite;
-    transform-origin: center;
+
+  /* Glow violet pulsé (équivalent treasure-glow orange de Maven) */
+  @keyframes violet-glow {
+    0%, 100% { box-shadow: 0 0 6px hsl(244 42% 51% / 0.3), 0 0 15px hsl(244 42% 51% / 0.15); }
+    50%       { box-shadow: 0 0 12px hsl(244 42% 51% / 0.5), 0 0 30px hsl(244 42% 51% / 0.25), 0 0 50px hsl(244 42% 51% / 0.12); }
   }
-  .hero-particle {
-    animation: merkure-hero-twinkle 4.6s ease-in-out infinite;
-    opacity: 0.4;
-  }
-  .hero-candle {
-    animation: merkure-hero-candle 5.8s ease-in-out infinite;
-    width: 18px;
-  }
-  .hero-candle-line {
-    position: absolute;
-    left: 50%;
-    top: -26px;
-    width: 1px;
-    transform: translateX(-50%);
-    background: linear-gradient(to bottom, transparent, rgba(139, 92, 246, 0.55), transparent);
-  }
-  .hero-candle-line::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 48%;
-    width: 5px;
-    height: 5px;
-    transform: translate(-50%, -50%);
-    border-radius: 9999px;
-    background: rgba(139, 92, 246, 0.9);
-    box-shadow: 0 0 18px rgba(139, 92, 246, 0.9);
-  }
-  .hero-candle-body {
-    position: absolute;
-    left: 50%;
-    top: 18px;
-    width: 12px;
-    transform: translateX(-50%);
-    border: 1px solid rgba(139, 92, 246, 0.42);
-    box-shadow: 0 0 18px rgba(139, 92, 246, 0.22);
-  }
-  .hero-performance-label {
-    position: absolute;
-    border-width: 1px;
-    border-radius: 0.375rem;
-    background: rgba(0, 0, 0, 0.45);
-    padding: 0.32rem 0.55rem;
-    box-shadow: 0 0 18px rgba(124, 58, 237, 0.18);
-    backdrop-filter: blur(8px);
-  }
-  .hero-grid {
-    background-image:
-      linear-gradient(rgba(139, 92, 246, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(139, 92, 246, 0.035) 1px, transparent 1px);
-    background-size: 64px 64px;
-    mask-image: radial-gradient(circle at 50% 42%, black, transparent 72%);
+  .animate-violet-glow { animation: violet-glow 3s ease-in-out infinite; }
+
+  /* ── Hero — courbes 3D ─────────────────────────────────────────────────── */
+
+  /* Flottement 3D lent de l'ensemble du graphique */
+  @keyframes hero-chart-float {
+    0%, 100% { transform: rotateX(18deg) rotateY(-4deg) translateY(0px); }
+    33%       { transform: rotateX(15deg) rotateY(-2deg) translateY(-12px); }
+    66%       { transform: rotateX(20deg) rotateY(-5deg) translateY(-5px); }
   }
 
-  /* ── Landing page hero animations ─────────────────────────────────────── */
-  @keyframes merkure-hero-fade-up {
-    from { opacity: 0; transform: translate3d(0, 18px, 0); }
-    to   { opacity: 1; transform: translate3d(0, 0,   0); }
+  /* Cartes flottantes — montée/descente douce */
+  @keyframes float-card {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-8px); }
   }
-  @keyframes merkure-brain-orbit {
-    from { transform: translate3d(-50%, -50%, 0) rotate(0deg);   }
-    to   { transform: translate3d(-50%, -50%, 0) rotate(360deg); }
-  }
+  .animate-float-card       { animation: float-card 5s ease-in-out infinite; }
+  .animate-float-card-delay { animation: float-card 5s ease-in-out 2s infinite; }
 
-  .hero-fade-up  { opacity: 0; animation: merkure-hero-fade-up 720ms cubic-bezier(.22,1,.36,1) both; }
-  .hero-delay-1  { animation-delay:  80ms; }
-  .hero-delay-2  { animation-delay: 170ms; }
-  .hero-delay-3  { animation-delay: 260ms; }
-  .hero-delay-4  { animation-delay: 350ms; }
-  .hero-delay-5  { animation-delay: 430ms; }
-  .hero-brain-orbit { animation: merkure-brain-orbit 22s linear infinite; }
-  .hero-brain-orbit-slow    { animation-duration: 34s; }
-  .hero-brain-orbit-reverse { animation-direction: reverse; animation-duration: 28s; }
-
-  .hero-brain-art {
-    transform: translate3d(-2.5%, -0.5%, 0) scale(1.08);
-    filter: saturate(1.18) contrast(1.06) brightness(1.04)
-            drop-shadow(0 0 34px rgba(139, 92, 246, 0.42));
-    mix-blend-mode: screen;
+  /* Tracé progressif des courbes au chargement */
+  @keyframes hero-chart-draw {
+    from { stroke-dashoffset: 2400; opacity: 0; }
+    10%  { opacity: 1; }
+    to   { stroke-dashoffset: 0; opacity: 1; }
   }
 
-  /* Noise overlay */
-  .noise::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    border-radius: inherit;
+  /* Pulsation du glow sur la courbe principale */
+  @keyframes hero-chart-glow {
+    0%, 100% { filter: drop-shadow(0 0 4px hsl(244 42% 51% / 0.4)); }
+    50%       { filter: drop-shadow(0 0 12px hsl(244 42% 51% / 0.7)) drop-shadow(0 0 24px hsl(244 42% 51% / 0.3)); }
   }
 
+  /* Clignotement du point "live" en bout de courbe */
+  @keyframes hero-dot-ping {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%       { transform: scale(1.8); opacity: 0.4; }
+  }
+
+  .hero-3d-wrapper {
+    transform: rotateX(18deg) rotateY(-4deg);
+    animation: hero-chart-float 10s ease-in-out infinite;
+    transform-style: preserve-3d;
+  }
+
+  .hero-chart-line-1 {
+    stroke-dasharray: 2400;
+    stroke-dashoffset: 2400;
+    animation: hero-chart-draw 2.2s cubic-bezier(.33,1,.68,1) 0.3s forwards;
+  }
+  .hero-chart-line-2 {
+    stroke-dasharray: 2400;
+    stroke-dashoffset: 2400;
+    animation: hero-chart-draw 2.2s cubic-bezier(.33,1,.68,1) 0.6s forwards;
+  }
+  .hero-chart-line-3 {
+    stroke-dasharray: 2400;
+    stroke-dashoffset: 2400;
+    animation: hero-chart-draw 2.2s cubic-bezier(.33,1,.68,1) 0.9s forwards;
+  }
+
+  .hero-chart-glow {
+    animation: hero-chart-glow 4s ease-in-out infinite;
+  }
+
+  .hero-live-dot {
+    animation: hero-dot-ping 2s ease-in-out infinite;
+  }
+
+  /* Shimmer */
+  @keyframes shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position:  200% 0; }
+  }
+  .animate-shimmer { animation: shimmer 3s linear infinite; }
+
+  /* Réduction des animations si préférence système */
   @media (prefers-reduced-motion: reduce) {
-    .hero-fade-up, .hero-brain-orbit,
-    .animate-float, .animate-shimmer,
+    .animate-fade-in,
+    .animate-fade-in-up,
+    .animate-fade-in-up-1,
+    .animate-fade-in-up-2,
+    .animate-fade-in-up-3,
+    .animate-slide-up,
+    .animate-scale-in,
     .animate-platform-marquee,
-    .hero-wave-drift,
-    .hero-particle,
-    .hero-candle {
+    .animate-violet-glow {
       animation: none !important;
       opacity: 1 !important;
     }

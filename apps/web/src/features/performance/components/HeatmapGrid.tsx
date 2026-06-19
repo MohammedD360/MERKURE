@@ -59,21 +59,21 @@ function clamp(value: number, min: number, max: number) {
 function getCellStyle(cell: NormalizedCell, maxAbs: number) {
   if (cell.count === 0 || maxAbs === 0) {
     return {
-      background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.72), rgba(15, 23, 42, 0.34))',
-      borderColor: 'rgba(148, 163, 184, 0.08)',
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.025)',
+      background: 'linear-gradient(180deg, hsl(220 14% 94%), hsl(220 14% 96%))',
+      borderColor: 'hsl(var(--border))',
+      boxShadow: 'none',
     }
   }
 
   const intensity = clamp(Math.abs(cell.pnl) / maxAbs, 0.12, 1)
   const alpha = 0.16 + intensity * 0.62
-  const glow = 0.12 + intensity * 0.28
-  const rgb = cell.pnl >= 0 ? '34, 197, 94' : '244, 63, 94'
+  const glow = 0.06 + intensity * 0.14
+  const rgb = cell.pnl >= 0 ? '22, 163, 74' : '220, 38, 38'
 
   return {
     background: `linear-gradient(180deg, rgba(${rgb}, ${alpha}), rgba(${rgb}, ${Math.max(alpha - 0.22, 0.08)}))`,
     borderColor: `rgba(${rgb}, ${0.18 + intensity * 0.3})`,
-    boxShadow: `inset 0 1px 0 rgba(255,255,255,0.06), 0 0 ${Math.round(10 + intensity * 18)}px rgba(${rgb}, ${glow})`,
+    boxShadow: `0 0 ${Math.round(6 + intensity * 10)}px rgba(${rgb}, ${glow})`,
   }
 }
 
@@ -82,13 +82,13 @@ function Skeleton() {
     <div className="space-y-4">
       <div className="grid gap-3 md:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="h-20 animate-pulse rounded-lg border border-white/10 bg-white/[0.035]" />
+          <div key={index} className="h-20 animate-pulse rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))]" />
         ))}
       </div>
-      <div className="overflow-hidden rounded-lg border border-white/10 bg-[#080d15] p-4">
+      <div className="overflow-hidden rounded-lg border border-[hsl(var(--border))] bg-white p-4">
         <div className="grid gap-1.5" style={{ gridTemplateColumns: '76px repeat(24, minmax(30px, 1fr)) 86px', minWidth: 930 }}>
           {Array.from({ length: 9 * 26 }).map((_, index) => (
-            <div key={index} className="h-8 animate-pulse rounded-md bg-white/[0.035]" />
+            <div key={index} className="h-8 animate-pulse rounded-md bg-[hsl(var(--accent))]" />
           ))}
         </div>
       </div>
@@ -108,17 +108,17 @@ function MetricCard({
   tone?: 'green' | 'red' | 'violet' | 'neutral'
 }) {
   const toneClass = {
-    green: 'text-emerald-400',
-    red: 'text-rose-400',
-    violet: 'text-violet-300',
-    neutral: 'text-white',
+    green: 'text-emerald-600',
+    red: 'text-red-500',
+    violet: 'text-[hsl(var(--primary))]',
+    neutral: 'text-foreground',
   }[tone]
 
   return (
-    <div className="rounded-lg border border-white/10 bg-white/[0.025] px-4 py-3">
+    <div className="rounded-lg border border-[hsl(var(--border))] bg-white px-4 py-3">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500">{label}</p>
-        <div className={cn('flex h-8 w-8 items-center justify-center rounded-md bg-white/[0.04]', toneClass)}>
+        <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[hsl(var(--foreground-soft))]">{label}</p>
+        <div className={cn('flex h-8 w-8 items-center justify-center rounded-md bg-[hsl(var(--accent))]', toneClass)}>
           {icon}
         </div>
       </div>
@@ -191,34 +191,34 @@ export function HeatmapGrid({ period, accountId }: Props) {
   const averagePnl = totalTrades > 0 ? totalPnl / totalTrades : 0
 
   return (
-    <section className="rounded-lg border border-white/10 bg-[#090e17] p-5 shadow-[0_18px_60px_rgba(0,0,0,0.24)]">
+    <section className="rounded-lg border border-[hsl(var(--border))] bg-background p-5 shadow-sm">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md border border-violet-500/20 bg-violet-500/10 text-violet-300">
+            <div className="flex h-9 w-9 items-center justify-center rounded-md border border-[hsl(var(--primary)/0.25)] bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]">
               <Clock className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-sm font-black uppercase tracking-[0.12em] text-white">Heatmap P&L</h2>
-              <p className="mt-1 text-sm font-medium text-slate-400">Lecture des créneaux jour × heure par P&L réalisé.</p>
+              <h2 className="text-sm font-black uppercase tracking-[0.12em] text-foreground">Heatmap P&L</h2>
+              <p className="mt-1 text-sm font-medium text-[hsl(var(--foreground-soft))]">Lecture des créneaux jour × heure par P&L réalisé.</p>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-400">
+        <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-[hsl(var(--foreground-soft))]">
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-sm bg-emerald-500 shadow-[0_0_14px_rgba(34,197,94,0.45)]" />
+            <span className="h-2.5 w-2.5 rounded-sm bg-emerald-500" />
             Profit
           </div>
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-sm bg-rose-500 shadow-[0_0_14px_rgba(244,63,94,0.45)]" />
+            <span className="h-2.5 w-2.5 rounded-sm bg-red-500" />
             Perte
           </div>
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-sm bg-slate-800" />
+            <span className="h-2.5 w-2.5 rounded-sm bg-[hsl(220_14%_90%)]" />
             Aucun trade
           </div>
-          <div className="hidden items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.025] px-2.5 py-1.5 text-slate-500 md:flex">
+          <div className="hidden items-center gap-1.5 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-2.5 py-1.5 text-[hsl(var(--foreground-soft))] md:flex">
             <Info className="h-3.5 w-3.5" />
             Intensité = amplitude du P&L
           </div>
@@ -255,17 +255,17 @@ export function HeatmapGrid({ period, accountId }: Props) {
       {query.isLoading ? (
         <div className="mt-5"><Skeleton /></div>
       ) : query.isError ? (
-        <div className="mt-5 rounded-lg border border-rose-400/20 bg-rose-400/[0.06] px-5 py-10 text-center">
-          <p className="text-sm font-black text-rose-300">Impossible de charger la heatmap</p>
-          <p className="mt-2 text-xs font-semibold text-slate-400">Réessayez après synchronisation des données.</p>
+        <div className="mt-5 rounded-lg border border-red-200 bg-red-50 px-5 py-10 text-center">
+          <p className="text-sm font-black text-red-500">Impossible de charger la heatmap</p>
+          <p className="mt-2 text-xs font-semibold text-[hsl(var(--foreground-soft))]">Réessayez après synchronisation des données.</p>
         </div>
       ) : !hasData ? (
-        <div className="mt-5 rounded-lg border border-dashed border-white/10 bg-white/[0.02] px-5 py-12 text-center">
-          <p className="text-sm font-black text-white">Aucun trade sur cette période</p>
-          <p className="mt-2 text-xs font-semibold text-slate-500">La heatmap se remplira dès que des trades clôturés seront disponibles.</p>
+        <div className="mt-5 rounded-lg border border-dashed border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-5 py-12 text-center">
+          <p className="text-sm font-black text-foreground">Aucun trade sur cette période</p>
+          <p className="mt-2 text-xs font-semibold text-[hsl(var(--foreground-soft))]">La heatmap se remplira dès que des trades clôturés seront disponibles.</p>
         </div>
       ) : (
-        <div className="mt-5 overflow-x-auto rounded-lg border border-white/10 bg-[#070b12] p-4">
+        <div className="mt-5 overflow-x-auto rounded-lg border border-[hsl(var(--border))] bg-white p-4">
           <div
             className="grid items-stretch gap-1.5"
             style={{ gridTemplateColumns: '76px repeat(24, minmax(30px, 1fr)) 86px', minWidth: 930 }}
@@ -274,7 +274,7 @@ export function HeatmapGrid({ period, accountId }: Props) {
             {SESSIONS.map((session) => (
               <div
                 key={session.label}
-                className="flex h-7 items-center justify-center rounded-md border border-white/10 bg-white/[0.025] text-[10px] font-black uppercase tracking-[0.12em] text-slate-500"
+                className="flex h-7 items-center justify-center rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--accent))] text-[10px] font-black uppercase tracking-[0.12em] text-[hsl(var(--foreground-soft))]"
                 style={{ gridColumn: `span ${session.to - session.from + 1}` }}
               >
                 {session.label}
@@ -282,25 +282,25 @@ export function HeatmapGrid({ period, accountId }: Props) {
             ))}
             <div className="h-7" />
 
-            <div className="pb-1 text-[10px] font-black uppercase tracking-[0.12em] text-slate-600">Jour</div>
+            <div className="pb-1 text-[10px] font-black uppercase tracking-[0.12em] text-foreground/50">Jour</div>
             {HOURS.map((hour) => (
               <div
                 key={hour}
                 className={cn(
                   'pb-1 text-center font-mono text-[10px] font-bold',
-                  hour % 4 === 0 ? 'text-slate-400' : 'text-slate-700',
+                  hour % 4 === 0 ? 'text-[hsl(var(--foreground-soft))]' : 'text-foreground/30',
                 )}
               >
                 {String(hour).padStart(2, '0')}
               </div>
             ))}
-            <div className="pb-1 text-right text-[10px] font-black uppercase tracking-[0.12em] text-slate-600">Total</div>
+            <div className="pb-1 text-right text-[10px] font-black uppercase tracking-[0.12em] text-foreground/50">Total</div>
 
             {DAY_LABELS.map((dayLabel, dayIndex) => (
               <div key={dayLabel} className="contents">
-                <div className="flex h-9 items-center justify-between gap-2 rounded-md border border-white/10 bg-white/[0.025] px-2">
-                  <span className="text-xs font-black text-slate-200">{dayLabel}</span>
-                  <span className="font-mono text-[10px] font-bold text-slate-500">{daySummaries[dayIndex]?.count ?? 0}</span>
+                <div className="flex h-9 items-center justify-between gap-2 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-2">
+                  <span className="text-xs font-black text-foreground/80">{dayLabel}</span>
+                  <span className="font-mono text-[10px] font-bold text-[hsl(var(--foreground-soft))]">{daySummaries[dayIndex]?.count ?? 0}</span>
                 </div>
 
                 {HOURS.map((hour) => {
@@ -316,7 +316,7 @@ export function HeatmapGrid({ period, accountId }: Props) {
                       type="button"
                       key={key}
                       className={cn(
-                        'relative h-9 rounded-md border transition-transform hover:z-10 hover:scale-[1.08] focus:outline-none focus:ring-2 focus:ring-violet-400/60',
+                        'relative h-9 rounded-md border transition-transform hover:z-10 hover:scale-[1.08] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary)/0.4)]',
                         cell.count === 0 && 'opacity-70',
                       )}
                       style={style}
@@ -351,17 +351,17 @@ export function HeatmapGrid({ period, accountId }: Props) {
                       onBlur={() => setTooltip(null)}
                     >
                       {cell.count > 0 && (
-                        <span className="absolute inset-x-0 bottom-1 mx-auto h-0.5 w-3 rounded-full bg-white/55" />
+                        <span className="absolute inset-x-0 bottom-1 mx-auto h-0.5 w-3 rounded-full bg-white/70" />
                       )}
-                      {isBest && <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-emerald-200" />}
-                      {isWorst && <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-rose-200" />}
+                      {isBest && <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-emerald-600" />}
+                      {isWorst && <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-red-500" />}
                     </button>
                   )
                 })}
 
                 <div className={cn(
-                  'flex h-9 items-center justify-end rounded-md border border-white/10 bg-white/[0.025] px-2 font-mono text-xs font-black',
-                  (daySummaries[dayIndex]?.pnl ?? 0) >= 0 ? 'text-emerald-400' : 'text-rose-400',
+                  'flex h-9 items-center justify-end rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-2 font-mono text-xs font-black',
+                  (daySummaries[dayIndex]?.pnl ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-500',
                 )}>
                   {formatMoney(daySummaries[dayIndex]?.pnl ?? 0, true)}
                 </div>
@@ -369,17 +369,17 @@ export function HeatmapGrid({ period, accountId }: Props) {
             ))}
           </div>
 
-          <div className="mt-4 flex flex-col gap-3 border-t border-white/10 pt-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+          <div className="mt-4 flex flex-col gap-3 border-t border-[hsl(var(--border))] pt-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[hsl(var(--foreground-soft))]">
               <span>Faible</span>
-              <div className="h-2 w-28 rounded-full bg-gradient-to-r from-slate-800 via-emerald-700 to-emerald-400" />
+              <div className="h-2 w-28 rounded-full bg-gradient-to-r from-gray-200 via-emerald-400 to-emerald-600" />
               <span>Profit fort</span>
-              <div className="ml-3 h-2 w-28 rounded-full bg-gradient-to-r from-slate-800 via-rose-700 to-rose-400" />
+              <div className="ml-3 h-2 w-28 rounded-full bg-gradient-to-r from-gray-200 via-red-400 to-red-600" />
               <span>Perte forte</span>
             </div>
-            <p className="text-xs font-semibold text-slate-500">
+            <p className="text-xs font-semibold text-[hsl(var(--foreground-soft))]">
               Pic positif : {bestCell ? `${DAY_LABELS[bestCell.day]} ${formatHour(bestCell.hour)} (${formatMoney(bestCell.pnl, true)})` : '—'}
-              <span className="mx-2 text-slate-700">•</span>
+              <span className="mx-2 text-foreground/30">•</span>
               Pic négatif : {worstCell ? `${DAY_LABELS[worstCell.day]} ${formatHour(worstCell.hour)} (${formatMoney(worstCell.pnl, true)})` : '—'}
             </p>
           </div>
@@ -388,35 +388,35 @@ export function HeatmapGrid({ period, accountId }: Props) {
 
       {tooltip && (
         <div
-          className="pointer-events-none fixed z-50 w-56 rounded-lg border border-white/10 bg-[#0d1320] px-3 py-3 text-xs shadow-[0_24px_70px_rgba(0,0,0,0.5)]"
+          className="pointer-events-none fixed z-50 w-56 rounded-lg border border-[hsl(var(--border))] bg-white px-3 py-3 text-xs shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
           style={{ left: tooltip.x + 14, top: Math.max(12, tooltip.y - 18) }}
         >
           <div className="flex items-center justify-between gap-3">
-            <p className="font-black text-white">{DAY_LABELS[tooltip.day]} · {formatHour(tooltip.hour)}</p>
-            <p className={cn('font-mono font-black', tooltip.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400')}>
+            <p className="font-black text-foreground">{DAY_LABELS[tooltip.day]} · {formatHour(tooltip.hour)}</p>
+            <p className={cn('font-mono font-black', tooltip.pnl >= 0 ? 'text-emerald-600' : 'text-red-500')}>
               {formatMoney(tooltip.pnl, true)}
             </p>
           </div>
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <div className="rounded-md bg-white/[0.04] px-2 py-1.5">
-              <p className="text-slate-500">Trades</p>
-              <p className="mt-0.5 font-mono font-black text-white">{tooltip.count}</p>
+            <div className="rounded-md bg-[hsl(var(--accent))] px-2 py-1.5">
+              <p className="text-[hsl(var(--foreground-soft))]">Trades</p>
+              <p className="mt-0.5 font-mono font-black text-foreground">{tooltip.count}</p>
             </div>
-            <div className="rounded-md bg-white/[0.04] px-2 py-1.5">
-              <p className="text-slate-500">Moyenne</p>
-              <p className={cn('mt-0.5 font-mono font-black', tooltip.avgPnl >= 0 ? 'text-emerald-400' : 'text-rose-400')}>
+            <div className="rounded-md bg-[hsl(var(--accent))] px-2 py-1.5">
+              <p className="text-[hsl(var(--foreground-soft))]">Moyenne</p>
+              <p className={cn('mt-0.5 font-mono font-black', tooltip.avgPnl >= 0 ? 'text-emerald-600' : 'text-red-500')}>
                 {formatMoney(tooltip.avgPnl, true)}
               </p>
             </div>
           </div>
           <div className="mt-3">
-            <div className="mb-1 flex justify-between text-[10px] font-semibold text-slate-500">
+            <div className="mb-1 flex justify-between text-[10px] font-semibold text-[hsl(var(--foreground-soft))]">
               <span>Intensité</span>
               <span>{Math.round(tooltip.strength * 100)}%</span>
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-slate-800">
+            <div className="h-1.5 overflow-hidden rounded-full bg-[hsl(var(--accent))]">
               <div
-                className={cn('h-full rounded-full', tooltip.pnl >= 0 ? 'bg-emerald-400' : 'bg-rose-400')}
+                className={cn('h-full rounded-full', tooltip.pnl >= 0 ? 'bg-emerald-500' : 'bg-red-500')}
                 style={{ width: `${Math.max(tooltip.strength * 100, tooltip.count > 0 ? 12 : 0)}%` }}
               />
             </div>

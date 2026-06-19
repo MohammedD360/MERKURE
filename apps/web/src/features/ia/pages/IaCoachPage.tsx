@@ -8,19 +8,19 @@ const guardrails = [
     title: 'Série perdante',
     value: '2 pertes',
     text: 'Réduire automatiquement la taille de position recommandée après deux pertes consécutives.',
-    tone:  'border-amber-400/20 bg-amber-400/[0.08] text-amber-300',
+    tone:  'border-amber-200 bg-amber-50 text-amber-600',
   },
   {
     title: 'Risque excessif',
     value: '> 1,5R',
     text: 'Signaler les trades qui dépassent votre cadre de risque habituel.',
-    tone:  'border-red-400/20 bg-red-400/[0.08] text-red-300',
+    tone:  'border-red-200 bg-red-50 text-red-500',
   },
   {
     title: 'Fenêtre fragile',
     value: 'Fin de session',
     text: 'Identifier les créneaux horaires où la discipline baisse le plus.',
-    tone:  'border-blue-400/20 bg-blue-400/[0.08] text-blue-300',
+    tone:  'border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary)/0.08)] text-[hsl(var(--primary))]',
   },
 ]
 
@@ -33,13 +33,13 @@ export function IaCoachPage() {
     <div className="space-y-6 px-4 py-5 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-4">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-400/[0.08]">
-            <Bell className="h-5 w-5 text-amber-300" />
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-amber-200 bg-amber-50">
+            <Bell className="h-5 w-5 text-amber-600" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-base font-black text-white">Coach de discipline</h1>
-              <span className="rounded border border-amber-400/20 bg-amber-400/[0.08] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-300">
+              <h1 className="text-base font-black text-foreground">Coach de discipline</h1>
+              <span className="rounded border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-600">
                 Prévention
               </span>
             </div>
@@ -52,7 +52,7 @@ export function IaCoachPage() {
         <button
           onClick={() => generate({ context: 'Audit discipline et risque de revenge trading' })}
           disabled={isPending}
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#56bf6b]/30 bg-[#56bf6b]/[0.10] px-4 py-2 text-xs font-black text-[#56bf6b] transition hover:bg-[#56bf6b]/[0.18] disabled:opacity-50"
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[hsl(var(--primary)/0.25)] bg-[hsl(var(--primary)/0.08)] px-4 py-2 text-xs font-black text-[hsl(var(--primary))] transition hover:bg-[hsl(var(--primary)/0.15)] disabled:opacity-50"
         >
           {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
           Actualiser le coach
@@ -60,18 +60,18 @@ export function IaCoachPage() {
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <section className="rounded-xl border border-white/10 bg-background p-5">
+        <section className="rounded-xl border border-[hsl(var(--border))] bg-white p-5">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-red-400/20 bg-red-400/[0.08]">
-              <AlertTriangle className="h-5 w-5 text-red-300" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-red-200 bg-red-50">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
             </div>
             <div>
-              <p className="text-sm font-black text-white">Signal prioritaire</p>
+              <p className="text-sm font-black text-foreground">Signal prioritaire</p>
               <p className="mt-1 text-xs text-muted-foreground">Dernière lecture IA disponible</p>
             </div>
           </div>
 
-          <div className="mt-5 rounded-lg border border-white/[0.06] bg-[#071017] p-5">
+          <div className="mt-5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))] p-5">
             {isLoading ? (
               <div className="flex items-center gap-3 text-xs font-semibold text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -81,7 +81,7 @@ export function IaCoachPage() {
               <ul className="space-y-3">
                 {actions.slice(0, 4).map((action, index) => (
                   <li key={action} className="flex items-start gap-3 text-xs leading-5 text-muted-foreground">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-400/10 text-[10px] font-black text-amber-300">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-50 text-[10px] font-black text-amber-600">
                       {index + 1}
                     </span>
                     {action}
@@ -97,12 +97,12 @@ export function IaCoachPage() {
           </div>
         </section>
 
-        <section className="rounded-xl border border-white/10 bg-background p-5">
-          <p className="text-sm font-black text-white">Cadre recommandé</p>
+        <section className="rounded-xl border border-[hsl(var(--border))] bg-white p-5">
+          <p className="text-sm font-black text-foreground">Cadre recommandé</p>
           <div className="mt-4 space-y-3">
             {['Pause obligatoire après 2 pertes', 'Risque plafonné si drawdown journalier atteint', 'Aucun trade hors setup annoté'].map((item) => (
-              <div key={item} className="flex items-center gap-3 rounded-lg border border-white/[0.06] bg-[#071017] px-4 py-3">
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-[#56bf6b]" />
+              <div key={item} className="flex items-center gap-3 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-4 py-3">
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
                 <span className="text-xs font-semibold text-muted-foreground">{item}</span>
               </div>
             ))}
@@ -115,7 +115,7 @@ export function IaCoachPage() {
           <article key={title} className={`rounded-xl border p-4 ${tone}`}>
             <ShieldCheck className="h-5 w-5" />
             <p className="mt-4 text-xs font-black uppercase tracking-wider">{title}</p>
-            <p className="mt-1 text-xl font-black text-white">{value}</p>
+            <p className="mt-1 text-xl font-black text-foreground">{value}</p>
             <p className="mt-3 text-[11px] leading-5 text-muted-foreground">{text}</p>
           </article>
         ))}

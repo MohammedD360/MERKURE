@@ -27,11 +27,19 @@ const pageToPath: Partial<Record<Page, string>> = {
   iaRapport:     '/app/ia/rapport',
   iaCoach:       '/app/ia/coach',
   iaSimulation:  '/app/ia/simulation',
+  iaStrategyValidator: '/app/ia/strategy-validator',
+  iaChat:        '/app/ia/chat',
+  iaHistory:     '/app/ia/history',
   iaBenchmark:   '/app/ia/benchmark',
   iaPropfirm:    '/app/ia/propfirm',
+  academy:       '/app/academy',
+  botTrading:    '/app/bots',
+  botCreate:     '/app/bots/create',
+  botPerformance:'/app/bots/performance',
+  botHistory:    '/app/bots/history',
 }
 
-type KnownPage = 'dashboard' | 'comptes' | 'portefeuille' | 'positions' | 'transactions' | 'performance' | 'statistiques' | 'journal' | 'billing' | 'alerts' | 'settings' | 'profile' | 'rapports' | 'ia' | 'iaBiais' | 'iaRapport' | 'iaCoach' | 'iaSimulation' | 'iaBenchmark' | 'iaPropfirm'
+type KnownPage = Page
 
 const headerCopy: Record<KnownPage, { title: string; description: string }> = {
   positions: {
@@ -106,6 +114,18 @@ const headerCopy: Record<KnownPage, { title: string; description: string }> = {
     title:       'Simulation IA',
     description: 'Scénarios what-if pour mesurer l’impact de vos règles',
   },
+  iaStrategyValidator: {
+    title:       'Validateur de stratégie',
+    description: 'Contrôlez les règles, le risque et la cohérence de vos setups',
+  },
+  iaChat: {
+    title:       'Chat IA',
+    description: 'Assistant de trading réservé au plan Elite',
+  },
+  iaHistory: {
+    title:       'Historique IA',
+    description: 'Analyses, rapports et décisions assistées conservés dans le temps',
+  },
   iaBenchmark: {
     title:       'Benchmark IA',
     description: 'Comparaison anonymisée et lecture de votre niveau relatif',
@@ -114,9 +134,54 @@ const headerCopy: Record<KnownPage, { title: string; description: string }> = {
     title:       'Prop firms',
     description: 'Compatibilité entre votre profil de trading et les règles prop firm',
   },
+  academy: {
+    title:       'Académie',
+    description: 'Parcours, ressources et formations contextualisées',
+  },
+  botTrading: {
+    title:       'Bot Trading',
+    description: 'Supervision de vos automatisations et règles de trading',
+  },
+  botCreate: {
+    title:       'Créer un bot',
+    description: 'Configurez une stratégie automatisée avec garde-fous de risque',
+  },
+  botPerformance: {
+    title:       'Performance des bots',
+    description: 'Résultats, stabilité et drawdown de vos automatisations',
+  },
+  botHistory: {
+    title:       'Trades auto',
+    description: 'Historique des exécutions automatisées et décisions associées',
+  },
+  assistant: {
+    title:       'Assistant',
+    description: 'Assistant de pilotage et analyse contextuelle',
+  },
+  strategies: {
+    title:       'Stratégies',
+    description: 'Bibliothèque de stratégies et règles de validation',
+  },
+  backtesting: {
+    title:       'Backtesting',
+    description: 'Tests historiques de vos hypothèses de trading',
+  },
+  scanner: {
+    title:       'Scanner',
+    description: 'Détection de configurations et opportunités',
+  },
+  conseils: {
+    title:       'Conseils',
+    description: 'Actions recommandées selon votre activité récente',
+  },
 }
 
 function getCurrentPage(pathname: string): KnownPage {
+  if (pathname.startsWith('/app/bots/create')) return 'botCreate'
+  if (pathname.startsWith('/app/bots/performance')) return 'botPerformance'
+  if (pathname.startsWith('/app/bots/history')) return 'botHistory'
+  if (pathname.startsWith('/app/bots')) return 'botTrading'
+  if (pathname.startsWith('/app/academy')) return 'academy'
   if (pathname.startsWith('/app/accounts'))      return 'comptes'
   if (pathname.startsWith('/app/portefeuille')) return 'portefeuille'
   if (pathname.startsWith('/app/positions'))   return 'positions'
@@ -129,6 +194,9 @@ function getCurrentPage(pathname: string): KnownPage {
   if (pathname.startsWith('/app/profile'))     return 'profile'
   if (pathname.startsWith('/app/settings'))    return 'settings'
   if (pathname.startsWith('/app/reports'))     return 'rapports'
+  if (pathname.startsWith('/app/ia/strategy-validator')) return 'iaStrategyValidator'
+  if (pathname.startsWith('/app/ia/chat'))       return 'iaChat'
+  if (pathname.startsWith('/app/ia/history'))    return 'iaHistory'
   if (pathname.startsWith('/app/ia/biais'))      return 'iaBiais'
   if (pathname.startsWith('/app/ia/rapport'))    return 'iaRapport'
   if (pathname.startsWith('/app/ia/coach'))      return 'iaCoach'

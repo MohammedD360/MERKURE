@@ -16,7 +16,7 @@ function StatCard({ label, value, loading }: { label: string; value: string; loa
       {loading ? (
         <div className="mt-1 h-7 w-20 animate-pulse rounded bg-accent" />
       ) : (
-        <span className="font-mono text-2xl font-black text-white">{value}</span>
+        <span className="font-mono text-2xl font-black text-foreground">{value}</span>
       )}
     </div>
   )

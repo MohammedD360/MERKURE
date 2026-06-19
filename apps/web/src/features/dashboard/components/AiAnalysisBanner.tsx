@@ -7,12 +7,12 @@ function ScoreCircle({ score }: { score: number }) {
   const r = 38
   const circ = 2 * Math.PI * r
   const filled = (score / 100) * circ
-  const color = score >= 70 ? '#56bf6b' : score >= 50 ? '#f59e0b' : '#ef4444'
+  const color = score >= 70 ? '#16a34a' : score >= 50 ? '#d97706' : '#dc2626'
 
   return (
     <div className="relative flex h-24 w-24 items-center justify-center">
       <svg width="96" height="96" className="absolute">
-        <circle cx="48" cy="48" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+        <circle cx="48" cy="48" r={r} fill="none" stroke="hsl(var(--border))" strokeWidth="6" />
         <circle
           cx="48" cy="48" r={r} fill="none"
           stroke={color} strokeWidth="6"
@@ -22,7 +22,7 @@ function ScoreCircle({ score }: { score: number }) {
         />
       </svg>
       <div className="z-10 text-center">
-        <div className="font-mono text-2xl font-black leading-none text-white">{score}</div>
+        <div className="font-mono text-2xl font-black leading-none text-foreground">{score}</div>
         <div className="text-[10px] font-semibold text-muted-foreground">/100</div>
       </div>
     </div>
@@ -30,7 +30,7 @@ function ScoreCircle({ score }: { score: number }) {
 }
 
 function Skeleton({ className = '' }: { className?: string }) {
-  return <div className={`animate-pulse rounded bg-white/[0.04] ${className}`} />
+  return <div className={`animate-pulse rounded bg-[hsl(var(--accent))] ${className}`} />
 }
 
 export function AiAnalysisBanner() {
@@ -42,20 +42,20 @@ export function AiAnalysisBanner() {
   const improv     = entry?.insights?.improvements ?? []
   const actions    = entry?.insights?.actions      ?? []
   const scoreLabel = score == null ? null : score >= 70 ? 'Bon travail !' : score >= 50 ? 'À consolider' : 'À améliorer'
-  const scoreColor = score == null ? '' : score >= 70 ? 'text-emerald-400' : score >= 50 ? 'text-amber-400' : 'text-red-400'
+  const scoreColor = score == null ? '' : score >= 70 ? 'text-emerald-600' : score >= 50 ? 'text-amber-600' : 'text-red-500'
 
   return (
-    <div className="overflow-hidden rounded-xl border border-white/10 bg-background">
+    <div className="overflow-hidden rounded-lg border border-[hsl(var(--border))] bg-white shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4">
+      <div className="flex items-center justify-between gap-4 border-b border-[hsl(var(--border))] px-5 py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-400/20 bg-blue-400/[0.08]">
-            <Sparkles className="h-4 w-4 text-blue-300" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary)/0.06)]">
+            <Sparkles className="h-4 w-4 text-[hsl(var(--primary))]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-black text-white">Analyse de performance</h3>
-              <span className="rounded border border-blue-400/20 bg-blue-400/[0.08] px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-blue-300">
+              <h3 className="text-sm font-black text-foreground">Analyse de performance</h3>
+              <span className="rounded border border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary)/0.06)] px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-[hsl(var(--primary))]">
                 BETA
               </span>
             </div>
@@ -71,7 +71,7 @@ export function AiAnalysisBanner() {
         <button
           onClick={() => generate({})}
           disabled={isPending}
-          className="flex items-center gap-2 rounded-lg bg-[#56bf6b] px-3.5 py-2 text-xs font-black text-white shadow-[0_4px_12px_rgba(86,191,107,0.20)] transition-all hover:bg-[#49ab5e] hover:shadow-[0_6px_16px_rgba(86,191,107,0.26)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
+          className="flex items-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-3.5 py-2 text-xs font-black text-white shadow-sm transition-all hover:bg-[hsl(244_42%_44%)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
         >
           {isPending ? (
             <><RefreshCw className="h-3.5 w-3.5 animate-spin" />Analyse…</>
@@ -92,10 +92,10 @@ export function AiAnalysisBanner() {
           </div>
         ) : !entry ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/[0.03]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--accent))]">
               <Sparkles className="h-5 w-5 text-muted-foreground" />
             </div>
-            <p className="mt-3 text-sm font-semibold text-white">Aucune analyse disponible</p>
+            <p className="mt-3 text-sm font-semibold text-foreground">Aucune analyse disponible</p>
             <p className="mt-1.5 max-w-xs text-xs font-medium leading-5 text-muted-foreground">
               Générez votre première analyse pour obtenir des insights personnalisés sur votre trading.
             </p>
@@ -109,7 +109,7 @@ export function AiAnalysisBanner() {
                 <div className="space-y-2">
                   {strengths.map((s: string, i: number) => (
                     <div key={i} className="flex items-start gap-2">
-                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
+                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
                       <span className="text-xs font-medium leading-5 text-muted-foreground">{s}</span>
                     </div>
                   ))}
@@ -128,7 +128,7 @@ export function AiAnalysisBanner() {
                 <div className="space-y-2">
                   {improv.map((s: string, i: number) => (
                     <div key={i} className="flex items-start gap-2">
-                      <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
+                      <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600" />
                       <span className="text-xs font-medium leading-5 text-muted-foreground">{s}</span>
                     </div>
                   ))}
@@ -149,7 +149,7 @@ export function AiAnalysisBanner() {
                   )}
                 </>
               ) : (
-                <div className="flex h-24 w-24 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] px-2 text-center text-[11px] font-semibold text-muted-foreground">
+                <div className="flex h-24 w-24 items-center justify-center rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-2 text-center text-[11px] font-semibold text-muted-foreground">
                   —
                 </div>
               )}
@@ -159,12 +159,12 @@ export function AiAnalysisBanner() {
 
         {/* Actions prioritaires */}
         {!isLoading && actions.length > 0 && (
-          <div className="mt-5 border-t border-white/10 pt-4">
+          <div className="mt-5 border-t border-[hsl(var(--border))] pt-4">
             <p className="mb-3 text-[11px] font-black uppercase tracking-wider text-muted-foreground">Actions prioritaires</p>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {actions.map((a: string, i: number) => (
-                <div key={i} className="flex items-start gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2.5">
-                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-blue-400/15 text-[9px] font-black text-blue-300">
+                <div key={i} className="flex items-start gap-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-3 py-2.5">
+                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--primary)/0.1)] text-[9px] font-black text-[hsl(var(--primary))]">
                     {i + 1}
                   </span>
                   <span className="text-xs font-medium leading-5 text-muted-foreground">{a}</span>

@@ -33,7 +33,7 @@ function formatLastSync(iso: string | null) {
   const date = new Date(iso)
   const diffMinutes = Math.round((Date.now() - date.getTime()) / 60000)
 
-  if (diffMinutes < 1) return 'À l’instant'
+  if (diffMinutes < 1) return "À l'instant"
   if (diffMinutes < 60) return `Il y a ${diffMinutes} min`
   if (diffMinutes < 1440) return `Il y a ${Math.round(diffMinutes / 60)}h`
 
@@ -45,22 +45,22 @@ function SyncBadge({ status, lastSyncAt }: { status: SyncStatus; lastSyncAt: str
     SUCCESS: {
       icon: <Wifi className="h-3.5 w-3.5" />,
       text: formatLastSync(lastSyncAt),
-      className: 'border-emerald-400/20 bg-emerald-400/[0.08] text-emerald-300',
+      className: 'border-emerald-200 bg-emerald-50 text-emerald-600',
     },
     SYNCING: {
       icon: <Loader2 className="h-3.5 w-3.5 animate-spin" />,
       text: 'Synchronisation',
-      className: 'border-blue-400/20 bg-blue-400/[0.08] text-blue-300',
+      className: 'border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary)/0.08)] text-[hsl(var(--primary))]',
     },
     ERROR: {
       icon: <WifiOff className="h-3.5 w-3.5" />,
       text: 'Erreur de sync',
-      className: 'border-rose-400/20 bg-rose-400/[0.08] text-rose-300',
+      className: 'border-red-200 bg-red-50 text-red-500',
     },
     PENDING: {
       icon: <Clock className="h-3.5 w-3.5" />,
       text: 'En attente',
-      className: 'border-white/10 bg-white/[0.04] text-muted-foreground',
+      className: 'border-[hsl(var(--border))] bg-[hsl(var(--accent))] text-muted-foreground',
     },
   }
 
@@ -94,8 +94,8 @@ function ActionButton({
       title={title}
       className={`flex h-9 w-9 items-center justify-center rounded-lg border transition-colors disabled:cursor-not-allowed disabled:opacity-45 ${
         danger
-          ? 'border-rose-400/30 bg-rose-400/[0.08] text-rose-300 hover:bg-rose-400/[0.14]'
-          : 'border-white/10 bg-white/[0.04] text-muted-foreground hover:bg-white/[0.07] hover:text-foreground'
+          ? 'border-red-200 bg-red-50 text-red-500 hover:bg-red-100'
+          : 'border-[hsl(var(--border))] bg-[hsl(var(--accent))] text-muted-foreground hover:bg-[hsl(var(--accent))] hover:text-foreground'
       }`}
     >
       {children}
@@ -105,9 +105,9 @@ function ActionButton({
 
 function InfoItem({ label, value, helper }: { label: string; value: string; helper: string }) {
   return (
-    <div className="rounded-lg border border-white/[0.06] bg-[#071017] p-4">
+    <div className="rounded-lg border border-[hsl(var(--border))] bg-background p-4">
       <p className="text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground/60">{label}</p>
-      <p className="mt-2 truncate text-sm font-black text-white">{value}</p>
+      <p className="mt-2 truncate text-sm font-black text-foreground">{value}</p>
       <p className="mt-1 truncate text-[11px] font-semibold text-muted-foreground">{helper}</p>
     </div>
   )
@@ -138,11 +138,11 @@ export function CompteCard({ compte, onNavigateToTrades }: Props) {
 
   return (
     <article
-      className={`overflow-hidden rounded-xl border bg-background shadow-[0_12px_46px_rgba(0,0,0,0.18)] transition-colors ${
-        hasError ? 'border-rose-400/30' : 'border-white/10 hover:border-white/20'
+      className={`overflow-hidden rounded-xl border bg-background shadow-sm transition-colors ${
+        hasError ? 'border-red-200' : 'border-[hsl(var(--border))] hover:border-[hsl(var(--border))]'
       }`}
     >
-      <div className="border-b border-white/[0.06] p-5">
+      <div className="border-b border-[hsl(var(--border))] p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex min-w-0 items-center gap-3">
             <div
@@ -157,14 +157,14 @@ export function CompteCard({ compte, onNavigateToTrades }: Props) {
             </div>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h3 className="truncate text-sm font-black text-white">{compte.label}</h3>
-                <span className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] text-muted-foreground">
+                <h3 className="truncate text-sm font-black text-foreground">{compte.label}</h3>
+                <span className="rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] text-muted-foreground">
                   {ACCOUNT_TYPE_LABEL[compte.accountType] ?? compte.accountType}
                 </span>
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-xs font-semibold">
                 <span style={{ color: meta.color }}>{meta.name}</span>
-                <span className="text-slate-700">/</span>
+                <span className="text-foreground/30">/</span>
                 <span className="font-mono text-muted-foreground">#{compte.accountId}</span>
               </div>
             </div>
@@ -197,10 +197,10 @@ export function CompteCard({ compte, onNavigateToTrades }: Props) {
         </div>
 
         {confirmDelete && (
-          <div className="mt-4 flex flex-col gap-3 rounded-lg border border-rose-400/20 bg-rose-400/[0.08] px-4 py-3 sm:flex-row sm:items-center">
-            <AlertTriangle className="h-4 w-4 shrink-0 text-rose-300" />
-            <p className="flex-1 text-xs font-semibold leading-6 text-rose-200">
-              Cliquez à nouveau sur l’icône de déconnexion pour confirmer la suppression.
+          <div className="mt-4 flex flex-col gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 sm:flex-row sm:items-center">
+            <AlertTriangle className="h-4 w-4 shrink-0 text-red-500" />
+            <p className="flex-1 text-xs font-semibold leading-6 text-red-500">
+              Cliquez à nouveau sur l'icône de déconnexion pour confirmer la suppression.
             </p>
             <button
               onClick={() => setConfirmDelete(false)}
@@ -212,13 +212,13 @@ export function CompteCard({ compte, onNavigateToTrades }: Props) {
         )}
 
         {hasError && compte.syncError && !confirmDelete && (
-          <div className="mt-4 flex flex-col gap-3 rounded-lg border border-rose-400/20 bg-rose-400/[0.08] px-4 py-3 sm:flex-row sm:items-start">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-300" />
-            <p className="flex-1 text-xs font-semibold leading-6 text-rose-200">{compte.syncError}</p>
+          <div className="mt-4 flex flex-col gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 sm:flex-row sm:items-start">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+            <p className="flex-1 text-xs font-semibold leading-6 text-red-500">{compte.syncError}</p>
             <button
               onClick={handleSync}
               disabled={syncing}
-              className="text-left text-xs font-black text-rose-200 transition-colors hover:text-foreground disabled:opacity-45 sm:text-right"
+              className="text-left text-xs font-black text-red-500 transition-colors hover:text-foreground disabled:opacity-45 sm:text-right"
             >
               Relancer
             </button>
@@ -245,14 +245,14 @@ export function CompteCard({ compte, onNavigateToTrades }: Props) {
       </div>
 
       {compte.syncStatus === 'PENDING' && (
-        <div className="mx-5 mb-5 flex flex-col gap-3 rounded-lg border border-blue-400/20 bg-blue-400/[0.08] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs font-semibold leading-6 text-blue-200">
+        <div className="mx-5 mb-5 flex flex-col gap-3 rounded-lg border border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary)/0.08)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs font-semibold leading-6 text-[hsl(var(--primary))]">
             Lancez la synchronisation pour importer votre historique de trades.
           </p>
           <button
             onClick={handleSync}
             disabled={syncing}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-xs font-black text-white transition-colors hover:bg-blue-500 disabled:opacity-45"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-3 py-2 text-xs font-black text-white transition-colors hover:bg-[hsl(244_42%_44%)] disabled:opacity-45"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${syncing ? 'animate-spin' : ''}`} />
             Synchroniser

@@ -22,11 +22,11 @@ function CustomTooltip({ active, payload }: {
   const d = payload[0]!.payload
   return (
     <div className="rounded-lg border border-border/80 bg-card px-3 py-2.5 text-xs shadow-xl">
-      <p className="mb-1 font-bold text-white">{d.label}</p>
+      <p className="mb-1 font-bold text-foreground">{d.label}</p>
       <div className="space-y-1">
         <div className="flex items-center justify-between gap-4">
           <span className="text-muted-foreground">P&L moyen</span>
-          <span className={`font-bold font-mono ${d.avgPnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+          <span className={`font-bold font-mono ${d.avgPnl >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
             {d.avgPnl >= 0 ? '+' : ''}{d.avgPnl.toLocaleString('fr-FR', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
           </span>
         </div>
@@ -52,10 +52,10 @@ export function DurationChart({ defaultPeriod = '30d' }: Props) {
   const maxAbs = Math.max(...data.map(d => Math.abs(d.avgPnl)), 1)
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card">
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+    <div className="overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-card">
+      <div className="flex items-center justify-between border-b border-[hsl(var(--border))] px-4 py-3">
         <div>
-          <h3 className="text-sm font-bold text-white">Durée de position</h3>
+          <h3 className="text-sm font-bold text-foreground">Durée de position</h3>
           <p className="mt-0.5 text-[11px] text-muted-foreground">P&L moyen par durée de maintien</p>
         </div>
         <div className="flex gap-1">
@@ -65,7 +65,7 @@ export function DurationChart({ defaultPeriod = '30d' }: Props) {
               onClick={() => setPeriod(p.value)}
               className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                 period === p.value
-                  ? 'bg-violet-500/20 text-violet-300 ring-1 ring-violet-500/30'
+                  ? 'bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] ring-1 ring-[hsl(var(--primary)/0.25)]'
                   : 'text-muted-foreground hover:text-muted-foreground'
               }`}
             >
@@ -78,7 +78,7 @@ export function DurationChart({ defaultPeriod = '30d' }: Props) {
       <div className="px-3 pb-4 pt-3">
         {isLoading ? (
           <div className="flex h-44 items-center justify-center">
-            <div className="h-7 w-7 animate-spin rounded-full border-2 border-violet-500/30 border-t-violet-500" />
+            <div className="h-7 w-7 animate-spin rounded-full border-2 border-[hsl(var(--primary)/0.3)] border-t-[hsl(var(--primary))]" />
           </div>
         ) : data.every(d => d.nbTrades === 0) ? (
           <div className="flex h-44 items-center justify-center text-sm text-muted-foreground/60">
@@ -90,23 +90,23 @@ export function DurationChart({ defaultPeriod = '30d' }: Props) {
               <BarChart data={data} barCategoryGap="25%" margin={{ top: 8, right: 4, bottom: 0, left: 4 }}>
                 <XAxis
                   dataKey="label"
-                  tick={{ fill: '#64748b', fontSize: 10, fontWeight: 500 }}
+                  tick={{ fill: '#9ca3af', fontSize: 10, fontWeight: 500 }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis hide domain={[-maxAbs * 1.2, maxAbs * 1.2]} />
-                <ReferenceLine y={0} stroke="#334155" strokeWidth={1} />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
+                <ReferenceLine y={0} stroke="#e5e7eb" strokeWidth={1} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
                 <Bar dataKey="avgPnl" radius={[4, 4, 0, 0]} maxBarSize={44}>
                   {data.map((entry, idx) => (
                     <Cell
                       key={`dur-${idx}`}
                       fill={
                         entry.nbTrades === 0
-                          ? 'rgba(100,116,139,0.15)'
+                          ? 'rgba(156,163,175,0.2)'
                           : entry.avgPnl > 0
-                            ? 'rgba(139,92,246,0.75)'
-                            : 'rgba(239,68,68,0.65)'
+                            ? 'rgba(22,163,74,0.7)'
+                            : 'rgba(220,38,38,0.65)'
                       }
                     />
                   ))}
@@ -118,7 +118,7 @@ export function DurationChart({ defaultPeriod = '30d' }: Props) {
             <div className="mt-2 grid grid-cols-7 gap-1">
               {data.map((d, idx) => (
                 <div key={idx} className="flex flex-col items-center">
-                  <span className={`text-[9px] font-mono ${d.nbTrades > 0 ? 'text-muted-foreground/60' : 'text-slate-800'}`}>
+                  <span className={`text-[9px] font-mono ${d.nbTrades > 0 ? 'text-muted-foreground/60' : 'text-foreground/30'}`}>
                     {d.nbTrades > 0 ? d.nbTrades : '—'}
                   </span>
                 </div>

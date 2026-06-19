@@ -22,23 +22,23 @@ const PLAN_ICONS: Record<string, React.ElementType> = {
 
 const PLAN_COLORS: Record<string, string> = {
   FREE:    'text-muted-foreground',
-  STARTER: 'text-blue-400',
-  PRO:     'text-violet-400',
-  ELITE:   'text-[#fbbf24]',
+  STARTER: 'text-[hsl(var(--primary))]',
+  PRO:     'text-[hsl(var(--primary))]',
+  ELITE:   'text-amber-600',
 }
 
 const PLAN_RING: Record<string, string> = {
   FREE:    '',
   STARTER: '',
-  PRO:     'ring-1 ring-violet-500/30 border-violet-500/40',
-  ELITE:   'ring-1 ring-[#fbbf24]/30 border-[#fbbf24]/40',
+  PRO:     'ring-1 ring-[hsl(var(--primary)/0.3)] border-[hsl(var(--primary)/0.4)]',
+  ELITE:   'ring-1 ring-amber-200 border-amber-200',
 }
 
 const FALLBACK_PLANS: Plan[] = [
-  { id: 'FREE',    name: 'Gratuit', priceMonthly: 0,    currency: 'EUR', features: ['10 trades/mois', 'KPIs de base', 'Journal manuel'] },
-  { id: 'STARTER', name: 'Starter', priceMonthly: 900,  currency: 'EUR', features: ['Journal de trading', 'Statistiques de base', 'Import manuel & CSV', '1 compte broker'] },
-  { id: 'PRO',     name: 'Trader',  priceMonthly: 1900, currency: 'EUR', features: ['Toutes les fonctionnalités Starter', 'Analyses avancées', 'Suivi du risque', 'Jusqu’à 3 comptes brokers'] },
-  { id: 'ELITE',   name: 'Pro',     priceMonthly: 4900, currency: 'EUR', features: ['Toutes les fonctionnalités Trader', 'Analyse comportementale IA', 'Exports avancés', 'Connexions brokers illimitées'] },
+  { id: "FREE",    name: "Gratuit", priceMonthly: 0,    currency: 'EUR', features: ["10 trades/mois", "KPIs de base", 'Journal manuel'] },
+  { id: "STARTER", name: "Starter", priceMonthly: 900,  currency: "EUR", features: ["Journal de trading", "Statistiques de base", "Import manuel & CSV", '1 compte broker'] },
+  { id: "PRO",     name: "Trader",  priceMonthly: 1900, currency: "EUR", features: ["Toutes les fonctionnalités Starter", "Analyses avancées", "Suivi du risque", "Jusqu'à 3 comptes brokers"] },
+  { id: "ELITE",   name: "Pro",     priceMonthly: 4900, currency: "EUR", features: ["Toutes les fonctionnalités Trader", "Analyse comportementale IA", "Exports avancés", 'Connexions brokers illimitées'] },
 ]
 
 function formatPrice(price: number) {
@@ -79,14 +79,14 @@ export function UpgradePage() {
   return (
     <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-2xl font-black text-white">Changer de plan</h1>
+        <h1 className="text-2xl font-black text-foreground">Changer de plan</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Plan actuel : <span className={`font-bold ${PLAN_COLORS[currentPlan] ?? 'text-white'}`}>{getPlanDisplayName(currentPlan)}</span>
+          Plan actuel : <span className={`font-bold ${PLAN_COLORS[currentPlan] ?? 'text-foreground'}`}>{getPlanDisplayName(currentPlan)}</span>
         </p>
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-400/25 bg-red-400/[0.08] px-4 py-3 text-sm text-red-200">
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-500">
           {error}
         </div>
       )}
@@ -103,20 +103,20 @@ export function UpgradePage() {
               key={plan.id}
               className={`relative rounded-2xl border bg-background p-5 flex flex-col ${
                 isCurrent
-                  ? 'border-emerald-500/40 ring-1 ring-emerald-500/20'
-                  : PLAN_RING[plan.id] || 'border-white/10'
+                  ? 'border-emerald-200 ring-1 ring-emerald-100'
+                  : PLAN_RING[plan.id] || 'border-[hsl(var(--border))]'
               }`}
             >
               {isCurrent && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-0.5 text-[10px] font-black uppercase tracking-widest text-emerald-300 whitespace-nowrap">
+                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-0.5 text-[10px] font-black uppercase tracking-widest text-emerald-600 whitespace-nowrap">
                     Plan actuel
                   </span>
                 </div>
               )}
               {isRecommended && !isCurrent && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-0.5 text-[10px] font-black uppercase tracking-widest text-violet-300 whitespace-nowrap">
+                  <span className="rounded-full border border-[hsl(var(--primary)/0.25)] bg-[hsl(var(--primary)/0.1)] px-3 py-0.5 text-[10px] font-black uppercase tracking-widest text-[hsl(var(--primary))] whitespace-nowrap">
                     Recommandé
                   </span>
                 </div>
@@ -129,13 +129,13 @@ export function UpgradePage() {
                     {plan.name}
                   </p>
                 </div>
-                <p className="text-2xl font-black text-white">{formatPrice(plan.priceMonthly)}</p>
+                <p className="text-2xl font-black text-foreground">{formatPrice(plan.priceMonthly)}</p>
               </div>
 
               <ul className="mb-6 flex-1 space-y-2">
                 {plan.features.map((f) => (
                   <li key={f} className="flex items-start gap-2">
-                    <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#56bf6b]" />
+                    <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-emerald-600" />
                     <span className="text-sm text-muted-foreground">{f}</span>
                   </li>
                 ))}
@@ -145,7 +145,7 @@ export function UpgradePage() {
                 <button
                   type="button"
                   disabled
-                  className="w-full rounded-xl h-11 text-sm font-black border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 cursor-default"
+                  className="w-full rounded-xl h-11 text-sm font-black border border-emerald-200 bg-emerald-50 text-emerald-600 cursor-default"
                 >
                   Plan actuel
                 </button>
@@ -153,7 +153,7 @@ export function UpgradePage() {
                 <button
                   type="button"
                   onClick={() => router.push('/app/billing')}
-                  className="w-full rounded-xl h-11 text-sm font-black border border-white/10 bg-white/[0.04] text-muted-foreground hover:bg-white/[0.08] transition-colors"
+                  className="w-full rounded-xl h-11 text-sm font-black border border-[hsl(var(--border))] bg-[hsl(var(--accent))] text-muted-foreground hover:bg-[hsl(var(--accent))] transition-colors"
                 >
                   Gérer l&apos;abonnement
                 </button>
@@ -164,13 +164,13 @@ export function UpgradePage() {
                   disabled={isLoadingThis}
                   className={`w-full rounded-xl h-11 text-sm font-black transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
                     isRecommended
-                      ? 'bg-gradient-to-r from-[#7c5cff] to-[#9b6dff] hover:opacity-90 text-white shadow-[0_6px_20px_rgba(124,92,255,0.25)]'
-                      : 'border border-white/15 bg-white/[0.06] text-white hover:bg-white/[0.10]'
+                      ? 'bg-[hsl(var(--primary))] hover:bg-[hsl(244_42%_44%)] text-white shadow-[0_4px_14px_hsl(244_42%_51%/0.3)]'
+                      : 'border border-[hsl(var(--border))] bg-[hsl(var(--accent))] text-foreground hover:bg-[hsl(var(--accent))]'
                   }`}
                 >
                   {isLoadingThis ? (
                     <span className="inline-flex items-center gap-2">
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span className="w-4 h-4 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
                       Chargement…
                     </span>
                   ) : (

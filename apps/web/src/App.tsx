@@ -6,29 +6,30 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   BarChart3, BookOpen, Brain, Calendar, Check,
-  Database, Menu, PlayCircle, X,
+  Database, Menu, PlayCircle, Sparkles, TrendingUp, X,
 } from 'lucide-react'
 import { setToken } from '@/lib/api-client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { BrandLogo } from '@/shared/components/BrandLogo'
+import { DashboardPage } from '@/features/dashboard/DashboardPage'
 
-/* ─── CTA / Demo buttons ─────────────────────────────────────────────────── */
+/* ─── CTA / Demo buttons — style Maven ──────────────────────────────────── */
 
 function PrimaryButton({ children, href, className = '' }: { children: React.ReactNode; href: string; className?: string }) {
   return (
     <Link
       href={href}
       className={cn(
-        'flex justify-center items-center px-8 py-2.5 h-10',
-        'bg-[hsl(var(--sidebar-primary))] hover:bg-[hsl(var(--sidebar-primary)/0.9)]',
-        'shadow-[0_0_0_6px_hsl(var(--sidebar-primary)/0.1),0_0_0_2px_hsl(var(--sidebar-primary)/0.25),0_1px_3px_rgba(0,0,0,0.1)]',
-        'hover:shadow-[0_0_0_6px_hsl(var(--sidebar-primary)/0.2),0_0_0_2px_hsl(var(--sidebar-primary)/0.35),0_2px_4px_rgba(0,0,0,0.2)]',
-        'rounded-xl transition-all duration-200',
+        'inline-flex items-center justify-center gap-2',
+        'min-w-48 px-9 py-3 h-12',
+        'bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.88)]',
+        'text-white text-base font-medium',
+        'rounded-sm transition-all duration-200',
         className,
       )}
     >
-      <span className="font-medium text-sm text-white">{children}</span>
+      {children}
     </Link>
   )
 }
@@ -55,7 +56,12 @@ function DemoButton({ className = '' }: { className?: string }) {
       onClick={handleDemo}
       disabled={loading}
       className={cn(
-        'inline-flex items-center gap-2 px-6 py-2.5 h-10 rounded-xl border border-border bg-card text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-60',
+        'inline-flex items-center justify-center gap-2',
+        'min-w-48 px-9 py-3 h-12',
+        'border border-border bg-transparent text-base font-medium text-foreground/70',
+        'hover:border-[hsl(var(--primary))] hover:text-[hsl(var(--primary))]',
+        'rounded-sm transition-all duration-200',
+        'disabled:opacity-60',
         className,
       )}
     >
@@ -85,7 +91,6 @@ function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null)
 
   useEffect(() => {
     const control = () => {
@@ -108,14 +113,11 @@ function Navbar() {
 
   return (
     <>
-      {/* Backdrop blur sur hover des nav items — identique deltalytix */}
-      <div className={`fixed inset-0 bg-background/80 backdrop-blur-sm z-40 transition-opacity duration-300 ${hoveredItem ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
-
-      <span className={cn('h-14 fixed top-0 left-0 right-0 z-50 bg-black/10 backdrop-blur-[2px]', transCls)} />
-      <header className={cn('max-w-7xl mx-auto fixed top-0 left-0 right-0 px-4 lg:px-6 h-14 flex items-center justify-between z-50 text-foreground', transCls)}>
+      <span className={cn('h-14 fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-black/[0.07]', transCls)} />
+      <header className={cn('max-w-7xl mx-auto fixed top-0 left-0 right-0 px-4 lg:px-6 h-14 flex items-center justify-between z-50', transCls)}>
         <Link href="/" className="flex items-center">
           <BrandLogo
-            className="text-white"
+            className="text-foreground"
             iconClassName="h-9 w-9 text-[hsl(var(--sidebar-primary))]"
             textClassName="text-[28px] font-bold leading-none tracking-tight"
           />
@@ -128,9 +130,7 @@ function Navbar() {
               <a
                 key={l.href}
                 href={l.href}
-                onMouseEnter={() => setHoveredItem(l.label)}
-                onMouseLeave={() => setHoveredItem(null)}
-                className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none"
+                className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-accent hover:text-foreground focus:bg-accent focus:text-foreground focus:outline-none"
               >
                 {l.label}
               </a>
@@ -139,9 +139,15 @@ function Navbar() {
           <span className="h-6 w-px bg-border mx-4" />
           <Link
             href="/sign-in"
-            className="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none"
+            className="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-accent hover:text-foreground focus:outline-none"
           >
             Se connecter
+          </Link>
+          <Link
+            href="/sign-up"
+            className="ml-2 inline-flex items-center justify-center rounded-full bg-[hsl(var(--primary))] px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-[hsl(244_42%_44%)]"
+          >
+            Démarrer mon analyse
           </Link>
         </div>
 
@@ -169,7 +175,7 @@ function Navbar() {
               >
                 <Link href="/" className="flex items-center" onClick={() => setIsOpen(false)}>
                   <BrandLogo
-                    className="text-white"
+                    className="text-foreground"
                     iconClassName="h-9 w-9 text-[hsl(var(--sidebar-primary))]"
                     textClassName="text-[28px] font-bold leading-none tracking-tight"
                   />
@@ -201,208 +207,314 @@ function Navbar() {
   )
 }
 
-/* ─── Dashboard Mockup ───────────────────────────────────────────────────── */
+/* ─── Real Dashboard Preview ─────────────────────────────────────────────── */
 
-function DashboardMockup() {
-  const pts = '0,146 52,138 104,120 156,132 208,96 260,72 312,88 364,56 416,42 468,24 520,18'
+const PREVIEW_SCALE = 0.62
+
+function RealDashboardPreview() {
   return (
-    <div className="overflow-hidden rounded-xl border border-violet-300/25 bg-black/65 shadow-[0_0_0_1px_rgba(139,92,246,0.10),0_30px_100px_rgba(0,0,0,0.72),0_0_80px_rgba(124,58,237,0.16)] backdrop-blur-xl">
-      <div className="grid min-h-[280px] sm:min-h-[360px] md:min-h-[440px] lg:grid-cols-[178px_1fr]">
-        <aside className="hidden border-r border-white/10 bg-white/[0.025] p-5 lg:block">
-          <div className="flex items-center gap-2 mb-7">
-            <BrandLogo
-              className="gap-2 text-white"
-              iconClassName="h-5 w-5 text-[hsl(var(--sidebar-primary))]"
-              textClassName="text-sm font-black tracking-[0.12em]"
-            />
-          </div>
-          <nav className="grid gap-1 text-xs font-medium text-muted-foreground">
-            {['Dashboard', 'Analyse', 'Journal', 'Objectifs', 'Alertes', 'Parametres'].map((item, i) => (
-              <span key={item} className={cn('rounded-md px-3 py-2', i === 0 ? 'bg-[hsl(var(--sidebar-accent))] font-medium text-foreground' : '')}>{item}</span>
-            ))}
-          </nav>
-        </aside>
-        <div className="p-4 sm:p-5 md:p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-foreground">Vue d'ensemble - 30 jours</h3>
-            <span className="rounded-md border border-[hsl(var(--sidebar-primary)/0.3)] bg-[hsl(var(--sidebar-primary)/0.08)] px-3 py-1 text-[11px] text-[hsl(var(--sidebar-primary))]">Mai 2026</span>
-          </div>
-          <div className="grid gap-2 grid-cols-2 xl:grid-cols-4">
-            {[
-              { label: 'Profit net', value: '+2 450 EUR', up: true },
-              { label: 'Win Rate', value: '61,4%', up: true },
-              { label: 'Profit Factor', value: '1,72', up: true },
-              { label: 'Drawdown Max', value: '-8,4%', up: false },
-            ].map(({ label, value, up }) => (
-              <div key={label} className="rounded-lg border border-white/10 bg-black/45 p-4">
-                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
-                <p className={cn('mt-2 font-mono text-lg font-semibold', up ? 'text-emerald-400' : 'text-red-400')}>{value}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 rounded-lg border border-white/10 bg-black/45 p-4">
-            <p className="mb-3 text-xs font-medium text-foreground">Evolution de la performance</p>
-            <svg viewBox="0 0 520 160" className="h-36 w-full" aria-hidden="true">
-              <defs>
-                <linearGradient id="hg" x1="0" x2="0" y1="0" y2="1">
-                  <stop stopColor="hsl(var(--sidebar-primary))" stopOpacity="0.3" />
-                  <stop offset="1" stopColor="hsl(var(--sidebar-primary))" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              {[40, 80, 120].map((y) => <line key={y} x1="0" x2="520" y1={y} y2={y} stroke="hsl(var(--border))" strokeDasharray="4 8" />)}
-              <path d={`M${pts} L520,160 L0,160 Z`} fill="url(#hg)" />
-              <polyline points={pts} fill="none" stroke="hsl(var(--sidebar-primary))" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
+    <div
+      className="overflow-hidden rounded-xl border border-violet-300/25 shadow-[0_0_0_1px_rgba(139,92,246,0.10),0_30px_100px_rgba(0,0,0,0.72),0_0_80px_rgba(124,58,237,0.16)]"
+      style={{ height: 520 }}
+    >
+      {/* Browser chrome */}
+      <div className="flex items-center gap-1.5 px-3 py-2.5 border-b" style={{ background: '#0D1021', borderColor: 'rgba(255,255,255,0.08)' }}>
+        <span className="h-2.5 w-2.5 rounded-full" style={{ background: 'rgba(239,68,68,0.6)' }} />
+        <span className="h-2.5 w-2.5 rounded-full" style={{ background: 'rgba(234,179,8,0.6)' }} />
+        <span className="h-2.5 w-2.5 rounded-full" style={{ background: 'rgba(34,197,94,0.6)' }} />
+        <span className="ml-3 flex-1 rounded px-3 py-0.5 text-[10px]" style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.28)' }}>
+          app.merkure.app/dashboard
+        </span>
+      </div>
+      {/* Scaled dashboard content */}
+      <div style={{ height: 484, overflow: 'hidden', position: 'relative' }}>
+        <div
+          style={{
+            transform: `scale(${PREVIEW_SCALE})`,
+            transformOrigin: 'top left',
+            width: `${(100 / PREVIEW_SCALE).toFixed(2)}%`,
+            height: `${Math.round(484 / PREVIEW_SCALE)}px`,
+            pointerEvents: 'none',
+          }}
+        >
+          <DashboardPage />
         </div>
       </div>
     </div>
   )
 }
 
-/* ─── Hero ───────────────────────────────────────────────────────────────── */
+/* ─── Hero 3D Chart Background ──────────────────────────────────────────── */
 
-const heroCandles = [
-  { x: 2, y: 22, h: 86, b: 30, up: true, delay: 0 },
-  { x: 7, y: 31, h: 140, b: 42, up: false, delay: 0.3 },
-  { x: 13, y: 18, h: 72, b: 24, up: true, delay: 0.9 },
-  { x: 22, y: 44, h: 98, b: 38, up: false, delay: 1.2 },
-  { x: 27, y: 39, h: 112, b: 36, up: true, delay: 0.4 },
-  { x: 73, y: 34, h: 96, b: 30, up: true, delay: 0.7 },
-  { x: 78, y: 27, h: 126, b: 40, up: true, delay: 1.1 },
-  { x: 84, y: 23, h: 74, b: 28, up: false, delay: 0.2 },
-  { x: 89, y: 16, h: 156, b: 48, up: true, delay: 1.4 },
-  { x: 94, y: 11, h: 118, b: 36, up: true, delay: 0.6 },
-] as const
+function Hero3DChartBackground() {
+  // Courbes organiques fluides — pas de grille, juste des vagues en perspective
+  const w1 = 'M-100,340 C100,308 280,258 480,298 C650,332 800,268 980,292 C1140,313 1300,282 1540,292'
+  const w2 = 'M-100,295 C100,263 280,213 480,253 C650,287 800,223 980,247 C1140,268 1300,237 1540,247'
+  const w3 = 'M-100,250 C100,218 280,168 480,208 C650,242 800,178 980,202 C1140,223 1300,192 1540,202'
 
-const heroParticles = [
-  { x: 6, y: 20, s: 2, delay: 0.1 },
-  { x: 15, y: 35, s: 5, delay: 1.5 },
-  { x: 22, y: 18, s: 3, delay: 0.7 },
-  { x: 31, y: 27, s: 2, delay: 2.2 },
-  { x: 44, y: 22, s: 4, delay: 1.1 },
-  { x: 57, y: 34, s: 2, delay: 0.4 },
-  { x: 66, y: 18, s: 3, delay: 1.8 },
-  { x: 76, y: 30, s: 2, delay: 0.9 },
-  { x: 86, y: 24, s: 4, delay: 1.3 },
-  { x: 95, y: 15, s: 2, delay: 2.6 },
-] as const
-
-function HeroPerformanceLabels() {
   return (
-    <div className="pointer-events-none absolute inset-0 hidden text-xs font-mono font-semibold md:block" aria-hidden="true">
-      <span className="hero-performance-label left-[12%] top-[30%] border-emerald-400/20 text-emerald-300">+2.45%</span>
-      <span className="hero-performance-label left-[18%] top-[42%] border-red-400/20 text-red-300">-1.23%</span>
-      <span className="hero-performance-label right-[15%] top-[31%] border-emerald-400/20 text-emerald-300">+3.72%</span>
-      <span className="hero-performance-label right-[9%] top-[47%] border-violet-400/25 text-violet-300">+1.18%</span>
+    <div
+      className="pointer-events-none absolute inset-x-0 bottom-0 overflow-hidden"
+      style={{ top: 0, zIndex: 0 }}
+      aria-hidden="true"
+    >
+      {/* Masque dégradé : s'efface vers le bas pour laisser place au dashboard */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: 'linear-gradient(to bottom, transparent 0%, transparent 68%, hsl(var(--background)) 100%)',
+          zIndex: 2,
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Container perspective 3D */}
+      <div
+        className="absolute inset-0"
+        style={{ perspective: '1000px', perspectiveOrigin: '50% 35%' }}
+      >
+        <div className="hero-3d-wrapper w-full h-full">
+          <svg
+            viewBox="0 0 1440 520"
+            className="w-full h-full"
+            preserveAspectRatio="xMidYMid slice"
+          >
+            <defs>
+              <linearGradient id="wg1" x1="0" x2="0" y1="0" y2="1">
+                <stop stopColor="hsl(244 42% 51%)" stopOpacity="0.22" />
+                <stop offset="1" stopColor="hsl(244 42% 51%)" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="wg2" x1="0" x2="0" y1="0" y2="1">
+                <stop stopColor="hsl(249 38% 58%)" stopOpacity="0.13" />
+                <stop offset="1" stopColor="hsl(249 38% 58%)" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="wg3" x1="0" x2="0" y1="0" y2="1">
+                <stop stopColor="hsl(255 35% 65%)" stopOpacity="0.07" />
+                <stop offset="1" stopColor="hsl(255 35% 65%)" stopOpacity="0" />
+              </linearGradient>
+              <filter id="wave-glow" x="-5%" y="-300%" width="110%" height="700%">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            {/* Vague 3 — arrière, la plus haute et la plus subtile */}
+            <path d={`${w3} L1540,520 L-100,520 Z`} fill="url(#wg3)" />
+            <path
+              d={w3}
+              fill="none"
+              stroke="hsl(255 35% 65%)"
+              strokeOpacity="0.38"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              className="hero-chart-line-3"
+            />
+
+            {/* Vague 2 — milieu */}
+            <path d={`${w2} L1540,520 L-100,520 Z`} fill="url(#wg2)" />
+            <path
+              d={w2}
+              fill="none"
+              stroke="hsl(249 38% 58%)"
+              strokeOpacity="0.55"
+              strokeWidth="2"
+              strokeLinecap="round"
+              className="hero-chart-line-2"
+            />
+
+            {/* Vague 1 — avant, la plus lumineuse */}
+            <path d={`${w1} L1540,520 L-100,520 Z`} fill="url(#wg1)" />
+            <g filter="url(#wave-glow)" className="hero-chart-glow">
+              <path
+                d={w1}
+                fill="none"
+                stroke="hsl(244 42% 51%)"
+                strokeOpacity="0.9"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                className="hero-chart-line-1"
+              />
+            </g>
+
+            {/* Point "live" en bout de la courbe principale */}
+            <g className="hero-live-dot" style={{ transformOrigin: '1440px 292px' }}>
+              <circle cx="1440" cy="292" r="6" fill="hsl(244 42% 51%)" opacity="0.25" />
+              <circle cx="1440" cy="292" r="3.5" fill="hsl(244 42% 51%)" opacity="0.9" />
+            </g>
+          </svg>
+        </div>
+      </div>
     </div>
   )
 }
 
-function HeroAnimatedBackground() {
+/* ─── Hero ── style Maven (fond clair, grille de points, police display) ─── */
+
+function HeroStatCard({
+  label, value, tag, tagColor, sparkPoints, dotColor, side,
+}: {
+  label: string
+  value: string
+  tag: string
+  tagColor: string
+  sparkPoints: string
+  dotColor: string
+  side: 'left' | 'right'
+}) {
+  const delay = side === 'left' ? '' : ' animate-float-card-delay'
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_22%,rgba(124,58,237,0.18),transparent_32%),radial-gradient(circle_at_16%_44%,rgba(139,92,246,0.20),transparent_24%),radial-gradient(circle_at_86%_40%,rgba(45,212,191,0.08),transparent_26%)]" />
-      <div className="hero-grid absolute inset-0 opacity-45" />
-
-      {heroCandles.map((candle) => (
+    <div
+      className={`hidden xl:block pointer-events-none absolute z-20 animate-float-card${delay}`}
+      style={
+        side === 'left'
+          ? { left: '1.5%', top: '38%', transform: 'translateY(-50%)' }
+          : { right: '1.5%', top: '26%', transform: 'translateY(-50%)' }
+      }
+    >
+      <div className="w-48 rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
+        <p className="text-xs font-medium text-[hsl(var(--foreground-soft))]">{label}</p>
+        <p className="mt-1 text-[1.4rem] font-bold leading-tight text-foreground">{value}</p>
         <span
-          key={`${candle.x}-${candle.y}`}
-          className="hero-candle absolute hidden md:block"
-          style={{ left: `${candle.x}%`, top: `${candle.y}%`, animationDelay: `${candle.delay}s` }}
+          className="mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+          style={{ color: tagColor, background: `${tagColor}18` }}
         >
-          <span className="hero-candle-line" style={{ height: `${candle.h}px` }} />
-          <span
-            className={cn('hero-candle-body', candle.up ? 'bg-violet-500/35' : 'bg-violet-950/70')}
-            style={{ height: `${candle.b}px` }}
-          />
+          <TrendingUp className="h-3 w-3" />
+          {tag}
         </span>
-      ))}
-
-      {heroParticles.map((particle) => (
-        <span
-          key={`${particle.x}-${particle.y}`}
-          className="hero-particle absolute rounded-full bg-violet-300"
-          style={{
-            left: `${particle.x}%`,
-            top: `${particle.y}%`,
-            width: `${particle.s}px`,
-            height: `${particle.s}px`,
-            animationDelay: `${particle.delay}s`,
-          }}
-        />
-      ))}
-
-      <svg className="hero-waves absolute inset-x-[-8%] bottom-[18%] h-[44%] w-[116%] md:bottom-[16%]" viewBox="0 0 1440 420" preserveAspectRatio="none">
-        <defs>
-          <filter id="heroWaveGlow" x="-20%" y="-60%" width="140%" height="220%">
-            <feGaussianBlur stdDeviation="7" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-          <linearGradient id="heroWaveGradient" x1="0" x2="1" y1="0" y2="0">
-            <stop stopColor="#8b5cf6" stopOpacity="0" />
-            <stop offset="0.17" stopColor="#a855f7" stopOpacity="0.85" />
-            <stop offset="0.5" stopColor="#7c3aed" stopOpacity="0.55" />
-            <stop offset="0.82" stopColor="#8b5cf6" stopOpacity="0.95" />
-            <stop offset="1" stopColor="#8b5cf6" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <g className="hero-wave-drift" filter="url(#heroWaveGlow)">
-          <path d="M-80 160 C120 65 230 255 420 188 C585 130 690 285 850 234 C990 188 1070 90 1210 150 C1310 195 1385 176 1520 110" fill="none" stroke="url(#heroWaveGradient)" strokeWidth="2.4" />
-          <path d="M-80 196 C120 104 270 282 440 228 C610 176 710 318 878 258 C1010 210 1080 130 1228 185 C1320 220 1400 222 1520 162" fill="none" stroke="#7c3aed" strokeOpacity="0.36" strokeWidth="1.2" />
-          {Array.from({ length: 18 }).map((_, index) => (
-            <path
-              key={index}
-              d={`M-80 ${178 + index * 9} C130 ${86 + index * 4} 285 ${272 + index * 5} 455 ${218 + index * 4} C625 ${166 + index * 3} 735 ${314 + index * 2} 900 ${252 + index * 3} C1030 ${206 + index * 2} 1086 ${142 + index * 3} 1230 ${196 + index * 3} C1330 ${232 + index * 2} 1410 ${222 + index * 3} 1520 ${166 + index * 2}`}
-              fill="none"
-              stroke="#8b5cf6"
-              strokeOpacity={0.14 - index * 0.004}
-              strokeWidth="0.8"
-            />
-          ))}
-        </g>
-      </svg>
-
-      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background via-background/50 to-transparent" />
-      <div className="absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-black via-black/70 to-transparent" />
-      <HeroPerformanceLabels />
+        <svg viewBox="0 0 80 28" className="mt-2 h-7 w-full" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id={`sg-${side}`} x1="0" x2="0" y1="0" y2="1">
+              <stop stopColor={dotColor} stopOpacity="0.18" />
+              <stop offset="1" stopColor={dotColor} stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path d={`M${sparkPoints.split(' ').join(' L')} L80,28 L0,28 Z`} fill={`url(#sg-${side})`} />
+          <polyline
+            points={sparkPoints}
+            fill="none"
+            stroke={dotColor}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <circle cx={sparkPoints.split(' ').at(-1)?.split(',')[0]} cy={sparkPoints.split(' ').at(-1)?.split(',')[1]} r="2.5" fill={dotColor} />
+        </svg>
+      </div>
     </div>
   )
 }
 
 function Hero() {
+  const trustItems = ['Analyse IA avancée', 'Insights personnalisés', "Plan d'amélioration clair", '100% sécurisé']
+
   return (
-    <div className="relative isolate min-h-[820px] overflow-hidden bg-[#020106] pt-28 sm:pt-32 lg:min-h-[920px] lg:pt-36">
-      <HeroAnimatedBackground />
+    <div className="relative isolate overflow-hidden bg-background pt-28 sm:pt-32 lg:pt-36 pb-0">
+      {/* Grille de points subtile */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        aria-hidden="true"
+        style={{
+          backgroundImage: 'radial-gradient(circle, hsl(244 42% 51% / 0.10) 1px, transparent 1px)',
+          backgroundSize: '36px 36px',
+        }}
+      />
+      {/* Dégradé radial pour atténuer les bords */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        aria-hidden="true"
+        style={{
+          background: 'radial-gradient(ellipse 80% 55% at 50% 0%, transparent 35%, hsl(var(--background)) 100%)',
+        }}
+      />
+
+      {/* Courbes 3D animées */}
+      <Hero3DChartBackground />
+
+      {/* ── Cartes flottantes ── */}
+      <HeroStatCard
+        side="left"
+        label="Win Rate"
+        value="62.4%"
+        tag="+6.2% ce mois"
+        tagColor="#10b981"
+        dotColor="#3b82f6"
+        sparkPoints="0,22 13,18 26,20 39,14 52,16 65,10 80,7"
+      />
+      <HeroStatCard
+        side="right"
+        label="Performance"
+        value="+2 450,75 $"
+        tag="+18.7% ce mois"
+        tagColor="#10b981"
+        dotColor="#10b981"
+        sparkPoints="0,24 13,20 26,16 39,18 52,11 65,7 80,4"
+      />
+
+      {/* ── Icônes décoratives flottantes ── */}
+      <div
+        className="hidden lg:flex pointer-events-none absolute z-20 items-center gap-1.5 rounded-full border border-gray-100 bg-white/85 px-3 py-1.5 shadow-md animate-float-card-delay"
+        style={{ left: '6%', bottom: '28%' }}
+        aria-hidden="true"
+      >
+        <Brain className="h-4 w-4 text-[hsl(var(--primary))]" />
+        <span className="text-xs font-semibold text-foreground/70">IA</span>
+      </div>
+      <div
+        className="hidden lg:flex pointer-events-none absolute z-20 items-center justify-center rounded-full border border-gray-100 bg-white/85 p-2 shadow-md animate-float-card"
+        style={{ right: '8%', bottom: '34%' }}
+        aria-hidden="true"
+      >
+        <Sparkles className="h-4 w-4 text-violet-400" />
+      </div>
 
       <div className="relative z-10 mx-auto flex w-full max-w-screen-xl flex-col items-center px-4 md:px-6">
-        <div className="flex max-w-5xl flex-col justify-center space-y-5 text-center">
-          <div className="space-y-5">
-            <div className="mx-auto inline-flex h-[30px] items-center rounded-full border border-[hsl(var(--sidebar-primary)/0.45)] bg-black/35 px-5 py-2 text-[11px] font-semibold uppercase leading-5 tracking-[0.12em] text-[hsl(var(--sidebar-primary))] shadow-[0_0_28px_rgba(124,58,237,0.18)] backdrop-blur">
-              Plateforme de performance trading
-            </div>
-            <h1 className="mx-auto max-w-6xl text-4xl font-bold leading-[0.95] tracking-tight text-white sm:text-6xl lg:text-7xl">
-              Devenez le trader que vos <span className="text-[hsl(var(--sidebar-primary))]">émotions</span>{' '}empêchent d&apos;être.
-            </h1>
-            <p className="mx-auto max-w-[660px] text-balance text-base font-medium leading-8 text-zinc-400 md:text-xl">
-              MERKURE analyse vos trades en profondeur, détecte vos biais comportementaux et vous donne un plan d&apos;amélioration clair pour performer durablement.
-            </p>
+        <div className="flex max-w-4xl flex-col justify-center space-y-7 text-center">
+
+          {/* Badge */}
+          <div className="animate-fade-in mx-auto inline-flex items-center rounded-full border border-[hsl(var(--primary)/0.35)] bg-[hsl(var(--primary)/0.06)] px-5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[hsl(var(--primary))]">
+            Plateforme de performance trading
           </div>
-          <div className="flex w-full flex-wrap justify-center gap-4 pt-2">
-            <PrimaryButton href="/sign-up" className="h-14 min-w-[236px] rounded-xl px-9 shadow-[0_0_0_6px_hsl(var(--sidebar-primary)/0.14),0_0_28px_hsl(var(--sidebar-primary)/0.55)]">
-              Demarrer mon analyse IA
+
+          {/* H1 */}
+          <h1 className="animate-fade-in-up font-primary mx-auto max-w-4xl text-5xl leading-[1.08] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+            Devenez le trader que vos{' '}
+            <em className="not-italic text-[hsl(var(--primary))]">émotions</em>
+            {' '}empêchent d&apos;être.
+          </h1>
+
+          {/* Sous-titre */}
+          <p className="animate-fade-in-up-1 mx-auto max-w-[600px] text-balance text-lg leading-relaxed text-[hsl(var(--foreground-soft))] md:text-xl">
+            MERKURE analyse vos trades en profondeur, détecte vos biais comportementaux
+            et vous donne un plan d&apos;amélioration clair pour performer durablement.
+          </p>
+
+          {/* CTAs */}
+          <div className="animate-fade-in-up-2 flex w-full flex-wrap justify-center gap-4 pt-1">
+            <PrimaryButton href="/sign-up">
+              Démarrer mon analyse IA →
             </PrimaryButton>
-            <DemoButton className="h-14 min-w-[190px] rounded-xl border-white/15 bg-black/45 text-white backdrop-blur hover:bg-white/10" />
+            <DemoButton />
+          </div>
+
+          {/* Badges de confiance */}
+          <div className="animate-fade-in-up-3 flex flex-wrap justify-center gap-x-6 gap-y-2 pt-1">
+            {trustItems.map((text) => (
+              <span key={text} className="flex items-center gap-1.5 text-sm text-[hsl(var(--foreground-soft))]">
+                <Check className="h-3.5 w-3.5 shrink-0 text-[hsl(var(--primary))]" />
+                {text}
+              </span>
+            ))}
           </div>
         </div>
 
-        <div className="relative mt-16 flex w-full max-w-6xl items-center justify-center rounded-xl md:mt-20">
+        {/* Dashboard preview */}
+        <div className="animate-slide-up relative mt-14 flex w-full max-w-6xl items-center justify-center md:mt-16">
           <div className="relative w-full">
-            <span className="absolute inset-[-18px] rounded-[22px] bg-[hsl(var(--sidebar-primary)/0.13)] blur-2xl" />
-            <DashboardMockup />
+            <span className="absolute inset-[-24px] rounded-3xl bg-[hsl(var(--primary)/0.10)] blur-3xl" />
+            <RealDashboardPreview />
           </div>
         </div>
       </div>
@@ -624,23 +736,34 @@ function Features() {
   ]
 
   return (
-    <main id="features" className="container mx-auto px-4 py-16">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">Des outils pour chaque dimension du trading</h2>
-      <p className="text-base sm:text-lg md:text-xl text-center text-gray-600 dark:text-gray-400 mb-8 md:mb-12">Identifiez vos forces, corrigez vos faiblesses, progressez vraiment.</p>
+    <main id="features" className="container mx-auto px-4 py-16 md:py-24">
+      <h2 className="font-primary text-3xl sm:text-4xl md:text-5xl text-center text-foreground mb-4">
+        Des outils pour chaque dimension du trading
+      </h2>
+      <p className="text-base sm:text-lg md:text-xl text-center text-muted-foreground mb-10 md:mb-14 max-w-[600px] mx-auto">
+        Identifiez vos forces, corrigez vos faiblesses, progressez vraiment.
+      </p>
       <div className="grid grid-cols-1 lg:grid-cols-6 gap-4">
         {cards.map((f, index) => (
-          <Card id={f.id} key={f.id} className={cn('bg-card', index < 2 ? 'lg:col-span-3' : index === 2 ? 'lg:col-span-4' : 'lg:col-span-2')}>
+          <Card
+            id={f.id}
+            key={f.id}
+            className={cn(
+              'border-border bg-card hover:border-[hsl(var(--primary)/0.4)] transition-colors duration-300',
+              index < 2 ? 'lg:col-span-3' : index === 2 ? 'lg:col-span-4' : 'lg:col-span-2',
+            )}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-lg font-medium">{f.title}</CardTitle>
+              <CardTitle className="text-base font-medium text-foreground">{f.title}</CardTitle>
               {f.icon}
             </CardHeader>
             <CardContent>
               <div className="flex flex-col space-y-4">
                 <div>
-                  <div className="text-2xl font-bold">{f.stat}</div>
+                  <div className="text-2xl font-bold text-[hsl(var(--primary))]">{f.stat}</div>
                   <p className="text-sm text-muted-foreground mt-2">{f.desc}</p>
                 </div>
-                <div className={cn('relative w-full flex justify-center items-center rounded-xl overflow-hidden', f.minH ?? 'h-[300px]')}>
+                <div className={cn('relative w-full flex justify-center items-center rounded-xl overflow-hidden bg-section-alt', f.minH ?? 'h-[300px]')}>
                   {f.preview}
                 </div>
               </div>
@@ -664,32 +787,50 @@ const PLANS = [
 
 function PricingSection() {
   return (
-    <section id="tarifs" className="container mx-auto px-4 py-16">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">Un plan pour chaque trader</h2>
-      <p className="text-base sm:text-xl text-center text-gray-600 dark:text-gray-400 mb-8 md:mb-12">Du débutant à la prop firm.</p>
+    <section id="tarifs" className="container mx-auto px-4 py-16 md:py-24">
+      <h2 className="font-primary text-3xl sm:text-4xl md:text-5xl text-center text-foreground mb-4">
+        Un plan pour chaque trader
+      </h2>
+      <p className="text-base sm:text-xl text-center text-muted-foreground mb-10 md:mb-14">
+        Du débutant à la prop firm.
+      </p>
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
         {PLANS.map((plan) => (
-          <article key={plan.name} className={cn('relative rounded-xl border p-5 flex flex-col', (plan as { popular?: boolean }).popular ? 'border-[hsl(var(--sidebar-primary)/0.5)] bg-[hsl(var(--sidebar-primary)/0.05)]' : 'border-border bg-card')}>
+          <article
+            key={plan.name}
+            className={cn(
+              'relative rounded-sm border p-6 flex flex-col transition-colors duration-300',
+              (plan as { popular?: boolean }).popular
+                ? 'border-[hsl(var(--primary)/0.5)] bg-[hsl(var(--primary)/0.04)] hover:border-[hsl(var(--primary))]'
+                : 'border-border bg-card hover:border-[hsl(var(--primary)/0.4)]',
+            )}
+          >
             {(plan as { popular?: boolean }).popular && (
-              <span className="absolute right-4 top-4 rounded-full bg-[hsl(var(--sidebar-primary))] px-2 py-0.5 text-[9px] font-semibold uppercase text-white">Populaire</span>
+              <span className="absolute right-4 top-4 rounded-full bg-[hsl(var(--primary))] px-2 py-0.5 text-[9px] font-semibold uppercase text-white">
+                Populaire
+              </span>
             )}
             <h3 className="text-base font-semibold text-foreground">{plan.name}</h3>
             <p className="mt-0.5 text-xs text-muted-foreground">{plan.sub}</p>
-            <p className="mt-5 font-mono text-4xl font-bold text-foreground">{plan.price}€<span className="text-sm font-medium text-muted-foreground"> /mois</span></p>
+            <p className="mt-5 font-mono text-4xl font-bold text-foreground">
+              {plan.price}€<span className="text-sm font-medium text-muted-foreground"> /mois</span>
+            </p>
             <ul className="mt-5 flex-1 grid gap-2.5">
               {plan.features.map((f) => (
                 <li key={f} className="flex items-start gap-2 text-xs text-muted-foreground">
-                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />{f}
+                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[hsl(var(--primary))]" />{f}
                 </li>
               ))}
             </ul>
-            <PrimaryButton href="/sign-up" className="mt-6 w-full h-9 text-sm">
+            <PrimaryButton href="/sign-up" className="mt-6 w-full min-w-0 h-10 text-sm px-4">
               {plan.name === 'Agency' ? 'Nous contacter' : 'Commencer'}
             </PrimaryButton>
           </article>
         ))}
       </div>
-      <p className="mt-6 text-center text-xs text-muted-foreground">Tous les plans incluent la securisation des donnees, la synchronisation en temps reel et un support reactif.</p>
+      <p className="mt-8 text-center text-xs text-muted-foreground">
+        Tous les plans incluent la securisation des donnees, la synchronisation en temps reel et un support reactif.
+      </p>
     </section>
   )
 }
@@ -707,15 +848,17 @@ const FAQS = [
 
 function FAQSection() {
   return (
-    <section id="faq" className="py-16">
+    <section id="faq" className="py-16 md:py-24">
       <div className="container mx-auto px-4">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8">Questions fréquentes</h2>
-        <div className="max-w-3xl mx-auto space-y-6">
+        <h2 className="font-primary text-3xl sm:text-4xl md:text-5xl text-center text-foreground mb-10 md:mb-14">
+          Questions fréquentes
+        </h2>
+        <div className="max-w-3xl mx-auto space-y-0">
           {FAQS.map(({ q, a }) => (
-            <details key={q} className="border-b border-border pb-4 group">
-              <summary className="font-semibold cursor-pointer list-none flex items-center justify-between gap-4 text-foreground hover:text-[hsl(var(--sidebar-primary))] transition-colors">
+            <details key={q} className="border-b border-border py-5 group">
+              <summary className="font-medium cursor-pointer list-none flex items-center justify-between gap-4 text-foreground hover:text-[hsl(var(--primary))] transition-colors duration-200">
                 {q}
-                <span className="shrink-0 text-lg text-muted-foreground group-open:rotate-45 transition-transform duration-200 inline-block">+</span>
+                <span className="shrink-0 text-xl text-muted-foreground group-open:rotate-45 transition-transform duration-200 inline-block leading-none">+</span>
               </summary>
               <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{a}</p>
             </details>
@@ -730,54 +873,54 @@ function FAQSection() {
 
 function CommunitySection() {
   return (
-    <div className="px-4 mb-8 md:mb-16 lg:mb-32">
-      <div className="mb-6 md:mb-12">
-        <h2 className="text-2xl md:text-3xl lg:text-4xl mb-2 md:mb-4 font-medium text-[hsl(var(--sidebar-primary))]">
-          +10 000 traders font confiance a MERKURE
+    <div className="px-4 mb-8 md:mb-16 lg:mb-24">
+      <div className="mb-6 md:mb-10">
+        <h2 className="font-primary text-3xl md:text-4xl lg:text-5xl mb-3 md:mb-5 text-foreground">
+          +10 000 traders font confiance à MERKURE
         </h2>
         <p className="text-sm md:text-base text-muted-foreground max-w-[500px]">
-          Rejoignez une communaute qui utilise la data pour progresser, pas l'instinct.
+          Rejoignez une communauté qui utilise la data pour progresser, pas l'instinct.
         </p>
       </div>
-      <Card className="border border-border bg-background p-4 md:p-6 lg:p-8">
-        <div className="flex flex-col lg:flex-row lg:space-x-8 xl:space-x-16 gap-8">
+      <div className="rounded-sm border border-border bg-section-alt p-4 md:p-8 lg:p-10">
+        <div className="flex flex-col lg:flex-row lg:gap-16 gap-8">
           <div className="lg:basis-1/2 space-y-0">
             {[
-              { icon: <Brain className="h-5 w-5 md:h-6 md:w-6" />, title: 'IA de journalisation', desc: "Chaque trade est analyse automatiquement pour detecter vos biais et patterns comportementaux." },
-              { icon: <BarChart3 className="h-5 w-5 md:h-6 md:w-6" />, title: 'Analytics avances', desc: "Plus de 20 metriques de performance pour comprendre exactement ou vous gagnez et ou vous perdez." },
-              { icon: <BookOpen className="h-5 w-5 md:h-6 md:w-6" />, title: 'Roadmap publique', desc: "Suivez et votez pour les prochaines fonctionnalites. Votre feedback guide notre developpement." },
+              { icon: <Brain className="h-5 w-5 md:h-6 md:w-6" />, title: 'IA de journalisation', desc: 'Chaque trade est analysé automatiquement pour détecter vos biais et patterns comportementaux.' },
+              { icon: <BarChart3 className="h-5 w-5 md:h-6 md:w-6" />, title: 'Analytics avancés', desc: 'Plus de 20 métriques de performance pour comprendre exactement où vous gagnez et où vous perdez.' },
+              { icon: <BookOpen className="h-5 w-5 md:h-6 md:w-6" />, title: 'Roadmap publique', desc: 'Suivez et votez pour les prochaines fonctionnalités. Votre feedback guide notre développement.' },
             ].map(({ icon, title, desc }) => (
-              <div key={title} className="border-b border-border py-4 last:border-0">
-                <div className="flex items-center space-x-2 text-[hsl(var(--sidebar-primary))] mb-2">
+              <div key={title} className="border-b border-border py-5 last:border-0 group">
+                <div className="flex items-center gap-2 text-[hsl(var(--primary))] mb-2 transition-colors duration-200">
                   {icon}
-                  <span className="text-sm md:text-base lg:text-lg font-medium">{title}</span>
+                  <span className="text-sm md:text-base font-medium text-foreground">{title}</span>
                 </div>
-                <p className="text-xs md:text-sm text-muted-foreground">{desc}</p>
+                <p className="text-sm text-muted-foreground">{desc}</p>
               </div>
             ))}
           </div>
           <div className="lg:basis-1/2">
-            <Card className="w-full h-full border border-border bg-card p-4 md:p-6 flex flex-col gap-4">
-              <div className="text-center py-4">
-                <p className="font-mono text-5xl font-bold text-[hsl(var(--sidebar-primary))]">+10K</p>
-                <p className="text-sm text-muted-foreground mt-1">traders actifs</p>
+            <div className="rounded-sm border border-border bg-background p-6 md:p-8 flex flex-col gap-5 h-full">
+              <div className="text-center py-3">
+                <p className="font-primary text-6xl text-[hsl(var(--primary))]">+10K</p>
+                <p className="text-sm text-muted-foreground mt-2">traders actifs</p>
               </div>
               <div className="grid grid-cols-3 gap-3 text-center">
-                {[{ v: '2M+', l: 'Trades analyses' }, { v: '98%', l: 'Satisfaction' }, { v: '24/7', l: 'Synchronisation' }].map(({ v, l }) => (
-                  <div key={l} className="rounded-lg border border-border bg-background p-3">
+                {[{ v: '2M+', l: 'Trades analysés' }, { v: '98%', l: 'Satisfaction' }, { v: '24/7', l: 'Synchronisation' }].map(({ v, l }) => (
+                  <div key={l} className="rounded-sm border border-border bg-section-alt p-3">
                     <p className="font-mono text-xl font-bold text-foreground">{v}</p>
                     <p className="text-[10px] text-muted-foreground mt-1">{l}</p>
                   </div>
                 ))}
               </div>
-              <div className="mt-auto flex flex-col gap-2 pt-2">
-                <PrimaryButton href="/sign-up" className="w-full h-10">Rejoindre MERKURE</PrimaryButton>
-                <DemoButton className="w-full justify-center" />
+              <div className="mt-auto flex flex-col gap-3 pt-2">
+                <PrimaryButton href="/sign-up" className="w-full min-w-0">Rejoindre MERKURE</PrimaryButton>
+                <DemoButton className="w-full" />
               </div>
-            </Card>
+            </div>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   )
 }
@@ -854,43 +997,63 @@ function Footer() {
           </div>
         </div>
         <div className="mt-16 border-t border-border pt-8">
-          <div className="text-center text-sm text-gray-600 dark:text-gray-400">&copy; {new Date().getFullYear()} MERKURE. Tous droits reserves.</div>
-          <div className="mt-4 text-center text-xs text-gray-500">Le trading comporte des risques de perte en capital. Les performances passees ne prejudgent pas des performances futures.</div>
+          <div className="text-center text-sm text-muted-foreground">&copy; {new Date().getFullYear()} MERKURE. Tous droits réservés.</div>
+          <div className="mt-4 text-center text-xs text-muted-foreground/70">Le trading comporte des risques de perte en capital. Les performances passées ne préjugent pas des performances futures.</div>
         </div>
       </div>
     </footer>
   )
 }
 
-/* ─── Root ───────────────────────────────────────────────────────────────── */
+/* ─── Root ── alternance blanc / beige comme Maven ───────────────────────── */
 
 export default function App() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="px-2 sm:px-6 lg:px-32">
-        <Navbar />
-        <div className="mx-auto max-w-screen-xl">
-          <main className="flex flex-col gap-16 sm:gap-24 md:gap-28">
-            <section className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden">
-              <Hero />
-            </section>
-            <section className="w-full">
-              <Partners />
-            </section>
-            <section className="w-full">
-              <Features />
-            </section>
-            <section className="w-full">
-              <PricingSection />
-            </section>
-            <section className="w-full">
-              <FAQSection />
-            </section>
-            <section className="w-full">
-              <CommunitySection />
-            </section>
-          </main>
+      <Navbar />
+
+      {/* Hero — fond blanc avec grille de points, full-bleed */}
+      <section className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden">
+        <Hero />
+      </section>
+
+      {/* Partners — fond beige */}
+      <section className="w-full bg-section-alt py-14 md:py-20">
+        <div className="mx-auto max-w-screen-xl px-4 md:px-8 lg:px-16">
+          <Partners />
         </div>
+      </section>
+
+      {/* Features — fond blanc */}
+      <section className="w-full bg-background">
+        <div className="mx-auto max-w-screen-xl px-4 md:px-8 lg:px-16">
+          <Features />
+        </div>
+      </section>
+
+      {/* Pricing — fond beige */}
+      <section className="w-full bg-section-alt">
+        <div className="mx-auto max-w-screen-xl px-4 md:px-8 lg:px-16">
+          <PricingSection />
+        </div>
+      </section>
+
+      {/* FAQ — fond blanc */}
+      <section className="w-full bg-background">
+        <div className="mx-auto max-w-screen-xl px-4 md:px-8 lg:px-16">
+          <FAQSection />
+        </div>
+      </section>
+
+      {/* Community — fond beige */}
+      <section className="w-full bg-section-alt py-14 md:py-20">
+        <div className="mx-auto max-w-screen-xl px-4 md:px-8 lg:px-16">
+          <CommunitySection />
+        </div>
+      </section>
+
+      {/* Footer — fond beige */}
+      <div className="bg-section-alt border-t border-border">
         <Footer />
       </div>
     </div>

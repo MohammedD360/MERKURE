@@ -10,20 +10,20 @@ const MONTHS_FR = [
 ]
 
 function pnlBg(pnl: number | null | undefined, isSelected: boolean, isToday: boolean) {
-  if (isSelected) return 'bg-violet-500/25 ring-1 ring-violet-500/50'
-  if (isToday)    return 'bg-white/[0.06]'
+  if (isSelected) return 'bg-[hsl(var(--primary)/0.15)] ring-1 ring-[hsl(var(--primary)/0.4)]'
+  if (isToday)    return 'bg-[hsl(var(--accent))]'
   if (pnl == null) return ''
-  if (pnl > 200)  return 'bg-green-500/25'
-  if (pnl > 0)    return 'bg-green-500/12'
-  if (pnl < -200) return 'bg-red-500/25'
-  if (pnl < 0)    return 'bg-red-500/12'
-  return 'bg-slate-700/20'
+  if (pnl > 200)  return 'bg-emerald-100'
+  if (pnl > 0)    return 'bg-emerald-50'
+  if (pnl < -200) return 'bg-red-100'
+  if (pnl < 0)    return 'bg-red-50'
+  return 'bg-[hsl(var(--accent))]'
 }
 
 function pnlTextColor(pnl: number | null | undefined) {
   if (pnl == null) return 'text-muted-foreground'
-  if (pnl > 0) return 'text-green-400'
-  if (pnl < 0) return 'text-red-400'
+  if (pnl > 0) return 'text-emerald-600'
+  if (pnl < 0) return 'text-red-500'
   return 'text-muted-foreground'
 }
 
@@ -61,7 +61,7 @@ export function JournalCalendar({ year, month, days, selectedDate, onSelectDate,
       <div className="mb-3 flex items-center justify-between">
         <button
           onClick={onPrevMonth}
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-[hsl(var(--accent))] hover:text-foreground"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -70,7 +70,7 @@ export function JournalCalendar({ year, month, days, selectedDate, onSelectDate,
         </span>
         <button
           onClick={onNextMonth}
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-[hsl(var(--accent))] hover:text-foreground"
         >
           <ChevronRight className="h-4 w-4" />
         </button>
@@ -78,20 +78,20 @@ export function JournalCalendar({ year, month, days, selectedDate, onSelectDate,
 
       {/* Monthly summary */}
       {tradingDays > 0 && (
-        <div className="mb-3 flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2">
+        <div className="mb-3 flex items-center justify-between rounded-lg border border-[hsl(var(--border))] bg-white px-3 py-2">
           <div className="text-center">
             <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">P&L</p>
-            <p className={`text-xs font-black font-mono ${monthPnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            <p className={`text-xs font-black font-mono ${monthPnl >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
               {fmtPnl(monthPnl)}$
             </p>
           </div>
           <div className="text-center">
             <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">Sessions</p>
-            <p className="text-xs font-black text-white">{tradingDays}</p>
+            <p className="text-xs font-black text-foreground">{tradingDays}</p>
           </div>
           <div className="text-center">
             <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">Win days</p>
-            <p className={`text-xs font-black font-mono ${winDays / tradingDays >= 0.5 ? 'text-green-400' : 'text-amber-400'}`}>
+            <p className={`text-xs font-black font-mono ${winDays / tradingDays >= 0.5 ? 'text-emerald-600' : 'text-amber-600'}`}>
               {tradingDays > 0 ? `${Math.round((winDays / tradingDays) * 100)}%` : '—'}
             </p>
           </div>
@@ -126,7 +126,7 @@ export function JournalCalendar({ year, month, days, selectedDate, onSelectDate,
               className={`
                 relative flex flex-col items-center justify-center rounded-lg py-1.5 text-xs font-medium transition-all
                 ${pnlBg(day.dailyPnl, isSel, isToday)}
-                ${isSel ? 'text-white' : isToday ? 'text-white' : hasPnl ? 'text-slate-200' : 'text-muted-foreground'}
+                ${isSel ? 'text-[hsl(var(--primary))]' : isToday ? 'text-foreground' : hasPnl ? 'text-foreground/80' : 'text-muted-foreground'}
                 hover:opacity-90
               `}
             >
@@ -141,7 +141,7 @@ export function JournalCalendar({ year, month, days, selectedDate, onSelectDate,
 
               {/* Journal dot */}
               {day.hasEntry && (
-                <span className="absolute bottom-0.5 right-0.5 h-1 w-1 rounded-full bg-violet-400" />
+                <span className="absolute bottom-0.5 right-0.5 h-1 w-1 rounded-full bg-[hsl(var(--primary))]" />
               )}
             </button>
           )
@@ -151,12 +151,12 @@ export function JournalCalendar({ year, month, days, selectedDate, onSelectDate,
       {/* Legend */}
       <div className="mt-4 space-y-1.5 text-[10px] text-muted-foreground/50">
         <div className="flex items-center gap-1.5">
-          <span className="h-1.5 w-1.5 rounded-full bg-violet-400 shrink-0" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--primary))] shrink-0" />
           Entrée de journal
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded bg-green-500/25 shrink-0" />
-          <span className="h-2.5 w-2.5 rounded bg-red-500/25 shrink-0" />
+          <span className="h-2.5 w-2.5 rounded bg-emerald-100 shrink-0" />
+          <span className="h-2.5 w-2.5 rounded bg-red-100 shrink-0" />
           Jour positif / négatif
         </div>
       </div>
