@@ -49,7 +49,7 @@ export async function csvImportRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: 'empty_file' })
     }
 
-    // ── Vérifie que le compte appartient bien à l'utilisateur ────────────
+    // ── Résout le compte broker ───────────────────────────────────────────
     if (accountId) {
       const account = await prisma.brokerAccount.findFirst({
         where: { id: accountId, userId: req.user.id },
@@ -58,6 +58,20 @@ export async function csvImportRoutes(app: FastifyInstance) {
       if (!account) {
         return reply.code(404).send({ error: 'account_not_found' })
       }
+    } else {
+      // Pas de compte fourni : on prend le premier compte de l'utilisateur
+      const fallback = await prisma.brokerAccount.findFirst({
+        where:   { userId: req.user.id },
+        orderBy: { createdAt: 'asc' },
+        select:  { id: true },
+      })
+      if (!fallback) {
+        return reply.code(400).send({
+          error:  'no_account',
+          detail: 'Aucun compte broker trouvé. Créez un compte avant d\'importer.',
+        })
+      }
+      accountId = fallback.id
     }
 
     // ── Parse le CSV ──────────────────────────────────────────────────────
@@ -77,7 +91,7 @@ export async function csvImportRoutes(app: FastifyInstance) {
         await prisma.trade.upsert({
           where: {
             brokerAccountId_externalId: {
-              brokerAccountId: accountId ?? req.user.id, // fallback = userId si pas de compte
+              brokerAccountId: accountId,
               externalId:      trade.externalId,
             },
           },
