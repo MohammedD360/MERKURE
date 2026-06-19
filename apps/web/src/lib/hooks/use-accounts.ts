@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiFetch } from '@/lib/api-client'
 
-export type BrokerType  = 'MT4' | 'MT5' | 'BINANCE' | 'IB' | 'CTRADER'
+export type BrokerType  = 'MT4' | 'MT5' | 'BINANCE' | 'IB' | 'CTRADER' | 'TRADOVATE'
 export type AccountType = 'LIVE' | 'DEMO' | 'PROP_FUNDED' | 'PROP_CHALLENGE'
 export type SyncStatus  = 'PENDING' | 'SYNCING' | 'SUCCESS' | 'ERROR'
 

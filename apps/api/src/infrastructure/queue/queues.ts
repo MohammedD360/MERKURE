@@ -13,7 +13,7 @@ export const emailQueue = new Queue('email-send', { connection })
 export type BrokerSyncJob = {
   accountId: string
   userId: string
-  brokerType: 'mt4' | 'mt5' | 'binance' | 'ib' | 'ctrader'
+  brokerType: 'mt4' | 'mt5' | 'binance' | 'ib' | 'ctrader' | 'tradovate'
   fullSync?: boolean
 }
 

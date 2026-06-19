@@ -1,13 +1,15 @@
 import Image from 'next/image'
 import type { BrokerType } from '@/lib/mock-comptes'
 
-const BROKER_LOGOS: Record<BrokerType, {
-  src: string
-  alt: string
-  width: number
+interface LogoEntry {
+  src:    string
+  alt:    string
+  width:  number
   height: number
-  fit?: 'icon' | 'wordmark'
-}> = {
+  fit?:   'icon' | 'wordmark'
+}
+
+const BROKER_LOGOS: Partial<Record<BrokerType, LogoEntry>> = {
   MT4: {
     src: '/brokers/metatrader-4.png',
     alt: 'MetaTrader 4',
@@ -45,8 +47,26 @@ const BROKER_LOGOS: Record<BrokerType, {
   },
 }
 
+const BROKER_FALLBACK: Partial<Record<BrokerType, { label: string; color: string }>> = {
+  TRADOVATE: { label: 'TV', color: '#f97316' },
+}
+
 export function BrokerLogo({ broker, size = 40 }: { broker: BrokerType; size?: number }) {
   const logo = BROKER_LOGOS[broker]
+
+  if (!logo) {
+    const fb = BROKER_FALLBACK[broker]
+    return (
+      <span
+        className="flex shrink-0 items-center justify-center rounded-lg border border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.18)] text-white font-black"
+        style={{ width: size, height: size, background: fb?.color ?? '#6366f1', fontSize: size * 0.3 }}
+        aria-label={broker}
+      >
+        {fb?.label ?? broker.slice(0, 2)}
+      </span>
+    )
+  }
+
   const isWordmark = logo.fit === 'wordmark'
   const boxWidth = isWordmark ? Math.round(size * 1.45) : size
 

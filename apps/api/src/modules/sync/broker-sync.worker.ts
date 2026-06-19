@@ -7,6 +7,7 @@ import { accountsRepository } from '../accounts/accounts.repository.js'
 import { DemoAdapter } from '../brokers/adapters/demo-adapter.js'
 import { MetaApiAdapter } from '../brokers/adapters/meta-api-adapter.js'
 import { BinanceAdapter } from '../brokers/adapters/binance-adapter.js'
+import { TradovateAdapter } from '../brokers/adapters/tradovate-adapter.js'
 import type { BrokerAdapter } from '../brokers/adapters/broker-adapter.js'
 import { wsNotify } from '../../websocket/ws.handler.js'
 
@@ -48,6 +49,8 @@ function resolveAdapter(brokerType: BrokerSyncJob['brokerType']): BrokerAdapter 
       return new MetaApiAdapter()
     case 'binance':
       return new BinanceAdapter()
+    case 'tradovate':
+      return new TradovateAdapter()
     default:
       return new DemoAdapter()
   }

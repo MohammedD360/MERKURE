@@ -43,6 +43,12 @@ const envSchema = z.object({
   MTCONNECT_API_KEY: z.string().optional(),
   MTCONNECT_UID:     z.string().optional(),
 
+  // Tradovate API (futures — Apex Trader Funding)
+  TRADOVATE_APP_ID:      z.string().default('Merkure'),
+  TRADOVATE_APP_VERSION: z.string().default('1.0.0'),
+  TRADOVATE_CID:         z.coerce.number().default(0),
+  TRADOVATE_SEC:         z.string().default(''),
+
   // Clerk Webhook
   CLERK_WEBHOOK_SECRET: z.string().optional(),
 

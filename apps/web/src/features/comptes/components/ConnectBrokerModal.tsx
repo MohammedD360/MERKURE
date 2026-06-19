@@ -13,29 +13,34 @@ interface Props {
 
 type Step = 'choose' | 'form' | 'success'
 
-const BROKERS: BrokerType[] = ['MT5', 'MT4', 'IB', 'CTRADER']
+const BROKERS: BrokerType[] = ['TRADOVATE', 'MT5', 'MT4', 'IB', 'CTRADER']
 const COMING_SOON: BrokerType[] = ['BINANCE']
 
 
 interface FormState {
-  label:       string
-  accountId:   string
-  accountType: AccountType
-  password:    string
-  server:      string
-  apiKey:      string
-  apiSecret:   string
-  port:        string
-  clientId:    string
-  clientSecret:string
+  label:        string
+  accountId:    string
+  accountType:  AccountType
+  password:     string
+  server:       string
+  apiKey:       string
+  apiSecret:    string
+  port:         string
+  clientId:     string
+  clientSecret: string
+  tvUsername:   string
+  tvPassword:   string
+  tvAccountId:  string
+  tvEnv:        'demo' | 'live'
 }
 
 const DEFAULT_FORM: FormState = {
-  label: '', accountId: '', accountType: 'LIVE',
+  label: '', accountId: '', accountType: 'PROP_CHALLENGE',
   password: '', server: '',
   apiKey: '', apiSecret: '',
   port: '7497',
   clientId: '', clientSecret: '',
+  tvUsername: '', tvPassword: '', tvAccountId: '', tvEnv: 'demo',
 }
 
 function Field({
@@ -112,6 +117,49 @@ function BrokerFormFields({ broker, form, setForm }: {
     </>
   )
 
+  if (broker === 'TRADOVATE') return (
+    <div className="space-y-4">
+      <div className="rounded-lg border border-orange-200 bg-orange-50 p-3">
+        <p className="text-xs font-semibold leading-relaxed text-orange-700">
+          Connexion à votre compte <span className="font-bold">Apex Trader Funding</span> via Tradovate.
+          Utilisez vos identifiants Tradovate (reçus par Apex par email).
+        </p>
+      </div>
+      {common}
+      <Field label="Email Tradovate" value={form.tvUsername} onChange={set('tvUsername')} placeholder="votre@email.com" />
+      <Field label="Mot de passe Tradovate" value={form.tvPassword} onChange={set('tvPassword')} placeholder="••••••••" showToggle />
+      <Field
+        label="ID du compte Tradovate"
+        value={form.tvAccountId}
+        onChange={set('tvAccountId')}
+        placeholder="Ex : 12345678"
+        hint="Visible dans Tradovate → Account → votre numéro de compte (entier)."
+      />
+      <div>
+        <label className="mb-1.5 block text-xs font-black text-muted-foreground">Environnement</label>
+        <div className="grid grid-cols-2 gap-1.5">
+          {(['demo', 'live'] as const).map(e => (
+            <button
+              key={e}
+              type="button"
+              onClick={() => setForm(f => ({ ...f, tvEnv: e }))}
+              className={`rounded-lg border py-2 text-xs font-black transition-colors ${
+                form.tvEnv === e
+                  ? 'border-orange-300 bg-orange-50 text-orange-600'
+                  : 'border-[hsl(var(--border))] bg-[hsl(var(--accent))] text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {e === 'demo' ? 'Sim / Demo (Apex)' : 'Live'}
+            </button>
+          ))}
+        </div>
+        <p className="mt-1 text-[10px] font-semibold text-muted-foreground/60">
+          Les challenges Apex utilisent l'environnement Sim (Demo).
+        </p>
+      </div>
+    </div>
+  )
+
   if (broker === 'MT4' || broker === 'MT5') return (
     <div className="space-y-4">
       <div className="rounded-lg border border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary)/0.08)] p-3">
@@ -165,6 +213,14 @@ function BrokerFormFields({ broker, form, setForm }: {
 }
 
 function buildCredentials(broker: BrokerType, form: FormState): Record<string, string> {
+  if (broker === 'TRADOVATE') {
+    return {
+      username:    form.tvUsername,
+      password:    form.tvPassword,
+      accountId:   form.tvAccountId,
+      environment: form.tvEnv,
+    }
+  }
   if (broker === 'MT4' || broker === 'MT5') {
     return {
       accountId:   form.accountId,
@@ -197,7 +253,11 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
 
   const isFormValid = (): boolean => {
     if (!selected) return false
-    if (!form.label.trim() || !form.accountId.trim()) return false
+    if (!form.label.trim()) return false
+    if (selected === 'TRADOVATE') {
+      return Boolean(form.tvUsername.trim() && form.tvPassword.trim())
+    }
+    if (!form.accountId.trim()) return false
     if ((selected === 'MT4' || selected === 'MT5') && !form.password.trim()) return false
     if (selected === 'BINANCE' && (!form.apiKey.trim() || !form.apiSecret.trim())) return false
     return true
@@ -209,7 +269,7 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
       {
         brokerType:  selected,
         accountType: form.accountType,
-        accountId:   form.accountId.trim(),
+        accountId:   selected === 'TRADOVATE' ? (form.tvAccountId.trim() || form.tvUsername.trim()) : form.accountId.trim(),
         label:       form.label.trim(),
         credentials: buildCredentials(selected, form),
       },

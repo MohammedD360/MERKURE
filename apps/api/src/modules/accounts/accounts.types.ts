@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const CreateAccountSchema = z.object({
-  brokerType: z.enum(['MT4', 'MT5', 'BINANCE', 'IB', 'CTRADER']),
+  brokerType: z.enum(['MT4', 'MT5', 'BINANCE', 'IB', 'CTRADER', 'TRADOVATE']),
   accountType: z.enum(['LIVE', 'DEMO', 'PROP_FUNDED', 'PROP_CHALLENGE']).default('DEMO'),
   accountId: z.string().min(1),
   label: z.string().min(1).max(100),
