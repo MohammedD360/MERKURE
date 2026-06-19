@@ -8,24 +8,8 @@ import type { BrokerSyncJob } from '../../infrastructure/queue/queues.js'
 import { ACCOUNT_LIMIT, upgradeRequired } from '../../middleware/plan-limits.js'
 
 
-const DEMO_ACCOUNTS = [
-  {
-    id: 'demo_account_1',
-    brokerType: 'MT5',
-    accountType: 'DEMO',
-    accountId: 'demo-12345',
-    label: 'Compte Démo MT5',
-    isActive: true,
-    syncStatus: 'SUCCESS',
-    syncError: null,
-    lastSyncAt: '2026-06-01T10:00:00.000Z',
-    createdAt: '2026-06-01T10:00:00.000Z',
-  },
-]
-
 export async function accountsRoutes(app: FastifyInstance) {
   app.get('/', { preHandler: [authenticate] }, async (req) => {
-    if (req.user.id === 'demo_user_merkure') return DEMO_ACCOUNTS
     return accountsService.list(req.user.id)
   })
 
@@ -36,9 +20,6 @@ export async function accountsRoutes(app: FastifyInstance) {
   })
 
   app.post<{ Body: unknown }>('/', { preHandler: [authenticate] }, async (req, reply) => {
-    if (req.user.id === 'demo_user_merkure') {
-      return reply.code(403).send({ error: 'demo_mode', detail: 'Créez un compte pour connecter un broker.' })
-    }
     try {
       const body  = CreateAccountSchema.parse(req.body)
       const plan  = req.user.plan ?? 'FREE'

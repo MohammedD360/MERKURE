@@ -173,6 +173,23 @@ export async function authRoutes(app: FastifyInstance) {
 
   // GET /api/v1/auth/me — profil courant
   app.get('/me', { preHandler: authenticate }, async (req) => {
+    // En mode demo, on retourne directement le plan injecté (toujours ELITE)
+    if (env.AUTH_MODE === 'demo') {
+      const user = await prisma.user.findUnique({
+        where:  { id: req.user.id },
+        select: { id: true, email: true, firstName: true, lastName: true, avatarUrl: true, emailVerified: true },
+      }).catch(() => null)
+      return {
+        id:          req.user.id,
+        email:       req.user.email,
+        firstName:   user?.firstName ?? null,
+        lastName:    user?.lastName  ?? null,
+        avatarUrl:   user?.avatarUrl ?? null,
+        plan:        req.user.plan,
+        authMode:    'demo',
+        subscriptionStatus: 'ACTIVE',
+      }
+    }
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
       select: { id: true, email: true, firstName: true, lastName: true, emailVerified: true },

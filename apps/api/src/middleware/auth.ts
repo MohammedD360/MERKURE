@@ -22,16 +22,18 @@ export async function authenticate(
 ): Promise<void> {
   if (env.AUTH_MODE === 'demo') {
     // En mode demo, on accepte un JWT valide s'il est fourni, sinon on injecte le demo user
+    // Le plan est toujours ELITE en mode demo pour permettre de tester tous les flows
     const auth = request.headers.authorization
     if (auth?.startsWith('Bearer ')) {
       try {
         await request.jwtVerify()
+        request.user = { ...request.user, plan: 'ELITE' }
         return
       } catch {
         // token invalide → on retombe sur le demo user
       }
     }
-    request.user = { id: 'demo_user_merkure', email: 'demo@merkure.app', plan: 'FREE' }
+    request.user = { id: 'demo_user_merkure', email: 'demo@merkure.app', plan: 'ELITE' }
     return
   }
 
