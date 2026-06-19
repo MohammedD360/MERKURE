@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { X, Upload, FileText, CheckCircle2, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { getToken } from '@/lib/api-client'
@@ -35,6 +36,7 @@ export function CsvImportModal({ open, onClose }: Props) {
   const queryClient = useQueryClient()
   const { data: accounts = [] } = useAccounts()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [mounted, setMounted] = useState(false)
 
   const [file,       setFile]       = useState<File | null>(null)
   const [accountId,  setAccountId]  = useState('')
@@ -43,6 +45,8 @@ export function CsvImportModal({ open, onClose }: Props) {
   const [result,     setResult]     = useState<ImportResult | null>(null)
   const [showFormat, setShowFormat] = useState(false)
   const [error,      setError]      = useState<string | null>(null)
+
+  useEffect(() => { setMounted(true) }, [])
 
   const reset = () => {
     setFile(null); setResult(null); setError(null); setShowFormat(false)
@@ -97,9 +101,9 @@ export function CsvImportModal({ open, onClose }: Props) {
     }
   }
 
-  if (!open) return null
+  if (!open || !mounted) return null
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={handleClose} />
 
@@ -292,6 +296,7 @@ export function CsvImportModal({ open, onClose }: Props) {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

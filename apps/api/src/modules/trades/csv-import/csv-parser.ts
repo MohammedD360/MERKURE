@@ -7,14 +7,18 @@ import type { TradeData } from '../../brokers/adapters/broker-adapter.js'
 const COLUMN_ALIASES: Record<string, string[]> = {
   symbol:      ['symbol', 'instrument', 'pair', 'asset', 'ticker', 'currency pair', 'contract'],
   direction:   ['direction', 'type', 'side', 'action', 'buy/sell', 'trade type', 'order type', 'position type'],
-  openTime:    ['open time', 'open_time', 'opentime', 'entry time', 'entry_time', 'open date', 'open_date', 'date open', 'time', 'date'],
-  closeTime:   ['close time', 'close_time', 'closetime', 'exit time', 'exit_time', 'close date', 'close_date', 'date close'],
-  openPrice:   ['open price', 'open_price', 'openprice', 'entry price', 'entry_price', 'price open', 'open', 'entry'],
-  closePrice:  ['close price', 'close_price', 'closeprice', 'exit price', 'exit_price', 'price close', 'close', 'exit'],
+  openTime:    ['open time', 'open_time', 'opentime', 'entry time', 'entry_time', 'open date', 'open_date', 'date open', 'time', 'date', 'boughttimestamp', 'bought timestamp'],
+  closeTime:   ['close time', 'close_time', 'closetime', 'exit time', 'exit_time', 'close date', 'close_date', 'date close', 'soldtimestamp', 'sold timestamp'],
+  openPrice:   ['open price', 'open_price', 'openprice', 'entry price', 'entry_price', 'price open', 'open', 'entry', 'buyprice', 'buy price'],
+  closePrice:  ['close price', 'close_price', 'closeprice', 'exit price', 'exit_price', 'price close', 'close', 'exit', 'sellprice', 'sell price'],
   lotSize:     ['lot size', 'lot_size', 'lots', 'volume', 'quantity', 'qty', 'size', 'amount', 'units'],
   pnl:         ['pnl', 'p&l', 'profit', 'net profit', 'net_profit', 'profit/loss', 'realized pnl', 'gain/loss', 'result'],
   swap:        ['swap', 'rollover', 'financing'],
   commission:  ['commission', 'fee', 'fees', 'cost'],
+  // Tradovate Performance CSV — colonnes alternatives pour SHORT (position ouverte en vente)
+  _soldTimestamp: ['soldtimestamp', 'sold timestamp'],
+  _buyPrice:      ['buyprice', 'buy price'],
+  _sellPrice:     ['sellprice', 'sell price'],
 }
 
 // ── Normalise un header : minuscules, supprime les espaces multiples ──────────
@@ -64,6 +68,13 @@ function parseDate(raw: string): Date | null {
     return new Date(`${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}`)
   }
 
+  // MM/DD/YYYY HH:mm:ss (format Tradovate)
+  const tradovate = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/)
+  if (tradovate) {
+    const [, mm, dd, yyyy, hh, mi, ss] = tradovate
+    return new Date(`${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}`)
+  }
+
   // MM/DD/YYYY (format US)
   const us = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
   if (us) {
@@ -76,12 +87,12 @@ function parseDate(raw: string): Date | null {
 
 function parseNum(raw: string | undefined): number {
   if (!raw) return 0
-  return parseFloat(raw.replace(/[, ]/g, '')) || 0
+  return parseFloat(raw.replace(/[$,€£¥ ]/g, '').replace(/\(([^)]+)\)/, '-$1')) || 0
 }
 
 function parseNumOrNull(raw: string | undefined): number | null {
   if (!raw || raw.trim() === '' || raw.trim() === '-') return null
-  const n = parseFloat(raw.replace(/[, ]/g, ''))
+  const n = parseFloat(raw.replace(/[$,€£¥ ]/g, '').replace(/\(([^)]+)\)/, '-$1'))
   return isNaN(n) ? null : n
 }
 
@@ -130,8 +141,14 @@ export function parseCsvTrades(csvContent: string, options: CsvParseOptions = {}
   const headers = Object.keys(rows[0] ?? {})
   const colMap  = resolveColumnMap(headers)
 
-  const missing = (['symbol', 'direction', 'openTime', 'openPrice'] as const)
-    .filter(f => !colMap.has(f))
+  // Tradovate Performance CSV : direction inférée depuis boughtTimestamp vs soldTimestamp
+  const isTradovateFormat = colMap.has('_soldTimestamp') && colMap.has('_buyPrice') && colMap.has('_sellPrice')
+
+  const mandatoryFields = isTradovateFormat
+    ? (['symbol', 'openTime', 'openPrice'] as const)
+    : (['symbol', 'direction', 'openTime', 'openPrice'] as const)
+
+  const missing = mandatoryFields.filter(f => !colMap.has(f))
 
   if (missing.length > 0) {
     return {
@@ -154,29 +171,61 @@ export function parseCsvTrades(csvContent: string, options: CsvParseOptions = {}
       const symbol = get('symbol')
       if (!symbol) { skipped++; return }
 
-      const direction = parseDirection(get('direction') ?? '')
-      if (!direction) {
-        errors.push(`Ligne ${lineNum} : direction non reconnue "${get('direction')}"`)
-        skipped++
-        return
+      let direction: 'LONG' | 'SHORT' | null
+      let openTime:   Date | null
+      let closeTime:  Date | null
+      let openPrice:  number
+      let closePrice: number | null
+
+      if (isTradovateFormat) {
+        // Tradovate Performance CSV : direction depuis ordre chronologique
+        const boughtTs = parseDate(get('openTime') ?? '')  // boughtTimestamp mappé sur openTime
+        const soldTs   = parseDate(row[colMap.get('_soldTimestamp') ?? ''] ?? '')
+        const buyPrice = parseNum(row[colMap.get('_buyPrice') ?? ''])
+        const sellPrice = parseNumOrNull(row[colMap.get('_sellPrice') ?? ''])
+
+        if (!boughtTs || !soldTs) {
+          errors.push(`Ligne ${lineNum} : timestamps invalides`)
+          skipped++
+          return
+        }
+
+        const isLong = boughtTs <= soldTs
+        direction  = isLong ? 'LONG' : 'SHORT'
+        openTime   = isLong ? boughtTs : soldTs
+        closeTime  = isLong ? soldTs   : boughtTs
+        openPrice  = isLong ? buyPrice : (sellPrice ?? 0)
+        closePrice = isLong ? sellPrice : buyPrice
+      } else {
+        direction = parseDirection(get('direction') ?? '')
+        if (!direction) {
+          errors.push(`Ligne ${lineNum} : direction non reconnue "${get('direction')}"`)
+          skipped++
+          return
+        }
+
+        openTime = parseDate(get('openTime') ?? '')
+        if (!openTime) {
+          errors.push(`Ligne ${lineNum} : date d'ouverture invalide "${get('openTime')}"`)
+          skipped++
+          return
+        }
+
+        openPrice = parseNum(get('openPrice'))
+        closeTime  = parseDate(get('closeTime') ?? '')
+        closePrice = parseNumOrNull(get('closePrice'))
       }
 
-      const openTime = parseDate(get('openTime') ?? '')
       if (!openTime) {
-        errors.push(`Ligne ${lineNum} : date d'ouverture invalide "${get('openTime')}"`)
+        errors.push(`Ligne ${lineNum} : date d'ouverture invalide`)
         skipped++
         return
       }
-
-      const openPrice = parseNum(get('openPrice'))
       if (openPrice === 0) {
         errors.push(`Ligne ${lineNum} : prix d'ouverture invalide`)
         skipped++
         return
       }
-
-      const closeTime  = parseDate(get('closeTime') ?? '')
-      const closePrice = parseNumOrNull(get('closePrice'))
       const pnl        = parseNumOrNull(get('pnl'))
 
       trades.push({
