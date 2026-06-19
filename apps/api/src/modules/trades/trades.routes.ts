@@ -3,7 +3,7 @@ import { ZodError } from 'zod'
 import { authenticate } from '../../middleware/auth.js'
 import { cache, CacheKeys } from '../../infrastructure/cache/redis.js'
 import { tradesRepository } from './trades.repository.js'
-import { TradesQuerySchema, AnnotateTradeSchema } from './trades.types.js'
+import { TradesQuerySchema, AnnotateTradeSchema, CreateTradeSchema } from './trades.types.js'
 import { prisma } from '../../infrastructure/database/client.js'
 import type { Direction, TradeStatus } from '@prisma/client'
 import { CAN_EXPORT_TRADES, TRADE_HISTORY_DAYS, upgradeRequired } from '../../middleware/plan-limits.js'
@@ -136,7 +136,6 @@ export async function tradesRoutes(app: FastifyInstance) {
       if (!trade) return reply.code(404).send({ error: 'trade_not_found' })
 
       const updated = await tradesRepository.annotate(req.params.id, req.user.id, input)
-      // Invalide le cache trades pour que la liste reflète l'annotation
       await cache.delPattern(`trades:${req.user.id}:*`)
       return updated
     } catch (err) {
@@ -145,5 +144,62 @@ export async function tradesRoutes(app: FastifyInstance) {
       }
       throw err
     }
+  })
+
+  app.post<{ Body: unknown }>('/', { preHandler: [authenticate] }, async (req, reply) => {
+    try {
+      const input = CreateTradeSchema.parse(req.body)
+
+      const account = await prisma.brokerAccount.findFirst({
+        where: { id: input.brokerAccountId, userId: req.user.id },
+      })
+      if (!account) return reply.code(404).send({ error: 'account_not_found' })
+
+      const trade = await prisma.trade.create({
+        data: {
+          brokerAccountId: input.brokerAccountId,
+          userId:          req.user.id,
+          symbol:          input.symbol,
+          direction:       input.direction,
+          status:          input.status,
+          openTime:        new Date(input.openTime),
+          closeTime:       input.closeTime ? new Date(input.closeTime) : null,
+          openPrice:       input.openPrice,
+          closePrice:      input.closePrice ?? null,
+          lotSize:         input.lotSize,
+          pnl:             input.pnl ?? null,
+          swap:            input.swap,
+          commission:      input.commission,
+          strategyTag:     input.strategyTag ?? null,
+          note:            input.note ?? null,
+        },
+      })
+
+      await Promise.all([
+        cache.delPattern(`trades:${req.user.id}:*`),
+        cache.delPattern(`kpis:${req.user.id}:*`),
+      ])
+
+      return reply.code(201).send(trade)
+    } catch (err) {
+      if (err instanceof ZodError) {
+        return reply.code(400).send({ error: 'validation_error', details: err.errors })
+      }
+      throw err
+    }
+  })
+
+  app.delete<{ Params: { id: string } }>('/:id', { preHandler: [authenticate] }, async (req, reply) => {
+    const trade = await tradesRepository.findById(req.params.id, req.user.id)
+    if (!trade) return reply.code(404).send({ error: 'trade_not_found' })
+
+    await prisma.trade.delete({ where: { id: req.params.id } })
+
+    await Promise.all([
+      cache.delPattern(`trades:${req.user.id}:*`),
+      cache.delPattern(`kpis:${req.user.id}:*`),
+    ])
+
+    return reply.code(204).send()
   })
 }

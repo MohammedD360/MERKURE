@@ -19,3 +19,22 @@ export const AnnotateTradeSchema = z.object({
 })
 
 export type AnnotateTradeInput = z.infer<typeof AnnotateTradeSchema>
+
+export const CreateTradeSchema = z.object({
+  brokerAccountId: z.string().uuid(),
+  symbol:          z.string().min(1).max(20).transform(s => s.toUpperCase()),
+  direction:       z.enum(['LONG', 'SHORT']),
+  status:          z.enum(['OPEN', 'CLOSED']).default('CLOSED'),
+  openTime:        z.string().datetime({ offset: true }),
+  closeTime:       z.string().datetime({ offset: true }).optional().nullable(),
+  openPrice:       z.coerce.number().positive(),
+  closePrice:      z.coerce.number().positive().optional().nullable(),
+  lotSize:         z.coerce.number().positive(),
+  pnl:             z.coerce.number().optional().nullable(),
+  swap:            z.coerce.number().default(0),
+  commission:      z.coerce.number().default(0),
+  strategyTag:     z.string().max(100).optional().nullable(),
+  note:            z.string().max(2000).optional().nullable(),
+})
+
+export type CreateTradeInput = z.infer<typeof CreateTradeSchema>
