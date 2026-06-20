@@ -317,7 +317,15 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
             <div className="space-y-2">
               {BROKERS.map(broker => (
                 <button key={broker}
-                  onClick={() => { setSelected(broker); setStep('form') }}
+                  onClick={() => {
+                    setSelected(broker)
+                    // Pre-remplir le libellé selon le broker si vide
+                    setForm(f => ({
+                      ...f,
+                      label: f.label || (broker === 'TRADOVATE' ? 'Apex – Challenge $25K' : ''),
+                    }))
+                    setStep('form')
+                  }}
                   className="group flex w-full items-center gap-4 rounded-xl border border-[hsl(var(--border))] bg-background p-3.5 text-left transition-colors hover:border-[hsl(var(--primary)/0.3)] hover:bg-[hsl(var(--primary)/0.06)]"
                 >
                   <BrokerLogo broker={broker} />
@@ -398,17 +406,28 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
 
         {/* Footer */}
         {step === 'form' && (
-          <div className="flex gap-3 border-t border-[hsl(var(--border))] px-6 py-4">
-            <button onClick={() => setStep('choose')}
-              className="flex-1 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))] py-2.5 text-sm font-black text-muted-foreground transition-colors hover:bg-[hsl(var(--accent))] hover:text-foreground">
-              Annuler
-            </button>
-            <button onClick={handleConnect} disabled={isPending || !isFormValid()}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] py-2.5 text-sm font-black text-white transition-colors hover:bg-[hsl(244_42%_44%)] disabled:cursor-not-allowed disabled:opacity-50">
-              {isPending ? (
-                <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Connexion…</>
-              ) : 'Connecter le compte'}
-            </button>
+          <div className="border-t border-[hsl(var(--border))] px-6 py-4 space-y-2">
+            <div className="flex gap-3">
+              <button onClick={() => setStep('choose')}
+                className="flex-1 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))] py-2.5 text-sm font-black text-muted-foreground transition-colors hover:bg-[hsl(var(--accent))] hover:text-foreground">
+                Annuler
+              </button>
+              <button onClick={handleConnect} disabled={isPending || !isFormValid()}
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] py-2.5 text-sm font-black text-white transition-colors hover:bg-[hsl(244_42%_44%)] disabled:cursor-not-allowed disabled:opacity-50">
+                {isPending ? (
+                  <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Connexion…</>
+                ) : 'Connecter le compte'}
+              </button>
+            </div>
+            {!isFormValid() && !isPending && (
+              <p className="text-center text-[11px] font-semibold text-muted-foreground/70">
+                {!form.label.trim()
+                  ? 'Renseignez le libellé du compte pour continuer'
+                  : selected === 'TRADOVATE' && (!form.tvUsername.trim() || !form.tvPassword.trim())
+                  ? 'Email et mot de passe Tradovate requis'
+                  : 'Remplissez tous les champs requis'}
+              </p>
+            )}
           </div>
         )}
         {step === 'success' && (
