@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify'
 import { authenticate } from '../../../middleware/auth.js'
 import { prisma } from '../../../infrastructure/database/client.js'
 import { parseCsvTrades } from './csv-parser.js'
+import { recalculateKpiSnapshots } from '../../kpis/kpi-snapshots.js'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024  // 5 MB
 const ALLOWED_TYPES = new Set(['text/csv', 'text/plain', 'application/csv', 'application/octet-stream'])
@@ -123,6 +124,15 @@ export async function csvImportRoutes(app: FastifyInstance) {
         importErrors.push(`Impossible d'importer le trade ${trade.externalId}`)
         dbSkipped++
       }
+    }
+
+    // Recalcule les KPI snapshots pour que le dashboard reflète les nouveaux trades
+    if (imported > 0) {
+      const oldest = trades.reduce(
+        (d, t) => (t.openTime < d ? t.openTime : d),
+        trades[0]!.openTime,
+      )
+      recalculateKpiSnapshots(req.user.id, oldest).catch(() => {})
     }
 
     return reply.code(201).send({
