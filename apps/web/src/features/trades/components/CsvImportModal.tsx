@@ -8,8 +8,9 @@ import { getToken } from '@/lib/api-client'
 import { useAccounts } from '@/lib/hooks/use-accounts'
 
 interface Props {
-  open:    boolean
-  onClose: () => void
+  open:                 boolean
+  onClose:             () => void
+  preselectedAccountId?: string | undefined
 }
 
 interface ImportResult {
@@ -32,14 +33,14 @@ const TRADOVATE_COLUMNS = [
   { col: 'Commission', ex: '-4.34' },
 ]
 
-export function CsvImportModal({ open, onClose }: Props) {
+export function CsvImportModal({ open, onClose, preselectedAccountId }: Props) {
   const queryClient = useQueryClient()
   const { data: accounts = [] } = useAccounts()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [mounted, setMounted] = useState(false)
 
   const [file,       setFile]       = useState<File | null>(null)
-  const [accountId,  setAccountId]  = useState('')
+  const [accountId,  setAccountId]  = useState(preselectedAccountId ?? '')
   const [dragging,   setDragging]   = useState(false)
   const [loading,    setLoading]    = useState(false)
   const [result,     setResult]     = useState<ImportResult | null>(null)
@@ -47,6 +48,7 @@ export function CsvImportModal({ open, onClose }: Props) {
   const [error,      setError]      = useState<string | null>(null)
 
   useEffect(() => { setMounted(true) }, [])
+  useEffect(() => { if (preselectedAccountId) setAccountId(preselectedAccountId) }, [preselectedAccountId])
 
   const reset = () => {
     setFile(null); setResult(null); setError(null); setShowFormat(false)

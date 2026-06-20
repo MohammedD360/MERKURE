@@ -8,6 +8,7 @@ import {
   Loader2,
   RefreshCw,
   Unlink,
+  Upload,
   Wifi,
   WifiOff,
 } from 'lucide-react'
@@ -116,9 +117,10 @@ function InfoItem({ label, value, helper }: { label: string; value: string; help
 interface Props {
   compte: BrokerAccount
   onNavigateToTrades?: (accountId: string) => void
+  onImportCsv?: (accountId: string) => void
 }
 
-export function CompteCard({ compte, onNavigateToTrades }: Props) {
+export function CompteCard({ compte, onNavigateToTrades, onImportCsv }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const meta = brokerMeta[compte.brokerType as BrokerType] ?? brokerMeta.MT5
   const hasError = compte.syncStatus === 'ERROR'
@@ -215,13 +217,24 @@ export function CompteCard({ compte, onNavigateToTrades }: Props) {
           <div className="mt-4 flex flex-col gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 sm:flex-row sm:items-start">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
             <p className="flex-1 text-xs font-semibold leading-6 text-red-500">{compte.syncError}</p>
-            <button
-              onClick={handleSync}
-              disabled={syncing}
-              className="text-left text-xs font-black text-red-500 transition-colors hover:text-foreground disabled:opacity-45 sm:text-right"
-            >
-              Relancer
-            </button>
+            <div className="flex shrink-0 items-center gap-3">
+              {compte.brokerType === 'TRADOVATE' && onImportCsv && (
+                <button
+                  onClick={() => onImportCsv(compte.id)}
+                  className="inline-flex items-center gap-1.5 text-xs font-black text-emerald-600 transition-colors hover:text-emerald-700"
+                >
+                  <Upload className="h-3.5 w-3.5" />
+                  Import CSV
+                </button>
+              )}
+              <button
+                onClick={handleSync}
+                disabled={syncing}
+                className="text-xs font-black text-red-500 transition-colors hover:text-foreground disabled:opacity-45"
+              >
+                Relancer
+              </button>
+            </div>
           </div>
         )}
       </div>

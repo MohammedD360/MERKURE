@@ -105,9 +105,14 @@ export class TradovateAdapter implements BrokerAdapter {
   private baseUrl     = 'https://demo.tradovateapi.com/v1'  // Apex utilise l'env demo/sim
   private accessToken = ''
   private accountId   = 0
-  private productCache = new Map<number, TradovateProduct>()
 
   async connect(credentials: Record<string, string>): Promise<void> {
+    if (!env.TRADOVATE_CID || !env.TRADOVATE_SEC) {
+      throw new Error(
+        'Sync automatique non configuré — importez vos trades via CSV (Export → Performance dans Tradovate)',
+      )
+    }
+
     const environment = (credentials['environment'] ?? 'demo') as 'live' | 'demo'
     this.baseUrl   = environment === 'live'
       ? 'https://live.tradovateapi.com/v1'

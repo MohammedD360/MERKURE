@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { AlertTriangle, BarChart2, Link2, Plus, RefreshCw, ShieldCheck, Wallet } from 'lucide-react'
 import { CompteCard } from './components/CompteCard'
 import { ConnectBrokerModal } from './components/ConnectBrokerModal'
+import { CsvImportModal } from '@/features/trades/components/CsvImportModal'
 import { useAccounts, useSyncAccount } from '@/lib/hooks/use-accounts'
 
 function StatCard({
@@ -64,6 +65,7 @@ function Skeleton() {
 
 export function ComptesPage() {
   const [modalOpen, setModalOpen] = useState(false)
+  const [csvAccountId, setCsvAccountId] = useState<string | undefined>(undefined)
   const { data: comptes = [], isLoading, error } = useAccounts()
   const { mutate: syncAll, isPending: syncingAll } = useSyncAccount()
   const router = useRouter()
@@ -179,6 +181,7 @@ export function ComptesPage() {
                   key={compte.id}
                   compte={compte}
                   onNavigateToTrades={handleNavigateToTrades}
+                  onImportCsv={id => setCsvAccountId(id)}
                 />
               ))}
             </div>
@@ -206,6 +209,11 @@ export function ComptesPage() {
       </div>
 
       <ConnectBrokerModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <CsvImportModal
+        open={csvAccountId !== undefined}
+        preselectedAccountId={csvAccountId}
+        onClose={() => setCsvAccountId(undefined)}
+      />
     </>
   )
 }
