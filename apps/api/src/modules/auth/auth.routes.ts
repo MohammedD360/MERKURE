@@ -24,7 +24,8 @@ export async function authRoutes(app: FastifyInstance) {
     const parsed = RegisterSchema.safeParse(req.body)
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_body' })
 
-    const { email, password, firstName, lastName } = parsed.data
+    const { email: rawEmail, password, firstName, lastName } = parsed.data
+    const email = rawEmail.toLowerCase().trim()
 
     const existing = await prisma.user.findFirst({ where: { email } })
     if (existing) return reply.code(409).send({ error: 'email_already_exists' })
@@ -72,7 +73,8 @@ export async function authRoutes(app: FastifyInstance) {
       const parsed = LoginSchema.safeParse(req.body)
       if (!parsed.success) return reply.code(400).send({ error: 'invalid_body' })
 
-      const { email, password } = parsed.data
+      const { email: rawEmail, password } = parsed.data
+      const email = rawEmail.toLowerCase().trim()
 
       const user = await prisma.user.findFirst({
         where: { email },
