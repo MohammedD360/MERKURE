@@ -17,7 +17,6 @@ export type Page =
   | 'alerts'
   | 'settings'
   | 'profile'
-  | 'ia'
   | 'iaBiais'
   | 'iaRapport'
   | 'iaCoach'
@@ -32,3 +31,4 @@ export type Page =
   | 'botCreate'
   | 'botPerformance'
   | 'botHistory'
+  | 'tradingPlan'

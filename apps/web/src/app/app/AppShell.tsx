@@ -22,7 +22,6 @@ const pageToPath: Partial<Record<Page, string>> = {
   settings:      '/app/settings',
   profile:       '/app/profile',
   rapports:      '/app/reports',
-  ia:            '/app/ia',
   iaBiais:       '/app/ia/biais',
   iaRapport:     '/app/ia/rapport',
   iaCoach:       '/app/ia/coach',
@@ -32,6 +31,7 @@ const pageToPath: Partial<Record<Page, string>> = {
   iaHistory:     '/app/ia/history',
   iaBenchmark:   '/app/ia/benchmark',
   iaPropfirm:    '/app/ia/propfirm',
+  tradingPlan:   '/app/trading-plan',
   academy:       '/app/academy',
   botTrading:    '/app/bots',
   botCreate:     '/app/bots/create',
@@ -94,10 +94,6 @@ const headerCopy: Record<KnownPage, { title: string; description: string }> = {
     title:       'Rapports',
     description: 'Rapports hebdomadaires PDF',
   },
-  ia: {
-    title:       'Intelligence IA',
-    description: 'Modules IA, rapports et coaching comportemental',
-  },
   iaBiais: {
     title:       'Biais comportementaux',
     description: 'Détection des erreurs récurrentes et patterns émotionnels',
@@ -133,6 +129,10 @@ const headerCopy: Record<KnownPage, { title: string; description: string }> = {
   iaPropfirm: {
     title:       'Prop firms',
     description: 'Compatibilité entre votre profil de trading et les règles prop firm',
+  },
+  tradingPlan: {
+    title:       'Plan de Trading',
+    description: 'Stratégie NAS100 Élite — 7 phases de la fondation au trading professionnel',
   },
   academy: {
     title:       'Académie',
@@ -202,8 +202,8 @@ function getCurrentPage(pathname: string): KnownPage {
   if (pathname.startsWith('/app/ia/coach'))      return 'iaCoach'
   if (pathname.startsWith('/app/ia/simulation')) return 'iaSimulation'
   if (pathname.startsWith('/app/ia/benchmark'))  return 'iaBenchmark'
-  if (pathname.startsWith('/app/ia/propfirm'))   return 'iaPropfirm'
-  if (pathname.startsWith('/app/ia'))          return 'ia'
+  if (pathname.startsWith('/app/ia/propfirm'))     return 'iaPropfirm'
+  if (pathname.startsWith('/app/trading-plan'))    return 'tradingPlan'
   return 'dashboard'
 }
 

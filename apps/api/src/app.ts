@@ -34,6 +34,7 @@ import { usersRoutes } from './modules/users/users.routes.js'
 import { portfolioRoutes } from './modules/portfolio/portfolio.routes.js'
 import { statsRoutes } from './modules/stats/stats.routes.js'
 import { journalRoutes } from './modules/journal/journal.routes.js'
+import { propFirmRoutes } from './modules/prop-firm/prop-firm.routes.js'
 
 function getBearerToken(request: FastifyRequest): string | null {
   const auth = request.headers.authorization
@@ -176,6 +177,7 @@ export function buildApp(): FastifyInstance {
   void app.register(portfolioRoutes,    { prefix: '/api/v1/portfolio' })
   void app.register(statsRoutes,        { prefix: '/api/v1/stats' })
   void app.register(journalRoutes,      { prefix: '/api/v1/journal' })
+  void app.register(propFirmRoutes,     { prefix: '/api/v1/prop-firm' })
 
   // ─── WebSocket ────────────────────────────────────────────────────────────────
   void app.register(registerWsHandler)

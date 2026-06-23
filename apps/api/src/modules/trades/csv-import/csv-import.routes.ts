@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import { authenticate } from '../../../middleware/auth.js'
 import { prisma } from '../../../infrastructure/database/client.js'
+import { cache } from '../../../infrastructure/cache/redis.js'
 import { parseCsvTrades } from './csv-parser.js'
 import { recalculateKpiSnapshots } from '../../kpis/kpi-snapshots.js'
 
@@ -126,13 +127,15 @@ export async function csvImportRoutes(app: FastifyInstance) {
       }
     }
 
-    // Recalcule les KPI snapshots pour que le dashboard reflète les nouveaux trades
+    // Recalcule les KPI snapshots et invalide le cache Redis avant de répondre
     if (imported > 0) {
       const oldest = trades.reduce(
         (d, t) => (t.openTime < d ? t.openTime : d),
         trades[0]!.openTime,
       )
-      recalculateKpiSnapshots(req.user.id, oldest).catch(() => {})
+      await recalculateKpiSnapshots(req.user.id, oldest)
+      await cache.delPattern(`kpis:${req.user.id}:*`)
+      await cache.delPattern(`trades:${req.user.id}:*`)
     }
 
     return reply.code(201).send({

@@ -2,6 +2,8 @@ import type { FastifyInstance } from 'fastify'
 import { authenticate } from '../../middleware/auth.js'
 import { cache, CacheKeys } from '../../infrastructure/cache/redis.js'
 import { kpisRepository, type Period } from './kpis.repository.js'
+import { calculateAiScore } from './ai-score.js'
+import { detectBehavioralPatterns } from './behavioral-detection.js'
 import { CAN_ACCESS_ADVANCED_KPIS, KPI_MAX_PERIOD_DAYS, upgradeRequired } from '../../middleware/plan-limits.js'
 
 const VALID_PERIODS = new Set<string>(['7d', '30d', '90d', '1y', 'all'])
@@ -119,6 +121,46 @@ export async function kpisRoutes(app: FastifyInstance) {
       if (cached) return cached
 
       const data = await kpisRepository.getSnapshots(req.user.id, from, to, accountId)
+      await cache.set(cacheKey, data, CACHE_TTL)
+      return data
+    },
+  )
+
+  /**
+   * GET /api/v1/kpis/ai-score?period=30d
+   * Score global IA (0-100) — accessible à tous les plans.
+   */
+  app.get<{ Querystring: { period?: string } }>(
+    '/ai-score',
+    { preHandler: [authenticate] },
+    async (req) => {
+      const period   = (VALID_PERIODS.has(req.query.period ?? '') ? req.query.period : '30d') as Period
+      const cacheKey = `kpis:ai-score:${req.user.id}:${period}`
+
+      const cached = await cache.get<object>(cacheKey)
+      if (cached) return cached
+
+      const data = await calculateAiScore(req.user.id, period)
+      await cache.set(cacheKey, data, CACHE_TTL)
+      return data
+    },
+  )
+
+  /**
+   * GET /api/v1/kpis/behavioral?period=30d
+   * Détection des 6 patterns comportementaux — Pro+.
+   */
+  app.get<{ Querystring: { period?: string } }>(
+    '/behavioral',
+    { preHandler: [authenticate] },
+    async (req) => {
+      const period   = (VALID_PERIODS.has(req.query.period ?? '') ? req.query.period : '30d') as Period
+      const cacheKey = `kpis:behavioral:${req.user.id}:${period}`
+
+      const cached = await cache.get<object>(cacheKey)
+      if (cached) return cached
+
+      const data = await detectBehavioralPatterns(req.user.id, period)
       await cache.set(cacheKey, data, CACHE_TTL)
       return data
     },

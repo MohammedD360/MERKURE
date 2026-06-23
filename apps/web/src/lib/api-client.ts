@@ -103,6 +103,37 @@ export interface KpiBreakdown {
   }[]
 }
 
+export interface BehavioralPatternResult {
+  type:     string
+  detected: boolean
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | null
+  count:    number
+  total:    number
+  pct:      number
+  detail:   string
+  impact:   string | null
+}
+
+export interface BehavioralData {
+  patterns:   BehavioralPatternResult[]
+  nbTrades:   number
+  alertCount: number
+}
+
+export interface AiScore {
+  score:    number
+  label:    'Insuffisant' | 'Moyen' | 'Bon' | 'Excellent'
+  nbTrades: number
+  breakdown: {
+    winRate:      number
+    profitFactor: number
+    drawdown:     number
+    rrMoyen:      number
+    discipline:   number
+    consistency:  number
+  }
+}
+
 export interface AiJournalEntry {
   id:         string
   date:       string
@@ -159,6 +190,18 @@ export interface UserProfile {
   } | null
 }
 
+export interface PropFirmCompliance {
+  profitAmount:   number
+  profitPct:      number
+  dailyDdPct:     number
+  maxDdPct:       number
+  tradingDays:    number
+  tradesToday:    number
+  nbTrades:       number
+  consistencyPct: number
+  bestDayProfit:  number
+}
+
 // ── API methods ───────────────────────────────────────────────────────────────
 
 export const api = {
@@ -185,6 +228,20 @@ export const api = {
       const qs = new URLSearchParams({ period })
       if (accountId) qs.set('accountId', accountId)
       return apiFetch<KpiBreakdown>(`/api/v1/kpis/breakdown?${qs.toString()}`)
+    },
+
+    aiScore: (period = '30d') =>
+      apiFetch<AiScore>(`/api/v1/kpis/ai-score?period=${period}`),
+
+    behavioral: (period = '30d') =>
+      apiFetch<BehavioralData>(`/api/v1/kpis/behavioral?period=${period}`),
+  },
+
+  propFirm: {
+    compliance: (accountSize: number, from?: string) => {
+      const qs = new URLSearchParams({ accountSize: String(accountSize) })
+      if (from) qs.set('from', from)
+      return apiFetch<PropFirmCompliance>(`/api/v1/prop-firm/compliance?${qs}`)
     },
   },
 

@@ -82,4 +82,27 @@ export function useKpiBreakdown(period: KpiPeriod = '30d', accountId?: string, e
   })
 }
 
+export function useBehavioral(period: KpiPeriod = '30d') {
+  return useQuery({
+    queryKey: ['kpis', 'behavioral', period],
+    queryFn:  () => api.kpis.behavioral(period),
+  })
+}
+
+export function useAiScore(period: KpiPeriod = '30d') {
+  return useQuery({
+    queryKey: ['kpis', 'ai-score', period],
+    queryFn:  () => api.kpis.aiScore(period),
+  })
+}
+
+export function usePropFirmCompliance(accountSize: number, from?: string) {
+  return useQuery({
+    queryKey: ['prop-firm', 'compliance', accountSize, from ?? 'all'],
+    queryFn:  () => api.propFirm.compliance(accountSize, from),
+    enabled:  accountSize > 0,
+    refetchInterval: 2 * 60 * 1000,
+  })
+}
+
 export { chartPeriodToApiPeriod }

@@ -2,7 +2,7 @@
 
 import {
   BarChart3, Bot, BookOpen, BrainCircuit, ChevronDown, ChevronRight,
-  Clock3, FileText, GraduationCap, History, LayoutDashboard, LineChart,
+  Clock3, ClipboardList, FileText, GraduationCap, History, LayoutDashboard, LineChart,
   MessageSquare, PlusCircle, Settings2, Sparkles, Trophy, X, Zap,
 } from 'lucide-react'
 import type { ElementType } from 'react'
@@ -52,6 +52,7 @@ const NAV_ITEMS: NavEntry[] = [
       { icon: LineChart,       label: 'Performance',     page: 'performance' },
       { icon: BarChart3,       label: 'Statistiques',    page: 'statistiques' },
       { icon: BookOpen,        label: 'Journal de Trading', page: 'journal' },
+      { icon: ClipboardList,   label: 'Plan de Trading',    page: 'tradingPlan' },
     ],
   },
   {
@@ -60,7 +61,6 @@ const NAV_ITEMS: NavEntry[] = [
     label: 'IA & Analyses',
     badge: 'IA',
     items: [
-      { icon: Sparkles,     label: 'Vue IA', page: 'ia' },
       { icon: FileText,     label: 'Rapport de Performance', page: 'iaRapport' },
       { icon: BrainCircuit, label: 'Validateur de Stratégie', page: 'iaStrategyValidator' },
       { icon: MessageSquare,label: 'Chat IA', page: 'iaChat', badge: 'Elite' },

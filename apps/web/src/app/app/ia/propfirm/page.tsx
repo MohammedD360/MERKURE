@@ -1,5 +1,5 @@
-import { IaPropfirmPage } from '@/features/ia/pages/IaPropfirmPage'
+import { PropFirmPage } from '@/features/prop-firm/PropFirmPage'
 
 export default function Page() {
-  return <IaPropfirmPage />
+  return <PropFirmPage />
 }
