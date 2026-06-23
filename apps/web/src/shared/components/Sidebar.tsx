@@ -2,7 +2,7 @@
 
 import {
   BarChart3, Bot, BookOpen, BrainCircuit, ChevronDown, ChevronRight,
-  Clock3, ClipboardList, FileText, GraduationCap, History, LayoutDashboard, LineChart,
+  Clock3, ClipboardList, FileText, History, LayoutDashboard, LineChart,
   MessageSquare, PlusCircle, Settings2, Sparkles, Trophy, X, Zap,
 } from 'lucide-react'
 import type { ElementType } from 'react'
@@ -67,9 +67,8 @@ const NAV_ITEMS: NavEntry[] = [
       { icon: History,      label: 'Historique', page: 'iaHistory' },
     ],
   },
-  { icon: Trophy,        label: 'Prop Firm', page: 'iaPropfirm' },
-  { icon: Clock3,        label: 'Comptes',   page: 'comptes' },
-  { icon: GraduationCap, label: 'Académie',  page: 'academy' },
+  { icon: Trophy, label: 'Prop Firm', page: 'iaPropfirm' },
+  { icon: Clock3, label: 'Comptes',   page: 'comptes' },
   {
     type: 'group',
     icon: Bot,

@@ -36,7 +36,6 @@ const SEARCH_ITEMS = [
   { title: "Simulation", description: "Scénarios et what-if", href: "/app/ia/simulation", keywords: ["simulation", "what if", "backtest"] },
   { title: "Benchmark", description: "Comparaison anonymisée", href: "/app/ia/benchmark", keywords: ["benchmark", 'classement'] },
   { title: "Prop firms", description: "Compatibilité avec votre profil", href: "/app/ia/propfirm", keywords: ["prop firm", 'challenge'] },
-  { title: "Académie", description: "Parcours et ressources de formation", href: "/app/academy", keywords: ["académie", "formation", "ressources"] },
   { title: "Bot Trading", description: "Supervision des automatisations", href: "/app/bots", keywords: ["bot", "trading automatique", "algo"] },
   { title: "Créer un Bot", description: "Configurer une automatisation", href: "/app/bots/create", keywords: ["bot", "créer", "automatisation"] },
   { title: "Performance des Bots", description: "Résultats et stabilité des bots", href: "/app/bots/performance", keywords: ["bot", "performance", "drawdown"] },

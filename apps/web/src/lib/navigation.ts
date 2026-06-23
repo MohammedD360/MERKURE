@@ -26,7 +26,6 @@ export type Page =
   | 'iaHistory'
   | 'iaBenchmark'
   | 'iaPropfirm'
-  | 'academy'
   | 'botTrading'
   | 'botCreate'
   | 'botPerformance'

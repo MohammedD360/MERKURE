@@ -32,7 +32,6 @@ const pageToPath: Partial<Record<Page, string>> = {
   iaBenchmark:   '/app/ia/benchmark',
   iaPropfirm:    '/app/ia/propfirm',
   tradingPlan:   '/app/trading-plan',
-  academy:       '/app/academy',
   botTrading:    '/app/bots',
   botCreate:     '/app/bots/create',
   botPerformance:'/app/bots/performance',
@@ -134,10 +133,6 @@ const headerCopy: Record<KnownPage, { title: string; description: string }> = {
     title:       'Plan de Trading',
     description: 'Stratégie NAS100 Élite — 7 phases de la fondation au trading professionnel',
   },
-  academy: {
-    title:       'Académie',
-    description: 'Parcours, ressources et formations contextualisées',
-  },
   botTrading: {
     title:       'Bot Trading',
     description: 'Supervision de vos automatisations et règles de trading',
@@ -181,7 +176,6 @@ function getCurrentPage(pathname: string): KnownPage {
   if (pathname.startsWith('/app/bots/performance')) return 'botPerformance'
   if (pathname.startsWith('/app/bots/history')) return 'botHistory'
   if (pathname.startsWith('/app/bots')) return 'botTrading'
-  if (pathname.startsWith('/app/academy')) return 'academy'
   if (pathname.startsWith('/app/accounts'))      return 'comptes'
   if (pathname.startsWith('/app/portefeuille')) return 'portefeuille'
   if (pathname.startsWith('/app/positions'))   return 'positions'
