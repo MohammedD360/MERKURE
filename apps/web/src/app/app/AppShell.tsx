@@ -23,7 +23,6 @@ const pageToPath: Partial<Record<Page, string>> = {
   profile:       '/app/profile',
   rapports:      '/app/reports',
   iaBiais:       '/app/ia/biais',
-  iaRapport:     '/app/ia/rapport',
   iaCoach:       '/app/ia/coach',
   iaSimulation:  '/app/ia/simulation',
   iaStrategyValidator: '/app/ia/strategy-validator',
@@ -97,10 +96,6 @@ const headerCopy: Record<KnownPage, { title: string; description: string }> = {
     title:       'Biais comportementaux',
     description: 'Détection des erreurs récurrentes et patterns émotionnels',
   },
-  iaRapport: {
-    title:       'Rapport IA',
-    description: 'Synthèse narrative de vos performances et actions prioritaires',
-  },
   iaCoach: {
     title:       'Coach de discipline',
     description: 'Alertes de discipline et prévention des décisions impulsives',
@@ -131,7 +126,7 @@ const headerCopy: Record<KnownPage, { title: string; description: string }> = {
   },
   tradingPlan: {
     title:       'Plan de Trading',
-    description: 'Stratégie NAS100 Élite — 7 phases de la fondation au trading professionnel',
+    description: 'Construisez votre plan, suivez-le et améliorez-vous chaque jour.',
   },
   botTrading: {
     title:       'Bot Trading',
@@ -192,7 +187,6 @@ function getCurrentPage(pathname: string): KnownPage {
   if (pathname.startsWith('/app/ia/chat'))       return 'iaChat'
   if (pathname.startsWith('/app/ia/history'))    return 'iaHistory'
   if (pathname.startsWith('/app/ia/biais'))      return 'iaBiais'
-  if (pathname.startsWith('/app/ia/rapport'))    return 'iaRapport'
   if (pathname.startsWith('/app/ia/coach'))      return 'iaCoach'
   if (pathname.startsWith('/app/ia/simulation')) return 'iaSimulation'
   if (pathname.startsWith('/app/ia/benchmark'))  return 'iaBenchmark'

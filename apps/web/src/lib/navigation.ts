@@ -18,7 +18,6 @@ export type Page =
   | 'settings'
   | 'profile'
   | 'iaBiais'
-  | 'iaRapport'
   | 'iaCoach'
   | 'iaSimulation'
   | 'iaStrategyValidator'
