@@ -1,0 +1,38 @@
+# ─────────────────────────────────────────────
+# Worker Bot Trading (Polymarket) — déploiement OVH VPS
+# ─────────────────────────────────────────────
+# Ce compose ne lance QUE le worker BullMQ qui fait tourner l'agent Claude
+# de trading — pas l'API HTTP ni le frontend, qui restent sur leur
+# hébergement habituel (Railway/Vercel). Le worker se connecte à la même
+# base Postgres et au même Redis que l'API principale via les variables
+# d'environnement ci-dessous (voir .env.bot-worker.example).
+#
+# Usage sur le VPS :
+#   cp .env.bot-worker.example .env.bot-worker
+#   # renseigner DATABASE_URL, REDIS_URL, ANTHROPIC_API_KEY, ENCRYPTION_KEY,
+#   # POLYMARKET_CLOB_URL, DUNE_API_KEY, DUNE_WHALE_QUERY_ID
+#   docker compose -f docker-compose.bot-worker.yml up -d --build
+
+services:
+  bot-worker:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    container_name: merkure_bot_worker
+    restart: unless-stopped
+    command: ["node", "dist/worker.js"]
+    env_file:
+      - .env.bot-worker
+    environment:
+      NODE_ENV: production
+    healthcheck:
+      # Pas de port HTTP exposé — on vérifie juste que le process Node tourne.
+      test: ["CMD-SHELL", "pgrep -f 'dist/worker.js' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
