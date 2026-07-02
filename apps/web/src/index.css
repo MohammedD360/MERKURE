@@ -68,6 +68,66 @@
     --color-profit: 34 197 94;
     --color-loss:   239 68 68;
   }
+
+  /* ─── Bot Trading — "salle de marché" dark cyberpunk ──────────────────────
+     Scope isolé : ne s'applique qu'au contenu sous /app/bots (voir
+     app/app/bots/layout.tsx). Réutilise les mêmes variables sémantiques
+     shadcn (--background, --primary, etc.) donc tous les composants
+     existants (Card, Button, Badge...) se re-thèment automatiquement
+     sans modification, exactement comme le ferait une classe `.dark`. */
+  .bot-terminal {
+    --background:             0 0% 5%;             /* #0d0d0d */
+    --background-alt:         300 15% 8%;
+    --foreground:             0 0% 96%;
+    --foreground-soft:        280 8% 65%;
+
+    --card:                   285 20% 7%;
+    --card-foreground:        0 0% 96%;
+    --popover:                285 25% 6%;
+    --popover-foreground:     0 0% 96%;
+
+    --primary:                322 100% 60%;         /* magenta néon */
+    --primary-foreground:    0 0% 100%;
+
+    --secondary:              280 15% 12%;
+    --secondary-foreground:   0 0% 96%;
+    --muted:                  280 15% 12%;
+    --muted-foreground:       280 8% 60%;
+    --accent:                 322 60% 18%;
+    --accent-foreground:      322 100% 75%;
+
+    --destructive:            0 90% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border:                 300 30% 18%;
+    --input:                  300 30% 18%;
+    --ring:                   322 100% 60%;
+
+    --chart-win:   152 100% 50%;                     /* vert néon */
+    --chart-loss:  0   100% 62%;                      /* rouge néon */
+    --chart-1:     322 100% 60%;
+    --chart-2:     152 100% 50%;
+    --chart-3:     190 100% 55%;
+    --chart-4:     48  100% 55%;
+    --chart-5:     265 100% 65%;
+
+    --color-profit: 0 255 136;
+    --color-loss:   255 51 102;
+
+    /* Variables spécifiques au terminal (grille de fond, glows) */
+    --terminal-grid-line: 300 30% 18%;
+    --terminal-glow-pink:  322 100% 60%;
+    --terminal-glow-green: 152 100% 50%;
+
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-variant-numeric: tabular-nums;
+    min-height: 100%;
+  }
+
+  .bot-terminal .font-mono-terminal {
+    font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  }
 }
 
 @layer base {
@@ -126,6 +186,22 @@
   /* ── Background utilitaire pour les sections alternées ── */
   .bg-section-alt {
     background-color: hsl(var(--background-alt));
+  }
+
+  /* ── Bot Trading — grille de fond façon terminal ── */
+  .terminal-grid-bg {
+    background-image:
+      linear-gradient(hsl(var(--terminal-grid-line) / 0.35) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--terminal-grid-line) / 0.35) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .terminal-glow-pink {
+    box-shadow: 0 0 12px hsl(var(--terminal-glow-pink) / 0.35), 0 0 32px hsl(var(--terminal-glow-pink) / 0.12);
+  }
+
+  .terminal-glow-green {
+    box-shadow: 0 0 10px hsl(var(--terminal-glow-green) / 0.5), 0 0 24px hsl(var(--terminal-glow-green) / 0.2);
   }
 }
 
@@ -240,6 +316,13 @@
   .hero-live-dot {
     animation: hero-dot-ping 2s ease-in-out infinite;
   }
+
+  /* ── Bot Trading — pulsation du point "live" ── */
+  @keyframes terminal-live-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.5; transform: scale(1.4); }
+  }
+  .animate-terminal-live { animation: terminal-live-pulse 1.6s ease-in-out infinite; }
 
   /* Shimmer */
   @keyframes shimmer {
