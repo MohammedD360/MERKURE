@@ -5,6 +5,7 @@ import { cache, CacheKeys } from '../../infrastructure/cache/redis.js'
 import { tradesRepository } from './trades.repository.js'
 import { TradesQuerySchema, AnnotateTradeSchema, CreateTradeSchema } from './trades.types.js'
 import { prisma } from '../../infrastructure/database/client.js'
+import { writeAuditLog } from '../../infrastructure/database/audit.js'
 import type { Direction, TradeStatus } from '@prisma/client'
 import { CAN_EXPORT_TRADES, TRADE_HISTORY_DAYS, upgradeRequired } from '../../middleware/plan-limits.js'
 
@@ -193,7 +194,24 @@ export async function tradesRoutes(app: FastifyInstance) {
     const trade = await tradesRepository.findById(req.params.id, req.user.id)
     if (!trade) return reply.code(404).send({ error: 'trade_not_found' })
 
-    await prisma.trade.delete({ where: { id: req.params.id } })
+    const now = new Date()
+    await prisma.trade.update({
+      where: { id: req.params.id },
+      data:  { deletedAt: now },
+    })
+
+    await writeAuditLog({
+      entityType:  'trade',
+      entityId:    req.params.id,
+      action:      'soft_delete',
+      performedBy: req.user.id,
+      metadata: {
+        symbol:    trade.symbol,
+        direction: trade.direction,
+        pnl:       trade.pnl?.toString() ?? null,
+        closeTime: trade.closeTime?.toISOString() ?? null,
+      },
+    })
 
     await Promise.all([
       cache.delPattern(`trades:${req.user.id}:*`),

@@ -13,6 +13,7 @@ import type { FastifyInstance, FastifyRequest } from 'fastify'
 import { env } from './config/env.js'
 import { prisma } from './infrastructure/database/client.js'
 import { getDemoUser } from './modules/auth/demo-user.js'
+import { redis } from './infrastructure/cache/redis.js'
 
 import { accountsRoutes } from './modules/accounts/accounts.routes.js'
 import { tradesRoutes } from './modules/trades/trades.routes.js'
@@ -48,23 +49,46 @@ function buildLoggerConfig() {
 }
 
 export function buildApp(): FastifyInstance {
-  const app = Fastify({ logger: buildLoggerConfig() })
+  // trustProxy: true → X-Forwarded-For lu correctement derrière Railway / Vercel
+  const app = Fastify({ logger: buildLoggerConfig(), trustProxy: true })
 
   // ─── Raw body (required for webhook signature verification) ─────────────────
   void app.register(fastifyRawBody, { global: false, encoding: 'utf8', runFirst: true })
 
   // ─── Security & transport plugins ────────────────────────────────────────────
-  void app.register(fastifyHelmet, { contentSecurityPolicy: false })
-  void app.register(fastifyCors, { origin: true, credentials: true })
+  void app.register(fastifyHelmet, {
+    contentSecurityPolicy: false,
+    // crossOriginResourcePolicy: cross-origin requis pour une API consommée par un SPA
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    hsts: env.NODE_ENV === 'production'
+      ? { maxAge: 31_536_000, includeSubDomains: true, preload: true }
+      : false,
+  })
+  void app.register(fastifyCors, {
+    // En prod, seul le frontend connu est autorisé
+    origin: env.NODE_ENV === 'production' ? env.FRONTEND_URL : true,
+    credentials: true,
+  })
   void app.register(fastifyCookie)
   void app.register(fastifyJwt, {
     secret: env.JWT_SECRET,
     cookie: { cookieName: 'access_token', signed: false },
   })
   void app.register(fastifyRateLimit, {
+    global: true,
     max: 100,
     timeWindow: '1 minute',
-    // Auth endpoints get a tighter limit (applied at route level below)
+    // En prod : stockage Redis partagé entre instances (scale horizontal Railway)
+    // En dev/test : mémoire locale
+    ...(env.NODE_ENV === 'production' ? { redis } : {}),
+    // allowList retourne true → la requête n'est pas comptabilisée
+    allowList: () => env.NODE_ENV === 'test',
+    // Retourner 429 explicite avec message francophone
+    errorResponseBuilder: (_req, context) => ({
+      statusCode: 429,
+      error: 'Too Many Requests',
+      message: `Limite atteinte : ${context.max} requêtes / ${context.after}. Réessayez dans ${context.after}.`,
+    }),
   })
   void app.register(fastifyWebsocket)
   void app.register(fastifyMultipart)

@@ -26,15 +26,10 @@ export async function billingRoutes(app: FastifyInstance) {
   app.get(
     '/subscription',
     { preHandler: authenticate },
-    async (request, _reply) => {
+    async (request) => {
       const sub = await prisma.subscription.findUnique({
-        where: { userId: request.user.id },
-        select: {
-          plan: true,
-          status: true,
-          currentPeriodEnd: true,
-          cancelAtPeriodEnd: true,
-        },
+        where:  { userId: request.user.id },
+        select: { plan: true, status: true, currentPeriodEnd: true, cancelAtPeriodEnd: true },
       })
       return sub ?? { plan: 'FREE', status: 'ACTIVE', currentPeriodEnd: null, cancelAtPeriodEnd: false }
     },
@@ -53,15 +48,26 @@ export async function billingRoutes(app: FastifyInstance) {
       if (!body.success) return reply.code(400).send({ error: 'invalid_plan' })
 
       const planConfig = PLANS[body.data.plan]
-      console.log('[checkout] plan=%s priceId=%s', body.data.plan, planConfig.stripePriceId)
       if (!planConfig.stripePriceId) {
         return reply.code(400).send({ error: 'plan_not_available' })
+      }
+
+      // Si l'utilisateur a déjà un abonnement payant actif, il doit passer par le portail
+      const existingSub = await prisma.subscription.findUnique({
+        where:  { userId: request.user.id },
+        select: { plan: true, status: true },
+      })
+      if (existingSub && existingSub.plan !== 'FREE' && existingSub.status === 'ACTIVE') {
+        return reply.code(400).send({
+          error: 'already_subscribed',
+          detail: 'Utilisez le portail client pour modifier votre abonnement.',
+        })
       }
 
       const stripe = getStripe()
 
       const user = await prisma.user.findUnique({
-        where: { id: request.user.id },
+        where:  { id: request.user.id },
         select: { email: true, stripeCustomerId: true },
       })
       if (!user) return reply.code(404).send({ error: 'user_not_found' })
@@ -69,40 +75,42 @@ export async function billingRoutes(app: FastifyInstance) {
       let customerId = user.stripeCustomerId
       if (!customerId) {
         const customer = await stripe.customers.create({
-          email: user.email ?? undefined,
+          email:    user.email ?? undefined,
           metadata: { userId: request.user.id },
         })
         customerId = customer.id
         await prisma.user.update({
           where: { id: request.user.id },
-          data: { stripeCustomerId: customerId },
+          data:  { stripeCustomerId: customerId },
         })
       }
 
-      // En production, FRONTEND_URL doit être https://merkure360.com
-      const baseUrl = env.FRONTEND_URL.replace(/\/$/, '')
-      const successUrl = `${baseUrl}/app/dashboard?checkout=success`
-      const cancelUrl  = `${baseUrl}/app/billing?checkout=cancelled`
+      const baseUrl     = env.FRONTEND_URL.replace(/\/$/, '')
+      const successUrl  = `${baseUrl}/app/dashboard?checkout=success`
+      const cancelUrl   = `${baseUrl}/app/billing?checkout=cancelled`
 
-      console.log('[checkout] success_url=%s cancel_url=%s', successUrl, cancelUrl)
+      request.log.info({ plan: body.data.plan, priceId: planConfig.stripePriceId }, 'creating checkout session')
 
       try {
         const session = await stripe.checkout.sessions.create({
-          mode: 'subscription',
-          customer: customerId,
+          mode:       'subscription',
+          customer:   customerId,
           line_items: [{ price: planConfig.stripePriceId, quantity: 1 }],
           success_url: successUrl,
           cancel_url:  cancelUrl,
-          metadata: { userId: request.user.id, plan: body.data.plan },
+          metadata:    { userId: request.user.id, plan: body.data.plan },
           subscription_data: {
             metadata: { userId: request.user.id, plan: body.data.plan },
           },
         })
-        console.log('[checkout] session created url=%s', session.url)
+        request.log.info({ sessionId: session.id }, 'checkout session created')
         return { url: session.url }
       } catch (err) {
-        console.error('[checkout] Stripe error: success_url=%s cancel_url=%s err=%s', successUrl, cancelUrl, err instanceof Error ? err.message : String(err))
-        return reply.code(502).send({ error: 'stripe_error', detail: err instanceof Error ? err.message : String(err) })
+        request.log.error({ err }, 'stripe checkout session creation failed')
+        return reply.code(502).send({
+          error:  'stripe_error',
+          detail: err instanceof Error ? err.message : String(err),
+        })
       }
     },
   )
@@ -113,7 +121,7 @@ export async function billingRoutes(app: FastifyInstance) {
     { preHandler: authenticate },
     async (request, reply) => {
       const user = await prisma.user.findUnique({
-        where: { id: request.user.id },
+        where:  { id: request.user.id },
         select: { stripeCustomerId: true },
       })
 
@@ -121,10 +129,10 @@ export async function billingRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: 'no_stripe_customer' })
       }
 
-      const stripe = getStripe()
-      const session = await stripe.billingPortal.sessions.create({
-        customer: user.stripeCustomerId,
-        return_url: `${env.FRONTEND_URL}/dashboard/billing`,
+      const stripe   = getStripe()
+      const session  = await stripe.billingPortal.sessions.create({
+        customer:   user.stripeCustomerId,
+        return_url: `${env.FRONTEND_URL}/app/billing`,
       })
 
       return { url: session.url }

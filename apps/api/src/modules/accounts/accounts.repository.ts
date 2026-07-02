@@ -32,6 +32,7 @@ export const accountsRepository = {
         where: { id: existing.id },
         data: {
           isActive: true,
+          deletedAt: null,
           label: input.label,
           accountType: input.accountType as AccountType,
           credentialsEnc: credentialsEnc ?? null,
@@ -67,7 +68,7 @@ export const accountsRepository = {
   softDelete(id: string, userId: string) {
     return prisma.brokerAccount.update({
       where: { id, userId },
-      data: { isActive: false },
+      data: { isActive: false, deletedAt: new Date() },
     })
   },
 }

@@ -20,7 +20,7 @@ const RegisterSchema = z.object({
 })
 
 export async function authRoutes(app: FastifyInstance) {
-  app.post('/register', async (req, reply) => {
+  app.post('/register', { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (req, reply) => {
     const parsed = RegisterSchema.safeParse(req.body)
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_body' })
 
@@ -69,6 +69,7 @@ export async function authRoutes(app: FastifyInstance) {
 
   app.post<{ Body: { email: string; password: string } }>(
     '/login',
+    { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } },
     async (req, reply) => {
       const parsed = LoginSchema.safeParse(req.body)
       if (!parsed.success) return reply.code(400).send({ error: 'invalid_body' })
@@ -108,7 +109,7 @@ export async function authRoutes(app: FastifyInstance) {
   app.post('/logout', async () => ({ ok: true }))
 
   // POST /api/v1/auth/forgot-password
-  app.post<{ Body: { email: string } }>('/forgot-password', async (req, reply) => {
+  app.post<{ Body: { email: string } }>('/forgot-password', { config: { rateLimit: { max: 5, timeWindow: '5 minutes' } } }, async (req, reply) => {
     const { email } = req.body ?? {}
     if (!email || typeof email !== 'string') {
       return reply.code(400).send({ error: 'invalid_body' })
@@ -140,7 +141,7 @@ export async function authRoutes(app: FastifyInstance) {
   })
 
   // POST /api/v1/auth/reset-password
-  app.post<{ Body: { token: string; password: string } }>('/reset-password', async (req, reply) => {
+  app.post<{ Body: { token: string; password: string } }>('/reset-password', { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (req, reply) => {
     const { token, password } = req.body ?? {}
     if (!token || !password || password.length < 8) {
       return reply.code(400).send({ error: 'invalid_body' })
@@ -222,7 +223,7 @@ export async function authRoutes(app: FastifyInstance) {
   })
 
   // POST /api/v1/auth/resend-verification — renvoie l'email de vérification
-  app.post('/resend-verification', { preHandler: authenticate }, async (req, reply) => {
+  app.post('/resend-verification', { preHandler: authenticate, config: { rateLimit: { max: 3, timeWindow: '10 minutes' } } }, async (req, reply) => {
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
       select: { id: true, email: true, firstName: true, emailVerified: true },

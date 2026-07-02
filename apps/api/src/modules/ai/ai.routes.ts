@@ -3,6 +3,7 @@ import { authenticate } from '../../middleware/auth.js'
 import { requirePlan } from '../../middleware/require-plan.js'
 import { prisma } from '../../infrastructure/database/client.js'
 import { analyzeTradesForDay } from './ai.service.js'
+import { getCoaching, computeKpis } from '../../infrastructure/ai-python/ai-python-client.js'
 
 export async function aiRoutes(app: FastifyInstance) {
   /**
@@ -53,6 +54,78 @@ export async function aiRoutes(app: FastifyInstance) {
   )
 
   /**
+   * POST /api/v1/ai/coaching
+   * Analyse approfondie par Claude via le service Python (Sonnet + prompt caching).
+   * Body: { period?: '7d'|'30d'|'90d'; question?: string }
+   */
+  app.post<{ Body: { period?: string; question?: string } }>(
+    '/coaching',
+    { preHandler: [authenticate, requirePlan('PRO')] },
+    async (req, reply) => {
+      const userId = req.user.id
+      const since  = buildSince(req.body?.period ?? '30d')
+
+      const [profile, trades] = await Promise.all([
+        prisma.traderProfile.findUnique({ where: { userId } }),
+        prisma.trade.findMany({
+          where:   { userId, status: 'CLOSED', closeTime: { gte: since } },
+          orderBy: { closeTime: 'desc' },
+          take:    200,
+          select:  { id: true, pnl: true, openTime: true, closeTime: true, direction: true, symbol: true },
+        }),
+      ])
+
+      if (trades.length === 0) {
+        return reply.code(422).send({ error: 'no_trades', detail: 'Aucun trade clôturé sur la période.' })
+      }
+
+      // KPIs précis via Pandas
+      const kpis = await computeKpis(
+        trades.map(t => ({
+          id:         t.id,
+          pnl:        t.pnl != null ? Number(t.pnl) : null,
+          open_time:  t.openTime?.toISOString() ?? null,
+          close_time: t.closeTime?.toISOString() ?? null,
+          direction:  t.direction ?? null,
+          symbol:     t.symbol ?? null,
+        })),
+      ).catch(() => null)
+
+      if (!kpis) {
+        return reply.code(502).send({ error: 'kpis_unavailable', detail: 'Service de calcul KPIs indisponible.' })
+      }
+
+      // Résumé textuel des 10 derniers trades
+      const recentSummary = trades.slice(0, 10)
+        .map(t => `${t.symbol ?? '?'} ${t.direction ?? '?'} PnL ${Number(t.pnl ?? 0).toFixed(2)} €`)
+        .join('\n')
+
+      const result = await getCoaching({
+        trader_context: {
+          style:            profile?.style   ?? 'inconnu',
+          markets:          profile?.markets ?? [],
+          experience_years: profile?.experienceYears ?? 0,
+        },
+        kpis: {
+          win_rate:      kpis.win_rate,
+          profit_factor: kpis.profit_factor,
+          sharpe_ratio:  kpis.sharpe_ratio,
+          max_drawdown:  kpis.max_drawdown,
+          total_trades:  kpis.total_trades,
+          avg_rr:        kpis.avg_rr,
+          total_pnl:     kpis.total_pnl,
+        },
+        recent_trades_summary: recentSummary,
+        ...(req.body?.question ? { question: req.body.question } : {}),
+      }).catch((err: unknown) => {
+        throw reply.code(502).send({ error: 'coaching_unavailable', detail: String(err) })
+      })
+
+      return reply.code(200).send(result)
+    },
+  )
+
+  /**
    * GET /api/v1/ai/journal?limit=10&offset=0
    * Liste l'historique des analyses IA de l'utilisateur.
    */
@@ -77,4 +150,14 @@ export async function aiRoutes(app: FastifyInstance) {
       return { entries, total, limit, offset }
     },
   )
+}
+
+function buildSince(period: string): Date {
+  const now = new Date()
+  switch (period) {
+    case '7d':  return new Date(now.getTime() - 7   * 86_400_000)
+    case '90d': return new Date(now.getTime() - 90  * 86_400_000)
+    case '1y':  return new Date(now.getTime() - 365 * 86_400_000)
+    default:    return new Date(now.getTime() - 30  * 86_400_000)
+  }
 }

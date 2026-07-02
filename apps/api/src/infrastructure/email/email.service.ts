@@ -59,6 +59,28 @@ export const emailService = {
     `)
   },
 
+  async sendSubscriptionCanceled(to: string) {
+    await send(to, 'Votre abonnement MERKURE a été résilié', `
+      <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#050816;color:#e2e8f0;padding:40px 32px;border-radius:16px">
+        <h1 style="font-size:24px;font-weight:900;color:#ffffff;margin:0 0 16px">Abonnement résilié</h1>
+        <p style="color:#94a3b8;line-height:1.7;margin:0 0 24px">Votre abonnement MERKURE a bien été résilié. Vous conservez l'accès à votre compte avec le plan Gratuit.</p>
+        <a href="${env.FRONTEND_URL}/app/billing" style="display:inline-block;background:#0f172a;color:#fff;font-weight:700;padding:12px 28px;border-radius:8px;text-decoration:none">Voir mes options →</a>
+        <p style="margin-top:32px;font-size:12px;color:#475569">Vous pouvez vous réabonner à tout moment depuis votre espace MERKURE.</p>
+      </div>
+    `)
+  },
+
+  async sendPaymentFailed(to: string) {
+    await send(to, 'Échec de paiement — action requise', `
+      <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#050816;color:#e2e8f0;padding:40px 32px;border-radius:16px">
+        <h1 style="font-size:24px;font-weight:900;color:#ffffff;margin:0 0 16px">Paiement échoué</h1>
+        <p style="color:#94a3b8;line-height:1.7;margin:0 0 24px">Votre paiement n'a pas pu être traité. Mettez à jour votre moyen de paiement pour conserver l'accès à votre abonnement.</p>
+        <a href="${env.FRONTEND_URL}/app/billing" style="display:inline-block;background:#ef4444;color:#fff;font-weight:700;padding:12px 28px;border-radius:8px;text-decoration:none">Mettre à jour mon paiement →</a>
+        <p style="margin-top:32px;font-size:12px;color:#475569">Si le paiement n'est pas régularisé, votre abonnement sera automatiquement suspendu.</p>
+      </div>
+    `)
+  },
+
   async sendPaymentConfirmation(to: string, plan: string, amountEuros: number) {
     await send(to, `Paiement confirmé — Plan ${plan}`, `
       <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#050816;color:#e2e8f0;padding:40px 32px;border-radius:16px">

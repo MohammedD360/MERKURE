@@ -1,6 +1,7 @@
 import { accountsRepository } from './accounts.repository.js'
 import { encrypt } from '../../infrastructure/crypto/encryption.js'
 import { prisma } from '../../infrastructure/database/client.js'
+import { writeAuditLog } from '../../infrastructure/database/audit.js'
 import type { CreateAccountInput } from './accounts.types.js'
 
 export const accountsService = {
@@ -32,5 +33,17 @@ export const accountsService = {
       throw err
     }
     await accountsRepository.softDelete(id, userId)
+    await writeAuditLog({
+      entityType:  'broker_account',
+      entityId:    id,
+      action:      'soft_delete',
+      performedBy: userId,
+      metadata: {
+        brokerType:  account.brokerType,
+        accountId:   account.accountId,
+        label:       account.label,
+        accountType: account.accountType,
+      },
+    })
   },
 }
