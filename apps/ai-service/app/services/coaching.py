@@ -6,7 +6,7 @@ import anthropic
 from ..core.config import settings
 
 
-client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
 
 SYSTEM_PROMPT = """Tu es MERKURE AI, un coach de trading expert, précis et bienveillant.
 Tu analyses les performances d'un trader et fournis des conseils actionnables et personnalisés.
@@ -75,7 +75,7 @@ async def get_coaching_analysis(
         question=question,
     )
 
-    response = client.messages.create(
+    response = await client.messages.create(
         model=settings.CLAUDE_MODEL,
         max_tokens=1024,
         system=[

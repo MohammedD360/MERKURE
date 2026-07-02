@@ -95,6 +95,22 @@ def compute_full_kpis(
     if equity_curve is None and not closed.empty:
         equity_curve = closed.sort_values("close_time")["pnl"].cumsum()
 
+    # Meilleur jour : PnL cumulé par date de clôture
+    best_day = None
+    if not closed.empty and "close_time" in closed.columns and closed["close_time"].notna().any():
+        daily = (
+            closed.dropna(subset=["close_time"])
+            .assign(date=lambda df: pd.to_datetime(df["close_time"]).dt.date)
+            .groupby("date")["pnl"]
+            .sum()
+        )
+        if not daily.empty:
+            best_date = daily.idxmax()
+            best_day = {
+                "pnl": float(daily[best_date]),
+                "date": best_date.isoformat(),
+            }
+
     return {
         "win_rate": calculate_win_rate(closed),
         "profit_factor": calculate_profit_factor(closed),
@@ -114,4 +130,5 @@ def compute_full_kpis(
         "avg_pnl": float(closed["pnl"].mean()) if not closed.empty else 0.0,
         "best_trade": float(closed["pnl"].max()) if not closed.empty else 0.0,
         "worst_trade": float(closed["pnl"].min()) if not closed.empty else 0.0,
+        "best_day": best_day,
     }
