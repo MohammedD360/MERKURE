@@ -7,16 +7,18 @@ import { prisma } from './infrastructure/database/client.js'
 import { redis } from './infrastructure/cache/redis.js'
 import { startBrokerSyncWorker, scheduleBrokerSyncCron } from './modules/sync/broker-sync.worker.js'
 import { startAlertsWorker } from './modules/alerts/alerts.worker.js'
+import { startBotTradingWorker, scheduleBotTradingCron } from './modules/bots/bot-trading.worker.js'
 
 const app = buildApp()
 
 // Start workers
-const syncWorker    = startBrokerSyncWorker()
-const alertsWorker  = startAlertsWorker()
+const syncWorker      = startBrokerSyncWorker()
+const alertsWorker    = startAlertsWorker()
+const botTradingWorker = startBotTradingWorker()
 
 const gracefulShutdown = async (signal: string) => {
   app.log.info(`[${signal}] Shutting down...`)
-  await Promise.all([syncWorker.close(), alertsWorker.close()])
+  await Promise.all([syncWorker.close(), alertsWorker.close(), botTradingWorker.close()])
   await app.close()
   await prisma.$disconnect()
   await redis.quit()
@@ -48,6 +50,9 @@ try {
 
   await scheduleBrokerSyncCron()
   app.log.info('Broker sync cron scheduled (every 5 min)')
+
+  await scheduleBotTradingCron()
+  app.log.info(`Bot trading cron scheduled (every ${env.BOT_TRADING_TICK_MS / 1000}s)`)
 } catch (err) {
   const { Sentry } = await import('./infrastructure/monitoring/sentry.js')
   Sentry.captureException(err)

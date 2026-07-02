@@ -11,6 +11,8 @@ export type WsEventType =
   | 'alert:triggered'
   | 'position:update'
   | 'position:close'
+  | 'bot:decision'
+  | 'bot:circuit_breaker'
 
 export type WsEvent = {
   type: WsEventType

@@ -8,6 +8,7 @@ export const brokerSyncQueue = new Queue('broker-sync', { connection })
 export const alertProcessQueue = new Queue('alert-process', { connection })
 export const aiRequestQueue = new Queue('ai-request', { connection })
 export const emailQueue = new Queue('email-send', { connection })
+export const botTradingQueue = new Queue('bot-trading-cycle', { connection })
 
 // Job type definitions
 export type BrokerSyncJob = {
@@ -33,6 +34,10 @@ export type EmailJob = {
   to: string
   template: 'welcome' | 'alert' | 'weekly_report' | 'password_reset'
   data: Record<string, unknown>
+}
+
+export type BotTradingJob = {
+  botId: string
 }
 
 // Worker factory

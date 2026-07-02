@@ -57,5 +57,6 @@ export const CacheKeys = {
   livePositions: (accountId: string) => `trades:live:${accountId}`,
   session:       (token: string) => `session:${token}`,
   brokerSyncLock:(accountId: string) => `broker:sync:${accountId}`,
+  botTradingLock:(botId: string) => `bot:trading-cycle:${botId}`,
   aiScore:       (userId: string, date: string) => `ai:score:${userId}:${date}`,
 } as const

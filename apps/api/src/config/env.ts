@@ -66,6 +66,16 @@ const envSchema = z.object({
   GOOGLE_CLIENT_ID:     z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   GOOGLE_REDIRECT_URI:  z.string().url().default('http://localhost:3001/api/v1/auth/google/callback'),
+
+  // Bot Trading — Polymarket (non configuré = mode simulé)
+  POLYMARKET_CLOB_URL: z.string().url().optional(),
+
+  // Bot Trading — Dune Analytics (détection wallets baleines, non configuré = mode simulé)
+  DUNE_API_KEY:        z.string().optional(),
+  DUNE_WHALE_QUERY_ID: z.string().optional(),
+
+  // Bot Trading — fréquence des ticks de l'agent (ms)
+  BOT_TRADING_TICK_MS: z.coerce.number().default(120_000),
 })
 
 const parsed = envSchema.safeParse(process.env)

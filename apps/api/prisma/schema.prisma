@@ -31,37 +31,40 @@ model Organization {
 // UTILISATEURS
 // ─────────────────────────────────────────────
 model User {
-  id           String   @id @default(uuid())
-  clerkId      String   @unique
-  orgId        String?
-  email        String   @unique
-  passwordHash String?
-  firstName    String?
-  lastName     String?
-  avatarUrl    String?
-  role         UserRole @default(TRADER)
+  id               String   @id @default(uuid())
+  clerkId          String   @unique
+  orgId            String?
+  email            String   @unique
+  passwordHash     String?
+  firstName        String?
+  lastName         String?
+  avatarUrl        String?
+  role             UserRole @default(TRADER)
   onboarded        Boolean  @default(false)
   emailVerified    Boolean  @default(false)
   emailVerifyToken String?  @unique
-  timezone     String   @default("Europe/Paris")
-  currency     String   @default("EUR")
-  riskPerTrade Decimal  @default(1.00) @db.Decimal(5, 2)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  timezone         String   @default("Europe/Paris")
+  currency         String   @default("EUR")
+  riskPerTrade     Decimal  @default(1.00) @db.Decimal(5, 2)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  stripeCustomerId String?        @unique
+  stripeCustomerId String? @unique
 
-  organization     Organization?  @relation(fields: [orgId], references: [id], onDelete: SetNull)
-  profile          TraderProfile?
-  brokerAccounts   BrokerAccount[]
-  trades           Trade[]
-  kpiSnapshots     KpiSnapshot[]
-  alerts           Alert[]
-  aiJournalEntries AiJournalEntry[]
-  journalEntries   JournalEntry[]
-  refreshTokens    RefreshToken[]
-  subscription     Subscription?
+  organization        Organization?        @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  profile             TraderProfile?
+  brokerAccounts      BrokerAccount[]
+  trades              Trade[]
+  kpiSnapshots        KpiSnapshot[]
+  alerts              Alert[]
+  aiJournalEntries    AiJournalEntry[]
+  journalEntries      JournalEntry[]
+  refreshTokens       RefreshToken[]
+  subscription        Subscription?
   passwordResetTokens PasswordResetToken[]
+  tradingPlan         TradingPlan?
+  auditLogs           AuditLog[]
+  tradingBots         TradingBot[]
 
   @@index([orgId])
   @@index([clerkId])
@@ -69,12 +72,12 @@ model User {
 }
 
 model TraderProfile {
-  userId          String    @id
+  userId          String        @id
   style           TraderStyle?
   riskAppetite    RiskAppetite?
   markets         String[]
   experienceYears Int?
-  updatedAt       DateTime  @updatedAt
+  updatedAt       DateTime      @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -82,13 +85,13 @@ model TraderProfile {
 }
 
 model RefreshToken {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   userId      String
-  tokenHash   String   @unique  // On stocke le hash, pas le token brut
-  fingerprint String?            // User-agent + IP hash
+  tokenHash   String    @unique // On stocke le hash, pas le token brut
+  fingerprint String? // User-agent + IP hash
   expiresAt   DateTime
   revokedAt   DateTime?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -97,12 +100,12 @@ model RefreshToken {
 }
 
 model PasswordResetToken {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   userId    String
-  tokenHash String   @unique
+  tokenHash String    @unique
   expiresAt DateTime
   usedAt    DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -114,22 +117,24 @@ model PasswordResetToken {
 // COMPTES BROKERS
 // ─────────────────────────────────────────────
 model BrokerAccount {
-  id              String     @id @default(uuid())
-  userId          String
-  brokerType      BrokerType
-  accountType     AccountType @default(DEMO)
-  accountId       String                  // ID externe chez le broker
-  label           String
-  credentialsEnc  Bytes?                  // AES-256-GCM via pgcrypto
-  isActive        Boolean    @default(true)
-  lastSyncAt      DateTime?
-  syncStatus      SyncStatus @default(PENDING)
-  syncError       String?
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  id             String      @id @default(uuid())
+  userId         String
+  brokerType     BrokerType
+  accountType    AccountType @default(DEMO)
+  accountId      String // ID externe chez le broker
+  label          String
+  credentialsEnc Bytes? // AES-256-GCM via pgcrypto
+  isActive       Boolean     @default(true)
+  lastSyncAt     DateTime?
+  syncStatus     SyncStatus  @default(PENDING)
+  syncError      String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  deletedAt      DateTime? // null = actif ; set = soft-deleted (RGPD)
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  trades  Trade[]
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trades      Trade[]
+  tradingBots TradingBot[]
 
   @@unique([userId, brokerType, accountId])
   @@index([userId])
@@ -140,34 +145,36 @@ model BrokerAccount {
 // TRADES
 // ─────────────────────────────────────────────
 model Trade {
-  id              String        @id @default(uuid())
+  id              String      @id @default(uuid())
   brokerAccountId String
-  userId          String        // Dénormalisé pour perf queries
-  externalId      String?       // ID du trade chez le broker
+  userId          String // Dénormalisé pour perf queries
+  externalId      String? // ID du trade chez le broker
   symbol          String
   direction       Direction
   openTime        DateTime
   closeTime       DateTime?
-  openPrice       Decimal       @db.Decimal(18, 8)
-  closePrice      Decimal?      @db.Decimal(18, 8)
-  lotSize         Decimal       @db.Decimal(12, 4)
-  pnl             Decimal?      @db.Decimal(18, 4)
-  pnlPct          Decimal?      @db.Decimal(10, 6)
-  swap            Decimal       @default(0) @db.Decimal(12, 4)
-  commission      Decimal       @default(0) @db.Decimal(12, 4)
+  openPrice       Decimal     @db.Decimal(18, 8)
+  closePrice      Decimal?    @db.Decimal(18, 8)
+  lotSize         Decimal     @db.Decimal(12, 4)
+  pnl             Decimal?    @db.Decimal(18, 4)
+  pnlPct          Decimal?    @db.Decimal(10, 6)
+  swap            Decimal     @default(0) @db.Decimal(12, 4)
+  commission      Decimal     @default(0) @db.Decimal(12, 4)
   strategyTag     String?
-  note            String?       // Annotation libre du trader
-  status          TradeStatus   @default(OPEN)
-  rawData         Json?         // Données brutes broker
-  createdAt       DateTime      @default(now())
+  note            String? // Annotation libre du trader
+  status          TradeStatus @default(OPEN)
+  rawData         Json? // Données brutes broker
+  createdAt       DateTime    @default(now())
+  deletedAt       DateTime? // null = actif ; set = soft-deleted (RGPD)
 
   brokerAccount BrokerAccount @relation(fields: [brokerAccountId], references: [id], onDelete: Cascade)
-  user          User          @relation(fields: [userId], references: [id])
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([brokerAccountId, externalId])
   @@index([userId, closeTime(sort: Desc)])
   @@index([brokerAccountId])
   @@index([userId, symbol])
+  @@index([userId, deletedAt])
   @@map("trades")
 }
 
@@ -216,14 +223,14 @@ model Strategy {
 // ALERTES
 // ─────────────────────────────────────────────
 model Alert {
-  id          String      @id @default(uuid())
+  id          String    @id @default(uuid())
   userId      String
   type        AlertType
-  severity    Severity    @default(INFO)
+  severity    Severity  @default(INFO)
   title       String
   body        String?
-  isRead      Boolean     @default(false)
-  triggeredAt DateTime    @default(now())
+  isRead      Boolean   @default(false)
+  triggeredAt DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -256,21 +263,56 @@ model JournalEntry {
 
 // ─────────────────────────────────────────────
 model AiJournalEntry {
-  id          String   @id @default(uuid())
-  userId      String
-  date        DateTime @db.Date
-  userInput   String?
-  aiAnalysis  String?
-  score       Int?     // 0-100
-  insights    Json?    // { strengths: [], improvements: [], actions: [] }
+  id           String   @id @default(uuid())
+  userId       String
+  date         DateTime @db.Date
+  userInput    String?
+  aiAnalysis   String?
+  score        Int? // 0-100
+  insights     Json? // { strengths: [], improvements: [], actions: [] }
   inputTokens  Int?
   outputTokens Int?
-  createdAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("ai_journal_entries")
+}
+
+// ─────────────────────────────────────────────
+// PLAN DE TRADING
+// ─────────────────────────────────────────────
+model TradingPlan {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  data      Json     @default("{}")
+  version   Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("trading_plans")
+}
+
+// ─────────────────────────────────────────────
+// AUDIT TRAIL (RGPD)
+// ─────────────────────────────────────────────
+model AuditLog {
+  id          String   @id @default(uuid())
+  entityType  String // "trade" | "broker_account"
+  entityId    String
+  action      String // "soft_delete" | "restore"
+  performedBy String
+  performedAt DateTime @default(now())
+  metadata    Json? // snapshot JSON de l'entité au moment de l'action
+
+  performer User @relation(fields: [performedBy], references: [id], onDelete: Cascade)
+
+  @@index([entityType, entityId])
+  @@index([performedBy])
+  @@map("audit_logs")
 }
 
 // ─────────────────────────────────────────────
@@ -291,6 +333,67 @@ model Subscription {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("subscriptions")
+}
+
+// ─────────────────────────────────────────────
+// BOT TRADING (Polymarket — agent Claude autonome)
+// ─────────────────────────────────────────────
+model TradingBot {
+  id                      String    @id @default(uuid())
+  userId                  String
+  brokerAccountId         String // BrokerAccount(brokerType: POLYMARKET)
+  name                    String
+  marketFilters           Json      @default("{}") // { categories: [], minLiquidityUsd, maxMarkets }
+  mode                    BotMode   @default(DRY_RUN)
+  status                  BotStatus @default(DRAFT)
+  riskConfig              Json      @default("{\"maxSessionLossPct\": 5, \"maxPositionSizeUsd\": 100, \"maxConcurrentPositions\": 3}")
+  sessionStartEquity      Decimal   @default(0) @db.Decimal(18, 4)
+  currentEquity           Decimal   @default(0) @db.Decimal(18, 4)
+  circuitBreakerTrippedAt DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brokerAccount BrokerAccount @relation(fields: [brokerAccountId], references: [id], onDelete: Cascade)
+  decisions     BotDecision[]
+  events        BotEvent[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("trading_bots")
+}
+
+model BotDecision {
+  id        String            @id @default(uuid())
+  botId     String
+  marketId  String // ID marché Polymarket (condition ID)
+  question  String // Question du marché ("Will X happen by Y?")
+  side      String // "YES" | "NO"
+  sizeUsd   Decimal           @db.Decimal(18, 4)
+  price     Decimal           @db.Decimal(10, 6)
+  reasoning Json // Trace du raisonnement + appels d'outils de l'agent
+  status    BotDecisionStatus @default(SIMULATED)
+  pnl       Decimal?          @db.Decimal(18, 4)
+  createdAt DateTime          @default(now())
+
+  bot TradingBot @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  @@index([botId, createdAt(sort: Desc)])
+  @@map("bot_decisions")
+}
+
+model BotEvent {
+  id        String       @id @default(uuid())
+  botId     String
+  type      BotEventType
+  message   String
+  metadata  Json?
+  createdAt DateTime     @default(now())
+
+  bot TradingBot @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  @@index([botId, createdAt(sort: Desc)])
+  @@map("bot_events")
 }
 
 // ─────────────────────────────────────────────
@@ -331,6 +434,7 @@ enum BrokerType {
   IB
   CTRADER
   TRADOVATE
+  POLYMARKET
 }
 
 enum AccountType {
@@ -378,4 +482,33 @@ enum SubscriptionStatus {
   PAST_DUE
   CANCELED
   UNPAID
+}
+
+enum BotMode {
+  DRY_RUN
+  LIVE
+}
+
+enum BotStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  STOPPED
+}
+
+enum BotDecisionStatus {
+  SIMULATED
+  SUBMITTED
+  FILLED
+  REJECTED
+  FAILED
+}
+
+enum BotEventType {
+  STARTED
+  PAUSED
+  RESUMED
+  STOPPED
+  CIRCUIT_BREAKER_TRIPPED
+  ERROR
 }
