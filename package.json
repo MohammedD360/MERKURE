@@ -9,6 +9,7 @@
     "test": "turbo run test",
     "db:migrate": "turbo run db:migrate --filter=@merkure/api",
     "db:studio": "pnpm --filter @merkure/api db:studio",
+    "dev:mobile": "pnpm --filter @merkure/mobile dev",
     "clean": "turbo run clean && rm -rf node_modules"
   },
   "devDependencies": {
