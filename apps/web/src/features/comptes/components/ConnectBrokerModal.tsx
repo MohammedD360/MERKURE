@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { X, ChevronRight, ArrowLeft, Eye, EyeOff, Check, Lock, AlertCircle } from 'lucide-react'
-import { brokerMeta } from '@/lib/mock-comptes'
+import { brokerMeta } from '@/lib/broker-config'
 import { useCreateAccount, type BrokerType, type AccountType } from '@/lib/hooks/use-accounts'
 import { BrokerLogo } from '@/shared/components/BrokerLogo'
 

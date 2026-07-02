@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import type { BrokerType } from '@/lib/mock-comptes'
+import type { BrokerType } from '@/lib/hooks/use-accounts'
 
 interface LogoEntry {
   src:    string

@@ -12,7 +12,7 @@ import {
   Wifi,
   WifiOff,
 } from 'lucide-react'
-import { brokerMeta } from '@/lib/mock-comptes'
+import { brokerMeta } from '@/lib/broker-config'
 import {
   useDeleteAccount,
   useSyncAccount,

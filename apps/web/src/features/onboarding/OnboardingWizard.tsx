@@ -83,6 +83,7 @@ export function OnboardingWizard() {
         } catch { break }
         tries++
       }
+      setLoading(false)
       setStep('plan')
     } catch {
       setError('Connexion broker échouée. Vérifiez vos identifiants.')
@@ -101,7 +102,7 @@ export function OnboardingWizard() {
     try {
       await completeOnboarding()
       if (!planId || planId === 'FREE') {
-        router.push('/app/dashboard')
+        setStep('done')
       } else {
         const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
         const token = typeof window !== 'undefined' ? localStorage.getItem('merkure_token') : null
@@ -121,14 +122,8 @@ export function OnboardingWizard() {
     }
   }
 
-  const handleFinish = async () => {
-    setLoading(true)
-    try {
-      await completeOnboarding()
-      router.push('/app/dashboard')
-    } catch {
-      router.push('/app/dashboard')
-    }
+  const handleFinish = () => {
+    router.push('/app/dashboard')
   }
 
   const meta = STEP_META[step]
