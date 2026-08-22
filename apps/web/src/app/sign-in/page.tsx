@@ -14,7 +14,7 @@ import { GoogleAuthButton } from '@/shared/components/GoogleAuthButton'
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
 const inputCls =
-  'h-11 w-full rounded-md border border-[hsl(var(--border))] bg-white px-4 text-sm font-medium text-foreground outline-none transition-all placeholder:text-[hsl(var(--foreground-soft)/0.5)] focus:border-[hsl(var(--primary)/0.5)] focus:ring-2 focus:ring-[hsl(var(--primary)/0.08)]'
+  'h-11 w-full rounded-md border border-[hsl(var(--border))] bg-background px-4 text-sm font-medium text-foreground outline-none transition-all placeholder:text-[hsl(var(--foreground-soft)/0.5)] focus:border-[hsl(var(--primary)/0.5)] focus:ring-2 focus:ring-[hsl(var(--primary)/0.08)]'
 
 function PasswordLoginForm() {
   const router = useRouter()
@@ -121,7 +121,7 @@ function PasswordLoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[hsl(var(--primary))] px-5 text-sm font-semibold text-white transition-colors hover:bg-[hsl(244_42%_44%)] disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[hsl(var(--primary))] px-5 text-sm font-semibold text-white transition-colors hover:bg-[hsl(243_90%_58%)] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading && (
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -165,7 +165,7 @@ function PasswordLoginForm() {
 
 function ClerkLogin() {
   return (
-    <div className="rounded-xl border border-[hsl(var(--border))] bg-white p-3 shadow-sm">
+    <div className="rounded-xl border border-[hsl(var(--border))] bg-card p-3">
       <SignIn />
     </div>
   )

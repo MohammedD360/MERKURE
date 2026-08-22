@@ -28,7 +28,7 @@ const strengthConfig: Record<1 | 2 | 3 | 4, { label: string; color: string; bars
 }
 
 const inputCls =
-  'h-12 w-full rounded-lg border border-[hsl(var(--border))] bg-white px-3.5 pl-10 text-sm font-medium text-foreground outline-none transition-all placeholder:text-[hsl(var(--foreground-soft)/0.45)] focus:border-[hsl(var(--primary)/0.5)] focus:ring-2 focus:ring-[hsl(var(--primary)/0.08)]'
+  'h-12 w-full rounded-lg border border-[hsl(var(--border))] bg-background px-3.5 pl-10 text-sm font-medium text-foreground outline-none transition-all placeholder:text-[hsl(var(--foreground-soft)/0.45)] focus:border-[hsl(var(--primary)/0.5)] focus:ring-2 focus:ring-[hsl(var(--primary)/0.08)]'
 
 const labelCls = 'block mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[hsl(var(--foreground-soft))]'
 
@@ -106,7 +106,7 @@ export default function SignUpPage() {
         </div>
 
         {/* Formulaire email */}
-        <form onSubmit={handleSubmit} className="rounded-xl border border-[hsl(var(--border))] bg-white p-5 shadow-sm sm:p-6">
+        <form onSubmit={handleSubmit} className="rounded-xl border border-[hsl(var(--border))] bg-card p-5 sm:p-6">
           {error && (
             <div className="mb-5 flex items-start gap-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -269,7 +269,7 @@ export default function SignUpPage() {
           <button
             type="submit"
             disabled={loading || !passwordsMatch}
-            className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-5 text-sm font-semibold text-white transition-all hover:bg-[hsl(244_42%_44%)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
+            className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-5 text-sm font-semibold text-white transition-all hover:bg-[hsl(243_90%_58%)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
           >
             {loading && (
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

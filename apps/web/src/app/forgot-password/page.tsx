@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
           </Link>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="rounded-xl border border-[hsl(var(--border))] bg-white p-5 shadow-sm sm:p-6">
+        <form onSubmit={handleSubmit} className="rounded-xl border border-[hsl(var(--border))] bg-card p-5 sm:p-6">
           {error && (
             <div className="mb-5 flex items-start gap-3 rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -73,14 +73,14 @@ export default function ForgotPasswordPage() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="vous@exemple.com"
-              className="h-12 w-full rounded-lg border border-[hsl(var(--border))] bg-white px-3.5 pl-11 text-sm font-medium text-foreground outline-none transition-all placeholder:text-[hsl(var(--foreground-soft)/0.45)] focus:border-[hsl(var(--primary)/0.5)] focus:ring-2 focus:ring-[hsl(var(--primary)/0.08)]"
+              className="h-12 w-full rounded-lg border border-[hsl(var(--border))] bg-background px-3.5 pl-11 text-sm font-medium text-foreground outline-none transition-all placeholder:text-[hsl(var(--foreground-soft)/0.45)] focus:border-[hsl(var(--primary)/0.5)] focus:ring-2 focus:ring-[hsl(var(--primary)/0.08)]"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[hsl(var(--primary))] px-5 text-sm font-semibold text-white transition-colors hover:bg-[hsl(244_42%_44%)] disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[hsl(var(--primary))] px-5 text-sm font-semibold text-white transition-colors hover:bg-[hsl(243_90%_58%)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />}
             {loading ? 'Envoi en cours…' : 'Envoyer le lien'}

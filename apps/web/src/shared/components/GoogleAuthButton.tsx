@@ -22,7 +22,7 @@ export function GoogleAuthButton({ label = 'Continuer avec Google', variant = 's
   return (
     <a
       href={`${API}/api/v1/auth/google`}
-      className="flex h-11 w-full items-center justify-center gap-3 rounded-md border border-[hsl(var(--border))] bg-white text-sm font-medium text-foreground shadow-sm transition-all hover:border-[hsl(var(--primary)/0.4)] hover:bg-[hsl(var(--accent))] hover:shadow-md active:scale-[0.99]"
+      className="flex h-11 w-full items-center justify-center gap-3 rounded-md border border-[hsl(var(--border))] bg-card text-sm font-medium text-foreground shadow-sm transition-all hover:border-[hsl(var(--primary)/0.4)] hover:bg-[hsl(var(--accent))] hover:shadow-md active:scale-[0.99]"
     >
       <GoogleSvg />
       {label}

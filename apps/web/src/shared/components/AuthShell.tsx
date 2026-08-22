@@ -13,32 +13,32 @@ interface AuthShellProps {
 
 function VisualPanel() {
   return (
-    <aside className="relative hidden h-screen flex-col overflow-hidden lg:flex" style={{ background: 'hsl(244 42% 14%)' }}>
+    <aside className="relative hidden h-screen flex-col overflow-hidden lg:flex" style={{ background: 'hsl(243 26% 12%)' }}>
       {/* Grille de points */}
       <div
         className="absolute inset-0"
         style={{
-          backgroundImage: 'radial-gradient(circle, hsl(244 42% 51% / 0.22) 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(circle, hsl(243 90% 65% / 0.28) 1px, transparent 1px)',
           backgroundSize: '28px 28px',
         }}
       />
       {/* Vague décorative */}
       <div className="absolute inset-0 overflow-hidden">
         <svg viewBox="0 0 800 800" className="absolute -bottom-40 -right-40 h-[700px] w-[700px] opacity-20" fill="none">
-          <circle cx="400" cy="400" r="380" stroke="hsl(244 42% 65%)" strokeWidth="1" />
-          <circle cx="400" cy="400" r="280" stroke="hsl(244 42% 65%)" strokeWidth="1" />
-          <circle cx="400" cy="400" r="180" stroke="hsl(244 42% 65%)" strokeWidth="1" />
+          <circle cx="400" cy="400" r="380" stroke="hsl(243 90% 72%)" strokeWidth="1" />
+          <circle cx="400" cy="400" r="280" stroke="hsl(243 90% 72%)" strokeWidth="1" />
+          <circle cx="400" cy="400" r="180" stroke="hsl(243 90% 72%)" strokeWidth="1" />
         </svg>
         <div
           className="absolute -top-40 -left-40 h-96 w-96 rounded-full opacity-30"
-          style={{ background: 'radial-gradient(circle, hsl(244 42% 51%) 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(circle, hsl(243 90% 65%) 0%, transparent 70%)' }}
         />
       </div>
 
       {/* Logo */}
       <div className="relative z-20 p-10">
         <Link href="/" aria-label="Accueil MERKURE">
-          <BrandLogo iconClassName="h-10 w-10" textClassName="text-lg font-semibold tracking-tight" />
+          <BrandLogo iconClassName="h-10 w-10" iconVariant="gradient" textClassName="text-lg font-semibold tracking-tight" />
         </Link>
       </div>
 
@@ -64,7 +64,7 @@ function VisualPanel() {
 
 export function AuthShell({ title, description, children, contentClassName }: AuthShellProps) {
   return (
-    <div className="min-h-screen bg-background text-foreground lg:grid lg:grid-cols-2">
+    <div className="site-dark min-h-screen bg-background text-foreground lg:grid lg:grid-cols-2">
       <VisualPanel />
 
       <main className="relative flex min-h-screen items-center justify-center px-4 py-10 lg:px-8 bg-background">
