@@ -8,15 +8,26 @@ import { botsRepository } from './bots.repository.js'
 import { botsService } from './bots.service.js'
 import { runTradingCycle } from './trading-agent.js'
 import { wsNotify } from '../../websocket/ws.handler.js'
+import { polymarketClient } from '../../infrastructure/polymarket/clob-client.js'
+import type { PolymarketAccountKind, MarketResolution } from '../../infrastructure/polymarket/clob-client.js'
 
-async function loadWalletCredentials(brokerAccountId: string): Promise<{ privateKey: string; walletAddress: string }> {
+async function loadWalletCredentials(brokerAccountId: string): Promise<{
+  privateKey: string; walletAddress: string; funderAddress: string; accountKind: PolymarketAccountKind
+}> {
   const account = await prisma.brokerAccount.findUnique({
     where: { id: brokerAccountId },
     select: { credentialsEnc: true, accountId: true },
   })
-  if (!account?.credentialsEnc) return { privateKey: '', walletAddress: account?.accountId ?? '' }
+  if (!account?.credentialsEnc) {
+    return { privateKey: '', walletAddress: account?.accountId ?? '', funderAddress: '', accountKind: 'FRESH_WALLET' }
+  }
   const creds = decrypt(account.credentialsEnc)
-  return { privateKey: creds['privateKey'] ?? '', walletAddress: creds['walletAddress'] ?? account.accountId }
+  return {
+    privateKey:    creds['privateKey'] ?? '',
+    walletAddress: creds['walletAddress'] ?? account.accountId,
+    funderAddress: creds['funderAddress'] ?? '',
+    accountKind:   creds['accountKind'] === 'MAGIC_EMAIL' ? 'MAGIC_EMAIL' : 'FRESH_WALLET',
+  }
 }
 
 export function startBotTradingWorker() {
@@ -32,6 +43,48 @@ export function startBotTradingWorker() {
             { botId: bot.id },
             { jobId: `tick-${bot.id}-${Date.now()}`, removeOnComplete: true, removeOnFail: true },
           )
+        }
+        return
+      }
+
+      // ─── Règlement : pour chaque position ouverte, vérifie si le marché
+      // Polymarket sous-jacent est résolu et calcule le PnL réel (gain si le
+      // token détenu a gagné, perte sinon). Sans ça, currentEquity ne reflète
+      // que le coût des positions prises, jamais leur issue.
+      if (job.name === 'settle-positions') {
+        const pending = await botsRepository.findUnsettledDecisions()
+        const resolutionCache = new Map<string, MarketResolution>()
+        const affectedBotIds = new Set<string>()
+
+        for (const decision of pending) {
+          let resolution = resolutionCache.get(decision.marketId)
+          if (!resolution) {
+            resolution = await polymarketClient.getMarketResolution(decision.marketId)
+            resolutionCache.set(decision.marketId, resolution)
+          }
+          if (!resolution.closed || resolution.yesWon === null) continue
+
+          const price = Number(decision.price)
+          if (price <= 0) continue // donnée incohérente, on ne règle pas au hasard
+
+          const sizeUsd = Number(decision.sizeUsd)
+          const won     = decision.side === 'YES' ? resolution.yesWon : !resolution.yesWon
+          const shares  = sizeUsd / price // le token gagnant rembourse 1$ par part
+          const payout  = won ? shares : 0
+          const pnl     = payout - sizeUsd
+
+          const settled = await botsRepository.settleDecision(decision.id, pnl)
+          if (!settled) continue // déjà réglée par une exécution concurrente — ne pas créditer deux fois
+          await botsRepository.incrementEquity(decision.botId, payout)
+          affectedBotIds.add(decision.botId)
+        }
+
+        for (const affectedBotId of affectedBotIds) {
+          const bot = await prisma.tradingBot.findUnique({ where: { id: affectedBotId } })
+          if (!bot) continue
+          const justTripped = await botsService.checkCircuitBreaker(bot)
+          if (justTripped) wsNotify(bot.userId, { type: 'bot:circuit_breaker', data: { botId: affectedBotId } })
+          else wsNotify(bot.userId, { type: 'bot:decision', data: { botId: affectedBotId } })
         }
         return
       }
@@ -72,9 +125,12 @@ export function startBotTradingWorker() {
           pnl:       result.pnl,
         })
 
-        // Recalcule l'équity courante (mode simulé : le PnL est approximé côté
-        // agent ; en LIVE, un futur module de réconciliation lira l'état on-chain).
-        if (result.status === 'FILLED' || result.status === 'SUBMITTED') {
+        // Débite le coût de la position dès qu'une position réelle est prise
+        // (DRY_RUN inclus — un trade "SIMULATED" avec un marketId non vide reste
+        // une position papier, distincte d'un HOLD). Le gain/perte à la résolution
+        // du marché est réglé séparément par le job 'settle-positions'.
+        const tookPosition = result.marketId !== '' && (result.side === 'YES' || result.side === 'NO')
+        if (tookPosition) {
           const newEquity = Number(bot.currentEquity) - result.sizeUsd
           await botsRepository.updateEquity(botId, newEquity)
         }
@@ -106,6 +162,15 @@ export async function scheduleBotTradingCron(): Promise<void> {
     {
       repeat: { every: env.BOT_TRADING_TICK_MS },
       jobId: 'dispatch-active-bots-cron',
+    },
+  )
+
+  await botTradingQueue.add(
+    'settle-positions',
+    {} as BotTradingJob,
+    {
+      repeat: { every: env.BOT_SETTLEMENT_TICK_MS },
+      jobId: 'settle-positions-cron',
     },
   )
 }

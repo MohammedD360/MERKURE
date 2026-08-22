@@ -22,7 +22,12 @@ export const botsService = {
       accountType: input.mode === 'LIVE' ? 'LIVE' : 'DEMO',
       accountId:   input.walletAddress,
       label:       `Polymarket — ${input.name}`,
-      credentials: { privateKey: input.privateKey, walletAddress: input.walletAddress },
+      credentials: {
+        privateKey: input.privateKey,
+        walletAddress: input.walletAddress,
+        accountKind: input.accountKind,
+        ...(input.funderAddress ? { funderAddress: input.funderAddress } : {}),
+      },
     })
 
     const bot = await botsRepository.create(userId, {

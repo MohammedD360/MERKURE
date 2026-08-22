@@ -50,6 +50,10 @@ export const botsRepository = {
     return prisma.tradingBot.update({ where: { id }, data: { currentEquity } })
   },
 
+  incrementEquity(id: string, amount: number) {
+    return prisma.tradingBot.update({ where: { id }, data: { currentEquity: { increment: amount } } })
+  },
+
   setStatus(id: string, status: BotStatus, extra: Prisma.TradingBotUpdateInput = {}) {
     return prisma.tradingBot.update({ where: { id }, data: { status, ...extra } })
   },
@@ -87,6 +91,28 @@ export const botsRepository = {
       orderBy: { createdAt: 'desc' },
       take:    limit,
     })
+  },
+
+  // Positions ouvertes non réglées : une décision avec une taille réelle (pas un
+  // HOLD, identifiable par marketId vide) dont le PnL n'a pas encore été calculé.
+  findUnsettledDecisions() {
+    return prisma.botDecision.findMany({
+      where: {
+        pnl:      null,
+        marketId: { not: '' },
+        side:     { in: ['YES', 'NO'] },
+        status:   { in: ['SIMULATED', 'SUBMITTED', 'FILLED'] },
+      },
+    })
+  },
+
+  // updateMany + condition pnl IS NULL plutôt que update() par id : si deux
+  // exécutions du job de règlement se recoupent (ex. schedulers dupliqués après
+  // un changement de config), seule la première "gagne" la ligne — la seconde
+  // affecte 0 ligne et ne doit donc pas créditer l'équity une seconde fois.
+  async settleDecision(id: string, pnl: number): Promise<boolean> {
+    const result = await prisma.botDecision.updateMany({ where: { id, pnl: null }, data: { pnl } })
+    return result.count > 0
   },
 
   // ── Événements (démarrage, pause, circuit breaker, erreurs) ───────────────────

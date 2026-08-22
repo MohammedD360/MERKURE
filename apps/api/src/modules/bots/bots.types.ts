@@ -13,14 +13,23 @@ export const MarketFiltersSchema = z.object({
 })
 
 export const CreateBotSchema = z.object({
-  name:        z.string().min(1).max(100),
+  name:          z.string().min(1).max(100),
   walletAddress: z.string().min(1),
   privateKey:    z.string().min(1),
+  // Adresse du proxy wallet Polymarket qui détient les fonds — distincte de
+  // walletAddress (l'EOA qui signe). Visible sur polymarket.com une fois
+  // connecté. Nécessaire uniquement pour le mode LIVE.
+  funderAddress: z.string().min(1).optional(),
+  // Détermine le signatureType EIP-712 attendu par le CLOB Polymarket.
+  accountKind:   z.enum(['MAGIC_EMAIL', 'FRESH_WALLET']).default('FRESH_WALLET'),
   mode:          z.enum(['DRY_RUN', 'LIVE']).default('DRY_RUN'),
   marketFilters: MarketFiltersSchema.default({}),
   riskConfig:    RiskConfigSchema.default({}),
   sessionStartEquity: z.number().nonnegative().default(0),
-})
+}).refine(
+  (data) => data.mode !== 'LIVE' || Boolean(data.funderAddress),
+  { message: 'funderAddress est requis en mode LIVE', path: ['funderAddress'] },
+)
 
 export const UpdateBotSchema = z.object({
   name:        z.string().min(1).max(100).optional(),
