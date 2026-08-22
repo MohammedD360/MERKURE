@@ -42,13 +42,13 @@ const quickStarts: Array<{
     icon:  SlidersHorizontal,
     title: 'Simulation Monte Carlo',
     text:   'Analysez la robustesse de votre stratégie avec des variations.',
-    tone:  'border-emerald-200 bg-emerald-50 text-emerald-600',
+    tone:  'border-green-500/30 bg-green-500/10 text-green-500',
   },
   {
     icon:  FileText,
     title: 'Comparaison de règles',
     text:   'Comparez plusieurs règles ou stratégies entre elles.',
-    tone:  'border-amber-200 bg-amber-50 text-amber-600',
+    tone:  'border-amber-500/30 bg-amber-500/10 text-amber-500',
   },
 ]
 
@@ -78,21 +78,21 @@ const overviewStats: Array<{
     label:  'Gain moyen / simulation',
     value:  '+1,38R',
     helper: '+0,42R vs mois dernier',
-    tone:   'border-emerald-200 bg-emerald-50 text-emerald-600',
+    tone:   'border-green-500/30 bg-green-500/10 text-green-500',
   },
   {
     icon:   TrendingDown,
     label:  'Perte moyenne / simulation',
     value:  '-0,86R',
     helper: '-0,12R vs mois dernier',
-    tone:   'border-red-200 bg-red-50 text-red-500',
+    tone:   'border-red-500/30 bg-red-500/10 text-red-500',
   },
   {
     icon:   Clock3,
     label:  'Temps moyen / simulation',
     value:  '12 min',
     helper: '-3 min vs mois dernier',
-    tone:   'border-amber-200 bg-amber-50 text-amber-600',
+    tone:   'border-amber-500/30 bg-amber-500/10 text-amber-500',
   },
 ]
 
@@ -104,9 +104,9 @@ const recentScenarios = [
     asset:       'EUR/USD',
     period:      '01/01/2023 – 31/12/2023',
     result:      'Gagnant',
-    resultTone:  'bg-emerald-50 text-emerald-600',
+    resultTone:  'bg-green-500/10 text-green-500',
     performance: '+2,31R',
-    perfTone:    'text-emerald-600',
+    perfTone:    'text-green-500',
     date:        '18 mai 2024',
     trend:       'up',
   },
@@ -117,9 +117,9 @@ const recentScenarios = [
     asset:       'XAU/USD',
     period:      '15/04/2024 – 15/05/2024',
     result:      'Gagnant',
-    resultTone:  'bg-emerald-50 text-emerald-600',
+    resultTone:  'bg-green-500/10 text-green-500',
     performance: '+1,07R',
-    perfTone:    'text-emerald-600',
+    perfTone:    'text-green-500',
     date:        '17 mai 2024',
     trend:       'up',
   },
@@ -130,7 +130,7 @@ const recentScenarios = [
     asset:       'GBP/USD',
     period:      '01/03/2023 – 30/04/2024',
     result:      'Perdant',
-    resultTone:  'bg-red-50 text-red-500',
+    resultTone:  'bg-red-500/10 text-red-500',
     performance: '-0,74R',
     perfTone:    'text-red-500',
     date:        '16 mai 2024',
@@ -145,7 +145,7 @@ const recentScenarios = [
     result:      'En cours',
     resultTone:  'bg-[hsl(var(--accent))] text-muted-foreground',
     performance: '+0,23R',
-    perfTone:    'text-emerald-600',
+    perfTone:    'text-green-500',
     date:        '15 mai 2024',
     trend:       'up',
   },
@@ -162,7 +162,7 @@ function HeroVisual() {
   return (
     <div className="relative hidden min-h-[230px] overflow-hidden lg:block">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_55%,hsl(var(--primary)/0.12),transparent_32%),radial-gradient(circle_at_38%_75%,hsl(var(--primary)/0.06),transparent_30%)]" />
-      <div className="absolute bottom-8 right-12 h-28 w-44 rotate-3 rounded-xl border border-[hsl(var(--border))] bg-white shadow-sm">
+      <div className="absolute bottom-8 right-12 h-28 w-44 rotate-3 rounded-xl border border-[hsl(var(--border))] bg-card shadow-sm">
         <div className="flex gap-1 border-b border-[hsl(var(--border))] px-3 py-2">
           {[0, 1, 2].map(item => <span key={item} className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--primary))]" />)}
         </div>
@@ -172,7 +172,7 @@ function HeroVisual() {
         </svg>
       </div>
       <div className="absolute bottom-8 right-2 flex h-24 w-24 items-center justify-center rounded-full border border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary)/0.08)] shadow-[0_0_52px_hsl(244_42%_51%/0.2)]">
-        <div className="flex h-16 w-16 rotate-[-18deg] items-center justify-center rounded-full border border-[hsl(var(--primary)/0.3)] bg-white">
+        <div className="flex h-16 w-16 rotate-[-18deg] items-center justify-center rounded-full border border-[hsl(var(--primary)/0.3)] bg-card">
           <Route className="h-8 w-8 text-[hsl(var(--primary))]" />
         </div>
       </div>
@@ -183,12 +183,12 @@ function HeroVisual() {
 
 function QuickStartCard({ icon: Icon, title, text, tone }: (typeof quickStarts)[number]) {
   return (
-    <button className={`group flex min-h-[140px] items-start gap-4 rounded-xl border bg-white p-5 text-left transition-colors hover:border-[hsl(var(--primary)/0.3)] ${tone}`}>
+    <button className={`group flex min-h-[140px] items-start gap-4 rounded-xl border bg-card p-5 text-left transition-colors hover:border-[hsl(var(--primary)/0.3)] ${tone}`}>
       <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border ${tone}`}>
         <Icon className="h-6 w-6" />
       </div>
       <div className="min-w-0 flex-1">
-        <h3 className="text-sm font-black text-foreground">{title}</h3>
+        <h3 className="text-2xl font-semibold leading-none tracking-tight text-foreground">{title}</h3>
         <p className="mt-4 text-xs font-medium leading-6 text-muted-foreground">{text}</p>
       </div>
       <ArrowRight className="mt-auto h-4 w-4 shrink-0 text-current transition-transform group-hover:translate-x-1" />
@@ -213,7 +213,7 @@ function Sparkline({ trend }: { trend: string }) {
 export function IaSimulationPage() {
   return (
     <div className="space-y-6 px-4 py-5 sm:px-6 lg:px-8">
-      <section className="overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-card shadow-sm">
         <div className="relative grid lg:grid-cols-[1fr_0.92fr]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_30%,hsl(var(--primary)/0.08),transparent_28%),radial-gradient(circle_at_82%_45%,hsl(var(--primary)/0.05),transparent_32%)]" />
           <div className="relative flex items-center gap-7 px-7 py-8">
@@ -221,7 +221,7 @@ export function IaSimulationPage() {
               <Zap className="h-11 w-11 text-[hsl(var(--primary))]" strokeWidth={1.8} />
             </div>
             <div>
-              <h2 className="text-2xl font-black text-foreground">Testez. Analysez. Progressez.</h2>
+              <h2 className="text-2xl font-semibold text-foreground">Testez. Analysez. Progressez.</h2>
               <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-muted-foreground">
                 Simulez vos stratégies de trading sur des données historiques ou créez des scénarios personnalisés pour anticiper vos décisions.
               </p>
@@ -233,7 +233,7 @@ export function IaSimulationPage() {
                   </span>
                 ))}
               </div>
-              <button className="mt-7 rounded-lg bg-[hsl(var(--primary))] px-6 py-3 text-sm font-black text-white shadow-[0_4px_14px_hsl(244_42%_51%/0.3)] transition-colors hover:bg-[hsl(244_42%_44%)]">
+              <button className="mt-7 rounded-lg bg-[hsl(var(--primary))] px-6 py-3 text-sm font-semibold text-white shadow-[0_4px_14px_hsl(244_42%_51%/0.3)] transition-colors hover:bg-[hsl(243_90%_58%)]">
                 Créer une nouvelle simulation
               </button>
             </div>
@@ -243,7 +243,7 @@ export function IaSimulationPage() {
       </section>
 
       <section>
-        <h2 className="text-base font-black text-foreground">Démarrer rapidement</h2>
+        <h2 className="text-base font-semibold text-foreground">Démarrer rapidement</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
           {quickStarts.map(item => (
             <QuickStartCard key={item.title} {...item} />
@@ -251,8 +251,8 @@ export function IaSimulationPage() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-[hsl(var(--border))] bg-white p-4 shadow-sm">
-        <h2 className="px-1 text-base font-black text-foreground">Aperçu de vos simulations</h2>
+      <section className="rounded-xl border border-[hsl(var(--border))] bg-card p-4 shadow-sm">
+        <h2 className="px-1 text-base font-semibold text-foreground">Aperçu de vos simulations</h2>
         <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
           {overviewStats.map(({ icon: Icon, label, value, helper, tone }) => (
             <article key={label} className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--accent))] p-4">
@@ -262,8 +262,8 @@ export function IaSimulationPage() {
                 </div>
                 <div>
                   <p className="text-xs font-medium leading-5 text-muted-foreground">{label}</p>
-                  <p className="mt-2 font-mono text-3xl font-black text-foreground">{value}</p>
-                  <p className={`mt-2 text-xs font-black ${helper.startsWith('-0') ? 'text-red-500' : 'text-emerald-600'}`}>
+                  <p className="mt-2 tabular-nums text-3xl font-semibold text-foreground">{value}</p>
+                  <p className={`mt-2 text-xs font-semibold ${helper.startsWith('-0') ? 'text-red-500' : 'text-green-500'}`}>
                     {helper}
                   </p>
                 </div>
@@ -273,17 +273,17 @@ export function IaSimulationPage() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-card shadow-sm">
         <div className="flex items-center justify-between gap-4 border-b border-[hsl(var(--border))] px-5 py-4">
-          <h2 className="text-base font-black text-foreground">Mes scénarios récents</h2>
-          <button className="rounded-lg border border-[hsl(var(--primary)/0.2)] px-4 py-2 text-xs font-black text-[hsl(var(--primary))] transition-colors hover:bg-[hsl(var(--primary)/0.08)]">
+          <h2 className="text-base font-semibold text-foreground">Mes scénarios récents</h2>
+          <button className="rounded-lg border border-[hsl(var(--primary)/0.2)] px-4 py-2 text-xs font-semibold text-[hsl(var(--primary))] transition-colors hover:bg-[hsl(var(--primary)/0.08)]">
             Voir toutes les simulations
           </button>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] text-left">
-            <thead className="bg-[hsl(var(--accent))] text-xs font-black text-muted-foreground">
+            <thead className="bg-[hsl(var(--accent))] text-xs font-semibold text-muted-foreground">
               <tr>
                 <th className="px-5 py-4">Nom du scénario</th>
                 <th className="px-5 py-4">Type</th>
@@ -298,16 +298,16 @@ export function IaSimulationPage() {
             <tbody className="divide-y divide-[hsl(var(--border))]">
               {recentScenarios.map((scenario) => (
                 <tr key={scenario.name} className="text-sm font-semibold text-muted-foreground">
-                  <td className="px-5 py-4 font-black text-foreground">{scenario.name}</td>
+                  <td className="px-5 py-4 font-semibold text-foreground">{scenario.name}</td>
                   <td className="px-5 py-4">
-                    <span className={`rounded-md px-2.5 py-1 text-xs font-black ${scenario.typeTone}`}>{scenario.type}</span>
+                    <span className={`rounded-md px-2.5 py-1 text-xs font-semibold ${scenario.typeTone}`}>{scenario.type}</span>
                   </td>
                   <td className="px-5 py-4">{scenario.asset}</td>
                   <td className="px-5 py-4">{scenario.period}</td>
                   <td className="px-5 py-4">
-                    <span className={`rounded-md px-2.5 py-1 text-xs font-black ${scenario.resultTone}`}>{scenario.result}</span>
+                    <span className={`rounded-md px-2.5 py-1 text-xs font-semibold ${scenario.resultTone}`}>{scenario.result}</span>
                   </td>
-                  <td className={`px-5 py-4 font-mono text-base font-black ${scenario.perfTone}`}>
+                  <td className={`px-5 py-4 tabular-nums text-base font-semibold ${scenario.perfTone}`}>
                     <div className="flex items-center gap-4">
                       {scenario.performance}
                       <Sparkline trend={scenario.trend} />
@@ -326,7 +326,7 @@ export function IaSimulationPage() {
         </div>
       </section>
 
-      <div className="flex items-center gap-3 rounded-xl border border-[hsl(var(--border))] bg-white px-5 py-4 text-sm font-semibold text-muted-foreground">
+      <div className="flex items-center gap-3 rounded-xl border border-[hsl(var(--border))] bg-card px-5 py-4 text-sm font-semibold text-muted-foreground">
         <Settings2 className="h-5 w-5 text-[hsl(var(--primary))]" />
         Les simulations utilisent vos trades importés et vos règles de risque. Les résultats restent des scénarios, pas des promesses de performance.
       </div>

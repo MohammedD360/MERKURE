@@ -39,7 +39,7 @@ const biasCards: Array<{
     title:       'Overtrading',
     description: 'Nombre de trades anormalement élevé en une session.',
     label:       'Surveillance',
-    tone:        'border-red-200 bg-red-50 text-red-500',
+    tone:        'border-red-500/30 bg-red-500/10 text-red-500',
     chartColor:  '#ef4444',
     points:      '5,42 17,37 29,28 40,33 53,17 65,31 77,25 89,34 100,10 112,24 122,18',
   },
@@ -48,7 +48,7 @@ const biasCards: Array<{
     title:       'Trade émotionnel',
     description: 'Entrées hors setup identifiées après une série de pertes.',
     label:       'Attention',
-    tone:        'border-amber-200 bg-amber-50 text-amber-600',
+    tone:        'border-amber-500/30 bg-amber-500/10 text-amber-500',
     chartColor:  '#d97706',
     points:      '5,40 16,24 28,34 39,22 50,31 62,17 75,28 87,24 99,31 111,21 122,9',
   },
@@ -76,7 +76,7 @@ const educationCards: Array<{
     icon:  TrendingUp,
     title: 'Comment les corriger ?',
     text:   "Avec de la prise de conscience, des règles claires et un plan d'action adapté à votre profil de trader.",
-    tone:  'border-emerald-200 bg-emerald-50 text-emerald-600',
+    tone:  'border-green-500/30 bg-green-500/10 text-green-500',
   },
 ]
 
@@ -109,15 +109,15 @@ function BiasCard({
   points,
 }: (typeof biasCards)[number]) {
   return (
-    <article className={`overflow-hidden rounded-xl border bg-white p-5 shadow-sm ${tone}`}>
+    <article className={`overflow-hidden rounded-xl border bg-card p-5 shadow-sm ${tone}`}>
       <div className="flex min-h-[132px] items-center justify-between gap-5">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
             <Icon className="h-8 w-8 shrink-0" strokeWidth={1.9} />
-            <h2 className="text-base font-black text-foreground">{title}</h2>
+            <h2 className="text-base font-semibold text-foreground">{title}</h2>
           </div>
           <p className="mt-5 max-w-xs text-sm font-semibold leading-6 text-muted-foreground">{description}</p>
-          <span className={`mt-5 inline-flex rounded-md border px-2.5 py-1 text-xs font-black ${tone}`}>
+          <span className={`mt-5 inline-flex rounded-md border px-2.5 py-1 text-xs font-semibold ${tone}`}>
             {label}
           </span>
         </div>
@@ -142,7 +142,7 @@ function EmptyAnalysis({
         <div className="absolute inset-6 rounded-full border border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary)/0.08)]" />
         <Sparkles className="relative h-8 w-8 text-[hsl(var(--primary))]" />
       </div>
-      <h3 className="mt-6 text-base font-black text-foreground">Aucune analyse disponible pour le moment</h3>
+      <h3 className="mt-6 text-base font-semibold text-foreground">Aucune analyse disponible pour le moment</h3>
       <p className="mt-3 max-w-xl text-sm font-medium leading-7 text-muted-foreground">
         Générez une analyse depuis le dashboard pour voir vos biais détectés et obtenir des recommandations personnalisées.
       </p>
@@ -150,7 +150,7 @@ function EmptyAnalysis({
         type="button"
         onClick={onGenerate}
         disabled={isPending}
-        className="mt-7 inline-flex items-center justify-center gap-3 rounded-lg bg-[hsl(var(--primary))] px-6 py-3 text-sm font-black text-white shadow-[0_4px_14px_hsl(244_42%_51%/0.3)] transition-colors hover:bg-[hsl(244_42%_44%)] disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-7 inline-flex items-center justify-center gap-3 rounded-lg bg-[hsl(var(--primary))] px-6 py-3 text-sm font-semibold text-white shadow-[0_4px_14px_hsl(244_42%_51%/0.3)] transition-colors hover:bg-[hsl(243_90%_58%)] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
         {isPending ? "Analyse en cours..." : "Générer une analyse"}
@@ -182,9 +182,9 @@ export function IaBiaisPage() {
         ))}
       </div>
 
-      <section className="overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-card shadow-sm">
         <div className="flex items-center gap-2 px-6 py-5">
-          <h2 className="text-base font-black text-foreground">Points d&apos;amélioration détectés</h2>
+          <h2 className="text-base font-semibold text-foreground">Points d&apos;amélioration détectés</h2>
           <Info className="h-4 w-4 text-muted-foreground/60" />
           {isLoading && <Loader2 className="ml-auto h-4 w-4 animate-spin text-muted-foreground/60" />}
         </div>
@@ -199,7 +199,7 @@ export function IaBiaisPage() {
           <div className="grid gap-3 px-6 pb-6 lg:grid-cols-2">
             {improvements.map((item, index) => (
               <div key={item} className="flex items-start gap-3 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))] p-4">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--primary)/0.1)] text-[11px] font-black text-[hsl(var(--primary))]">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--primary)/0.1)] text-xs font-semibold text-[hsl(var(--primary))]">
                   {index + 1}
                 </span>
                 <p className="text-sm font-medium leading-6 text-muted-foreground">{item}</p>
@@ -219,8 +219,8 @@ export function IaBiaisPage() {
         )}
       </section>
 
-      <section className="rounded-xl border border-[hsl(var(--border))] bg-white p-6 shadow-sm">
-        <h2 className="text-base font-black text-foreground">Comprendre les biais</h2>
+      <section className="rounded-xl border border-[hsl(var(--border))] bg-card p-6 shadow-sm">
+        <h2 className="text-base font-semibold text-foreground">Comprendre les biais</h2>
         <div className="mt-5 grid gap-4 xl:grid-cols-3">
           {educationCards.map(({ icon: Icon, title, text, tone }) => (
             <article key={title} className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--accent))] p-5">
@@ -229,7 +229,7 @@ export function IaBiaisPage() {
                   <Icon className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-foreground">{title}</h3>
+                  <h3 className="text-2xl font-semibold leading-none tracking-tight text-foreground">{title}</h3>
                   <p className="mt-3 text-xs font-medium leading-6 text-muted-foreground">{text}</p>
                 </div>
               </div>
@@ -238,15 +238,15 @@ export function IaBiaisPage() {
         </div>
       </section>
 
-      <div className="flex flex-col gap-4 rounded-xl border border-[hsl(var(--border))] bg-white px-5 py-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-4 rounded-xl border border-[hsl(var(--border))] bg-card px-5 py-4 sm:flex-row sm:items-center">
         <div className="flex items-center gap-3">
           <Sparkles className="h-5 w-5 text-[hsl(var(--primary))]" />
-          <span className="text-sm font-black text-foreground">Conseil IA</span>
+          <span className="text-sm font-semibold text-foreground">Conseil IA</span>
         </div>
         <p className="text-sm font-medium leading-6 text-muted-foreground sm:border-l sm:border-[hsl(var(--border))] sm:pl-5">
           La clé n'est pas d'éviter les erreurs, mais d'apprendre à les reconnaître et à ne plus les répéter.
         </p>
-        <button className="inline-flex items-center gap-2 text-sm font-black text-[hsl(var(--primary))] sm:ml-auto">
+        <button className="inline-flex items-center gap-2 text-sm font-semibold text-[hsl(var(--primary))] sm:ml-auto">
           En savoir plus
           <ArrowRight className="h-4 w-4" />
         </button>

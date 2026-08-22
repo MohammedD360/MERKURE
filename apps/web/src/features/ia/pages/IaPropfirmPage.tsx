@@ -27,14 +27,14 @@ const compatibilityCards: Array<{
     match:   '94%',
     profile: 'Profil compatible avec une limite de drawdown stricte et une progression régulière.',
     rules:   ["Drawdown journalier maîtrisé", "Risque moyen inférieur à 1R", 'Régularité supérieure à la médiane'],
-    tone:    'border-emerald-200 bg-emerald-50 text-emerald-600',
+    tone:    'border-green-500/30 bg-green-500/10 text-green-500',
   },
   {
     title:   'Challenge agressif',
     match:   '71%',
     profile: 'Potentiel intéressant, mais le rythme de trading doit être encadré avant inscription.',
     rules:   ["Réduire les trades après perte", "Limiter le risque hors setup", 'Éviter les fins de session'],
-    tone:    'border-amber-200 bg-amber-50 text-amber-600',
+    tone:    'border-amber-500/30 bg-amber-500/10 text-amber-500',
   },
   {
     title:   'Compte scaling',
@@ -57,14 +57,14 @@ const criteria: Array<{
     label:  'Risque moyen',
     value:  '0,9R',
     helper: 'Compatible avec un cadre prudent',
-    tone:   'border-emerald-200 bg-emerald-50 text-emerald-600',
+    tone:   'border-green-500/30 bg-green-500/10 text-green-500',
   },
   {
     icon:   TrendingDown,
     label:  'Drawdown maximal',
     value:  '-4,8%',
     helper: 'Marge avant seuil critique',
-    tone:   'border-red-200 bg-red-50 text-red-500',
+    tone:   'border-red-500/30 bg-red-500/10 text-red-500',
   },
   {
     icon:   Target,
@@ -93,24 +93,24 @@ function PropFirmVisual() {
   return (
     <div className="relative hidden min-h-[250px] overflow-hidden lg:block">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_34%,rgba(83,74,183,0.10),transparent_30%),radial-gradient(circle_at_38%_78%,rgba(124,92,255,0.08),transparent_28%)]" />
-      <div className="absolute right-8 top-7 w-[360px] rounded-xl border border-[hsl(var(--border))] bg-white p-5 shadow-[0_24px_80px_rgba(0,0,0,0.08)]">
+      <div className="absolute right-8 top-7 w-[360px] rounded-xl border border-[hsl(var(--border))] bg-card p-5 shadow-[0_24px_80px_rgba(0,0,0,0.08)]">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[hsl(var(--foreground-soft))]">Compatibilité</p>
-            <p className="mt-2 text-3xl font-black text-foreground">94%</p>
+            <p className="text-xs text-[hsl(var(--foreground-soft))]">Compatibilité</p>
+            <p className="mt-2 text-3xl font-semibold text-foreground">94%</p>
           </div>
           <BriefcaseBusiness className="h-8 w-8 text-[hsl(var(--primary))]" />
         </div>
         <div className="mt-5 space-y-3">
           {[
-            ["Drawdown", "Respecté", 'text-emerald-600'],
-            ["Risque / trade", "Stable", 'text-emerald-600'],
+            ["Drawdown", "Respecté", 'text-green-500'],
+            ["Risque / trade", "Stable", 'text-green-500'],
             ["Objectif", "Réaliste", 'text-[hsl(var(--primary))]'],
-            ["News trading", "À surveiller", 'text-amber-600'],
+            ["News trading", "À surveiller", 'text-amber-500'],
           ].map(([label, value, color]) => (
             <div key={label} className="flex items-center justify-between rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-4 py-3">
               <span className="text-xs font-semibold text-[hsl(var(--foreground-soft))]">{label}</span>
-              <span className={`text-xs font-black ${color}`}>{value}</span>
+              <span className={`text-xs font-semibold ${color}`}>{value}</span>
             </div>
           ))}
         </div>
@@ -127,10 +127,10 @@ export function IaPropfirmPage() {
         <div className="relative grid lg:grid-cols-[1fr_0.92fr]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(83,74,183,0.08),transparent_30%),radial-gradient(circle_at_82%_42%,rgba(124,92,255,0.06),transparent_32%)]" />
           <div className="relative px-7 py-8">
-            <span className="rounded-md border border-[hsl(var(--primary)/0.25)] bg-[hsl(var(--primary)/0.1)] px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-[hsl(var(--primary))]">
+            <span className="rounded-md border border-[hsl(var(--primary)/0.25)] bg-[hsl(var(--primary)/0.1)] px-3 py-1 text-xs text-[hsl(var(--primary))]">
               Prop firms
             </span>
-            <h1 className="mt-5 max-w-2xl text-3xl font-black text-foreground">
+            <h1 className="mt-5 max-w-2xl text-3xl font-semibold text-foreground">
               Vérifiez si votre style respecte un challenge avant de payer.
             </h1>
             <p className="mt-4 max-w-2xl text-sm font-medium leading-7 text-[hsl(var(--foreground-soft))]">
@@ -161,8 +161,8 @@ export function IaPropfirmPage() {
                 <Icon className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[hsl(var(--foreground-soft))]">{label}</p>
-                <p className="mt-2 font-mono text-3xl font-black text-foreground">{value}</p>
+                <p className="text-xs text-[hsl(var(--foreground-soft))]">{label}</p>
+                <p className="mt-2 tabular-nums text-3xl font-semibold text-foreground">{value}</p>
                 <p className="mt-1 text-xs font-semibold text-[hsl(var(--foreground-soft))]">{helper}</p>
               </div>
             </div>
@@ -173,7 +173,7 @@ export function IaPropfirmPage() {
       <section>
         <div className="mb-4 flex items-end justify-between gap-4">
           <div>
-            <h2 className="text-base font-black text-foreground">Formats compatibles</h2>
+            <h2 className="text-base font-semibold text-foreground">Formats compatibles</h2>
             <p className="mt-1 text-xs font-semibold text-[hsl(var(--foreground-soft))]">
               Exemples de formats. Les noms de prop firms réels seront ajoutés uniquement avec données vérifiées.
             </p>
@@ -185,10 +185,10 @@ export function IaPropfirmPage() {
               <div className="border-b border-[hsl(var(--border))] p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h3 className="text-lg font-black text-foreground">{card.title}</h3>
+                    <h3 className="text-lg font-semibold text-foreground">{card.title}</h3>
                     <p className="mt-2 text-xs font-medium leading-6 text-[hsl(var(--foreground-soft))]">{card.profile}</p>
                   </div>
-                  <span className={`rounded-lg border px-3 py-2 font-mono text-xl font-black ${card.tone}`}>
+                  <span className={`rounded-lg border px-3 py-2 tabular-nums text-xl font-semibold ${card.tone}`}>
                     {card.match}
                   </span>
                 </div>
@@ -208,10 +208,10 @@ export function IaPropfirmPage() {
 
       <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
         <article className="rounded-xl border border-[hsl(var(--border))] bg-background p-5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-amber-200 bg-amber-50 text-amber-600">
+          <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-500">
             <ShieldAlert className="h-5 w-5" />
           </div>
-          <h2 className="mt-5 text-base font-black text-foreground">Ce que MERKURE vérifie</h2>
+          <h2 className="mt-5 text-base font-semibold text-foreground">Ce que MERKURE vérifie</h2>
           <p className="mt-3 text-sm font-medium leading-7 text-[hsl(var(--foreground-soft))]">
             Le module ne choisit pas à votre place. Il signale les écarts entre votre historique et les contraintes habituelles : drawdown, taille moyenne, séries de pertes, news trading et fréquence de prise de position.
           </p>
@@ -219,13 +219,13 @@ export function IaPropfirmPage() {
 
         <article className="rounded-xl border border-[hsl(var(--border))] bg-background p-5">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-base font-black text-foreground">Plan d'action avant challenge</h2>
+            <h2 className="text-base font-semibold text-foreground">Plan d'action avant challenge</h2>
             <BadgeCheck className="h-5 w-5 text-[hsl(var(--primary))]" />
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {actionPlan.map((item, index) => (
               <div key={item} className="flex items-start gap-3 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-4 py-3">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--primary)/0.1)] text-[10px] font-black text-[hsl(var(--primary))]">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--primary)/0.1)] text-xs font-semibold text-[hsl(var(--primary))]">
                   {index + 1}
                 </span>
                 <span className="text-xs font-semibold leading-5 text-[hsl(var(--foreground-soft))]">{item}</span>
@@ -238,7 +238,7 @@ export function IaPropfirmPage() {
       <div className="flex flex-col gap-3 rounded-xl border border-[hsl(var(--border))] bg-background px-5 py-4 text-sm font-semibold text-[hsl(var(--foreground-soft))] sm:flex-row sm:items-center">
         <ShieldCheck className="h-5 w-5 shrink-0 text-[hsl(var(--primary))]" />
         Les compatibilités sont des analyses de préparation. Elles ne garantissent pas l'acceptation ou la réussite d'un challenge.
-        <button className="inline-flex items-center gap-2 text-xs font-black text-[hsl(var(--primary))] sm:ml-auto">
+        <button className="inline-flex items-center gap-2 text-xs font-semibold text-[hsl(var(--primary))] sm:ml-auto">
           Préparer mon profil <ArrowRight className="h-4 w-4" />
         </button>
       </div>

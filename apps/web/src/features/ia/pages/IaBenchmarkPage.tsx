@@ -33,7 +33,7 @@ const benchmarkStats: Array<{
     label:  'Gestion du risque',
     value:  '82/100',
     helper: 'Cadre respecté sur les dernières sessions',
-    tone:   'border-emerald-200 bg-emerald-50 text-emerald-600',
+    tone:   'border-green-500/30 bg-green-500/10 text-green-500',
   },
   {
     icon:   TrendingUp,
@@ -55,13 +55,13 @@ const benchmarkSignals = [
     title: 'Ce qui vous distingue',
     text: 'Votre drawdown reste plus bas que la cohorte sur les périodes de forte volatilité.',
     icon: ShieldCheck,
-    tone: 'border-emerald-200 bg-emerald-50 text-emerald-600',
+    tone: 'border-green-500/30 bg-green-500/10 text-green-500',
   },
   {
     title: 'Point à améliorer',
     text: 'Votre performance relative baisse lorsque le nombre de trades dépasse votre moyenne hebdomadaire.',
     icon: Gauge,
-    tone: 'border-amber-200 bg-amber-50 text-amber-600',
+    tone: 'border-amber-500/30 bg-amber-500/10 text-amber-500',
   },
   {
     title: 'Objectif recommandé',
@@ -75,11 +75,11 @@ function PercentileVisual() {
   return (
     <div className="relative hidden min-h-[250px] overflow-hidden lg:block">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_68%_38%,rgba(124,92,255,0.12),transparent_30%),radial-gradient(circle_at_38%_78%,rgba(83,74,183,0.08),transparent_28%)]" />
-      <div className="absolute right-8 top-8 w-[340px] rounded-xl border border-[hsl(var(--border))] bg-white p-5 shadow-[0_24px_80px_rgba(0,0,0,0.08)]">
+      <div className="absolute right-8 top-8 w-[340px] rounded-xl border border-[hsl(var(--border))] bg-card p-5 shadow-[0_24px_80px_rgba(0,0,0,0.08)]">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[hsl(var(--foreground-soft))]">Votre classement</p>
-            <p className="mt-2 text-3xl font-black text-foreground">78%</p>
+            <p className="text-xs text-[hsl(var(--foreground-soft))]">Votre classement</p>
+            <p className="mt-2 text-3xl font-semibold text-foreground">78%</p>
           </div>
           <Medal className="h-8 w-8 text-[hsl(var(--primary))]" />
         </div>
@@ -132,10 +132,10 @@ export function IaBenchmarkPage() {
         <div className="relative grid lg:grid-cols-[1fr_0.9fr]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(124,92,255,0.08),transparent_30%),radial-gradient(circle_at_82%_42%,rgba(83,74,183,0.06),transparent_32%)]" />
           <div className="relative px-7 py-8">
-            <span className="rounded-md border border-[hsl(var(--primary)/0.25)] bg-[hsl(var(--primary)/0.1)] px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-[hsl(var(--primary))]">
+            <span className="rounded-md border border-[hsl(var(--primary)/0.25)] bg-[hsl(var(--primary)/0.1)] px-3 py-1 text-xs text-[hsl(var(--primary))]">
               Benchmark anonymisé
             </span>
-            <h1 className="mt-5 max-w-2xl text-3xl font-black text-foreground">
+            <h1 className="mt-5 max-w-2xl text-3xl font-semibold text-foreground">
               Comparez votre discipline à des profils similaires.
             </h1>
             <p className="mt-4 max-w-2xl text-sm font-medium leading-7 text-[hsl(var(--foreground-soft))]">
@@ -166,8 +166,8 @@ export function IaBenchmarkPage() {
                 <Icon className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[hsl(var(--foreground-soft))]">{label}</p>
-                <p className="mt-2 font-mono text-3xl font-black text-foreground">{value}</p>
+                <p className="text-xs text-[hsl(var(--foreground-soft))]">{label}</p>
+                <p className="mt-2 tabular-nums text-3xl font-semibold text-foreground">{value}</p>
                 <p className="mt-1 text-xs font-semibold text-[hsl(var(--foreground-soft))]">{helper}</p>
               </div>
             </div>
@@ -178,7 +178,7 @@ export function IaBenchmarkPage() {
       <section className="overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-background shadow-sm">
         <div className="flex items-center justify-between gap-4 border-b border-[hsl(var(--border))] px-5 py-4">
           <div>
-            <h2 className="text-base font-black text-foreground">Comparaison de cohorte</h2>
+            <h2 className="text-base font-semibold text-foreground">Comparaison de cohorte</h2>
             <p className="mt-1 text-xs font-semibold text-[hsl(var(--foreground-soft))]">Lecture illustrative basée sur votre profil de risque.</p>
           </div>
           <LineChart className="h-5 w-5 text-[hsl(var(--primary))]" />
@@ -186,7 +186,7 @@ export function IaBenchmarkPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left">
-            <thead className="bg-[hsl(var(--accent))] text-xs font-black text-[hsl(var(--foreground-soft))]">
+            <thead className="bg-[hsl(var(--accent))] text-xs font-semibold text-[hsl(var(--foreground-soft))]">
               <tr>
                 <th className="px-5 py-4">Profil</th>
                 <th className="px-5 py-4">Win rate</th>
@@ -199,11 +199,11 @@ export function IaBenchmarkPage() {
             <tbody className="divide-y divide-[hsl(var(--border))]">
               {cohortRows.map(row => (
                 <tr key={row.label} className={row.highlight ? 'bg-[hsl(var(--primary)/0.04)]' : undefined}>
-                  <td className="px-5 py-4 text-sm font-black text-foreground">{row.label}</td>
-                  <td className="px-5 py-4 font-mono text-sm font-bold text-[hsl(var(--foreground-soft))]">{row.winRate}</td>
-                  <td className="px-5 py-4 font-mono text-sm font-bold text-red-500">{row.drawdown}</td>
-                  <td className="px-5 py-4 font-mono text-sm font-bold text-[hsl(var(--foreground-soft))]">{row.risk}</td>
-                  <td className="px-5 py-4 font-mono text-sm font-bold text-emerald-600">{row.consistency}/100</td>
+                  <td className="px-5 py-4 text-sm font-semibold text-foreground">{row.label}</td>
+                  <td className="px-5 py-4 tabular-nums text-sm font-bold text-[hsl(var(--foreground-soft))]">{row.winRate}</td>
+                  <td className="px-5 py-4 tabular-nums text-sm font-bold text-red-500">{row.drawdown}</td>
+                  <td className="px-5 py-4 tabular-nums text-sm font-bold text-[hsl(var(--foreground-soft))]">{row.risk}</td>
+                  <td className="px-5 py-4 tabular-nums text-sm font-bold text-green-500">{row.consistency}/100</td>
                   <td className="px-5 py-4"><MiniTrend /></td>
                 </tr>
               ))}
@@ -218,7 +218,7 @@ export function IaBenchmarkPage() {
             <div className={`flex h-11 w-11 items-center justify-center rounded-lg border ${tone}`}>
               <Icon className="h-5 w-5" />
             </div>
-            <h3 className="mt-5 text-sm font-black text-foreground">{title}</h3>
+            <h3 className="mt-5 text-sm font-semibold text-foreground">{title}</h3>
             <p className="mt-3 text-xs font-medium leading-6 text-[hsl(var(--foreground-soft))]">{text}</p>
           </article>
         ))}
@@ -227,7 +227,7 @@ export function IaBenchmarkPage() {
       <div className="flex flex-col gap-3 rounded-xl border border-[hsl(var(--border))] bg-background px-5 py-4 text-sm font-semibold text-[hsl(var(--foreground-soft))] sm:flex-row sm:items-center">
         <CheckCircle2 className="h-5 w-5 shrink-0 text-[hsl(var(--primary))]" />
         Les benchmarks sont anonymisés et servent à piloter votre progression. Ils ne constituent pas une promesse de résultat.
-        <button className="inline-flex items-center gap-2 text-xs font-black text-[hsl(var(--primary))] sm:ml-auto">
+        <button className="inline-flex items-center gap-2 text-xs font-semibold text-[hsl(var(--primary))] sm:ml-auto">
           Voir la méthode <ArrowRight className="h-4 w-4" />
         </button>
       </div>
