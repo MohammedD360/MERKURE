@@ -19,9 +19,13 @@ build/
 .env.*.local
 !.env.example
 
+# Exports et sauvegardes locales — contiennent des données de trading réelles
+.backups/
+
 # Logs
 *.log
 logs/
+.dev-logs/
 npm-debug.log*
 pnpm-debug.log*
 
