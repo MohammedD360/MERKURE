@@ -6,6 +6,7 @@ export const tradesRepository = {
   async findMany(userId: string, query: TradesQuery) {
     const where = {
       userId,
+      deletedAt: null,
       ...(query.symbol && { symbol: query.symbol.toUpperCase() }),
       ...(query.direction && { direction: query.direction as Direction }),
       ...(query.status && { status: query.status as TradeStatus }),
@@ -32,7 +33,7 @@ export const tradesRepository = {
   },
 
   findById(id: string, userId: string) {
-    return prisma.trade.findFirst({ where: { id, userId } })
+    return prisma.trade.findFirst({ where: { id, userId, deletedAt: null } })
   },
 
   annotate(id: string, userId: string, input: AnnotateTradeInput) {

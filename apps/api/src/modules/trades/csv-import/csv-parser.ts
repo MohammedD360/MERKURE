@@ -5,12 +5,12 @@ import type { TradeData } from '../../brokers/adapters/broker-adapter.js'
 // Couvre MT4, MT5, cTrader, Binance, TradingView et formats génériques.
 
 const COLUMN_ALIASES: Record<string, string[]> = {
-  symbol:      ['symbol', 'instrument', 'pair', 'asset', 'ticker', 'currency pair', 'contract'],
-  direction:   ['direction', 'type', 'side', 'action', 'buy/sell', 'trade type', 'order type', 'position type'],
-  openTime:    ['open time', 'open_time', 'opentime', 'entry time', 'entry_time', 'open date', 'open_date', 'date open', 'time', 'date', 'boughttimestamp', 'bought timestamp'],
-  closeTime:   ['close time', 'close_time', 'closetime', 'exit time', 'exit_time', 'close date', 'close_date', 'date close', 'soldtimestamp', 'sold timestamp'],
-  openPrice:   ['open price', 'open_price', 'openprice', 'entry price', 'entry_price', 'price open', 'open', 'entry', 'buyprice', 'buy price'],
-  closePrice:  ['close price', 'close_price', 'closeprice', 'exit price', 'exit_price', 'price close', 'close', 'exit', 'sellprice', 'sell price'],
+  symbol:      ['symbol', 'instrument', 'pair', 'asset', 'ticker', 'currency pair', 'contract', 'symbole'],
+  direction:   ['direction', 'type', 'side', 'action', 'buy/sell', 'trade type', 'order type', 'position type', 'côté', 'cote', 'sens'],
+  openTime:    ['open time', 'open_time', 'opentime', 'entry time', 'entry_time', 'open date', 'open_date', 'date open', 'time', 'date', 'boughttimestamp', 'bought timestamp', "heure d'ouverture", 'heure douverture', "date d'ouverture", 'date douverture'],
+  closeTime:   ['close time', 'close_time', 'closetime', 'exit time', 'exit_time', 'close date', 'close_date', 'date close', 'soldtimestamp', 'sold timestamp', 'heure de clôture', 'heure de cloture', 'date de clôture', 'date de cloture'],
+  openPrice:   ['open price', 'open_price', 'openprice', 'entry price', 'entry_price', 'price open', 'open', 'entry', 'buyprice', 'buy price', "prix d'ouverture", 'prix douverture'],
+  closePrice:  ['close price', 'close_price', 'closeprice', 'exit price', 'exit_price', 'price close', 'close', 'exit', 'sellprice', 'sell price', 'prix de clôture', 'prix de cloture'],
   lotSize:     ['lot size', 'lot_size', 'lots', 'volume', 'quantity', 'qty', 'size', 'amount', 'units'],
   pnl:         ['pnl', 'p&l', 'profit', 'net profit', 'net_profit', 'profit/loss', 'realized pnl', 'gain/loss', 'result'],
   swap:        ['swap', 'rollover', 'financing'],
@@ -47,19 +47,36 @@ function resolveColumnMap(headers: string[]): Map<string, string> {
 // ── Détecte la direction depuis les valeurs Binance / MT4 / cTrader ──────────
 function parseDirection(raw: string): 'LONG' | 'SHORT' | null {
   const v = raw.toLowerCase().trim()
-  if (['buy', 'long', 'b', 'bo'].includes(v)) return 'LONG'
-  if (['sell', 'short', 's', 'so'].includes(v)) return 'SHORT'
+  if (['buy', 'long', 'b', 'bo', 'achat'].includes(v)) return 'LONG'
+  if (['sell', 'short', 's', 'so', 'vente'].includes(v)) return 'SHORT'
   return null
 }
 
-// ── Parse une date — supporte ISO, DD.MM.YYYY HH:mm:ss, MM/DD/YYYY ──────────
+// ── Désambiguïse un couple jour/mois à partir d'un format XX/XX/YYYY ─────────
+// g1/g2 peuvent être DD/MM (Europe) ou MM/DD (US) selon le broker — le format
+// seul (2 chiffres/2 chiffres) ne permet pas de trancher. On utilise la magnitude
+// quand c'est possible (un des deux > 12 ne peut être un mois), et on retombe
+// sur DD/MM par défaut (cohérent avec le format MT4/MT5 DD.MM.YYYY ci-dessous et
+// la base d'utilisateurs francophone/européenne de MERKURE) en cas d'ambiguïté totale.
+function resolveDayMonth(g1: number, g2: number): { day: number; month: number } | null {
+  if (g1 > 12 && g2 > 12) return null
+  if (g1 > 12) return { day: g1, month: g2 }
+  if (g2 > 12) return { day: g2, month: g1 }
+  return { day: g1, month: g2 }
+}
+
+// ── Parse une date — supporte ISO, DD.MM.YYYY HH:mm:ss, DD/MM/YYYY ──────────
 function parseDate(raw: string): Date | null {
   if (!raw || raw.trim() === '') return null
   const trimmed = raw.trim()
 
-  // ISO / standard JS parse (couvre yyyy-mm-dd, yyyy-mm-ddTHH:mm:ss...)
-  const iso = new Date(trimmed)
-  if (!isNaN(iso.getTime())) return iso
+  // ISO strict (yyyy-mm-dd, yyyy-mm-ddTHH:mm:ss...) — seule forme non ambiguë
+  // pour le parsing natif JS (new Date() interprète sinon les dates à séparateur
+  // "/" en MM/DD/YYYY US, ce qui inverse silencieusement jour et mois).
+  if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) {
+    const iso = new Date(trimmed)
+    if (!isNaN(iso.getTime())) return iso
+  }
 
   // DD.MM.YYYY HH:mm:ss (format MT4/MT5)
   const mt4 = trimmed.match(/^(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})(?::(\d{2}))?$/)
@@ -68,21 +85,31 @@ function parseDate(raw: string): Date | null {
     return new Date(`${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}`)
   }
 
-  // MM/DD/YYYY HH:mm:ss (format Tradovate)
-  const tradovate = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/)
-  if (tradovate) {
-    const [, mm, dd, yyyy, hh, mi, ss] = tradovate
+  // XX/XX/YYYY HH:mm:ss (MT5 export slash, Tradovate, etc.) — jour/mois ambigu
+  const dateTime = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/)
+  if (dateTime) {
+    const [, g1, g2, yyyy, hh, mi, ss] = dateTime
+    const resolved = resolveDayMonth(Number(g1), Number(g2))
+    if (!resolved) return null
+    const dd = String(resolved.day).padStart(2, '0')
+    const mm = String(resolved.month).padStart(2, '0')
     return new Date(`${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}`)
   }
 
-  // MM/DD/YYYY (format US)
-  const us = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
-  if (us) {
-    const [, mm, dd, yyyy] = us
+  // XX/XX/YYYY (date seule) — même désambiguïsation
+  const dateOnly = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+  if (dateOnly) {
+    const [, g1, g2, yyyy] = dateOnly
+    const resolved = resolveDayMonth(Number(g1), Number(g2))
+    if (!resolved) return null
+    const dd = String(resolved.day).padStart(2, '0')
+    const mm = String(resolved.month).padStart(2, '0')
     return new Date(`${yyyy}-${mm}-${dd}`)
   }
 
-  return null
+  // Dernier recours : parsing natif JS (formats textuels non couverts ci-dessus)
+  const fallback = new Date(trimmed)
+  return isNaN(fallback.getTime()) ? null : fallback
 }
 
 function parseNum(raw: string | undefined): number {

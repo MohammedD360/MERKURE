@@ -13,9 +13,11 @@ export async function propFirmRoutes(app: FastifyInstance) {
    * Query params:
    *   from        — date ISO de début du challenge (optionnel, sinon tout l'historique)
    *   accountSize — capital du compte prop firm (ex: 100000)
+   *   accountId   — compte broker concerné ; sans lui, la conformité mélangerait
+   *                 les trades de tous les comptes de l'utilisateur
    */
   app.get<{
-    Querystring: { from?: string; accountSize?: string }
+    Querystring: { from?: string; accountSize?: string; accountId?: string }
   }>(
     '/compliance',
     { preHandler: [authenticate] },
@@ -25,10 +27,11 @@ export async function propFirmRoutes(app: FastifyInstance) {
         return { error: 'accountSize_required' }
       }
 
-      const from   = req.query.from ? new Date(req.query.from) : null
-      const userId = req.user.id
+      const from      = req.query.from ? new Date(req.query.from) : null
+      const accountId = req.query.accountId
+      const userId    = req.user.id
 
-      const cacheKey = `propfirm:compliance:${userId}:${from?.toISOString().slice(0, 10) ?? 'all'}:${accountSize}`
+      const cacheKey = `propfirm:compliance:${userId}:${accountId ?? 'all-accounts'}:${from?.toISOString().slice(0, 10) ?? 'all'}:${accountSize}`
       const cached = await cache.get<object>(cacheKey)
       if (cached) return cached
 
@@ -37,6 +40,7 @@ export async function propFirmRoutes(app: FastifyInstance) {
         where: {
           userId,
           status: 'CLOSED',
+          ...(accountId ? { brokerAccountId: accountId } : {}),
           ...(from ? { closeTime: { gte: from } } : {}),
         },
         select: { pnl: true, openTime: true, closeTime: true },
@@ -79,6 +83,7 @@ export async function propFirmRoutes(app: FastifyInstance) {
         where: {
           userId,
           status: 'CLOSED',
+          ...(accountId ? { brokerAccountId: accountId } : {}),
           closeTime: {
             gte: new Date(`${today}T00:00:00.000Z`),
             lt:  new Date(`${today}T23:59:59.999Z`),

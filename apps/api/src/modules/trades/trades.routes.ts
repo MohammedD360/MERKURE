@@ -43,6 +43,7 @@ export async function tradesRoutes(app: FastifyInstance) {
 
     const where = {
       userId: req.user.id,
+      deletedAt: null,
       ...(symbol    ? { symbol:          symbol.toUpperCase() }  : {}),
       ...(direction ? { direction:        direction as Direction } : {}),
       ...(status    ? { status:           status    as TradeStatus } : {}),
