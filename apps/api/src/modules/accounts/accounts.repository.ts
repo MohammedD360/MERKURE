@@ -65,10 +65,11 @@ export const accountsRepository = {
     })
   },
 
-  softDelete(id: string, userId: string) {
-    return prisma.brokerAccount.update({
-      where: { id, userId },
-      data: { isActive: false, deletedAt: new Date() },
-    })
+  // Suppression réelle (pas soft-delete) : le compte et toutes ses données
+  // dérivées (trades, bots, décisions/événements de bot) disparaissent avec
+  // lui, via les cascades Prisma déjà définies sur ces relations.
+  async hardDelete(id: string, userId: string): Promise<boolean> {
+    const result = await prisma.brokerAccount.deleteMany({ where: { id, userId } })
+    return result.count > 0
   },
 }

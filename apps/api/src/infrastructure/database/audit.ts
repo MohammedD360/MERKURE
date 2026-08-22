@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client'
 import { prisma } from './client.js'
 
-export type AuditAction = 'soft_delete' | 'restore'
+export type AuditAction = 'soft_delete' | 'hard_delete' | 'restore'
 export type AuditEntityType = 'trade' | 'broker_account'
 
 export function writeAuditLog(params: {
