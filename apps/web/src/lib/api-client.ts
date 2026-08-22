@@ -32,6 +32,16 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
     headers: { ...headers, ...init?.headers },
   })
 
+  if (res.status === 401) {
+    // Session expirée ou invalide : on nettoie et on renvoie vers la connexion
+    // plutôt que de laisser l'écran afficher les données d'un autre compte.
+    clearToken()
+    if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/sign-in')) {
+      window.location.href = '/sign-in?expired=1'
+    }
+    throw new Error('session_expired')
+  }
+
   if (!res.ok) {
     const body = await res.text().catch(() => '')
     throw new Error(`${res.status} ${path}: ${body}`)
@@ -238,9 +248,10 @@ export const api = {
   },
 
   propFirm: {
-    compliance: (accountSize: number, from?: string) => {
+    compliance: (accountSize: number, from?: string, accountId?: string) => {
       const qs = new URLSearchParams({ accountSize: String(accountSize) })
       if (from) qs.set('from', from)
+      if (accountId) qs.set('accountId', accountId)
       return apiFetch<PropFirmCompliance>(`/api/v1/prop-firm/compliance?${qs}`)
     },
   },

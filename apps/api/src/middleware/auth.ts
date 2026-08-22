@@ -30,9 +30,14 @@ export async function authenticate(
         request.user = { ...request.user, plan: 'ELITE' }
         return
       } catch {
-        // token invalide → on retombe sur le demo user
+        // Une session expirée ne doit PAS basculer silencieusement sur le compte
+        // de démonstration : l'utilisateur verrait les données d'un autre compte
+        // en croyant voir les siennes. On renvoie 401, le front redirige vers
+        // la connexion.
+        return reply.code(401).send({ error: 'session_expired' })
       }
     }
+    // Aucun jeton : navigation de démonstration, on injecte le compte démo.
     request.user = { id: 'demo_user_merkure', email: 'demo@merkure.app', plan: 'ELITE' }
     return
   }
