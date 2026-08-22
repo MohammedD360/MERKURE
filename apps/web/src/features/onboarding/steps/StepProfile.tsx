@@ -16,10 +16,10 @@ const STYLES = [
 ] as const
 
 const RISKS = [
-  { id: 'LOW', label: 'Conservateur', color: 'text-emerald-600', border: 'border-emerald-200', bg: 'bg-emerald-50' },
+  { id: 'LOW', label: 'Conservateur', color: 'text-green-500', border: 'border-green-500/30', bg: 'bg-green-500/10' },
   { id: 'MEDIUM', label: 'Modéré', color: 'text-[hsl(var(--primary))]', border: 'border-[hsl(var(--primary)/0.2)]', bg: 'bg-[hsl(var(--primary)/0.08)]' },
-  { id: 'HIGH', label: 'Dynamique', color: 'text-amber-600', border: 'border-amber-200', bg: 'bg-amber-50' },
-  { id: 'AGGRESSIVE', label: 'Agressif', color: 'text-red-500', border: 'border-red-200', bg: 'bg-red-50' },
+  { id: 'HIGH', label: 'Dynamique', color: 'text-amber-500', border: 'border-amber-500/30', bg: 'bg-amber-500/10' },
+  { id: 'AGGRESSIVE', label: 'Agressif', color: 'text-red-500', border: 'border-red-500/30', bg: 'bg-red-500/10' },
 ] as const
 
 const MARKETS = ['Forex', 'Indices', 'Crypto', 'Actions', 'Matières premières', 'Obligations', 'Options', 'Futures']
@@ -37,7 +37,7 @@ export function StepProfile({ data, onChange }: Props) {
       <div>
         <div className="flex items-center gap-2 mb-3">
           <TrendingUp className="w-4 h-4 text-[hsl(var(--primary))]" />
-          <span className="text-sm font-black text-foreground">Style de trading</span>
+          <span className="text-sm font-semibold text-foreground">Style de trading</span>
         </div>
         <div className="grid grid-cols-2 gap-2.5">
           {STYLES.map((s) => (
@@ -50,8 +50,8 @@ export function StepProfile({ data, onChange }: Props) {
                   : 'border-[hsl(var(--border))] bg-background hover:border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]'
               }`}
             >
-              <p className="text-sm font-black text-foreground">{s.label}</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">{s.desc}</p>
+              <p className="text-sm font-semibold text-foreground">{s.label}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{s.desc}</p>
             </button>
           ))}
         </div>
@@ -60,8 +60,8 @@ export function StepProfile({ data, onChange }: Props) {
       {/* Appétit au risque */}
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <AlertTriangle className="w-4 h-4 text-amber-600" />
-          <span className="text-sm font-black text-foreground">Appétit au risque</span>
+          <AlertTriangle className="w-4 h-4 text-amber-500" />
+          <span className="text-sm font-semibold text-foreground">Appétit au risque</span>
         </div>
         <div className="grid grid-cols-2 gap-2.5">
           {RISKS.map((r) => (
@@ -85,9 +85,9 @@ export function StepProfile({ data, onChange }: Props) {
       {/* Marchés */}
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <Globe className="w-4 h-4 text-emerald-600" />
-          <span className="text-sm font-black text-foreground">Marchés tradés</span>
-          <span className="text-[11px] text-muted-foreground/60">(plusieurs possibles)</span>
+          <Globe className="w-4 h-4 text-green-500" />
+          <span className="text-sm font-semibold text-foreground">Marchés tradés</span>
+          <span className="text-xs text-muted-foreground/60">(plusieurs possibles)</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {MARKETS.map((m) => {
@@ -113,7 +113,7 @@ export function StepProfile({ data, onChange }: Props) {
       <div>
         <div className="flex items-center gap-2 mb-3">
           <Clock className="w-4 h-4 text-[hsl(var(--primary))]" />
-          <span className="text-sm font-black text-foreground">Années d&apos;expérience</span>
+          <span className="text-sm font-semibold text-foreground">Années d&apos;expérience</span>
         </div>
         <div className="flex gap-2 flex-wrap">
           {[0, 1, 2, 3, 5, 7, 10, 15].map((y) => (

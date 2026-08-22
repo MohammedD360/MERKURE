@@ -142,7 +142,7 @@ export function OnboardingWizard() {
         <BrandLogo
           className="justify-center text-foreground"
           iconClassName="h-9 w-9"
-          textClassName="text-[22px] font-black tracking-[0.12em]"
+          textClassName="text-[22px] font-semibold tracking-[0.12em]"
         />
         <p className="text-sm font-semibold text-muted-foreground mt-2">Configuration de votre espace</p>
       </div>
@@ -163,7 +163,7 @@ export function OnboardingWizard() {
                 <div key={s.id} className="flex items-center flex-1 last:flex-none">
                   <div className="flex flex-col items-center gap-1 flex-shrink-0">
                     <div
-                      className={`h-9 w-9 rounded-full border-2 flex items-center justify-center text-xs font-black transition-all ${
+                      className={`h-9 w-9 rounded-full border-2 flex items-center justify-center text-xs font-semibold transition-all ${
                         done
                           ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))] text-white'
                           : active
@@ -174,7 +174,7 @@ export function OnboardingWizard() {
                       {done ? <Check className="h-4 w-4" /> : s.num}
                     </div>
                     <span
-                      className={`hidden sm:block text-[10px] font-black uppercase tracking-wider ${
+                      className={`hidden sm:block text-xs ${
                         active ? 'text-foreground' : done ? 'text-muted-foreground' : 'text-foreground/30'
                       }`}
                     >
@@ -196,14 +196,14 @@ export function OnboardingWizard() {
 
         {/* Step header */}
         <div className="px-6 pt-6 pb-2">
-          <h2 className="text-lg font-black text-foreground">{meta.title}</h2>
+          <h2 className="text-lg font-semibold text-foreground">{meta.title}</h2>
           <p className="text-sm font-medium text-muted-foreground mt-1">{meta.description}</p>
         </div>
 
         {/* Content */}
         <div className="px-6 py-5">
           {error && (
-            <div className="mb-4 border border-red-200 bg-red-50 px-4 py-3 rounded-lg text-sm text-red-500">
+            <div className="mb-4 border border-red-500/30 bg-red-500/10 px-4 py-3 rounded-lg text-sm text-red-500">
               {error}
             </div>
           )}
@@ -232,7 +232,7 @@ export function OnboardingWizard() {
             <button
               onClick={handleProfileNext}
               disabled={loading}
-              className="px-6 py-2.5 rounded-lg text-sm font-black text-white bg-[hsl(var(--primary))] hover:bg-[hsl(244_42%_44%)] disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white bg-[hsl(var(--primary))] hover:bg-[hsl(243_90%_58%)] disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               {loading ? (
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

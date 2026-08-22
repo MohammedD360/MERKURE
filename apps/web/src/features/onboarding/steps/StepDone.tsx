@@ -16,7 +16,7 @@ export function StepDone({ brokerConnected, onFinish, loading }: Props) {
       </div>
 
       <div>
-        <h3 className="text-xl font-black text-foreground mb-2">Tout est prêt !</h3>
+        <h3 className="text-xl font-semibold text-foreground mb-2">Tout est prêt !</h3>
         <p className="text-sm font-semibold text-muted-foreground leading-relaxed max-w-xs mx-auto">
           Votre profil est configuré.{' '}
           {brokerConnected
@@ -42,7 +42,7 @@ export function StepDone({ brokerConnected, onFinish, loading }: Props) {
       <button
         onClick={onFinish}
         disabled={loading}
-        className="bg-[hsl(var(--primary))] hover:bg-[hsl(244_42%_44%)] text-white font-black rounded-lg h-12 w-full text-sm shadow-sm flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2"
+        className="bg-[hsl(var(--primary))] hover:bg-[hsl(243_90%_58%)] text-white font-semibold rounded-lg h-12 w-full text-sm shadow-sm flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2"
       >
         {loading ? (
           <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
