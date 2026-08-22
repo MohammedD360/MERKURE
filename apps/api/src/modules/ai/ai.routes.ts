@@ -1,11 +1,62 @@
 import type { FastifyInstance } from 'fastify'
+import Anthropic from '@anthropic-ai/sdk'
 import { authenticate } from '../../middleware/auth.js'
 import { requirePlan } from '../../middleware/require-plan.js'
 import { prisma } from '../../infrastructure/database/client.js'
+import { env } from '../../config/env.js'
 import { analyzeTradesForDay } from './ai.service.js'
+import { runStrategyAnalysis, listStrategyAnalyses } from './strategy-validator.service.js'
 import { getCoaching, computeKpis } from '../../infrastructure/ai-python/ai-python-client.js'
 
+const CHAT_SYSTEM_PROMPT =
+  "Tu es l'assistant IA de MERKURE, une plateforme d'analyse de trading. Tu aides les traders à " +
+  "comprendre leurs performances, leur psychologie de trading, la gestion du risque et les stratégies. " +
+  "Réponds en français, de façon claire et directe, comme le ferait un coach de trading expérimenté. " +
+  "Tu n'as pas accès en direct aux trades de l'utilisateur dans cette conversation — si une question " +
+  "en dépend, invite-le à consulter son Journal IA ou son Coach personnel pour une analyse chiffrée."
+
 export async function aiRoutes(app: FastifyInstance) {
+  /**
+   * POST /api/v1/ai/chat
+   * Body: { messages: { role: 'user'|'assistant'; content: string }[] }
+   * Streame la réponse de Claude en texte brut (chunks), au fil de la génération.
+   */
+  app.post<{ Body: { messages: { role: 'user' | 'assistant'; content: string }[] } }>(
+    '/chat',
+    { preHandler: [authenticate, requirePlan('PRO')] },
+    async (req, reply) => {
+      const messages = req.body?.messages ?? []
+      if (messages.length === 0) return reply.code(400).send({ error: 'messages_required' })
+      if (!env.ANTHROPIC_API_KEY) return reply.code(503).send({ error: 'ai_unavailable' })
+
+      // reply.hijack() court-circuite le hook onSend de @fastify/cors — sans ces
+      // deux lignes, le fetch streaming du navigateur est bloqué par CORS.
+      const origin = req.headers.origin
+      if (origin) reply.raw.setHeader('Access-Control-Allow-Origin', origin)
+      reply.raw.setHeader('Access-Control-Allow-Credentials', 'true')
+      reply.raw.setHeader('Content-Type', 'text/plain; charset=utf-8')
+      reply.raw.setHeader('Cache-Control', 'no-cache')
+      reply.hijack()
+
+      const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY })
+      const stream = client.messages.stream({
+        model:      'claude-opus-4-8',
+        max_tokens: 4096,
+        thinking:   { type: 'adaptive' },
+        system:     CHAT_SYSTEM_PROMPT,
+        messages,
+      })
+
+      stream.on('text', (delta) => { reply.raw.write(delta) })
+      stream.on('error', (err) => {
+        reply.raw.write(`\n\n[Erreur IA : ${err instanceof Error ? err.message : 'inconnue'}]`)
+      })
+
+      await stream.finalMessage().catch(() => {})
+      reply.raw.end()
+    },
+  )
+
   /**
    * POST /api/v1/ai/analysis
    * Body: { date?: string (YYYY-MM-DD), context?: string }
@@ -148,6 +199,54 @@ export async function aiRoutes(app: FastifyInstance) {
       ])
 
       return { entries, total, limit, offset }
+    },
+  )
+
+  /**
+   * POST /api/v1/ai/strategy-validator
+   * Analyse un setup de trading (paramètres + screenshot optionnel) via Claude.
+   */
+  app.post<{
+    Body: {
+      instrument:   string
+      timeframe:    string
+      direction:    string
+      style:        string
+      entryPrice?:  number
+      stopLoss?:    number
+      takeProfit?:  number
+      thesis?:      string
+      imageBase64?: string
+    }
+  }>(
+    '/strategy-validator',
+    { preHandler: [authenticate, requirePlan('PRO')] },
+    async (req, reply) => {
+      const { instrument, timeframe, direction, style } = req.body ?? {}
+      if (!instrument || !timeframe || !direction || !style) {
+        return reply.code(400).send({ error: 'missing_fields' })
+      }
+
+      try {
+        const result = await runStrategyAnalysis({ userId: req.user.id, ...req.body })
+        return result
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'ai_error'
+        return reply.code(502).send({ error: 'ai_unavailable', detail: message })
+      }
+    },
+  )
+
+  /**
+   * GET /api/v1/ai/strategy-validator/history?limit=10
+   */
+  app.get<{ Querystring: { limit?: string } }>(
+    '/strategy-validator/history',
+    { preHandler: [authenticate] },
+    async (req) => {
+      const limit = Math.min(parseInt(req.query.limit ?? '10', 10), 50)
+      const analyses = await listStrategyAnalyses(req.user.id, limit)
+      return { analyses }
     },
   )
 }
