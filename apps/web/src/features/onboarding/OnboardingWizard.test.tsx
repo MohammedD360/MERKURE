@@ -98,7 +98,7 @@ describe('OnboardingWizard', () => {
     })
   })
 
-  it('appelle completeOnboarding et passe au step Done quand FREE est choisi', async () => {
+  it('appelle completeOnboarding et passe au step Done quand on continue sans abonnement', async () => {
     const user = userEvent.setup()
     render(<OnboardingWizard />)
 
@@ -108,8 +108,8 @@ describe('OnboardingWizard', () => {
     await user.click(screen.getByRole('button', { name: /passer cette étape/i }))
     await waitFor(() => screen.getByText('Choisissez votre plan'))
 
-    // Sélectionner le plan Gratuit
-    const freeButton = await screen.findByRole('button', { name: /continuer en gratuit/i })
+    // Terminer l’inscription sans souscrire
+    const freeButton = await screen.findByRole('button', { name: /continuer sans abonnement/i })
     await user.click(freeButton)
 
     await waitFor(() => {
@@ -122,12 +122,12 @@ describe('OnboardingWizard', () => {
     const user = userEvent.setup()
     render(<OnboardingWizard />)
 
-    // Raccourcis: profil → broker (passer) → plan (gratuit) → done
+    // Raccourcis: profil → broker (passer) → plan (sans abonnement) → done
     await user.click(screen.getByRole('button', { name: /continuer/i }))
     await waitFor(() => screen.getByText('Connecter un broker'))
     await user.click(screen.getByRole('button', { name: /passer cette étape/i }))
     await waitFor(() => screen.getByText('Choisissez votre plan'))
-    const freeButton = await screen.findByRole('button', { name: /continuer en gratuit/i })
+    const freeButton = await screen.findByRole('button', { name: /continuer sans abonnement/i })
     await user.click(freeButton)
     await waitFor(() => screen.getByText("C'est parti !"))
 

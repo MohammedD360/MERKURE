@@ -3,12 +3,22 @@
  * Toute route qui restreint l'accès selon le plan doit référencer ces constantes.
  */
 
+/**
+ * Comptes brokers connectables par plan.
+ *
+ * Chaque compte connecté coûte ~9 €/mois chez le fournisseur de données : ces
+ * plafonds sont ce qui garantit qu'un client rapporte plus qu'il ne coûte.
+ * Toute modification doit être répercutée sur `features` dans billing.config.ts.
+ *
+ * FREE n'est pas commercialisé : c'est l'état d'un compte sans abonnement actif,
+ * qui ne peut donc connecter aucun broker.
+ */
 export const ACCOUNT_LIMIT: Record<string, number> = {
-  FREE:          1,
-  STARTER:       1,
-  PRO:           3,
-  ELITE:         99,
-  INSTITUTIONAL: 99,
+  FREE:          0,
+  STARTER:       1,  // Standard — 29 €
+  PRO:           3,  // Pro      — 59 €
+  ELITE:         5,  // Elite    — 99 €
+  INSTITUTIONAL: 99, // Sur mesure — négocié au devis
 }
 
 /** Nombre de jours d'historique de trades accessibles */
@@ -35,8 +45,9 @@ export const KPI_MAX_PERIOD_DAYS: Record<string, number> = {
   INSTITUTIONAL: 9999,
 }
 
-export function upgradeRequired(current: string): 'STARTER' | 'PRO' | 'ELITE' {
-  if (current === 'FREE') return 'STARTER'
+export function upgradeRequired(current: string): 'STARTER' | 'PRO' | 'ELITE' | 'INSTITUTIONAL' {
+  if (current === 'FREE')    return 'STARTER'
   if (current === 'STARTER') return 'PRO'
-  return 'ELITE'
+  if (current === 'PRO')     return 'ELITE'
+  return 'INSTITUTIONAL' // au-delà d'Elite, c'est du sur-mesure au devis
 }
