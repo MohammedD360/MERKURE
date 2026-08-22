@@ -9,8 +9,8 @@ import { BotSelectorChips } from '../components/BotSelectorChips'
 function StatCard({ label, value, tone }: { label: string; value: string; tone?: 'up' | 'down' }) {
   return (
     <Card className="bg-card p-4">
-      <p className="text-[11px] uppercase tracking-wider text-white/40">{label}</p>
-      <p className={`mt-1 font-mono-terminal text-xl font-black ${
+      <p className="text-xs text-white/40">{label}</p>
+      <p className={`mt-1 font-mono-terminal text-xl font-semibold ${
         tone === 'up' ? 'text-[hsl(var(--chart-win))]' : tone === 'down' ? 'text-[hsl(var(--chart-loss))]' : 'text-white'
       }`}>
         {value}
@@ -41,8 +41,8 @@ export function BotPerformancePage() {
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/40">Bot Trading — Polymarket</p>
-        <h1 className="mt-1 flex items-center gap-2 text-2xl font-black text-white">
+        <p className="text-xs text-white/40">Bot Trading — Polymarket</p>
+        <h1 className="mt-1 flex items-center gap-2 text-2xl font-semibold text-white">
           <LineChart className="h-6 w-6 text-[hsl(var(--primary))]" /> Performance des Bots
         </h1>
       </div>
@@ -61,7 +61,7 @@ export function BotPerformancePage() {
           </div>
 
           <Card className="bg-card p-4">
-            <p className="mb-3 text-xs font-black uppercase tracking-wider text-white/50">
+            <p className="mb-3 text-xs font-medium text-white/50">
               Répartition des décisions ({decisions.length} cycles observés)
             </p>
             <div className="flex h-3 overflow-hidden rounded-full bg-white/5">
@@ -73,12 +73,12 @@ export function BotPerformancePage() {
                 </>
               )}
             </div>
-            <div className="mt-3 flex gap-4 text-[11px] text-white/50">
+            <div className="mt-3 flex gap-4 text-xs text-white/50">
               <span><span className="inline-block h-2 w-2 rounded-full bg-[hsl(var(--chart-win))]" /> Exécutés ({filled.length})</span>
               <span><span className="inline-block h-2 w-2 rounded-full bg-white/20" /> Sans action ({holds.length})</span>
               <span><span className="inline-block h-2 w-2 rounded-full bg-[hsl(var(--chart-loss))]" /> Rejetés ({rejected.length})</span>
             </div>
-            <p className="mt-4 text-[11px] text-white/30">
+            <p className="mt-4 text-xs text-white/30">
               Courbe d&apos;équity détaillée à venir — un historique de snapshots périodiques sera ajouté
               pour la tracer précisément dans le temps.
             </p>

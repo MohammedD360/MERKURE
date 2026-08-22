@@ -77,10 +77,18 @@ export interface WhaleSignal {
   source:     'real' | 'simulated'
 }
 
+export type PolymarketAccountKind = 'MAGIC_EMAIL' | 'FRESH_WALLET'
+
 export interface CreateBotBody {
   name:               string
   walletAddress:      string
   privateKey:         string
+  // Adresse du proxy wallet Polymarket — visible dans les paramètres du
+  // compte sur polymarket.com. Requis seulement en mode LIVE.
+  funderAddress?:     string
+  // Comment le compte Polymarket a été créé — détermine le signatureType
+  // EIP-712 attendu par le CLOB.
+  accountKind:        PolymarketAccountKind
   mode:               BotMode
   marketFilters?:      Partial<MarketFilters>
   riskConfig?:         Partial<RiskConfig>

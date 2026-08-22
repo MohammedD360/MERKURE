@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useCreateBot, type BotMode } from '@/lib/hooks/use-bots'
+import { useCreateBot, type BotMode, type PolymarketAccountKind } from '@/lib/hooks/use-bots'
 
 const CATEGORIES = ['Crypto', 'Économie', 'Politique', 'Sport']
 
@@ -25,6 +25,8 @@ export function CreateBotForm() {
   const [maxPositionSizeUsd, setMaxPositionSizeUsd] = useState(100)
   const [maxConcurrentPositions, setMaxConcurrentPositions] = useState(3)
   const [mode, setMode] = useState<BotMode>('DRY_RUN')
+  const [funderAddress, setFunderAddress] = useState('')
+  const [accountKind, setAccountKind] = useState<PolymarketAccountKind>('FRESH_WALLET')
   const [sessionStartEquity, setSessionStartEquity] = useState(1_000)
   const [liveConfirmed, setLiveConfirmed] = useState(false)
 
@@ -35,13 +37,15 @@ export function CreateBotForm() {
     name.trim().length > 0 &&
     walletAddress.trim().length > 0 &&
     privateKey.trim().length > 0 &&
-    (mode === 'DRY_RUN' || liveConfirmed)
+    (mode === 'DRY_RUN' || (liveConfirmed && funderAddress.trim().length > 0))
 
   async function handleSubmit() {
     const bot = await createBot.mutateAsync({
       name: name.trim(),
       walletAddress: walletAddress.trim(),
       privateKey: privateKey.trim(),
+      ...(funderAddress.trim() ? { funderAddress: funderAddress.trim() } : {}),
+      accountKind,
       mode,
       marketFilters: { categories, minLiquidityUsd, maxMarkets },
       riskConfig: { maxSessionLossPct, maxPositionSizeUsd, maxConcurrentPositions },
@@ -55,7 +59,7 @@ export function CreateBotForm() {
       <Card className="bg-card">
         <CardHeader className="flex-row items-center gap-2 space-y-0 pb-3">
           <Wallet className="h-4 w-4 text-[hsl(var(--primary))]" />
-          <CardTitle className="text-sm font-black uppercase tracking-wider text-white/70">1. Wallet Polymarket</CardTitle>
+          <CardTitle className="text-sm font-medium text-white/70">1. Wallet Polymarket</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
@@ -72,7 +76,7 @@ export function CreateBotForm() {
             <Label htmlFor="private-key" className="text-xs text-white/60">Clé privée</Label>
             <Input id="private-key" type="password" value={privateKey} onChange={(e) => setPrivateKey(e.target.value)}
               placeholder="0x..." className="mt-1 border-[hsl(var(--border))] bg-white/5 font-mono-terminal text-white" />
-            <p className="mt-1.5 text-[11px] text-white/40">
+            <p className="mt-1.5 text-xs text-white/40">
               Chiffrée (AES-256-GCM) avant stockage, jamais renvoyée au navigateur.
             </p>
           </div>
@@ -82,7 +86,7 @@ export function CreateBotForm() {
       <Card className="bg-card">
         <CardHeader className="flex-row items-center gap-2 space-y-0 pb-3">
           <SlidersHorizontal className="h-4 w-4 text-[hsl(var(--primary))]" />
-          <CardTitle className="text-sm font-black uppercase tracking-wider text-white/70">2. Marchés &amp; risque</CardTitle>
+          <CardTitle className="text-sm font-medium text-white/70">2. Marchés &amp; risque</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
@@ -145,7 +149,7 @@ export function CreateBotForm() {
       <Card className="bg-card">
         <CardHeader className="flex-row items-center gap-2 space-y-0 pb-3">
           <Rocket className="h-4 w-4 text-[hsl(var(--primary))]" />
-          <CardTitle className="text-sm font-black uppercase tracking-wider text-white/70">3. Mode de lancement</CardTitle>
+          <CardTitle className="text-sm font-medium text-white/70">3. Mode de lancement</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
@@ -166,10 +170,42 @@ export function CreateBotForm() {
           </div>
 
           {mode === 'LIVE' && (
-            <label className="flex items-start gap-2 rounded-lg border border-[hsl(var(--destructive)/0.4)] bg-[hsl(var(--destructive)/0.08)] p-3 text-xs text-white/80">
-              <input type="checkbox" checked={liveConfirmed} onChange={(e) => setLiveConfirmed(e.target.checked)} className="mt-0.5" />
-              Je comprends que ce bot engagera des fonds réels via la wallet connectée et respecte le risque de perte totale du capital alloué.
-            </label>
+            <>
+              <div>
+                <Label className="text-xs text-white/70">Comment ton compte Polymarket a-t-il été créé ?</Label>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <button type="button" onClick={() => setAccountKind('MAGIC_EMAIL')}
+                    className={`rounded-lg border p-2.5 text-left text-xs transition-colors ${
+                      accountKind === 'MAGIC_EMAIL' ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary)/0.1)]' : 'border-white/15 hover:border-white/30'
+                    }`}>
+                    <p className="font-bold text-white">Connexion par email</p>
+                    <p className="mt-0.5 text-white/50">Compte existant, connecté via un lien reçu par email (Magic Link).</p>
+                  </button>
+                  <button type="button" onClick={() => setAccountKind('FRESH_WALLET')}
+                    className={`rounded-lg border p-2.5 text-left text-xs transition-colors ${
+                      accountKind === 'FRESH_WALLET' ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary)/0.1)]' : 'border-white/15 hover:border-white/30'
+                    }`}>
+                    <p className="font-bold text-white">Wallet dédiée (MetaMask...)</p>
+                    <p className="mt-0.5 text-white/50">Wallet créée spécifiquement pour ce bot, sans Magic Link.</p>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="funder-address" className="text-xs text-white/70">
+                  Adresse du proxy wallet Polymarket (Funder)
+                </Label>
+                <Input id="funder-address" value={funderAddress} onChange={(e) => setFunderAddress(e.target.value)}
+                  placeholder="0x..." className="mt-1 border-[hsl(var(--destructive)/0.3)] bg-white/5 font-mono-terminal text-white" />
+                <p className="mt-1.5 text-xs text-white/40">
+                  Différente de l&apos;adresse wallet ci-dessus — c&apos;est l&apos;adresse qui détient vos fonds
+                  sur Polymarket, visible dans vos paramètres de compte sur polymarket.com une fois connecté.
+                </p>
+              </div>
+              <label className="flex items-start gap-2 rounded-lg border border-[hsl(var(--destructive)/0.4)] bg-[hsl(var(--destructive)/0.08)] p-3 text-xs text-white/80">
+                <input type="checkbox" checked={liveConfirmed} onChange={(e) => setLiveConfirmed(e.target.checked)} className="mt-0.5" />
+                Je comprends que ce bot engagera des fonds réels via la wallet connectée et respecte le risque de perte totale du capital alloué.
+              </label>
+            </>
           )}
 
           <Button onClick={handleSubmit} disabled={!canSubmit || createBot.isPending}

@@ -20,8 +20,8 @@ export function BotHistoryPage() {
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/40">Bot Trading — Polymarket</p>
-        <h1 className="mt-1 flex items-center gap-2 text-2xl font-black text-white">
+        <p className="text-xs text-white/40">Bot Trading — Polymarket</p>
+        <h1 className="mt-1 flex items-center gap-2 text-2xl font-semibold text-white">
           <History className="h-6 w-6 text-[hsl(var(--primary))]" /> Historique des Trades Auto
         </h1>
       </div>

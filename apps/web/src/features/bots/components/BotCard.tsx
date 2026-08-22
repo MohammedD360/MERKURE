@@ -35,10 +35,10 @@ export function BotCard({ bot }: { bot: TradingBot }) {
           </div>
         </div>
         <div className="text-right">
-          <p className={`font-mono-terminal text-lg font-black ${isUp ? 'text-[hsl(var(--chart-win))]' : 'text-[hsl(var(--chart-loss))]'}`}>
+          <p className={`font-mono-terminal text-lg font-semibold ${isUp ? 'text-[hsl(var(--chart-win))]' : 'text-[hsl(var(--chart-loss))]'}`}>
             {isUp ? '+' : ''}{pnlPct.toFixed(2)}%
           </p>
-          <p className="font-mono-terminal text-[11px] text-white/40">${Number(bot.currentEquity).toFixed(0)}</p>
+          <p className="font-mono-terminal text-xs text-white/40">${Number(bot.currentEquity).toFixed(0)}</p>
         </div>
       </div>
 

@@ -33,14 +33,14 @@ export function LiveTicker({ market }: { market: PolymarketMarket }) {
       <div className="flex items-center justify-between gap-3 border-b border-[hsl(var(--border))] px-4 py-3">
         <div className="flex items-center gap-2 min-w-0">
           <span className="inline-block h-2 w-2 shrink-0 animate-terminal-live rounded-full bg-[hsl(var(--chart-win))]" />
-          <span className="truncate text-xs font-bold uppercase tracking-wider text-white/60">{market.question}</span>
+          <span className="truncate text-xs font-medium text-white/60">{market.question}</span>
         </div>
-        <Badge className="shrink-0 border-transparent bg-white/10 text-[10px] text-white/60">{market.category}</Badge>
+        <Badge className="shrink-0 border-transparent bg-white/10 text-xs text-white/60">{market.category}</Badge>
       </div>
 
       <div className="flex items-end justify-between gap-4 px-4 py-4">
         <div>
-          <p className="font-mono-terminal text-3xl font-black text-white">
+          <p className="font-mono-terminal text-3xl font-semibold text-white">
             {(market.yesPrice * 100).toFixed(1)}<span className="text-lg text-white/40">¢</span>
           </p>
           <p className={`mt-1 font-mono-terminal text-xs font-bold ${isUp ? 'text-[hsl(var(--chart-win))]' : 'text-[hsl(var(--chart-loss))]'}`}>
@@ -65,11 +65,11 @@ export function LiveTicker({ market }: { market: PolymarketMarket }) {
 
       <div className="grid grid-cols-2 gap-px border-t border-[hsl(var(--border))] bg-[hsl(var(--border))] text-center">
         <div className="bg-card px-3 py-2">
-          <p className="text-[10px] uppercase tracking-wider text-white/40">Liquidité</p>
+          <p className="text-xs text-white/40">Liquidité</p>
           <p className="font-mono-terminal text-sm font-bold text-white">${market.liquidityUsd.toLocaleString('fr-FR')}</p>
         </div>
         <div className="bg-card px-3 py-2">
-          <p className="text-[10px] uppercase tracking-wider text-white/40">Volume 24h</p>
+          <p className="text-xs text-white/40">Volume 24h</p>
           <p className="font-mono-terminal text-sm font-bold text-white">${market.volume24hUsd.toLocaleString('fr-FR')}</p>
         </div>
       </div>

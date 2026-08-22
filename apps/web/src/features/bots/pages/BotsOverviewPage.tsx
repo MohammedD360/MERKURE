@@ -21,8 +21,8 @@ export function BotsOverviewPage() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/40">Bot Trading — Polymarket</p>
-          <h1 className="mt-1 flex items-center gap-2 text-2xl font-black text-white">
+          <p className="text-xs text-white/40">Bot Trading — Polymarket</p>
+          <h1 className="mt-1 flex items-center gap-2 text-2xl font-semibold text-white">
             <Bot className="h-6 w-6 text-[hsl(var(--primary))]" /> Mes Bots
           </h1>
         </div>
@@ -39,7 +39,7 @@ export function BotsOverviewPage() {
       </div>
 
       <div>
-        <h2 className="mb-3 text-xs font-black uppercase tracking-wider text-white/50">
+        <h2 className="mb-3 text-xs font-medium text-white/50">
           Bots ({bots.length})
         </h2>
         {isLoading ? (

@@ -41,7 +41,7 @@ export function ExecutionLog({ decisions, events, maxRows = 40 }: { decisions: B
   return (
     <Card className="bg-card">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-black uppercase tracking-wider text-white/70">
+        <CardTitle className="text-sm font-medium text-white/70">
           Journal d&apos;exécution — live
         </CardTitle>
       </CardHeader>
