@@ -33,7 +33,7 @@ function Select({
         <select
           value={value}
           onChange={e => onChange(e.target.value)}
-          className="w-full appearance-none rounded-lg border border-border bg-white px-3 py-2.5 pr-8 text-sm text-foreground outline-none transition-colors focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary)/0.3)]"
+          className="w-full appearance-none rounded-lg border border-border bg-card px-3 py-2.5 pr-8 text-sm text-foreground outline-none transition-colors focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary)/0.3)]"
         >
           {options.map(o => <option key={o} value={o}>{o}</option>)}
         </select>
@@ -50,14 +50,14 @@ function Input({
     <div className="flex flex-col gap-1.5">
       <label className="text-xs font-bold text-foreground">
         {label}
-        {optional && <span className="ml-1 text-[10px] font-normal text-muted-foreground">(optionnel)</span>}
+        {optional && <span className="ml-1 text-xs font-normal text-muted-foreground">(optionnel)</span>}
       </label>
       <input
         type="text"
         placeholder={placeholder}
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary)/0.3)]"
+        className="rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary)/0.3)]"
       />
     </div>
   )
@@ -76,14 +76,14 @@ export function StepQuestionnaire({ firmId, challengeId, accountSize, form, onFo
       {/* ── Form ── */}
       <div className="space-y-6">
         <div>
-          <h2 className="text-xl font-black text-foreground">Questionnaire sur votre challenge</h2>
+          <h2 className="text-xl font-semibold text-foreground">Questionnaire sur votre challenge</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Répondez à quelques questions pour personnaliser le suivi de votre challenge.
           </p>
         </div>
 
-        <div className="rounded-xl border border-border bg-white p-5">
-          <p className="text-[11px] font-black uppercase tracking-[0.14em] text-muted-foreground">
+        <div className="rounded-xl border border-border bg-card p-5">
+          <p className="text-xs text-muted-foreground">
             Informations générales
           </p>
 
@@ -101,7 +101,7 @@ export function StepQuestionnaire({ firmId, challengeId, accountSize, form, onFo
               <label className="text-xs font-bold text-foreground">Challenge sélectionné</label>
               <div className="flex items-center justify-between rounded-lg border border-border bg-[hsl(var(--accent))] px-3 py-2.5">
                 <span className="text-sm font-bold text-foreground">{challenge.name}</span>
-                <span className={cn('rounded-md px-2 py-0.5 text-[10px] font-bold', challenge.badgeColor)}>
+                <span className={cn('rounded-md px-2 py-0.5 text-xs font-bold', challenge.badgeColor)}>
                   {challenge.badge}
                 </span>
               </div>
@@ -147,13 +147,13 @@ export function StepQuestionnaire({ firmId, challengeId, accountSize, form, onFo
 
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-foreground">
-                Date de début <span className="ml-1 text-[10px] font-normal text-muted-foreground">(optionnel)</span>
+                Date de début <span className="ml-1 text-xs font-normal text-muted-foreground">(optionnel)</span>
               </label>
               <input
                 type="date"
                 value={form.startDate}
                 onChange={e => onFormChange({ startDate: e.target.value })}
-                className="rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-foreground outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary)/0.3)]"
+                className="rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary)/0.3)]"
               />
             </div>
           </div>
@@ -163,7 +163,7 @@ export function StepQuestionnaire({ firmId, challengeId, accountSize, form, onFo
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-white px-5 text-sm font-bold text-foreground transition-colors hover:bg-[hsl(var(--accent))]"
+            className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-5 text-sm font-bold text-foreground transition-colors hover:bg-[hsl(var(--accent))]"
           >
             <ArrowLeft className="h-4 w-4" /> Retour
           </button>
@@ -171,7 +171,7 @@ export function StepQuestionnaire({ firmId, challengeId, accountSize, form, onFo
             type="button"
             disabled={!canSubmit}
             onClick={onNext}
-            className="inline-flex h-10 items-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-6 text-sm font-bold text-white shadow-[0_4px_14px_hsl(244_42%_51%/0.25)] transition-colors hover:bg-[hsl(244_42%_44%)] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-10 items-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-6 text-sm font-bold text-white shadow-[0_4px_14px_hsl(244_42%_51%/0.25)] transition-colors hover:bg-[hsl(243_90%_58%)] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Accéder au suivi <ArrowRight className="h-4 w-4" />
           </button>
@@ -179,14 +179,14 @@ export function StepQuestionnaire({ firmId, challengeId, accountSize, form, onFo
       </div>
 
       {/* ── Récapitulatif ── */}
-      <aside className="rounded-xl border border-border bg-white p-5">
-        <p className="text-[11px] font-black uppercase tracking-[0.14em] text-muted-foreground">Récapitulatif</p>
+      <aside className="rounded-xl border border-border bg-card p-5">
+        <p className="text-xs text-muted-foreground">Récapitulatif</p>
 
         <div className="mt-4 flex items-center gap-3">
           <FirmLogo id={firmId} size="md" />
           <div>
-            <p className="text-sm font-black text-foreground">{firm.name}</p>
-            <p className="text-[11px] text-muted-foreground">{challenge.name}</p>
+            <p className="text-sm font-semibold text-foreground">{firm.name}</p>
+            <p className="text-xs text-muted-foreground">{challenge.name}</p>
           </div>
         </div>
 
@@ -206,13 +206,13 @@ export function StepQuestionnaire({ firmId, challengeId, accountSize, form, onFo
         </div>
 
         <div className="mt-4 rounded-lg bg-[hsl(var(--primary)/0.06)] p-3 border border-[hsl(var(--primary)/0.15)]">
-          <p className="text-[11px] font-bold text-[hsl(var(--primary))]">
+          <p className="text-xs font-bold text-[hsl(var(--primary))]">
             Partage des profits
           </p>
-          <p className="mt-0.5 text-lg font-black text-[hsl(var(--primary))]">
+          <p className="mt-0.5 text-lg font-semibold text-[hsl(var(--primary))]">
             {sizeInfo?.profitSplit ?? '—'}%
           </p>
-          <p className="text-[10px] text-muted-foreground">pour vous dès le premier paiement</p>
+          <p className="text-xs text-muted-foreground">pour vous dès le premier paiement</p>
         </div>
       </aside>
     </div>

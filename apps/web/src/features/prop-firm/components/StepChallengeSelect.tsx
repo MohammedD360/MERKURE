@@ -19,7 +19,7 @@ function ChallengeCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        'group relative w-full rounded-xl border-2 bg-white p-5 text-left transition-all duration-200',
+        'group relative w-full rounded-xl border-2 bg-card p-5 text-left transition-all duration-200',
         selected
           ? 'border-[hsl(var(--primary))] shadow-[0_0_0_3px_hsl(var(--primary)/0.12)]'
           : 'border-border hover:border-[hsl(var(--primary)/0.4)]',
@@ -32,8 +32,8 @@ function ChallengeCard({
       )}
 
       <div className="flex items-start justify-between gap-3">
-        <h3 className="text-sm font-black text-foreground">{challenge.name}</h3>
-        <span className={cn('shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold', challenge.badgeColor)}>
+        <h3 className="text-2xl font-semibold leading-none tracking-tight text-foreground">{challenge.name}</h3>
+        <span className={cn('shrink-0 rounded-md px-2 py-0.5 text-xs font-bold', challenge.badgeColor)}>
           {challenge.badge}
         </span>
       </div>
@@ -41,13 +41,13 @@ function ChallengeCard({
 
       <div className="mt-4 flex flex-wrap gap-2">
         {challenge.rules.slice(0, 3).map(r => (
-          <span key={r.id} className="rounded-md border border-border bg-[hsl(var(--accent))] px-2 py-1 text-[10px] font-semibold text-muted-foreground">
+          <span key={r.id} className="rounded-md border border-border bg-[hsl(var(--accent))] px-2 py-1 text-xs font-semibold text-muted-foreground">
             {r.label}: {r.limit}
           </span>
         ))}
       </div>
 
-      <div className="mt-3 flex items-center gap-3 text-[11px] text-muted-foreground">
+      <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
         <span>{challenge.sizes.length} tailles disponibles</span>
         <span>·</span>
         <span>Split jusqu'à {Math.max(...challenge.sizes.map(s => s.profitSplit))}%</span>
@@ -85,7 +85,7 @@ export function StepChallengeSelect({
       <div className="flex items-center gap-3">
         <FirmLogo id={firmId} size="sm" />
         <div>
-          <h2 className="text-xl font-black text-foreground">Choisissez votre challenge</h2>
+          <h2 className="text-xl font-semibold text-foreground">Choisissez votre challenge</h2>
           <p className="text-sm text-muted-foreground">{firm.name} — sélectionnez le type et la taille du compte.</p>
         </div>
       </div>
@@ -104,8 +104,8 @@ export function StepChallengeSelect({
 
       {/* Account size selector */}
       {selectedChallenge && (
-        <div className="rounded-xl border border-border bg-white p-5">
-          <p className="text-[11px] font-black uppercase tracking-[0.14em] text-muted-foreground">
+        <div className="rounded-xl border border-border bg-card p-5">
+          <p className="text-xs text-muted-foreground">
             Taille du compte
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -122,14 +122,14 @@ export function StepChallengeSelect({
                 )}
               >
                 <span className="block">{s.label}</span>
-                <span className="block text-[10px] font-semibold opacity-60">Frais {s.fee}$</span>
+                <span className="block text-xs font-semibold opacity-60">Frais {s.fee}$</span>
               </button>
             ))}
           </div>
           {selectedSize !== null && selectedSize > 0 && (
-            <p className="mt-3 text-[11px] text-muted-foreground">
+            <p className="mt-3 text-xs text-muted-foreground">
               Split des profits :{' '}
-              <span className="font-bold text-emerald-600">
+              <span className="font-bold text-green-500">
                 {selectedChallenge.sizes.find(s => s.value === selectedSize)?.profitSplit}%
               </span>{' '}
               pour vous
@@ -142,7 +142,7 @@ export function StepChallengeSelect({
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-white px-5 text-sm font-bold text-foreground transition-colors hover:bg-[hsl(var(--accent))]"
+          className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-5 text-sm font-bold text-foreground transition-colors hover:bg-[hsl(var(--accent))]"
         >
           <ArrowLeft className="h-4 w-4" /> Retour
         </button>
@@ -150,7 +150,7 @@ export function StepChallengeSelect({
           type="button"
           disabled={!selectedChallengeId || !selectedSize}
           onClick={onNext}
-          className="inline-flex h-10 items-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-6 text-sm font-bold text-white shadow-[0_4px_14px_hsl(244_42%_51%/0.25)] transition-colors hover:bg-[hsl(244_42%_44%)] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex h-10 items-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-6 text-sm font-bold text-white shadow-[0_4px_14px_hsl(244_42%_51%/0.25)] transition-colors hover:bg-[hsl(243_90%_58%)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           Suivant <ArrowRight className="h-4 w-4" />
         </button>

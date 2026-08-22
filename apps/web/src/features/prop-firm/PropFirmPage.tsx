@@ -47,10 +47,10 @@ function Stepper({ current }: { current: Step }) {
           <div key={s.label} className="flex items-center">
             <div className="flex min-w-0 items-center gap-2.5 px-3 py-2 first:pl-0">
               <div className={cn(
-                'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-xs font-black transition-colors',
+                'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold transition-colors',
                 done   ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))] text-white' :
-                active ? 'border-[hsl(var(--primary))] bg-white text-[hsl(var(--primary))]' :
-                         'border-border bg-white text-muted-foreground',
+                active ? 'border-[hsl(var(--primary))] bg-card text-[hsl(var(--primary))]' :
+                         'border-border bg-card text-muted-foreground',
               )}>
                 {done ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : num}
               </div>
@@ -58,7 +58,7 @@ function Stepper({ current }: { current: Step }) {
                 <p className={cn('text-xs font-bold leading-none', active ? 'text-foreground' : 'text-muted-foreground')}>
                   {s.label}
                 </p>
-                <p className="mt-0.5 text-[10px] text-muted-foreground">{s.description}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{s.description}</p>
               </div>
             </div>
 
@@ -159,18 +159,18 @@ export function PropFirmPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f6f7f9] px-4 py-5 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background px-4 py-5 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-[1300px] space-y-6">
 
         {/* Stepper */}
-        <div className="rounded-xl border border-border bg-white p-4 shadow-sm">
+        <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
           <Stepper current={step} />
         </div>
 
         {/* Step content */}
-        <div className="rounded-xl border border-border bg-[#f6f7f9] p-0">
+        <div className="rounded-xl border border-border bg-background p-0">
           {step === 1 && (
-            <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+            <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
               <StepFirmSelect
                 selectedFirmId={firmId}
                 onSelect={handleSelectFirm}
@@ -180,7 +180,7 @@ export function PropFirmPage() {
           )}
 
           {step === 2 && firmId && (
-            <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+            <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
               <StepChallengeSelect
                 firmId={firmId}
                 selectedChallengeId={challengeId}
@@ -194,7 +194,7 @@ export function PropFirmPage() {
           )}
 
           {step === 3 && firmId && challengeId && (
-            <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+            <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
               <StepQuestionnaire
                 firmId={firmId}
                 challengeId={challengeId}
@@ -208,7 +208,7 @@ export function PropFirmPage() {
           )}
 
           {step === 4 && firmId && challengeId && (
-            <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+            <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
               <StepDashboard
                 config={{
                   firmId,
