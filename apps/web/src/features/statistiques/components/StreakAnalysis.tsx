@@ -15,9 +15,9 @@ const PERIODS: { value: KpiPeriod; label: string }[] = [
 function StatCard({ label, value, sub, color }: { label: string; value: string | number; sub?: string; color: string }) {
   return (
     <div className="bg-[hsl(var(--accent))] border border-[hsl(var(--border))] rounded-xl p-4">
-      <p className="text-[11px] text-[hsl(var(--foreground-soft))] uppercase tracking-wider font-medium mb-1">{label}</p>
-      <p className={`text-2xl font-bold font-mono ${color}`}>{value}</p>
-      {sub && <p className="text-[11px] text-foreground/50 mt-1">{sub}</p>}
+      <p className="text-xs text-[hsl(var(--foreground-soft))] font-medium mb-1">{label}</p>
+      <p className={`text-2xl font-bold tabular-nums ${color}`}>{value}</p>
+      {sub && <p className="text-xs text-foreground/50 mt-1">{sub}</p>}
     </div>
   )
 }
@@ -27,7 +27,7 @@ export function StreakAnalysis() {
   const { data, isLoading } = useStreaks(period)
 
   const currentColor = data?.currentType === 'win'
-    ? 'text-emerald-600'
+    ? 'text-green-500'
     : data?.currentType === 'loss'
       ? 'text-red-500'
       : 'text-[hsl(var(--foreground-soft))]'
@@ -43,14 +43,14 @@ export function StreakAnalysis() {
       <div className="px-4 py-3 border-b border-[hsl(var(--border))] flex items-center justify-between">
         <div>
           <h2 className="text-sm font-semibold text-foreground">Analyse des séries</h2>
-          <p className="text-[11px] text-[hsl(var(--foreground-soft))] mt-0.5">Streaks gagnants / perdants</p>
+          <p className="text-xs text-[hsl(var(--foreground-soft))] mt-0.5">Streaks gagnants / perdants</p>
         </div>
         <div className="flex gap-1">
           {PERIODS.map(p => (
             <button
               key={p.value}
               onClick={() => setPeriod(p.value)}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors ${
+              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
                 period === p.value
                   ? 'bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] border border-[hsl(var(--primary)/0.25)]'
                   : 'text-[hsl(var(--foreground-soft))] hover:text-foreground'
@@ -79,14 +79,14 @@ export function StreakAnalysis() {
             {/* Current streak highlighted */}
             <div className={`mb-4 rounded-xl border p-4 ${
               data.currentType === 'win'
-                ? 'border-emerald-200 bg-emerald-50'
+                ? 'border-green-500/30 bg-green-500/10'
                 : data.currentType === 'loss'
-                  ? 'border-red-200 bg-red-50'
+                  ? 'border-red-500/30 bg-red-500/10'
                   : 'border-[hsl(var(--border))] bg-[hsl(var(--accent))]'
             }`}>
-              <p className="text-[11px] text-[hsl(var(--foreground-soft))] uppercase tracking-wider font-medium mb-1">Série en cours</p>
+              <p className="text-xs text-[hsl(var(--foreground-soft))] font-medium mb-1">Série en cours</p>
               <div className="flex items-baseline gap-2">
-                <span className={`text-3xl font-bold font-mono ${currentColor}`}>{data.current}</span>
+                <span className={`text-3xl font-bold tabular-nums ${currentColor}`}>{data.current}</span>
                 <span className={`text-sm ${currentColor}`}>{currentLabel}</span>
               </div>
             </div>
@@ -96,7 +96,7 @@ export function StreakAnalysis() {
                 label="Meilleure série W"
                 value={data.longestWin}
                 sub="trades gagnants consécutifs"
-                color="text-emerald-600"
+                color="text-green-500"
               />
               <StatCard
                 label="Pire série L"
@@ -108,13 +108,13 @@ export function StreakAnalysis() {
                 label="Série W moyenne"
                 value={data.avgWinStreak}
                 sub="trades par série gagnante"
-                color="text-emerald-600"
+                color="text-green-500"
               />
               <StatCard
                 label="Série L moyenne"
                 value={data.avgLossStreak}
                 sub="trades par série perdante"
-                color="text-amber-600"
+                color="text-amber-500"
               />
             </div>
           </>

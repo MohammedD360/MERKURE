@@ -27,17 +27,17 @@ function CustomTooltip({ active, payload }: {
       <div className="space-y-1">
         <div className="flex items-center justify-between gap-4">
           <span className="text-muted-foreground">P&L moyen</span>
-          <span className={`font-bold font-mono ${d.avgPnl >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+          <span className={`font-bold tabular-nums ${d.avgPnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
             {d.avgPnl >= 0 ? '+' : ''}{d.avgPnl.toLocaleString('fr-FR', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
           </span>
         </div>
         <div className="flex items-center justify-between gap-4">
           <span className="text-muted-foreground">Win rate</span>
-          <span className="font-mono text-muted-foreground">{(d.winRate * 100).toFixed(0)} %</span>
+          <span className="tabular-nums text-muted-foreground">{(d.winRate * 100).toFixed(0)} %</span>
         </div>
         <div className="flex items-center justify-between gap-4">
           <span className="text-muted-foreground">Trades</span>
-          <span className="font-mono text-muted-foreground">{d.nbTrades}</span>
+          <span className="tabular-nums text-muted-foreground">{d.nbTrades}</span>
         </div>
       </div>
     </div>
@@ -56,15 +56,15 @@ export function WeekdayPnlChart({ defaultPeriod = '30d' }: Props) {
     <div className="overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-card">
       <div className="flex items-center justify-between border-b border-[hsl(var(--border))] px-4 py-3">
         <div>
-          <h3 className="text-sm font-bold text-foreground">Performance par jour</h3>
-          <p className="mt-0.5 text-[11px] text-muted-foreground">P&L moyen selon le jour de la semaine</p>
+          <h3 className="text-2xl font-semibold leading-none tracking-tight text-foreground">Performance par jour</h3>
+          <p className="mt-0.5 text-xs text-muted-foreground">P&L moyen selon le jour de la semaine</p>
         </div>
         <div className="flex gap-1">
           {PERIODS.map(p => (
             <button
               key={p.value}
               onClick={() => setPeriod(p.value)}
-              className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+              className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors ${
                 period === p.value
                   ? 'bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] ring-1 ring-[hsl(var(--primary)/0.25)]'
                   : 'text-muted-foreground hover:text-muted-foreground'
@@ -86,7 +86,7 @@ export function WeekdayPnlChart({ defaultPeriod = '30d' }: Props) {
             <BarChart data={data} barCategoryGap="30%" margin={{ top: 8, right: 4, bottom: 0, left: 4 }}>
               <XAxis
                 dataKey="day"
-                tick={{ fill: '#9ca3af', fontSize: 11, fontWeight: 600 }}
+                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11, fontWeight: 600 }}
                 axisLine={false}
                 tickLine={false}
               />
@@ -94,7 +94,7 @@ export function WeekdayPnlChart({ defaultPeriod = '30d' }: Props) {
                 hide
                 domain={[-maxAbs * 1.2, maxAbs * 1.2]}
               />
-              <ReferenceLine y={0} stroke="#e5e7eb" strokeWidth={1} />
+              <ReferenceLine y={0} stroke="hsl(var(--border))" strokeWidth={1} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
               <Bar dataKey="avgPnl" radius={[4, 4, 0, 0]} maxBarSize={40}>
                 {data.map((entry, idx) => (
@@ -125,7 +125,7 @@ export function WeekdayPnlChart({ defaultPeriod = '30d' }: Props) {
                   }`}
                   style={{ opacity: d.nbTrades > 0 ? 1 : 0.2 }}
                 />
-                <span className={`text-[9px] font-mono ${d.nbTrades > 0 ? 'text-muted-foreground/60' : 'text-foreground/30'}`}>
+                <span className={`text-xs tabular-nums ${d.nbTrades > 0 ? 'text-muted-foreground/60' : 'text-foreground/30'}`}>
                   {d.nbTrades > 0 ? `${(d.winRate * 100).toFixed(0)}%` : '—'}
                 </span>
               </div>

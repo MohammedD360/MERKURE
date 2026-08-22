@@ -25,12 +25,12 @@ function Card({ label, value, sub, icon: Icon, iconClass, loading }: {
         <Icon className="w-4 h-4" />
       </div>
       <div className="flex-1">
-        <p className="text-[11px] text-[hsl(var(--foreground-soft))] uppercase tracking-wider font-medium">{label}</p>
+        <p className="text-xs text-[hsl(var(--foreground-soft))] font-medium">{label}</p>
         {loading ? (
           <div className="h-7 w-20 animate-pulse bg-[hsl(var(--accent))] rounded mt-1" />
         ) : (
           <>
-            <p className="text-2xl font-bold text-foreground font-mono mt-0.5">{value}</p>
+            <p className="text-2xl font-bold text-foreground tabular-nums mt-0.5">{value}</p>
             {sub && <p className="text-xs text-[hsl(var(--foreground-soft))] mt-0.5">{sub}</p>}
           </>
         )}
@@ -53,24 +53,24 @@ export function RiskSummaryCards() {
     : 0
 
   const totalPnl  = positions.reduce((s, p) => s + p.pnl, 0)
-  const pnlColor  = totalPnl >= 0 ? 'text-emerald-600' : 'text-red-500'
+  const pnlColor  = totalPnl >= 0 ? 'text-green-500' : 'text-red-500'
   const pnlPrefix = totalPnl >= 0 ? '+' : ''
 
   const riskPct   = summary?.riskPct ?? 0
-  const riskColor = riskPct > 5 ? 'text-red-500' : riskPct > 2 ? 'text-amber-600' : 'text-emerald-600'
+  const riskColor = riskPct > 5 ? 'text-red-500' : riskPct > 2 ? 'text-amber-500' : 'text-green-500'
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {/* P&L flottant */}
       <div className="bg-card border border-[hsl(var(--border))] rounded-xl p-4 flex items-start gap-3">
-        <div className={`mt-0.5 rounded-lg p-2 ${totalPnl >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'}`}>
+        <div className={`mt-0.5 rounded-lg p-2 ${totalPnl >= 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
           {totalPnl >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
         </div>
         <div className="flex-1">
-          <p className="text-[11px] text-[hsl(var(--foreground-soft))] uppercase tracking-wider font-medium">P&L flottant</p>
+          <p className="text-xs text-[hsl(var(--foreground-soft))] font-medium">P&L flottant</p>
           {loading ? <div className="h-7 w-20 animate-pulse bg-[hsl(var(--accent))] rounded mt-1" /> : (
             <>
-              <p className={`text-2xl font-bold font-mono mt-0.5 ${pnlColor}`}>
+              <p className={`text-2xl font-bold tabular-nums mt-0.5 ${pnlColor}`}>
                 {pnlPrefix}{totalPnl.toLocaleString('fr-FR', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}
               </p>
               <p className="text-xs text-[hsl(var(--foreground-soft))] mt-0.5">{positions.length} position{positions.length > 1 ? 's' : ''}</p>
@@ -81,14 +81,14 @@ export function RiskSummaryCards() {
 
       {/* Risque courant */}
       <div className="bg-card border border-[hsl(var(--border))] rounded-xl p-4 flex items-start gap-3">
-        <div className="mt-0.5 rounded-lg p-2 bg-amber-50 text-amber-600">
+        <div className="mt-0.5 rounded-lg p-2 bg-amber-500/10 text-amber-500">
           <AlertTriangle className="w-4 h-4" />
         </div>
         <div className="flex-1">
-          <p className="text-[11px] text-[hsl(var(--foreground-soft))] uppercase tracking-wider font-medium">Risque courant</p>
+          <p className="text-xs text-[hsl(var(--foreground-soft))] font-medium">Risque courant</p>
           {loading ? <div className="h-7 w-20 animate-pulse bg-[hsl(var(--accent))] rounded mt-1" /> : (
             <>
-              <p className={`text-2xl font-bold font-mono mt-0.5 ${riskColor}`}>{riskPct.toFixed(1)} %</p>
+              <p className={`text-2xl font-bold tabular-nums mt-0.5 ${riskColor}`}>{riskPct.toFixed(1)} %</p>
               <p className="text-xs text-[hsl(var(--foreground-soft))] mt-0.5">du capital exposé</p>
             </>
           )}
@@ -97,16 +97,16 @@ export function RiskSummaryCards() {
 
       {/* Meilleure position */}
       <div className="bg-card border border-[hsl(var(--border))] rounded-xl p-4 flex items-start gap-3">
-        <div className="mt-0.5 rounded-lg p-2 bg-emerald-50 text-emerald-600">
+        <div className="mt-0.5 rounded-lg p-2 bg-green-500/10 text-green-500">
           <TrendingUp className="w-4 h-4" />
         </div>
         <div className="flex-1">
-          <p className="text-[11px] text-[hsl(var(--foreground-soft))] uppercase tracking-wider font-medium">Meilleure</p>
+          <p className="text-xs text-[hsl(var(--foreground-soft))] font-medium">Meilleure</p>
           {loading ? <div className="h-7 w-20 animate-pulse bg-[hsl(var(--accent))] rounded mt-1" /> : !best ? (
-            <p className="text-2xl font-bold text-foreground/30 font-mono mt-0.5">—</p>
+            <p className="text-2xl font-bold text-foreground/30 tabular-nums mt-0.5">—</p>
           ) : (
             <>
-              <p className="text-2xl font-bold text-emerald-600 font-mono mt-0.5">
+              <p className="text-2xl font-bold text-green-500 tabular-nums mt-0.5">
                 +{best.pnl.toLocaleString('fr-FR', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}
               </p>
               <p className="text-xs text-[hsl(var(--foreground-soft))] mt-0.5">{best.symbol} {best.direction}</p>

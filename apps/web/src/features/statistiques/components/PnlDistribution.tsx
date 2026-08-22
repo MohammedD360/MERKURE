@@ -19,7 +19,7 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: { payl
   if (!active || !payload?.length) return null
   const d = payload[0]!.payload
   return (
-    <div className="bg-white border border-[hsl(var(--border))] rounded-lg px-3 py-2 text-xs shadow-xl">
+    <div className="bg-card border border-[hsl(var(--border))] rounded-lg px-3 py-2 text-xs shadow-xl">
       <p className="text-[hsl(var(--foreground-soft))]">{d.label}$</p>
       <p className="text-foreground font-semibold">{d.count} trade{d.count !== 1 ? 's' : ''}</p>
     </div>
@@ -36,7 +36,7 @@ export function PnlDistribution() {
       <div className="px-4 py-3 border-b border-[hsl(var(--border))] flex items-center justify-between">
         <div>
           <h2 className="text-sm font-semibold text-foreground">Distribution des P&L</h2>
-          <p className="text-[11px] text-[hsl(var(--foreground-soft))] mt-0.5">Fréquence par tranche de $50</p>
+          <p className="text-xs text-[hsl(var(--foreground-soft))] mt-0.5">Fréquence par tranche de $50</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
@@ -44,7 +44,7 @@ export function PnlDistribution() {
               <button
                 key={p.value}
                 onClick={() => setPeriod(p.value)}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors ${
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
                   period === p.value
                     ? 'bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] border border-[hsl(var(--primary)/0.25)]'
                     : 'text-[hsl(var(--foreground-soft))] hover:text-foreground'
@@ -73,7 +73,7 @@ export function PnlDistribution() {
               <BarChart data={buckets} barCategoryGap="8%">
                 <XAxis
                   dataKey="label"
-                  tick={{ fill: '#9ca3af', fontSize: 10 }}
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
                   axisLine={false}
                   tickLine={false}
                   interval="preserveStartEnd"
@@ -91,7 +91,7 @@ export function PnlDistribution() {
               </BarChart>
             </ResponsiveContainer>
 
-            <div className="mt-3 flex items-center justify-between text-[11px] text-[hsl(var(--foreground-soft))]">
+            <div className="mt-3 flex items-center justify-between text-xs text-[hsl(var(--foreground-soft))]">
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1">
                   <span className="w-2 h-2 rounded-sm bg-emerald-600/70 inline-block" />
@@ -104,7 +104,7 @@ export function PnlDistribution() {
               </div>
               <span>
                 Mode :{' '}
-                <span className="text-foreground/80 font-mono">
+                <span className="text-foreground/80 tabular-nums">
                   {buckets.reduce((max, b) => b.count > max.count ? b : max, buckets[0]!).label}$
                 </span>
               </span>

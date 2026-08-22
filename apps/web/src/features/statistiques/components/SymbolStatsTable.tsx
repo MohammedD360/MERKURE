@@ -13,7 +13,7 @@ const PERIODS: { value: KpiPeriod; label: string }[] = [
 ]
 
 function pnlColor(v: number) {
-  return v >= 0 ? 'text-emerald-600' : 'text-red-500'
+  return v >= 0 ? 'text-green-500' : 'text-red-500'
 }
 
 export function SymbolStatsTable() {
@@ -25,14 +25,14 @@ export function SymbolStatsTable() {
       <div className="px-4 py-3 border-b border-[hsl(var(--border))] flex items-center justify-between">
         <div>
           <h2 className="text-sm font-semibold text-foreground">Statistiques par instrument</h2>
-          <p className="text-[11px] text-[hsl(var(--foreground-soft))] mt-0.5">{rows.length} symbole{rows.length !== 1 ? 's' : ''}</p>
+          <p className="text-xs text-[hsl(var(--foreground-soft))] mt-0.5">{rows.length} symbole{rows.length !== 1 ? 's' : ''}</p>
         </div>
         <div className="flex gap-1">
           {PERIODS.map(p => (
             <button
               key={p.value}
               onClick={() => setPeriod(p.value)}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors ${
+              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
                 period === p.value
                   ? 'bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] border border-[hsl(var(--primary)/0.25)]'
                   : 'text-[hsl(var(--foreground-soft))] hover:text-foreground'
@@ -49,7 +49,7 @@ export function SymbolStatsTable() {
           <thead>
             <tr className="border-b border-[hsl(var(--border))]">
               {['Symbole', 'Trades', 'Win Rate', 'P&L Total', 'Moy/Trade', 'PF', 'Meilleur', 'Pire'].map(h => (
-                <th key={h} className="px-4 py-2.5 text-left text-[11px] text-[hsl(var(--foreground-soft))] uppercase tracking-wider font-medium">
+                <th key={h} className="px-4 py-2.5 text-left text-xs text-[hsl(var(--foreground-soft))] font-medium">
                   {h}
                 </th>
               ))}
@@ -75,8 +75,8 @@ export function SymbolStatsTable() {
             ) : (
               rows.map(row => (
                 <tr key={row.symbol} className="hover:bg-[hsl(var(--accent))] transition-colors">
-                  <td className="px-4 py-3 font-semibold text-foreground font-mono">{row.symbol}</td>
-                  <td className="px-4 py-3 text-[hsl(var(--foreground-soft))] font-mono">{row.nbTrades}</td>
+                  <td className="px-4 py-3 font-semibold text-foreground tabular-nums">{row.symbol}</td>
+                  <td className="px-4 py-3 text-[hsl(var(--foreground-soft))] tabular-nums">{row.nbTrades}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div className="w-12 h-1.5 bg-[hsl(var(--border))] rounded-full overflow-hidden">
@@ -85,26 +85,26 @@ export function SymbolStatsTable() {
                           style={{ width: `${row.winRate * 100}%` }}
                         />
                       </div>
-                      <span className={`text-xs font-mono ${row.winRate >= 0.5 ? 'text-emerald-600' : 'text-red-500'}`}>
+                      <span className={`text-xs tabular-nums ${row.winRate >= 0.5 ? 'text-green-500' : 'text-red-500'}`}>
                         {(row.winRate * 100).toFixed(0)}%
                       </span>
                     </div>
                   </td>
-                  <td className={`px-4 py-3 font-mono font-semibold ${pnlColor(row.totalPnl)}`}>
+                  <td className={`px-4 py-3 tabular-nums font-semibold ${pnlColor(row.totalPnl)}`}>
                     {row.totalPnl >= 0 ? '+' : ''}
                     {row.totalPnl.toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
                   </td>
-                  <td className={`px-4 py-3 font-mono text-xs ${pnlColor(row.avgPnl)}`}>
+                  <td className={`px-4 py-3 tabular-nums text-xs ${pnlColor(row.avgPnl)}`}>
                     {row.avgPnl >= 0 ? '+' : ''}
                     {row.avgPnl.toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
                   </td>
-                  <td className="px-4 py-3 font-mono text-foreground/80 text-xs">
+                  <td className="px-4 py-3 tabular-nums text-foreground/80 text-xs">
                     {row.profitFactor != null ? row.profitFactor.toFixed(2) : '—'}
                   </td>
-                  <td className="px-4 py-3 font-mono text-emerald-600 text-xs">
+                  <td className="px-4 py-3 tabular-nums text-green-500 text-xs">
                     +{row.bestTrade.toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
                   </td>
-                  <td className="px-4 py-3 font-mono text-red-500 text-xs">
+                  <td className="px-4 py-3 tabular-nums text-red-500 text-xs">
                     {row.worstTrade.toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
                   </td>
                 </tr>

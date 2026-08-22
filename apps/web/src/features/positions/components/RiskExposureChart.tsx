@@ -56,7 +56,7 @@ export function RiskExposureChart() {
               {/* Symbol */}
               <div className="flex items-center gap-2 w-24 flex-shrink-0">
                 <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color(row.symbol) }} />
-                <span className="text-xs font-mono font-medium text-foreground/70">{row.symbol}</span>
+                <span className="text-xs tabular-nums font-medium text-foreground/70">{row.symbol}</span>
               </div>
 
               {/* Bar */}
@@ -69,15 +69,15 @@ export function RiskExposureChart() {
                     opacity:         0.8,
                   }}
                 />
-                <span className="absolute inset-0 flex items-center px-2 text-[10px] font-mono text-foreground/70">
+                <span className="absolute inset-0 flex items-center px-2 text-xs tabular-nums text-foreground/70">
                   {row.lots.toFixed(2)} lots
                 </span>
               </div>
 
               {/* Risk % */}
               <div className="w-12 text-right flex-shrink-0">
-                <span className={`text-xs font-mono font-medium ${
-                  row.riskPct > 3 ? 'text-red-500' : row.riskPct > 1 ? 'text-amber-600' : 'text-emerald-600'
+                <span className={`text-xs tabular-nums font-medium ${
+                  row.riskPct > 3 ? 'text-red-500' : row.riskPct > 1 ? 'text-amber-500' : 'text-green-500'
                 }`}>
                   {row.riskPct.toFixed(1)}%
                 </span>
@@ -85,7 +85,7 @@ export function RiskExposureChart() {
 
               {/* P&L */}
               <div className="w-20 text-right flex-shrink-0">
-                <span className={`text-xs font-mono ${row.pnl >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                <span className={`text-xs tabular-nums ${row.pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                   {row.pnl >= 0 ? '+' : ''}{row.pnl.toLocaleString('fr-FR', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}
                 </span>
               </div>
@@ -94,15 +94,15 @@ export function RiskExposureChart() {
 
           {/* Total */}
           <div className="pt-2 border-t border-[hsl(var(--border))] flex items-center gap-3">
-            <span className="text-[11px] text-[hsl(var(--foreground-soft))] w-24 flex-shrink-0">TOTAL</span>
+            <span className="text-xs text-[hsl(var(--foreground-soft))] w-24 flex-shrink-0">TOTAL</span>
             <div className="flex-1" />
             <div className="w-12 text-right">
-              <span className={`text-xs font-mono font-bold ${(summary?.riskPct ?? 0) > 3 ? 'text-red-500' : 'text-amber-600'}`}>
+              <span className={`text-xs tabular-nums font-bold ${(summary?.riskPct ?? 0) > 3 ? 'text-red-500' : 'text-amber-500'}`}>
                 {(summary?.riskPct ?? 0).toFixed(1)}%
               </span>
             </div>
             <div className="w-20 text-right">
-              <span className={`text-xs font-mono font-bold ${(summary?.totalPnlOpen ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+              <span className={`text-xs tabular-nums font-bold ${(summary?.totalPnlOpen ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                 {(summary?.totalPnlOpen ?? 0) >= 0 ? '+' : ''}
                 {(summary?.totalPnlOpen ?? 0).toLocaleString('fr-FR', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}
               </span>

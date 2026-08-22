@@ -13,7 +13,7 @@ export function PositionsPage() {
     <div className="px-5 py-4 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-base font-bold text-foreground">Positions</h1>
+          <h1 className="text-2xl font-semibold leading-none tracking-tight text-foreground">Positions</h1>
           <p className="text-xs text-[hsl(var(--foreground-soft))] mt-0.5">Gestion du risque et suivi des positions ouvertes</p>
         </div>
         <button
@@ -29,11 +29,11 @@ export function PositionsPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         <div className="xl:col-span-2">
-          <h2 className="text-sm font-semibold text-foreground mb-3">Positions par instrument</h2>
+          <h2 className="mb-3 text-2xl font-semibold leading-none tracking-tight text-foreground">Positions par instrument</h2>
           <PositionsBySymbol />
         </div>
         <div>
-          <h2 className="text-sm font-semibold text-foreground mb-3">Exposition</h2>
+          <h2 className="mb-3 text-2xl font-semibold leading-none tracking-tight text-foreground">Exposition</h2>
           <RiskExposureChart />
         </div>
       </div>

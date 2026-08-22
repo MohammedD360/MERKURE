@@ -25,9 +25,9 @@ function ChartSkeleton() {
 function PnlTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-lg border border-[hsl(var(--border))] bg-white px-3 py-2 text-xs shadow-xl">
+    <div className="rounded-lg border border-[hsl(var(--border))] bg-card px-3 py-2 text-xs shadow-xl">
       <p className="mb-1 text-[hsl(var(--foreground-soft))]">{label}</p>
-      <p className="font-mono text-emerald-600">
+      <p className="tabular-nums text-green-500">
         P&L cumulé : {Number(payload[0]?.value ?? 0).toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
       </p>
     </div>
@@ -38,9 +38,9 @@ function DrawdownTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   const val = Number(payload[0]?.value ?? 0)
   return (
-    <div className="rounded-lg border border-[hsl(var(--border))] bg-white px-3 py-2 text-xs shadow-xl">
+    <div className="rounded-lg border border-[hsl(var(--border))] bg-card px-3 py-2 text-xs shadow-xl">
       <p className="mb-1 text-[hsl(var(--foreground-soft))]">{label}</p>
-      <p className="font-mono text-red-500">
+      <p className="tabular-nums text-red-500">
         Drawdown : {(val * 100).toFixed(2)} %
       </p>
     </div>
@@ -66,7 +66,7 @@ export function PnlDrawdownChart({ from, to, accountId }: Props) {
 
       {/* Courbe P&L */}
       <div>
-        <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-[hsl(var(--foreground-soft))]">P&L cumulé</p>
+        <p className="mb-1 text-xs text-[hsl(var(--foreground-soft))]">P&L cumulé</p>
         {query.isLoading ? <ChartSkeleton /> : data.length === 0 ? (
           <div className="flex h-32 items-center justify-center text-sm text-[hsl(var(--foreground-soft))]">
             Aucune donnée disponible
@@ -80,12 +80,12 @@ export function PnlDrawdownChart({ from, to, accountId }: Props) {
                   <stop offset="95%" stopColor="#16a34a" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="label" tick={{ fill: '#9ca3af', fontSize: 10 }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fill: '#9ca3af', fontSize: 10 }} tickLine={false} axisLine={false}
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="label" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} tickLine={false} axisLine={false} />
+              <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} tickLine={false} axisLine={false}
                 tickFormatter={(v) => `${v > 0 ? '+' : ''}${Number(v).toFixed(0)}`} />
               <Tooltip content={<PnlTooltip />} />
-              <ReferenceLine y={0} stroke="#e5e7eb" strokeDasharray="4 4" />
+              <ReferenceLine y={0} stroke="hsl(var(--border))" strokeDasharray="4 4" />
               <Area
                 type="monotone"
                 dataKey="cumPnl"
@@ -102,7 +102,7 @@ export function PnlDrawdownChart({ from, to, accountId }: Props) {
 
       {/* Courbe Drawdown */}
       <div>
-        <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-[hsl(var(--foreground-soft))]">Drawdown %</p>
+        <p className="mb-1 text-xs text-[hsl(var(--foreground-soft))]">Drawdown %</p>
         {query.isLoading ? <ChartSkeleton /> : data.length === 0 ? (
           <div className="flex h-24 items-center justify-center text-sm text-[hsl(var(--foreground-soft))]">
             Aucune donnée disponible
@@ -116,10 +116,10 @@ export function PnlDrawdownChart({ from, to, accountId }: Props) {
                   <stop offset="95%" stopColor="#dc2626" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="label" tick={{ fill: '#9ca3af', fontSize: 10 }} tickLine={false} axisLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="label" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} tickLine={false} axisLine={false} />
               <YAxis
-                tick={{ fill: '#9ca3af', fontSize: 10 }} tickLine={false} axisLine={false}
+                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} tickLine={false} axisLine={false}
                 tickFormatter={(v) => `${(Number(v) * 100).toFixed(0)}%`}
                 reversed
               />

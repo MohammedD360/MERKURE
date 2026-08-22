@@ -34,7 +34,7 @@ function CustomTooltip({ active, payload, label }: any) {
     <div className="rounded-lg border border-[hsl(var(--border))] bg-background px-3 py-2 text-xs shadow-xl">
       <p className="mb-1 font-medium text-muted-foreground">{label}</p>
       <p className="text-muted-foreground">Trades : {payload[0]?.payload?.nbTrades ?? 0}</p>
-      <p className={`font-mono ${Number(payload[0]?.value ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+      <p className={`tabular-nums ${Number(payload[0]?.value ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
         P&L : {Number(payload[0]?.value ?? 0).toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
       </p>
     </div>
@@ -57,15 +57,15 @@ export function WeekdayStats({ period, accountId }: Props) {
 
   return (
     <div className="rounded-lg border border-border bg-background p-4 shadow-[0_14px_46px_rgba(0,0,0,0.18)]">
-      <h2 className="mb-4 text-sm font-black text-foreground">Performance par jour</h2>
+      <h2 className="mb-4 text-sm font-semibold text-foreground">Performance par jour</h2>
 
       {query.isLoading ? <Skeleton /> : (
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={data} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
-            <XAxis dataKey="label" tick={{ fill: '#9ca3af', fontSize: 11 }} tickLine={false} axisLine={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+            <XAxis dataKey="label" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} tickLine={false} axisLine={false} />
             <YAxis
-              tick={{ fill: '#9ca3af', fontSize: 10 }}
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
               tickLine={false}
               axisLine={false}
               tickFormatter={(v) => `${Number(v) >= 0 ? '' : ''}${Number(v).toFixed(0)}`}

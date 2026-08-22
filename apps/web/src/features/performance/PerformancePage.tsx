@@ -69,8 +69,8 @@ export function PerformancePage() {
       {/* En-tête + contrôles */}
       <div className="flex flex-col gap-3 border-b border-border pb-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Analyse</p>
-          <h1 className="mt-1 text-xl font-black text-foreground">Performance</h1>
+          <p className="text-xs text-muted-foreground">Analyse</p>
+          <h1 className="mt-1 text-xl font-semibold text-foreground">Performance</h1>
           <p className="mt-1 text-sm font-medium text-muted-foreground">Analyse détaillée de vos résultats de trading</p>
         </div>
 
@@ -81,7 +81,7 @@ export function PerformancePage() {
               <button
                 key={value}
                 onClick={() => setPeriod(value)}
-                className={`rounded px-3 py-1.5 text-xs font-black transition-colors ${
+                className={`rounded px-3 py-1.5 text-xs font-semibold transition-colors ${
                   period === value
                     ? 'bg-[hsl(var(--primary))] text-white'
                     : 'text-muted-foreground hover:text-foreground/80'
@@ -110,7 +110,7 @@ export function PerformancePage() {
           <button
             onClick={handleDownload}
             disabled={downloading}
-            className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-xs font-black text-muted-foreground transition-colors hover:border-border hover:text-foreground disabled:opacity-60"
+            className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:border-border hover:text-foreground disabled:opacity-60"
           >
             {downloading
               ? <Loader2 className="h-3.5 w-3.5 animate-spin" />

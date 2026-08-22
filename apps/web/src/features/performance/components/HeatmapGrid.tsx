@@ -1,8 +1,9 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Activity, Clock, Info, TrendingDown, TrendingUp, Zap } from 'lucide-react'
 import { useHeatmapData } from '@/lib/hooks/use-performance'
+import { useCurrency } from '@/lib/hooks/use-currency'
+import { formatMoney } from '@/lib/format'
 import type { KpiPeriod } from '@/lib/hooks/use-kpis'
 import { cn } from '@/lib/utils'
 
@@ -13,414 +14,256 @@ interface Props {
 
 const DAY_LABELS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
 const HOURS = Array.from({ length: 24 }, (_, i) => i)
-const CURRENCY = 'EUR'
 
+/** Séances de marché, en heures locales — bandeau de repère au-dessus de la grille. */
 const SESSIONS = [
-  { label: 'Asia', from: 0, to: 7 },
-  { label: 'London', from: 8, to: 12 },
-  { label: 'NY', from: 13, to: 17 },
-  { label: 'After', from: 18, to: 23 },
+  { label: 'Asie',      from: 0,  to: 7  },
+  { label: 'Londres',   from: 8,  to: 12 },
+  { label: 'New York',  from: 13, to: 17 },
+  { label: 'Après-clôture', from: 18, to: 23 },
 ] as const
 
-interface TooltipState {
-  day:      number
-  hour:     number
-  pnl:      number
-  count:    number
-  avgPnl:   number
-  strength: number
-  x:        number
-  y:        number
-}
+interface Cell { pnl: number; count: number }
+interface Hover extends Cell { day: number; hour: number; x: number; y: number }
 
-interface NormalizedCell {
-  pnl:   number
-  count: number
-}
-
-function formatMoney(value: number, signed = false) {
-  const formatted = value.toLocaleString('fr-FR', {
-    style: 'currency',
-    currency: CURRENCY,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
-  return signed && value > 0 ? `+${formatted}` : formatted
-}
+/** Gabarit de colonnes partagé par toutes les lignes de la grille. */
+const GRID = '52px repeat(24, minmax(0, 1fr)) 92px'
 
 function formatHour(hour: number) {
   return `${String(hour).padStart(2, '0')}h`
 }
 
-function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max)
-}
-
-function getCellStyle(cell: NormalizedCell, maxAbs: number) {
-  if (cell.count === 0 || maxAbs === 0) {
-    return {
-      background: 'linear-gradient(180deg, hsl(220 14% 94%), hsl(220 14% 96%))',
-      borderColor: 'hsl(var(--border))',
-      boxShadow: 'none',
-    }
-  }
-
-  const intensity = clamp(Math.abs(cell.pnl) / maxAbs, 0.12, 1)
-  const alpha = 0.16 + intensity * 0.62
-  const glow = 0.06 + intensity * 0.14
-  const rgb = cell.pnl >= 0 ? '22, 163, 74' : '220, 38, 38'
-
-  return {
-    background: `linear-gradient(180deg, rgba(${rgb}, ${alpha}), rgba(${rgb}, ${Math.max(alpha - 0.22, 0.08)}))`,
-    borderColor: `rgba(${rgb}, ${0.18 + intensity * 0.3})`,
-    boxShadow: `0 0 ${Math.round(6 + intensity * 10)}px rgba(${rgb}, ${glow})`,
-  }
-}
-
-function Skeleton() {
-  return (
-    <div className="space-y-4">
-      <div className="grid gap-3 md:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="h-20 animate-pulse rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))]" />
-        ))}
-      </div>
-      <div className="overflow-hidden rounded-lg border border-[hsl(var(--border))] bg-white p-4">
-        <div className="grid gap-1.5" style={{ gridTemplateColumns: '76px repeat(24, minmax(30px, 1fr)) 86px', minWidth: 930 }}>
-          {Array.from({ length: 9 * 26 }).map((_, index) => (
-            <div key={index} className="h-8 animate-pulse rounded-md bg-[hsl(var(--accent))]" />
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function MetricCard({
-  icon,
-  label,
-  value,
-  tone = 'neutral',
-}: {
-  icon: React.ReactNode
-  label: string
-  value: string
-  tone?: 'green' | 'red' | 'violet' | 'neutral'
-}) {
-  const toneClass = {
-    green: 'text-emerald-600',
-    red: 'text-red-500',
-    violet: 'text-[hsl(var(--primary))]',
-    neutral: 'text-foreground',
-  }[tone]
-
-  return (
-    <div className="rounded-lg border border-[hsl(var(--border))] bg-white px-4 py-3">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[hsl(var(--foreground-soft))]">{label}</p>
-        <div className={cn('flex h-8 w-8 items-center justify-center rounded-md bg-[hsl(var(--accent))]', toneClass)}>
-          {icon}
-        </div>
-      </div>
-      <p className={cn('mt-3 font-mono text-xl font-black tracking-tight', toneClass)}>{value}</p>
-    </div>
-  )
-}
-
 export function HeatmapGrid({ period, accountId }: Props) {
   const query = useHeatmapData(period, accountId)
-  const [tooltip, setTooltip] = useState<TooltipState | null>(null)
+  const currency = useCurrency()
+  const [hover, setHover] = useState<Hover | null>(null)
 
-  const {
-    cellMap,
-    maxAbs,
-    totalPnl,
-    totalTrades,
-    activeSlots,
-    bestCell,
-    worstCell,
-    daySummaries,
-  } = useMemo(() => {
-    const map = new Map<string, NormalizedCell>()
-    let strongest = 0
-    let pnlTotal = 0
-    let tradeTotal = 0
-    let slots = 0
-    let best: (NormalizedCell & { day: number; hour: number }) | null = null
-    let worst: (NormalizedCell & { day: number; hour: number }) | null = null
-    const summaries = DAY_LABELS.map(() => ({ pnl: 0, count: 0 }))
+  const { cells, maxAbs, totalPnl, totalTrades, activeSlots, best, worst, dayTotals } = useMemo(() => {
+    const map = new Map<string, Cell>()
+    const totals = DAY_LABELS.map(() => ({ pnl: 0, count: 0 }))
+    let strongest = 0, pnlSum = 0, tradeSum = 0, slots = 0
+    let bestCell: (Cell & { day: number; hour: number }) | null = null
+    let worstCell: (Cell & { day: number; hour: number }) | null = null
 
     for (const item of query.data ?? []) {
-      const cell = {
-        pnl: Number(item.pnl ?? 0),
-        count: Number(item.count ?? 0),
-      }
       const day = Number(item.dayOfWeek)
       const hour = Number(item.hour)
-      const key = `${day}-${hour}`
-
-      map.set(key, cell)
+      const cell: Cell = { pnl: Number(item.pnl ?? 0), count: Number(item.count ?? 0) }
+      map.set(`${day}-${hour}`, cell)
       strongest = Math.max(strongest, Math.abs(cell.pnl))
 
       if (cell.count > 0) {
         slots += 1
-        pnlTotal += cell.pnl
-        tradeTotal += cell.count
-        if (summaries[day]) {
-          summaries[day].pnl += cell.pnl
-          summaries[day].count += cell.count
-        }
-        if (!best || cell.pnl > best.pnl) best = { ...cell, day, hour }
-        if (!worst || cell.pnl < worst.pnl) worst = { ...cell, day, hour }
+        pnlSum += cell.pnl
+        tradeSum += cell.count
+        const t = totals[day]
+        if (t) { t.pnl += cell.pnl; t.count += cell.count }
+        if (!bestCell  || cell.pnl > bestCell.pnl)  bestCell  = { ...cell, day, hour }
+        if (!worstCell || cell.pnl < worstCell.pnl) worstCell = { ...cell, day, hour }
       }
     }
 
     return {
-      cellMap: map,
-      maxAbs: strongest,
-      totalPnl: pnlTotal,
-      totalTrades: tradeTotal,
-      activeSlots: slots,
-      bestCell: best,
-      worstCell: worst,
-      daySummaries: summaries,
+      cells: map, maxAbs: strongest, totalPnl: pnlSum, totalTrades: tradeSum,
+      activeSlots: slots, best: bestCell, worst: worstCell, dayTotals: totals,
     }
   }, [query.data])
 
   const hasData = totalTrades > 0
-  const averagePnl = totalTrades > 0 ? totalPnl / totalTrades : 0
+  const money = (v: number, signed = true) => formatMoney(v, { currency, signed })
+
+  /**
+   * Vide = surface neutre du thème (plus de gris clair figé qui écrasait la
+   * grille en sombre). Sinon, teinte verte ou rouge dont seule l'opacité varie :
+   * une échelle, une lecture.
+   */
+  function cellStyle(cell: Cell) {
+    if (cell.count === 0 || maxAbs === 0) return undefined
+    const intensity = Math.min(Math.abs(cell.pnl) / maxAbs, 1)
+    const alpha = 0.18 + intensity * 0.72
+    return { backgroundColor: cell.pnl >= 0 ? `rgba(34, 197, 94, ${alpha})` : `rgba(239, 68, 68, ${alpha})` }
+  }
+
+  const tiles: Array<{ label: string; value: string; tone?: 'up' | 'down' }> = [
+    { label: 'P&L total',      value: hasData ? money(totalPnl) : '—', ...(hasData ? { tone: totalPnl >= 0 ? 'up' as const : 'down' as const } : {}) },
+    { label: 'Trades',         value: totalTrades.toLocaleString('fr-FR') },
+    { label: 'Moyenne / trade', value: hasData ? money(totalPnl / totalTrades) : '—', ...(hasData ? { tone: totalPnl >= 0 ? 'up' as const : 'down' as const } : {}) },
+    { label: 'Créneaux actifs', value: `${activeSlots} / 168` },
+  ]
 
   return (
-    <section className="rounded-lg border border-[hsl(var(--border))] bg-background p-5 shadow-sm">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md border border-[hsl(var(--primary)/0.25)] bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]">
-              <Clock className="h-4 w-4" />
-            </div>
-            <div>
-              <h2 className="text-sm font-black uppercase tracking-[0.12em] text-foreground">Heatmap P&L</h2>
-              <p className="mt-1 text-sm font-medium text-[hsl(var(--foreground-soft))]">Lecture des créneaux jour × heure par P&L réalisé.</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-[hsl(var(--foreground-soft))]">
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-sm bg-emerald-500" />
-            Profit
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-sm bg-red-500" />
-            Perte
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-sm bg-[hsl(220_14%_90%)]" />
-            Aucun trade
-          </div>
-          <div className="hidden items-center gap-1.5 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-2.5 py-1.5 text-[hsl(var(--foreground-soft))] md:flex">
-            <Info className="h-3.5 w-3.5" />
-            Intensité = amplitude du P&L
-          </div>
-        </div>
+    <section className="rounded-lg border border-border bg-card p-6">
+      <div className="mb-6 space-y-1.5">
+        <h3 className="text-2xl font-semibold leading-none tracking-tight text-foreground">Heatmap horaire</h3>
+        <p className="text-sm text-muted-foreground">P&amp;L réalisé par créneau jour × heure</p>
       </div>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-4">
-        <MetricCard
-          icon={totalPnl >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-          label="P&L total"
-          value={formatMoney(totalPnl, true)}
-          tone={totalPnl >= 0 ? 'green' : 'red'}
-        />
-        <MetricCard
-          icon={<Activity className="h-4 w-4" />}
-          label="Trades"
-          value={totalTrades.toLocaleString('fr-FR')}
-          tone="neutral"
-        />
-        <MetricCard
-          icon={<Zap className="h-4 w-4" />}
-          label="Moyenne / trade"
-          value={formatMoney(averagePnl, true)}
-          tone={averagePnl >= 0 ? 'green' : 'red'}
-        />
-        <MetricCard
-          icon={<Clock className="h-4 w-4" />}
-          label="Créneaux actifs"
-          value={`${activeSlots}/168`}
-          tone="violet"
-        />
+      {/* Métriques de cadrage */}
+      <div className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-4">
+        {tiles.map(t => (
+          <div key={t.label} className="bg-card px-3 py-3">
+            <p className="truncate text-xs text-muted-foreground">{t.label}</p>
+            <p className={cn(
+              'mt-1 truncate text-lg font-semibold tabular-nums',
+              t.tone === 'up' ? 'text-green-500' : t.tone === 'down' ? 'text-red-500' : 'text-foreground',
+            )}>
+              {t.value}
+            </p>
+          </div>
+        ))}
       </div>
 
       {query.isLoading ? (
-        <div className="mt-5"><Skeleton /></div>
+        <div className="space-y-[2px]">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-7 animate-pulse rounded bg-secondary" />
+          ))}
+        </div>
       ) : query.isError ? (
-        <div className="mt-5 rounded-lg border border-red-200 bg-red-50 px-5 py-10 text-center">
-          <p className="text-sm font-black text-red-500">Impossible de charger la heatmap</p>
-          <p className="mt-2 text-xs font-semibold text-[hsl(var(--foreground-soft))]">Réessayez après synchronisation des données.</p>
+        <div className="rounded-lg border border-dashed border-red-500/40 px-5 py-10 text-center">
+          <p className="text-sm font-medium text-red-500">Impossible de charger la heatmap</p>
+          <p className="mt-1 text-sm text-muted-foreground">Réessayez après une synchronisation.</p>
         </div>
       ) : !hasData ? (
-        <div className="mt-5 rounded-lg border border-dashed border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-5 py-12 text-center">
-          <p className="text-sm font-black text-foreground">Aucun trade sur cette période</p>
-          <p className="mt-2 text-xs font-semibold text-[hsl(var(--foreground-soft))]">La heatmap se remplira dès que des trades clôturés seront disponibles.</p>
+        <div className="rounded-lg border border-dashed border-border px-5 py-12 text-center">
+          <p className="text-sm font-medium text-foreground">Aucun trade sur cette période</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            La heatmap se remplit dès qu'un trade est clôturé.
+          </p>
         </div>
       ) : (
-        <div className="mt-5 overflow-x-auto rounded-lg border border-[hsl(var(--border))] bg-white p-4">
-          <div
-            className="grid items-stretch gap-1.5"
-            style={{ gridTemplateColumns: '76px repeat(24, minmax(30px, 1fr)) 86px', minWidth: 930 }}
-          >
-            <div className="h-7" />
-            {SESSIONS.map((session) => (
-              <div
-                key={session.label}
-                className="flex h-7 items-center justify-center rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--accent))] text-[10px] font-black uppercase tracking-[0.12em] text-[hsl(var(--foreground-soft))]"
-                style={{ gridColumn: `span ${session.to - session.from + 1}` }}
-              >
-                {session.label}
-              </div>
-            ))}
-            <div className="h-7" />
+        <div className="overflow-x-auto">
+          <div className="min-w-[720px] space-y-[2px]">
 
-            <div className="pb-1 text-[10px] font-black uppercase tracking-[0.12em] text-foreground/50">Jour</div>
-            {HOURS.map((hour) => (
-              <div
-                key={hour}
-                className={cn(
-                  'pb-1 text-center font-mono text-[10px] font-bold',
-                  hour % 4 === 0 ? 'text-[hsl(var(--foreground-soft))]' : 'text-foreground/30',
-                )}
-              >
-                {String(hour).padStart(2, '0')}
-              </div>
-            ))}
-            <div className="pb-1 text-right text-[10px] font-black uppercase tracking-[0.12em] text-foreground/50">Total</div>
-
-            {DAY_LABELS.map((dayLabel, dayIndex) => (
-              <div key={dayLabel} className="contents">
-                <div className="flex h-9 items-center justify-between gap-2 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-2">
-                  <span className="text-xs font-black text-foreground/80">{dayLabel}</span>
-                  <span className="font-mono text-[10px] font-bold text-[hsl(var(--foreground-soft))]">{daySummaries[dayIndex]?.count ?? 0}</span>
+            {/* Séances */}
+            <div className="grid gap-[2px]" style={{ gridTemplateColumns: GRID }}>
+              <div />
+              {SESSIONS.map(s => (
+                <div
+                  key={s.label}
+                  style={{ gridColumn: `span ${s.to - s.from + 1}` }}
+                  className="truncate rounded bg-secondary/60 px-2 py-1 text-center text-xs text-muted-foreground"
+                >
+                  {s.label}
                 </div>
-
-                {HOURS.map((hour) => {
-                  const key = `${dayIndex}-${hour}`
-                  const cell = cellMap.get(key) ?? { pnl: 0, count: 0 }
-                  const strength = maxAbs > 0 ? Math.abs(cell.pnl) / maxAbs : 0
-                  const style = getCellStyle(cell, maxAbs)
-                  const isBest = bestCell?.day === dayIndex && bestCell.hour === hour
-                  const isWorst = worstCell?.day === dayIndex && worstCell.hour === hour
-
-                  return (
-                    <button
-                      type="button"
-                      key={key}
-                      className={cn(
-                        'relative h-9 rounded-md border transition-transform hover:z-10 hover:scale-[1.08] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary)/0.4)]',
-                        cell.count === 0 && 'opacity-70',
-                      )}
-                      style={style}
-                      aria-label={`${dayLabel} ${formatHour(hour)} : ${cell.count} trade${cell.count > 1 ? 's' : ''}, ${formatMoney(cell.pnl, true)}`}
-                      onMouseEnter={(event) => {
-                        const rect = event.currentTarget.getBoundingClientRect()
-                        setTooltip({
-                          day: dayIndex,
-                          hour,
-                          pnl: cell.pnl,
-                          count: cell.count,
-                          avgPnl: cell.count > 0 ? cell.pnl / cell.count : 0,
-                          strength,
-                          x: rect.left,
-                          y: rect.top,
-                        })
-                      }}
-                      onMouseLeave={() => setTooltip(null)}
-                      onFocus={(event) => {
-                        const rect = event.currentTarget.getBoundingClientRect()
-                        setTooltip({
-                          day: dayIndex,
-                          hour,
-                          pnl: cell.pnl,
-                          count: cell.count,
-                          avgPnl: cell.count > 0 ? cell.pnl / cell.count : 0,
-                          strength,
-                          x: rect.left,
-                          y: rect.top,
-                        })
-                      }}
-                      onBlur={() => setTooltip(null)}
-                    >
-                      {cell.count > 0 && (
-                        <span className="absolute inset-x-0 bottom-1 mx-auto h-0.5 w-3 rounded-full bg-white/70" />
-                      )}
-                      {isBest && <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-emerald-600" />}
-                      {isWorst && <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-red-500" />}
-                    </button>
-                  )
-                })}
-
-                <div className={cn(
-                  'flex h-9 items-center justify-end rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-2 font-mono text-xs font-black',
-                  (daySummaries[dayIndex]?.pnl ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-500',
-                )}>
-                  {formatMoney(daySummaries[dayIndex]?.pnl ?? 0, true)}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-4 flex flex-col gap-3 border-t border-[hsl(var(--border))] pt-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-center gap-2 text-xs font-semibold text-[hsl(var(--foreground-soft))]">
-              <span>Faible</span>
-              <div className="h-2 w-28 rounded-full bg-gradient-to-r from-gray-200 via-emerald-400 to-emerald-600" />
-              <span>Profit fort</span>
-              <div className="ml-3 h-2 w-28 rounded-full bg-gradient-to-r from-gray-200 via-red-400 to-red-600" />
-              <span>Perte forte</span>
+              ))}
+              <div />
             </div>
-            <p className="text-xs font-semibold text-[hsl(var(--foreground-soft))]">
-              Pic positif : {bestCell ? `${DAY_LABELS[bestCell.day]} ${formatHour(bestCell.hour)} (${formatMoney(bestCell.pnl, true)})` : '—'}
-              <span className="mx-2 text-foreground/30">•</span>
-              Pic négatif : {worstCell ? `${DAY_LABELS[worstCell.day]} ${formatHour(worstCell.hour)} (${formatMoney(worstCell.pnl, true)})` : '—'}
-            </p>
+
+            {/* Heures — une graduation sur deux pour laisser respirer */}
+            <div className="grid gap-[2px] pb-1" style={{ gridTemplateColumns: GRID }}>
+              <div />
+              {HOURS.map(h => (
+                <div key={h} className="text-center text-xs tabular-nums text-muted-foreground">
+                  {h % 2 === 0 ? String(h).padStart(2, '0') : ''}
+                </div>
+              ))}
+              <div className="text-right text-xs text-muted-foreground">Total</div>
+            </div>
+
+            {/* Lignes de jours */}
+            {DAY_LABELS.map((label, day) => {
+              const total = dayTotals[day] ?? { pnl: 0, count: 0 }
+              return (
+                <div key={label} className="grid items-center gap-[2px]" style={{ gridTemplateColumns: GRID }}>
+                  <div className="text-sm text-muted-foreground">{label}</div>
+
+                  {HOURS.map(hour => {
+                    const cell = cells.get(`${day}-${hour}`) ?? { pnl: 0, count: 0 }
+                    const isBest  = best?.day === day && best.hour === hour
+                    const isWorst = worst && worst.pnl < 0 && worst.day === day && worst.hour === hour
+                    return (
+                      <button
+                        type="button"
+                        key={hour}
+                        style={cellStyle(cell)}
+                        onMouseEnter={e => setHover({ ...cell, day, hour, x: e.clientX, y: e.clientY })}
+                        onMouseMove={e => setHover(h => (h ? { ...h, x: e.clientX, y: e.clientY } : h))}
+                        onMouseLeave={() => setHover(null)}
+                        onFocus={e => {
+                          const r = e.currentTarget.getBoundingClientRect()
+                          setHover({ ...cell, day, hour, x: r.left + r.width / 2, y: r.top })
+                        }}
+                        onBlur={() => setHover(null)}
+                        aria-label={`${label} ${formatHour(hour)} — ${cell.count} trade${cell.count > 1 ? 's' : ''}, ${money(cell.pnl)}`}
+                        className={cn(
+                          'h-7 rounded-[3px] transition-[outline-color,opacity] focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                          cell.count === 0 && 'bg-secondary/40',
+                          cell.count > 0 && 'hover:opacity-80',
+                          (isBest || isWorst) && 'outline outline-1 outline-offset-1',
+                          isBest && 'outline-green-400',
+                          isWorst && 'outline-red-400',
+                        )}
+                      />
+                    )
+                  })}
+
+                  <div className={cn(
+                    'text-right text-sm tabular-nums',
+                    total.count === 0 ? 'text-muted-foreground' : total.pnl >= 0 ? 'text-green-500' : 'text-red-500',
+                  )}>
+                    {total.count === 0 ? '—' : money(total.pnl)}
+                  </div>
+                </div>
+              )
+            })}
+
+            {/* Une seule échelle, bornée par les valeurs réelles */}
+            <div className="flex flex-wrap items-center justify-between gap-4 pt-5">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="tabular-nums">{money(-maxAbs)}</span>
+                <span
+                  className="h-2 w-40 rounded-full"
+                  style={{ background: 'linear-gradient(90deg, rgba(239,68,68,0.9), hsl(var(--secondary)), rgba(34,197,94,0.9))' }}
+                />
+                <span className="tabular-nums">{money(maxAbs)}</span>
+                <span className="ml-2 flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-[3px] bg-secondary/40" /> aucun trade
+                </span>
+              </div>
+
+              <p className="text-xs text-muted-foreground">
+                Meilleur créneau :{' '}
+                <span className="font-medium text-green-500">
+                  {best ? `${DAY_LABELS[best.day]} ${formatHour(best.hour)} (${money(best.pnl)})` : '—'}
+                </span>
+                <span className="mx-2">·</span>
+                Pire créneau :{' '}
+                <span className={cn('font-medium', worst && worst.pnl < 0 ? 'text-red-500' : 'text-muted-foreground')}>
+                  {worst && worst.pnl < 0
+                    ? `${DAY_LABELS[worst.day]} ${formatHour(worst.hour)} (${money(worst.pnl)})`
+                    : 'aucun créneau perdant'}
+                </span>
+              </p>
+            </div>
           </div>
         </div>
       )}
 
-      {tooltip && (
+      {/* Infobulle : suit le curseur et reste dans la fenêtre */}
+      {hover && (
         <div
-          className="pointer-events-none fixed z-50 w-56 rounded-lg border border-[hsl(var(--border))] bg-white px-3 py-3 text-xs shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
-          style={{ left: tooltip.x + 14, top: Math.max(12, tooltip.y - 18) }}
+          className="pointer-events-none fixed z-50 w-52 rounded-md border border-border bg-popover p-3 text-popover-foreground shadow-lg"
+          style={{
+            left: Math.min(hover.x + 14, (typeof window !== 'undefined' ? window.innerWidth : 1600) - 220),
+            top: Math.max(12, hover.y - 96),
+          }}
         >
           <div className="flex items-center justify-between gap-3">
-            <p className="font-black text-foreground">{DAY_LABELS[tooltip.day]} · {formatHour(tooltip.hour)}</p>
-            <p className={cn('font-mono font-black', tooltip.pnl >= 0 ? 'text-emerald-600' : 'text-red-500')}>
-              {formatMoney(tooltip.pnl, true)}
-            </p>
-          </div>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <div className="rounded-md bg-[hsl(var(--accent))] px-2 py-1.5">
-              <p className="text-[hsl(var(--foreground-soft))]">Trades</p>
-              <p className="mt-0.5 font-mono font-black text-foreground">{tooltip.count}</p>
-            </div>
-            <div className="rounded-md bg-[hsl(var(--accent))] px-2 py-1.5">
-              <p className="text-[hsl(var(--foreground-soft))]">Moyenne</p>
-              <p className={cn('mt-0.5 font-mono font-black', tooltip.avgPnl >= 0 ? 'text-emerald-600' : 'text-red-500')}>
-                {formatMoney(tooltip.avgPnl, true)}
+            <p className="text-sm font-medium">{DAY_LABELS[hover.day]} · {formatHour(hover.hour)}</p>
+            {hover.count > 0 && (
+              <p className={cn('text-sm font-semibold tabular-nums', hover.pnl >= 0 ? 'text-green-500' : 'text-red-500')}>
+                {money(hover.pnl)}
               </p>
-            </div>
+            )}
           </div>
-          <div className="mt-3">
-            <div className="mb-1 flex justify-between text-[10px] font-semibold text-[hsl(var(--foreground-soft))]">
-              <span>Intensité</span>
-              <span>{Math.round(tooltip.strength * 100)}%</span>
-            </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-[hsl(var(--accent))]">
-              <div
-                className={cn('h-full rounded-full', tooltip.pnl >= 0 ? 'bg-emerald-500' : 'bg-red-500')}
-                style={{ width: `${Math.max(tooltip.strength * 100, tooltip.count > 0 ? 12 : 0)}%` }}
-              />
-            </div>
-          </div>
+          {hover.count === 0 ? (
+            <p className="mt-1 text-sm text-muted-foreground">Aucun trade sur ce créneau</p>
+          ) : (
+            <p className="mt-1 text-sm text-muted-foreground">
+              {hover.count} trade{hover.count > 1 ? 's' : ''} · {money(hover.pnl / hover.count)} en moyenne
+            </p>
+          )}
         </div>
       )}
     </section>

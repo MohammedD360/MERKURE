@@ -6,10 +6,10 @@ import { useOpenPositions } from '@/lib/hooks/use-portfolio'
 
 function DirectionBadge({ dir }: { dir: 'LONG' | 'SHORT' }) {
   return (
-    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+    <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
       dir === 'LONG'
-        ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
-        : 'bg-red-50 text-red-500 border-red-200'
+        ? 'bg-green-500/10 text-green-500 border-green-500/30'
+        : 'bg-red-500/10 text-red-500 border-red-500/30'
     }`}>
       {dir}
     </span>
@@ -19,7 +19,7 @@ function DirectionBadge({ dir }: { dir: 'LONG' | 'SHORT' }) {
 function PnlCell({ pnl }: { pnl: number }) {
   const pos = pnl >= 0
   return (
-    <span className={`font-mono font-semibold ${pos ? 'text-emerald-600' : 'text-red-500'}`}>
+    <span className={`tabular-nums font-semibold ${pos ? 'text-green-500' : 'text-red-500'}`}>
       {pos ? '+' : ''}{pnl.toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
     </span>
   )
@@ -43,8 +43,8 @@ export function OpenPositionsTable() {
   return (
     <div className="rounded-lg border border-border bg-background shadow-sm">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <h2 className="text-sm font-black text-foreground">Positions ouvertes</h2>
-        <span className="font-mono text-xs text-muted-foreground">
+        <h2 className="text-sm font-semibold text-foreground">Positions ouvertes</h2>
+        <span className="tabular-nums text-xs text-muted-foreground">
           {positions.length} actif{positions.length !== 1 ? 's' : ''}
         </span>
       </div>
@@ -54,7 +54,7 @@ export function OpenPositionsTable() {
           <thead>
             <tr className="border-b border-border">
               {['Symbole', 'Dir.', 'Ouverture', 'Px ouvert', 'Lots', 'P&L flottant', 'Stratégie'].map(h => (
-                <th key={h} className="px-4 py-2.5 text-left text-[11px] font-black uppercase tracking-[0.14em] text-muted-foreground">
+                <th key={h} className="px-4 py-2.5 text-left text-xs text-muted-foreground">
                   {h}
                 </th>
               ))}
@@ -73,7 +73,7 @@ export function OpenPositionsTable() {
               positions.map(pos => (
                 <tr key={pos.id} className="hover:bg-[hsl(var(--accent))] transition-colors">
                   <td className="px-4 py-3">
-                    <span className="font-semibold text-foreground font-mono">{pos.symbol}</span>
+                    <span className="font-semibold text-foreground tabular-nums">{pos.symbol}</span>
                   </td>
                   <td className="px-4 py-3">
                     <DirectionBadge dir={pos.direction} />
@@ -81,10 +81,10 @@ export function OpenPositionsTable() {
                   <td className="px-4 py-3 text-xs text-muted-foreground">
                     {format(new Date(pos.openTime), 'dd MMM HH:mm', { locale: fr })}
                   </td>
-                  <td className="px-4 py-3 font-mono text-muted-foreground">
+                  <td className="px-4 py-3 tabular-nums text-muted-foreground">
                     {pos.openPrice.toFixed(pos.symbol === 'USDJPY' ? 3 : pos.symbol.includes('JPY') ? 3 : 5)}
                   </td>
-                  <td className="px-4 py-3 font-mono text-muted-foreground">
+                  <td className="px-4 py-3 tabular-nums text-muted-foreground">
                     {pos.lotSize.toFixed(2)}
                   </td>
                   <td className="px-4 py-3">

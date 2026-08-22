@@ -9,13 +9,13 @@ const MONTH_LABELS: Record<string, string> = {
 }
 
 function pnlColor(pnl: number) {
-  return pnl >= 0 ? 'text-emerald-600' : 'text-red-500'
+  return pnl >= 0 ? 'text-green-500' : 'text-red-500'
 }
 function pnlBg(pnl: number) {
-  if (pnl > 500)  return 'bg-emerald-50'
-  if (pnl > 0)    return 'bg-emerald-50/60'
-  if (pnl < -200) return 'bg-red-50'
-  if (pnl < 0)    return 'bg-red-50/60'
+  if (pnl > 500)  return 'bg-green-500/10'
+  if (pnl > 0)    return 'bg-green-500/10/60'
+  if (pnl < -200) return 'bg-red-500/10'
+  if (pnl < 0)    return 'bg-red-500/10/60'
   return ''
 }
 
@@ -32,7 +32,7 @@ export function MonthlyTable() {
     <div className="bg-card border border-[hsl(var(--border))] rounded-xl overflow-hidden">
       <div className="px-4 py-3 border-b border-[hsl(var(--border))]">
         <h2 className="text-sm font-semibold text-foreground">Bilan mensuel</h2>
-        <p className="text-[11px] text-[hsl(var(--foreground-soft))] mt-0.5">12 derniers mois</p>
+        <p className="text-xs text-[hsl(var(--foreground-soft))] mt-0.5">12 derniers mois</p>
       </div>
 
       <div className="overflow-x-auto">
@@ -40,7 +40,7 @@ export function MonthlyTable() {
           <thead>
             <tr className="border-b border-[hsl(var(--border))]">
               {['Mois', 'Trades', 'Win Rate', 'P&L', 'Profit Factor'].map(h => (
-                <th key={h} className="px-4 py-2.5 text-left text-[11px] text-[hsl(var(--foreground-soft))] uppercase tracking-wider font-medium">
+                <th key={h} className="px-4 py-2.5 text-left text-xs text-[hsl(var(--foreground-soft))] font-medium">
                   {h}
                 </th>
               ))}
@@ -70,7 +70,7 @@ export function MonthlyTable() {
                 return (
                   <tr key={row.month} className={`hover:bg-[hsl(var(--accent))] transition-colors ${pnlBg(row.totalPnl)}`}>
                     <td className="px-4 py-3 font-medium text-foreground/80 w-24">{label}</td>
-                    <td className="px-4 py-3 text-[hsl(var(--foreground-soft))] font-mono">{row.nbTrades}</td>
+                    <td className="px-4 py-3 text-[hsl(var(--foreground-soft))] tabular-nums">{row.nbTrades}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <div className="w-16 h-1.5 bg-[hsl(var(--accent))] rounded-full overflow-hidden">
@@ -79,16 +79,16 @@ export function MonthlyTable() {
                             style={{ width: `${row.winRate * 100}%` }}
                           />
                         </div>
-                        <span className={`text-xs font-mono ${row.winRate >= 0.5 ? 'text-emerald-600' : 'text-red-500'}`}>
+                        <span className={`text-xs tabular-nums ${row.winRate >= 0.5 ? 'text-green-500' : 'text-red-500'}`}>
                           {(row.winRate * 100).toFixed(0)} %
                         </span>
                       </div>
                     </td>
-                    <td className={`px-4 py-3 font-mono font-semibold ${pnlColor(row.totalPnl)}`}>
+                    <td className={`px-4 py-3 tabular-nums font-semibold ${pnlColor(row.totalPnl)}`}>
                       {row.totalPnl >= 0 ? '+' : ''}
                       {row.totalPnl.toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
                     </td>
-                    <td className="px-4 py-3 font-mono text-foreground/80">
+                    <td className="px-4 py-3 tabular-nums text-foreground/80">
                       {row.profitFactor != null ? row.profitFactor.toFixed(2) : '—'}
                     </td>
                   </tr>
@@ -99,14 +99,14 @@ export function MonthlyTable() {
           {!isLoading && rows.length > 0 && (
             <tfoot>
               <tr className="border-t border-[hsl(var(--border))] bg-[hsl(var(--accent))]">
-                <td className="px-4 py-3 text-[11px] text-[hsl(var(--foreground-soft))] uppercase font-medium">Total</td>
-                <td className="px-4 py-3 text-foreground/80 font-mono font-medium">{totalTrades}</td>
+                <td className="px-4 py-3 text-xs text-[hsl(var(--foreground-soft))] font-medium">Total</td>
+                <td className="px-4 py-3 text-foreground/80 tabular-nums font-medium">{totalTrades}</td>
                 <td className="px-4 py-3">
-                  <span className={`text-xs font-mono font-medium ${avgWr >= 0.5 ? 'text-emerald-600' : 'text-red-500'}`}>
+                  <span className={`text-xs tabular-nums font-medium ${avgWr >= 0.5 ? 'text-green-500' : 'text-red-500'}`}>
                     {(avgWr * 100).toFixed(1)} %
                   </span>
                 </td>
-                <td className={`px-4 py-3 font-mono font-bold ${pnlColor(totalPnl)}`}>
+                <td className={`px-4 py-3 tabular-nums font-bold ${pnlColor(totalPnl)}`}>
                   {totalPnl >= 0 ? '+' : ''}{totalPnl.toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
                 </td>
                 <td className="px-4 py-3 text-foreground/50">—</td>

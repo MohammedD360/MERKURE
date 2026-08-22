@@ -13,13 +13,13 @@ import { ChartDownloadButton } from '@/shared/components/ChartDownloadButton'
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-lg border border-border bg-white px-3 py-2 text-xs shadow-xl">
+    <div className="rounded-lg border border-border bg-card px-3 py-2 text-xs shadow-xl">
       <p className="mb-1 text-muted-foreground">{label}</p>
-      <p className="font-mono text-[hsl(var(--primary))]">
+      <p className="tabular-nums text-[hsl(var(--primary))]">
         Equity : {Number(payload[0]?.value ?? 0).toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
       </p>
       {payload[1] && (
-        <p className="text-amber-600 font-mono">
+        <p className="text-amber-500 tabular-nums">
           Balance : {Number(payload[1]?.value ?? 0).toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
         </p>
       )}
@@ -44,9 +44,9 @@ export function EquityCurveChart() {
   return (
     <div ref={ref} className="rounded-lg border border-border bg-background p-4 shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-black text-foreground">Historique equity (90 jours)</h2>
+        <h2 className="text-sm font-semibold text-foreground">Historique equity (90 jours)</h2>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <span className="inline-block h-0.5 w-2.5 rounded bg-[hsl(var(--primary))]" />Equity
             </span>
@@ -77,23 +77,23 @@ export function EquityCurveChart() {
                 <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis
               dataKey="label"
-              tick={{ fill: '#9ca3af', fontSize: 10 }}
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
               tickLine={false}
               axisLine={false}
               interval="preserveStartEnd"
             />
             <YAxis
-              tick={{ fill: '#9ca3af', fontSize: 10 }}
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
               tickLine={false}
               axisLine={false}
               domain={[minVal, 'auto']}
               tickFormatter={v => `${(Number(v) / 1000).toFixed(0)}k`}
             />
             <Tooltip content={<CustomTooltip />} />
-            <ReferenceLine y={0} stroke="#e5e7eb" strokeDasharray="4 4" />
+            <ReferenceLine y={0} stroke="hsl(var(--border))" strokeDasharray="4 4" />
             <Area
               type="monotone"
               dataKey="balance"
