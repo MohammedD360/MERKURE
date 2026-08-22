@@ -2,8 +2,8 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence, MotionConfig, useScroll, useTransform, useReducedMotion } from 'framer-motion'
 import {
   BarChart3, BookOpen, Brain, Calendar, Check,
   Database, Menu, PlayCircle, Sparkles, TrendingUp, X,
@@ -12,7 +12,12 @@ import { setToken } from '@/lib/api-client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { BrandLogo } from '@/shared/components/BrandLogo'
-import { DashboardPage } from '@/features/dashboard/DashboardPage'
+import { HeroDataSphere } from '@/shared/components/HeroDataSphere'
+import { Reveal, RevealItem } from '@/shared/components/Reveal'
+import { CountUp } from '@/shared/components/CountUp'
+import { MagneticButton } from '@/shared/components/MagneticButton'
+import { ScrollProgress } from '@/shared/components/ScrollProgress'
+import { DemoDashboard } from '@/features/dashboard/DemoDashboard'
 
 /* ─── CTA / Demo buttons — style Maven ──────────────────────────────────── */
 
@@ -25,7 +30,7 @@ function PrimaryButton({ children, href, className = '' }: { children: React.Rea
         'min-w-48 px-9 py-3 h-12',
         'bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.88)]',
         'text-white text-base font-medium',
-        'rounded-sm transition-all duration-200',
+        'rounded-full transition-all duration-200 active:scale-[0.97] motion-reduce:active:scale-100',
         className,
       )}
     >
@@ -60,7 +65,7 @@ function DemoButton({ className = '' }: { className?: string }) {
         'min-w-48 px-9 py-3 h-12',
         'border border-border bg-transparent text-base font-medium text-foreground/70',
         'hover:border-[hsl(var(--primary))] hover:text-[hsl(var(--primary))]',
-        'rounded-sm transition-all duration-200',
+        'rounded-full transition-all duration-200 active:scale-[0.97] motion-reduce:active:scale-100',
         'disabled:opacity-60',
         className,
       )}
@@ -91,6 +96,25 @@ function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
+  const [active, setActive] = useState<string | null>(null)
+  const reduce = useReducedMotion()
+
+  // Indicateur de section active : la section qui traverse la bande centrale du viewport.
+  useEffect(() => {
+    const ids = navLinks.map((l) => l.href.slice(1))
+    const els = ids
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => Boolean(el))
+    if (!els.length) return
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) if (e.isIntersecting) setActive(e.target.id)
+      },
+      { rootMargin: '-45% 0px -50% 0px', threshold: 0 },
+    )
+    els.forEach((el) => obs.observe(el))
+    return () => obs.disconnect()
+  }, [])
 
   useEffect(() => {
     const control = () => {
@@ -113,28 +137,46 @@ function Navbar() {
 
   return (
     <>
-      <span className={cn('h-14 fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-black/[0.07]', transCls)} />
+      <span className={cn('h-14 fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border', transCls)} />
       <header className={cn('max-w-7xl mx-auto fixed top-0 left-0 right-0 px-4 lg:px-6 h-14 flex items-center justify-between z-50', transCls)}>
         <Link href="/" className="flex items-center">
           <BrandLogo
             className="text-foreground"
-            iconClassName="h-9 w-9 text-[hsl(var(--sidebar-primary))]"
-            textClassName="text-[28px] font-bold leading-none tracking-tight"
+            iconClassName="h-9 w-9"
+            iconVariant="gradient"
+            textClassName="text-[26px] font-bold leading-none tracking-[-0.03em]"
           />
         </Link>
 
         {/* Desktop nav */}
         <div className="hidden lg:flex items-center">
           <nav className="flex items-center">
-            {navLinks.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-accent hover:text-foreground focus:bg-accent focus:text-foreground focus:outline-none"
-              >
-                {l.label}
-              </a>
-            ))}
+            {navLinks.map((l) => {
+              const isActive = active === l.href.slice(1)
+              return (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  className={cn(
+                    'group relative inline-flex h-10 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:text-foreground focus:outline-none',
+                    isActive ? 'text-[hsl(var(--primary))]' : 'text-foreground/70',
+                  )}
+                >
+                  {l.label}
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-active"
+                      className="absolute inset-x-3 bottom-1 h-0.5 rounded-full bg-gradient-brand"
+                      transition={
+                        reduce
+                          ? { duration: 0 }
+                          : { type: 'spring', stiffness: 420, damping: 34 }
+                      }
+                    />
+                  )}
+                </a>
+              )
+            })}
           </nav>
           <span className="h-6 w-px bg-border mx-4" />
           <Link
@@ -145,7 +187,7 @@ function Navbar() {
           </Link>
           <Link
             href="/sign-up"
-            className="ml-2 inline-flex items-center justify-center rounded-full bg-[hsl(var(--primary))] px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-[hsl(244_42%_44%)]"
+            className="ml-2 inline-flex items-center justify-center rounded-full bg-[hsl(var(--primary))] px-5 py-2 text-sm font-medium text-white transition-all hover:bg-[hsl(243_90%_58%)] active:scale-[0.97] motion-reduce:active:scale-100"
           >
             Démarrer mon analyse
           </Link>
@@ -176,8 +218,9 @@ function Navbar() {
                 <Link href="/" className="flex items-center" onClick={() => setIsOpen(false)}>
                   <BrandLogo
                     className="text-foreground"
-                    iconClassName="h-9 w-9 text-[hsl(var(--sidebar-primary))]"
-                    textClassName="text-[28px] font-bold leading-none tracking-tight"
+                    iconClassName="h-9 w-9"
+                    iconVariant="gradient"
+                    textClassName="text-[26px] font-bold leading-none tracking-[-0.03em]"
                   />
                 </Link>
                 <button type="button" className="p-2" onClick={() => setIsOpen(false)}>
@@ -212,10 +255,17 @@ function Navbar() {
 const PREVIEW_SCALE = 0.62
 
 function RealDashboardPreview() {
+  const ref = useRef<HTMLDivElement>(null)
+  const reduce = useReducedMotion()
+  // Parallax scroll : le preview glisse doucement à contre-scroll pendant qu'il traverse l'écran.
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+  const y = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [64, -48])
+
   return (
-    <div
-      className="overflow-hidden rounded-xl border border-violet-300/25 shadow-[0_0_0_1px_rgba(139,92,246,0.10),0_30px_100px_rgba(0,0,0,0.72),0_0_80px_rgba(124,58,237,0.16)]"
-      style={{ height: 520 }}
+    <motion.div
+      ref={ref}
+      style={{ y, height: 520 }}
+      className="overflow-hidden rounded-3xl border border-violet-300/25 shadow-[0_0_0_1px_rgba(99,91,255,0.12),0_30px_100px_rgba(0,0,0,0.72),0_0_80px_rgba(99,91,255,0.18)]"
     >
       {/* Browser chrome */}
       <div className="flex items-center gap-1.5 px-3 py-2.5 border-b" style={{ background: '#0D1021', borderColor: 'rgba(255,255,255,0.08)' }}>
@@ -237,10 +287,10 @@ function RealDashboardPreview() {
             pointerEvents: 'none',
           }}
         >
-          <DashboardPage />
+          <DemoDashboard />
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -258,11 +308,11 @@ function Hero3DChartBackground() {
       style={{ top: 0, zIndex: 0 }}
       aria-hidden="true"
     >
-      {/* Masque dégradé : s'efface vers le bas pour laisser place au dashboard */}
+      {/* Masque dégradé : s'efface vers le bas dans la carte sombre */}
       <div
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(to bottom, transparent 0%, transparent 68%, hsl(var(--background)) 100%)',
+          background: 'linear-gradient(to bottom, transparent 0%, transparent 68%, #151723 100%)',
           zIndex: 2,
           pointerEvents: 'none',
         }}
@@ -281,16 +331,16 @@ function Hero3DChartBackground() {
           >
             <defs>
               <linearGradient id="wg1" x1="0" x2="0" y1="0" y2="1">
-                <stop stopColor="hsl(244 42% 51%)" stopOpacity="0.22" />
-                <stop offset="1" stopColor="hsl(244 42% 51%)" stopOpacity="0" />
+                <stop stopColor="hsl(243 90% 65%)" stopOpacity="0.22" />
+                <stop offset="1" stopColor="hsl(243 90% 65%)" stopOpacity="0" />
               </linearGradient>
               <linearGradient id="wg2" x1="0" x2="0" y1="0" y2="1">
-                <stop stopColor="hsl(249 38% 58%)" stopOpacity="0.13" />
-                <stop offset="1" stopColor="hsl(249 38% 58%)" stopOpacity="0" />
+                <stop stopColor="hsl(243 70% 70%)" stopOpacity="0.13" />
+                <stop offset="1" stopColor="hsl(243 70% 70%)" stopOpacity="0" />
               </linearGradient>
               <linearGradient id="wg3" x1="0" x2="0" y1="0" y2="1">
-                <stop stopColor="hsl(255 35% 65%)" stopOpacity="0.07" />
-                <stop offset="1" stopColor="hsl(255 35% 65%)" stopOpacity="0" />
+                <stop stopColor="hsl(141 92% 46%)" stopOpacity="0.07" />
+                <stop offset="1" stopColor="hsl(141 92% 46%)" stopOpacity="0" />
               </linearGradient>
               <filter id="wave-glow" x="-5%" y="-300%" width="110%" height="700%">
                 <feGaussianBlur stdDeviation="4" result="blur" />
@@ -306,7 +356,7 @@ function Hero3DChartBackground() {
             <path
               d={w3}
               fill="none"
-              stroke="hsl(255 35% 65%)"
+              stroke="hsl(141 92% 46%)"
               strokeOpacity="0.38"
               strokeWidth="1.5"
               strokeLinecap="round"
@@ -318,7 +368,7 @@ function Hero3DChartBackground() {
             <path
               d={w2}
               fill="none"
-              stroke="hsl(249 38% 58%)"
+              stroke="hsl(243 70% 70%)"
               strokeOpacity="0.55"
               strokeWidth="2"
               strokeLinecap="round"
@@ -331,7 +381,7 @@ function Hero3DChartBackground() {
               <path
                 d={w1}
                 fill="none"
-                stroke="hsl(244 42% 51%)"
+                stroke="hsl(243 90% 65%)"
                 strokeOpacity="0.9"
                 strokeWidth="2.5"
                 strokeLinecap="round"
@@ -341,8 +391,8 @@ function Hero3DChartBackground() {
 
             {/* Point "live" en bout de la courbe principale */}
             <g className="hero-live-dot" style={{ transformOrigin: '1440px 292px' }}>
-              <circle cx="1440" cy="292" r="6" fill="hsl(244 42% 51%)" opacity="0.25" />
-              <circle cx="1440" cy="292" r="3.5" fill="hsl(244 42% 51%)" opacity="0.9" />
+              <circle cx="1440" cy="292" r="6" fill="hsl(243 90% 65%)" opacity="0.25" />
+              <circle cx="1440" cy="292" r="3.5" fill="hsl(243 90% 65%)" opacity="0.9" />
             </g>
           </svg>
         </div>
@@ -357,7 +407,7 @@ function HeroStatCard({
   label, value, tag, tagColor, sparkPoints, dotColor, side,
 }: {
   label: string
-  value: string
+  value: React.ReactNode
   tag: string
   tagColor: string
   sparkPoints: string
@@ -374,7 +424,7 @@ function HeroStatCard({
           : { right: '1.5%', top: '26%', transform: 'translateY(-50%)' }
       }
     >
-      <div className="w-48 rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
+      <div className="w-48 rounded-2xl border border-border bg-card p-4 shadow-[0_8px_32px_rgba(0,0,0,0.45)]">
         <p className="text-xs font-medium text-[hsl(var(--foreground-soft))]">{label}</p>
         <p className="mt-1 text-[1.4rem] font-bold leading-tight text-foreground">{value}</p>
         <span
@@ -407,117 +457,204 @@ function HeroStatCard({
   )
 }
 
-function Hero() {
-  const trustItems = ['Analyse IA avancée', 'Insights personnalisés', "Plan d'amélioration clair", '100% sécurisé']
+const HERO_VALUE_PROPS = [
+  { icon: <Brain className="h-5 w-5" />, title: 'Analyse IA avancée', desc: 'Détection de vos biais comportementaux' },
+  { icon: <BarChart3 className="h-5 w-5" />, title: '20+ métriques', desc: 'Win rate, profit factor, espérance...' },
+  { icon: <Check className="h-5 w-5" />, title: '100% sécurisé', desc: 'Connexion en lecture seule uniquement' },
+]
+
+const TITLE_TOKENS: { t: string; grad?: boolean }[] = [
+  { t: 'Devenez' }, { t: 'le' }, { t: 'trader' }, { t: 'que' }, { t: 'vos' },
+  { t: 'émotions', grad: true }, { t: 'empêchent' }, { t: "d'être." },
+]
+
+const titleContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.15 } },
+}
+const titleWord = {
+  hidden: { opacity: 0, y: 22 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.23, 1, 0.32, 1] as const } },
+}
+
+const H1_CLASS =
+  'font-primary mx-auto max-w-4xl text-5xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl'
+
+function HeroTitle() {
+  const reduce = useReducedMotion()
+
+  if (reduce) {
+    return (
+      <h1 className={H1_CLASS}>
+        Devenez le trader que vos{' '}
+        <em className="not-italic text-gradient-brand">émotions</em>{' '}empêchent d&apos;être.
+      </h1>
+    )
+  }
 
   return (
-    <div className="relative isolate overflow-hidden bg-background pt-28 sm:pt-32 lg:pt-36 pb-0">
-      {/* Grille de points subtile */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        aria-hidden="true"
-        style={{
-          backgroundImage: 'radial-gradient(circle, hsl(244 42% 51% / 0.10) 1px, transparent 1px)',
-          backgroundSize: '36px 36px',
-        }}
-      />
-      {/* Dégradé radial pour atténuer les bords */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        aria-hidden="true"
-        style={{
-          background: 'radial-gradient(ellipse 80% 55% at 50% 0%, transparent 35%, hsl(var(--background)) 100%)',
-        }}
-      />
+    <motion.h1
+      className={cn(H1_CLASS, 'flex flex-wrap justify-center gap-x-[0.28em] gap-y-0')}
+      variants={titleContainer}
+      initial="hidden"
+      animate="show"
+    >
+      {TITLE_TOKENS.map((tok, i) => (
+        <motion.span
+          key={i}
+          variants={titleWord}
+          className={cn('inline-block', tok.grad && 'text-gradient-brand')}
+        >
+          {tok.t}
+        </motion.span>
+      ))}
+    </motion.h1>
+  )
+}
 
-      {/* Courbes 3D animées */}
-      <Hero3DChartBackground />
+function Hero() {
+  return (
+    <div className="relative bg-background pt-14 pb-0">
+      <div className="relative z-10 w-full">
 
-      {/* ── Cartes flottantes ── */}
-      <HeroStatCard
-        side="left"
-        label="Win Rate"
-        value="62.4%"
-        tag="+6.2% ce mois"
-        tagColor="#10b981"
-        dotColor="#3b82f6"
-        sparkPoints="0,22 13,18 26,20 39,14 52,16 65,10 80,7"
-      />
-      <HeroStatCard
-        side="right"
-        label="Performance"
-        value="+2 450,75 $"
-        tag="+18.7% ce mois"
-        tagColor="#10b981"
-        dotColor="#10b981"
-        sparkPoints="0,24 13,20 26,16 39,18 52,11 65,7 80,4"
-      />
+        {/* ── Carte hero sombre, bord à bord, remonte pile sous la navbar (pas d'arrondi) ── */}
+        <div className="glow-section relative isolate overflow-hidden pt-16 sm:pt-20 lg:pt-24 pb-16 sm:pb-20">
+          {/* Sphère de données 3D (WebGL) — pièce maîtresse du hero */}
+          <HeroDataSphere className="opacity-95" />
+          {/* Voile radial : assombrit le centre pour garder le titre lisible sur la sphère */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-[1]"
+            style={{
+              background:
+                'radial-gradient(ellipse 62% 56% at 50% 44%, rgba(10,12,24,0.82) 0%, rgba(10,12,24,0.5) 44%, rgba(10,12,24,0) 74%)',
+            }}
+          />
+          {/* Courbes 3D animées, en tons violet/vert */}
+          <Hero3DChartBackground />
 
-      {/* ── Icônes décoratives flottantes ── */}
-      <div
-        className="hidden lg:flex pointer-events-none absolute z-20 items-center gap-1.5 rounded-full border border-gray-100 bg-white/85 px-3 py-1.5 shadow-md animate-float-card-delay"
-        style={{ left: '6%', bottom: '28%' }}
-        aria-hidden="true"
-      >
-        <Brain className="h-4 w-4 text-[hsl(var(--primary))]" />
-        <span className="text-xs font-semibold text-foreground/70">IA</span>
-      </div>
-      <div
-        className="hidden lg:flex pointer-events-none absolute z-20 items-center justify-center rounded-full border border-gray-100 bg-white/85 p-2 shadow-md animate-float-card"
-        style={{ right: '8%', bottom: '34%' }}
-        aria-hidden="true"
-      >
-        <Sparkles className="h-4 w-4 text-violet-400" />
-      </div>
+          {/* ── Cartes flottantes ── */}
+          <HeroStatCard
+            side="left"
+            label="Win Rate"
+            value={<CountUp value={62.4} decimals={1} suffix="%" />}
+            tag="+6.2% ce mois"
+            tagColor="#36f4a4"
+            dotColor="#8481ff"
+            sparkPoints="0,22 13,18 26,20 39,14 52,16 65,10 80,7"
+          />
+          <HeroStatCard
+            side="right"
+            label="Performance"
+            value={<CountUp value={2450.75} decimals={2} prefix="+" suffix=" $" />}
+            tag="+18.7% ce mois"
+            tagColor="#36f4a4"
+            dotColor="#36f4a4"
+            sparkPoints="0,24 13,20 26,16 39,18 52,11 65,7 80,4"
+          />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-screen-xl flex-col items-center px-4 md:px-6">
-        <div className="flex max-w-4xl flex-col justify-center space-y-7 text-center">
+          <div className="relative z-10 flex flex-col items-center px-4 md:px-6">
+            <div className="flex max-w-4xl flex-col justify-center space-y-7 text-center">
 
-          {/* Badge */}
-          <div className="animate-fade-in mx-auto inline-flex items-center rounded-full border border-[hsl(var(--primary)/0.35)] bg-[hsl(var(--primary)/0.06)] px-5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[hsl(var(--primary))]">
-            Plateforme de performance trading
-          </div>
+              {/* Badges de confiance — pastilles, façon Trustpilot/awards FundedNext */}
+              <div className="animate-fade-in flex flex-wrap items-center justify-center gap-3">
+                <span className="glass-card inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold text-white">
+                  <Sparkles className="h-3.5 w-3.5 text-[hsl(141_92%_60%)]" />
+                  Analyse IA en continu
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-brand px-4 py-1.5 text-xs font-semibold text-white">
+                  <Check className="h-3.5 w-3.5" />
+                  100% lecture seule
+                </span>
+              </div>
 
-          {/* H1 */}
-          <h1 className="animate-fade-in-up font-primary mx-auto max-w-4xl text-5xl leading-[1.08] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
-            Devenez le trader que vos{' '}
-            <em className="not-italic text-[hsl(var(--primary))]">émotions</em>
-            {' '}empêchent d&apos;être.
-          </h1>
+              {/* H1 — text-reveal mot par mot (cf. skill "animate") */}
+              <HeroTitle />
 
-          {/* Sous-titre */}
-          <p className="animate-fade-in-up-1 mx-auto max-w-[600px] text-balance text-lg leading-relaxed text-[hsl(var(--foreground-soft))] md:text-xl">
-            MERKURE analyse vos trades en profondeur, détecte vos biais comportementaux
-            et vous donne un plan d&apos;amélioration clair pour performer durablement.
-          </p>
+              {/* Sous-titre */}
+              <p className="animate-fade-in-up-1 mx-auto max-w-[600px] text-balance text-lg leading-relaxed text-white/70 md:text-xl">
+                MERKURE analyse vos trades en profondeur, détecte vos biais comportementaux
+                et vous donne un plan d&apos;amélioration clair pour performer durablement.
+              </p>
 
-          {/* CTAs */}
-          <div className="animate-fade-in-up-2 flex w-full flex-wrap justify-center gap-4 pt-1">
-            <PrimaryButton href="/sign-up">
-              Démarrer mon analyse IA →
-            </PrimaryButton>
-            <DemoButton />
-          </div>
+              {/* CTAs */}
+              <div className="animate-fade-in-up-2 flex w-full flex-wrap justify-center gap-4 pt-1">
+                <MagneticButton
+                  href="/sign-up"
+                  className="inline-flex h-12 min-w-48 items-center justify-center gap-2 rounded-full bg-gradient-brand px-9 text-base font-medium text-white transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97] motion-reduce:active:scale-100"
+                >
+                  Démarrer mon analyse IA →
+                </MagneticButton>
+                <a
+                  href="#features"
+                  className="inline-flex h-12 min-w-48 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-9 text-base font-medium text-white transition-all duration-200 hover:bg-white/[0.12] active:scale-[0.97] motion-reduce:active:scale-100"
+                >
+                  Comment ça fonctionne
+                </a>
+              </div>
+            </div>
 
-          {/* Badges de confiance */}
-          <div className="animate-fade-in-up-3 flex flex-wrap justify-center gap-x-6 gap-y-2 pt-1">
-            {trustItems.map((text) => (
-              <span key={text} className="flex items-center gap-1.5 text-sm text-[hsl(var(--foreground-soft))]">
-                <Check className="h-3.5 w-3.5 shrink-0 text-[hsl(var(--primary))]" />
-                {text}
-              </span>
-            ))}
+            {/* ── 3 pastilles valeur, façon FundedNext (récompenses/frais/support) ── */}
+            <div className="animate-fade-in-up-3 mt-12 grid w-full max-w-3xl grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-4">
+              {HERO_VALUE_PROPS.map(({ icon, title, desc }) => (
+                <div key={title} className="flex items-center gap-3 sm:flex-col sm:items-center sm:text-center">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-brand text-white">
+                    {icon}
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-white">{title}</p>
+                    <p className="text-xs text-white/55">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Dashboard preview */}
-        <div className="animate-slide-up relative mt-14 flex w-full max-w-6xl items-center justify-center md:mt-16">
-          <div className="relative w-full">
-            <span className="absolute inset-[-24px] rounded-3xl bg-[hsl(var(--primary)/0.10)] blur-3xl" />
-            <RealDashboardPreview />
-          </div>
+        {/* Dashboard preview — dépasse de la carte sombre, sur le fond blanc (non clippé) */}
+        <div className="relative z-20 mx-auto -mt-16 w-full max-w-6xl px-4 sm:-mt-20 md:px-6 lg:-mt-24">
+          <RealDashboardPreview />
         </div>
+
+        {/* Espace de respiration avant la section suivante */}
+        <div className="h-14 sm:h-16 lg:h-20" aria-hidden="true" />
       </div>
+    </div>
+  )
+}
+
+/* ─── Stats bar — preuve sociale en gros chiffres, façon FundedNext ────────── */
+
+const STATS: {
+  label: string
+  value: number
+  prefix?: string
+  suffix?: string
+  decimals?: number
+  static?: string
+}[] = [
+  { value: 10, prefix: '+', suffix: 'K', label: 'traders actifs' },
+  { value: 2, suffix: 'M+', label: 'trades analysés' },
+  { value: 98, suffix: '%', label: 'satisfaction' },
+  { value: 0, static: '24/7', label: 'synchronisation' },
+]
+
+function StatsBar() {
+  return (
+    <div className="container mx-auto px-4 pb-16 md:pb-24">
+      <Reveal stagger className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-10">
+        {STATS.map((s) => (
+          <RevealItem key={s.label} className="text-center">
+            <p className="font-primary text-3xl md:text-4xl font-extrabold text-gradient-brand">
+              {s.static ?? null}
+              {!s.static && (
+                <CountUp value={s.value} decimals={s.decimals ?? 0} prefix={s.prefix} suffix={s.suffix} />
+              )}
+            </p>
+            <p className="mt-1 text-xs md:text-sm text-muted-foreground">{s.label}</p>
+          </RevealItem>
+        ))}
+      </Reveal>
     </div>
   )
 }
@@ -603,7 +740,7 @@ function PlatformLogoTile({ logo }: { logo: (typeof platformLogos)[number] }) {
   return (
     <div
       className={cn(
-        'group flex h-20 w-[174px] shrink-0 items-center justify-center overflow-hidden rounded-lg border px-6 shadow-[0_16px_44px_rgba(0,0,0,0.18)] transition-transform duration-300 hover:-translate-y-0.5',
+        'group flex h-20 w-[174px] shrink-0 items-center justify-center overflow-hidden rounded-xl border px-6 shadow-[0_16px_44px_rgba(0,0,0,0.18)] transition-transform duration-300 hover:-translate-y-0.5',
         logo.tone === 'light'
           ? 'border-white/20 bg-white'
           : 'border-white/10 bg-neutral-950',
@@ -628,12 +765,12 @@ function Partners() {
   return (
     <div className="container px-4 md:px-6 overflow-hidden">
       <div className="flex flex-col items-center space-y-4 text-center">
-        <div className="space-y-2">
+        <Reveal className="space-y-2">
           <h2 className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-5xl">Compatible avec vos plateformes</h2>
-          <p className="mx-auto max-w-[700px] text-gray-500 dark:text-gray-400 md:text-xl/relaxed">
+          <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl/relaxed">
             Synchronisez vos comptes en lecture seule depuis n'importe quel broker ou prop firm.
           </p>
-        </div>
+        </Reveal>
         <div className="platform-marquee relative mt-8 w-full max-w-5xl overflow-hidden py-2">
           <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-background to-transparent" />
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-background to-transparent" />
@@ -661,30 +798,56 @@ function JournalMockup() {
     { ai: true, text: 'Attendez la cloture de la bougie de confirmation. Sur vos 47 derniers trades, cette regle ameliore le win rate de +11%.' },
   ]
   return (
-    <div className="flex flex-col gap-2 p-2 w-full">
+    <motion.div
+      className="flex flex-col gap-2 p-2 w-full"
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: '-60px' }}
+      variants={{ hidden: {}, show: { transition: { staggerChildren: 0.35, delayChildren: 0.2 } } }}
+    >
       {msgs.map((m, i) => (
-        <div key={i} className={cn('rounded-xl px-3 py-2 text-xs max-w-[90%]', m.ai ? 'bg-muted text-foreground self-start' : 'bg-[hsl(var(--sidebar-primary)/0.15)] text-[hsl(var(--sidebar-primary))] self-end')}>
+        <motion.div
+          key={i}
+          variants={{
+            hidden: { opacity: 0, y: 10, scale: 0.96 },
+            show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: [0.23, 1, 0.32, 1] } },
+          }}
+          className={cn('rounded-xl px-3 py-2 text-xs max-w-[90%]', m.ai ? 'bg-muted text-foreground self-start' : 'bg-[hsl(var(--sidebar-primary)/0.15)] text-[hsl(var(--sidebar-primary))] self-end')}
+        >
           {m.text}
-        </div>
+        </motion.div>
       ))}
       <div className="mt-2 flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2">
         <span className="flex-1 text-xs text-muted-foreground">Poser une question sur ce trade...</span>
         <div className="h-5 w-5 rounded-full bg-[hsl(var(--sidebar-primary))]" />
       </div>
-    </div>
+    </motion.div>
   )
 }
 
 function PerformanceMockup() {
   const bars = [32, 48, 22, 65, 55, 80, 45, 92, 60, 75, 58, 88]
   return (
-    <div className="flex items-end gap-1.5 h-[200px] w-full px-2 pb-2">
+    <motion.div
+      className="flex items-end gap-1.5 h-[200px] w-full px-2 pb-2"
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: '-60px' }}
+      variants={{ hidden: {}, show: { transition: { staggerChildren: 0.05 } } }}
+    >
       {bars.map((h, i) => (
-        <div key={i} className="flex-1">
-          <div style={{ height: `${h}%` }} className={cn('w-full rounded-sm', h > 60 ? 'bg-[hsl(var(--sidebar-primary)/0.8)]' : h > 40 ? 'bg-[hsl(var(--sidebar-primary)/0.5)]' : 'bg-[hsl(var(--sidebar-primary)/0.25)]')} />
+        <div key={i} className="flex-1 self-stretch flex items-end">
+          <motion.div
+            style={{ height: `${h}%`, transformOrigin: 'bottom' }}
+            variants={{
+              hidden: { scaleY: 0, opacity: 0.4 },
+              show: { scaleY: 1, opacity: 1, transition: { duration: 0.5, ease: [0.23, 1, 0.32, 1] } },
+            }}
+            className={cn('w-full rounded-sm', h > 60 ? 'bg-[hsl(var(--sidebar-primary)/0.8)]' : h > 40 ? 'bg-[hsl(var(--sidebar-primary)/0.5)]' : 'bg-[hsl(var(--sidebar-primary)/0.25)]')}
+          />
         </div>
       ))}
-    </div>
+    </motion.div>
   )
 }
 
@@ -737,40 +900,43 @@ function Features() {
 
   return (
     <main id="features" className="container mx-auto px-4 py-16 md:py-24">
-      <h2 className="font-primary text-3xl sm:text-4xl md:text-5xl text-center text-foreground mb-4">
-        Des outils pour chaque dimension du trading
-      </h2>
-      <p className="text-base sm:text-lg md:text-xl text-center text-muted-foreground mb-10 md:mb-14 max-w-[600px] mx-auto">
-        Identifiez vos forces, corrigez vos faiblesses, progressez vraiment.
-      </p>
-      <div className="grid grid-cols-1 lg:grid-cols-6 gap-4">
+      <Reveal>
+        <h2 className="font-primary text-3xl sm:text-4xl md:text-5xl text-center text-foreground mb-4">
+          Des outils pour chaque dimension du trading
+        </h2>
+        <p className="text-base sm:text-lg md:text-xl text-center text-muted-foreground mb-10 md:mb-14 max-w-[600px] mx-auto">
+          Identifiez vos forces, corrigez vos faiblesses, progressez vraiment.
+        </p>
+      </Reveal>
+      <Reveal stagger className="grid grid-cols-1 lg:grid-cols-6 gap-4">
         {cards.map((f, index) => (
-          <Card
-            id={f.id}
+          <RevealItem
             key={f.id}
-            className={cn(
-              'border-border bg-card hover:border-[hsl(var(--primary)/0.4)] transition-colors duration-300',
-              index < 2 ? 'lg:col-span-3' : index === 2 ? 'lg:col-span-4' : 'lg:col-span-2',
-            )}
+            className={index < 2 ? 'lg:col-span-3' : index === 2 ? 'lg:col-span-4' : 'lg:col-span-2'}
           >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-base font-medium text-foreground">{f.title}</CardTitle>
-              {f.icon}
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col space-y-4">
-                <div>
-                  <div className="text-2xl font-bold text-[hsl(var(--primary))]">{f.stat}</div>
-                  <p className="text-sm text-muted-foreground mt-2">{f.desc}</p>
+            <Card
+              id={f.id}
+              className="card-lift h-full border-border bg-card hover:border-[hsl(var(--primary)/0.4)]"
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-base font-medium text-foreground">{f.title}</CardTitle>
+                {f.icon}
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col space-y-4">
+                  <div>
+                    <div className="text-2xl font-bold text-[hsl(var(--primary))]">{f.stat}</div>
+                    <p className="text-sm text-muted-foreground mt-2">{f.desc}</p>
+                  </div>
+                  <div className={cn('relative w-full flex justify-center items-center rounded-xl overflow-hidden bg-section-alt', f.minH ?? 'h-[300px]')}>
+                    {f.preview}
+                  </div>
                 </div>
-                <div className={cn('relative w-full flex justify-center items-center rounded-xl overflow-hidden bg-section-alt', f.minH ?? 'h-[300px]')}>
-                  {f.preview}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </RevealItem>
         ))}
-      </div>
+      </Reveal>
     </main>
   )
 }
@@ -778,58 +944,71 @@ function Features() {
 /* ─── Pricing ────────────────────────────────────────────────────────────── */
 
 const PLANS = [
-  { name: 'Starter', price: '9', sub: 'Pour commencer', features: ['1 compte MT4/MT5', 'Toutes les métriques', 'Journal IA de base', 'Support prioritaire'] },
-  { name: 'Pro', price: '19', sub: 'Pour traders actifs', features: ['2 comptes MT4/MT5', 'Analyses avancées', 'Insights IA illimités', 'Alertes intelligentes'], popular: true },
+  { name: 'Pro', price: '19', sub: 'Pour traders actifs', features: ['2 comptes MT4/MT5', 'Toutes les métriques', 'Insights IA illimités', 'Alertes intelligentes', 'Support prioritaire'], popular: true },
   { name: 'Elite', price: '49', sub: 'Pour traders exigeants', features: ['5 comptes MT4/MT5', 'Deep analytics', 'Backtesting avancé', 'Export & rapports pro'] },
   { name: 'Agency', price: '149', sub: 'Pour prop firms & coachs', features: ['20 comptes MT4/MT5', 'Multi-utilisateurs', 'API complète', 'Support dédié'] },
-  { name: 'Free', price: '0', sub: 'Pour découvrir', features: ['Import CSV uniquement', 'Métriques de base', 'Journal limité'] },
 ]
 
 function PricingSection() {
   return (
     <section id="tarifs" className="container mx-auto px-4 py-16 md:py-24">
-      <h2 className="font-primary text-3xl sm:text-4xl md:text-5xl text-center text-foreground mb-4">
-        Un plan pour chaque trader
-      </h2>
-      <p className="text-base sm:text-xl text-center text-muted-foreground mb-10 md:mb-14">
-        Du débutant à la prop firm.
-      </p>
-      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
-        {PLANS.map((plan) => (
-          <article
-            key={plan.name}
-            className={cn(
-              'relative rounded-sm border p-6 flex flex-col transition-colors duration-300',
-              (plan as { popular?: boolean }).popular
-                ? 'border-[hsl(var(--primary)/0.5)] bg-[hsl(var(--primary)/0.04)] hover:border-[hsl(var(--primary))]'
-                : 'border-border bg-card hover:border-[hsl(var(--primary)/0.4)]',
-            )}
-          >
-            {(plan as { popular?: boolean }).popular && (
-              <span className="absolute right-4 top-4 rounded-full bg-[hsl(var(--primary))] px-2 py-0.5 text-[9px] font-semibold uppercase text-white">
-                Populaire
-              </span>
-            )}
-            <h3 className="text-base font-semibold text-foreground">{plan.name}</h3>
-            <p className="mt-0.5 text-xs text-muted-foreground">{plan.sub}</p>
-            <p className="mt-5 font-mono text-4xl font-bold text-foreground">
-              {plan.price}€<span className="text-sm font-medium text-muted-foreground"> /mois</span>
-            </p>
-            <ul className="mt-5 flex-1 grid gap-2.5">
-              {plan.features.map((f) => (
-                <li key={f} className="flex items-start gap-2 text-xs text-muted-foreground">
-                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[hsl(var(--primary))]" />{f}
-                </li>
-              ))}
-            </ul>
-            <PrimaryButton href="/sign-up" className="mt-6 w-full min-w-0 h-10 text-sm px-4">
-              {plan.name === 'Agency' ? 'Nous contacter' : 'Commencer'}
-            </PrimaryButton>
-          </article>
-        ))}
-      </div>
+      <Reveal>
+        <h2 className="font-primary text-3xl sm:text-4xl md:text-5xl text-center text-foreground mb-4">
+          Un plan pour chaque trader
+        </h2>
+        <p className="text-base sm:text-xl text-center text-muted-foreground mb-4">
+          Du trader actif à la prop firm.
+        </p>
+        <div className="mb-10 md:mb-14 flex justify-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--primary)/0.3)] bg-[hsl(var(--primary)/0.08)] px-4 py-1.5 text-xs font-semibold text-[hsl(var(--primary))]">
+            <Sparkles className="h-3.5 w-3.5" />
+            14 jours d&apos;essai gratuit — sans carte bancaire
+          </span>
+        </div>
+      </Reveal>
+      <Reveal stagger className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {PLANS.map((plan) => {
+          const popular = (plan as { popular?: boolean }).popular
+          return (
+            <RevealItem key={plan.name} className={cn('relative rounded-2xl', popular && 'bg-gradient-brand p-[2px]')}>
+              <article
+                className={cn(
+                  'card-lift relative h-full rounded-2xl border p-6 flex flex-col',
+                  popular
+                    ? 'border-transparent bg-card'
+                    : 'border-border bg-card hover:border-[hsl(var(--primary)/0.4)]',
+                )}
+              >
+                {popular && (
+                  <span className="absolute right-4 top-4 rounded-full bg-gradient-brand px-2 py-0.5 text-[9px] font-semibold uppercase text-white">
+                    Populaire
+                  </span>
+                )}
+                <h3 className="text-base font-semibold text-foreground">{plan.name}</h3>
+                <p className="mt-0.5 text-xs text-muted-foreground">{plan.sub}</p>
+                <p className="mt-5 tabular-nums text-4xl font-bold text-foreground">
+                  {plan.price}€<span className="text-sm font-medium text-muted-foreground"> /mois</span>
+                </p>
+                <p className="mt-1 text-[11px] font-medium text-[hsl(var(--primary))]">
+                  {plan.name === 'Agency' ? 'Démo personnalisée' : '14 jours d’essai gratuit'}
+                </p>
+                <ul className="mt-5 flex-1 grid gap-2.5">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-xs text-muted-foreground">
+                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[hsl(var(--primary))]" />{f}
+                    </li>
+                  ))}
+                </ul>
+                <PrimaryButton href="/sign-up" className="mt-6 w-full min-w-0 h-10 text-sm px-4">
+                  {plan.name === 'Agency' ? 'Nous contacter' : 'Commencer l’essai gratuit'}
+                </PrimaryButton>
+              </article>
+            </RevealItem>
+          )
+        })}
+      </Reveal>
       <p className="mt-8 text-center text-xs text-muted-foreground">
-        Tous les plans incluent la securisation des donnees, la synchronisation en temps reel et un support reactif.
+        Essai gratuit de 14 jours, sans carte bancaire. Résiliable à tout moment. Tous les plans incluent la sécurisation des données et la synchronisation en temps réel.
       </p>
     </section>
   )
@@ -841,29 +1020,66 @@ const FAQS = [
   { q: 'Comment MERKURE se connecte a mes comptes de trading ?', a: "MERKURE utilise MetaApi pour une connexion en lecture seule a votre broker MT4/MT5. Aucun acces en ecriture n'est jamais accorde - vos fonds sont 100% proteges." },
   { q: 'Mes donnees sont-elles securisees ?', a: "Toutes vos donnees sont chiffrees et hebergees en Europe. Nous n'accedons jamais a vos identifiants broker et ne partageons aucune donnee avec des tiers." },
   { q: 'Est-ce que MERKURE fonctionne avec les prop firms ?', a: 'Oui. MERKURE est compatible avec la plupart des prop firms qui utilisent MT4, MT5 ou cTrader (FTMO, TopStep, MyForexFunds...).' },
-  { q: 'Quelle est la difference entre le plan Free et Pro ?', a: 'Le plan Free permet l\'import CSV manuel avec des metriques basiques. Le plan Pro ajoute la synchronisation temps reel, les insights IA illimites et les alertes de risque.' },
+  { q: 'Comment fonctionne l\'essai gratuit ?', a: "Vous accedez a toutes les fonctionnalites du plan Pro pendant 14 jours, sans carte bancaire. A la fin de l'essai, vous choisissez de continuer sur un plan payant ou de vous arreter, sans aucun engagement." },
   { q: 'Puis-je annuler a tout moment ?', a: "Oui, sans engagement. Vous pouvez annuler votre abonnement depuis les parametres et conserver l'acces jusqu'a la fin de la periode payee." },
   { q: 'Comment fonctionne l\'analyse IA ?', a: "L'IA analyse vos trades selon 20+ criteres (timing, risque, symbole, session...), detecte vos patterns comportementaux et genere des recommandations personnalisees chaque semaine." },
 ]
+
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false)
+  const reduce = useReducedMotion()
+  return (
+    <div className="border-b border-border py-5">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-4 text-left font-medium text-foreground transition-colors duration-200 hover:text-[hsl(var(--primary))]"
+      >
+        {q}
+        <span
+          className={cn(
+            'shrink-0 text-xl text-muted-foreground transition-transform duration-200 inline-block leading-none',
+            open && 'rotate-45',
+          )}
+        >
+          +
+        </span>
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="content"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: reduce ? 0 : 0.3, ease: [0.645, 0.045, 0.355, 1] }}
+            style={{ overflow: 'hidden' }}
+          >
+            <p className="pt-3 text-sm text-muted-foreground leading-relaxed">{a}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
 
 function FAQSection() {
   return (
     <section id="faq" className="py-16 md:py-24">
       <div className="container mx-auto px-4">
-        <h2 className="font-primary text-3xl sm:text-4xl md:text-5xl text-center text-foreground mb-10 md:mb-14">
-          Questions fréquentes
-        </h2>
-        <div className="max-w-3xl mx-auto space-y-0">
+        <Reveal>
+          <h2 className="font-primary text-3xl sm:text-4xl md:text-5xl text-center text-foreground mb-10 md:mb-14">
+            Questions fréquentes
+          </h2>
+        </Reveal>
+        <Reveal stagger className="max-w-3xl mx-auto space-y-0">
           {FAQS.map(({ q, a }) => (
-            <details key={q} className="border-b border-border py-5 group">
-              <summary className="font-medium cursor-pointer list-none flex items-center justify-between gap-4 text-foreground hover:text-[hsl(var(--primary))] transition-colors duration-200">
-                {q}
-                <span className="shrink-0 text-xl text-muted-foreground group-open:rotate-45 transition-transform duration-200 inline-block leading-none">+</span>
-              </summary>
-              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{a}</p>
-            </details>
+            <RevealItem key={q}>
+              <FaqItem q={q} a={a} />
+            </RevealItem>
           ))}
-        </div>
+        </Reveal>
       </div>
     </section>
   )
@@ -874,14 +1090,14 @@ function FAQSection() {
 function CommunitySection() {
   return (
     <div className="px-4 mb-8 md:mb-16 lg:mb-24">
-      <div className="mb-6 md:mb-10">
+      <Reveal className="mb-6 md:mb-10">
         <h2 className="font-primary text-3xl md:text-4xl lg:text-5xl mb-3 md:mb-5 text-foreground">
           +10 000 traders font confiance à MERKURE
         </h2>
         <p className="text-sm md:text-base text-muted-foreground max-w-[500px]">
           Rejoignez une communauté qui utilise la data pour progresser, pas l'instinct.
         </p>
-      </div>
+      </Reveal>
       <div className="rounded-sm border border-border bg-section-alt p-4 md:p-8 lg:p-10">
         <div className="flex flex-col lg:flex-row lg:gap-16 gap-8">
           <div className="lg:basis-1/2 space-y-0">
@@ -902,13 +1118,19 @@ function CommunitySection() {
           <div className="lg:basis-1/2">
             <div className="rounded-sm border border-border bg-background p-6 md:p-8 flex flex-col gap-5 h-full">
               <div className="text-center py-3">
-                <p className="font-primary text-6xl text-[hsl(var(--primary))]">+10K</p>
+                <p className="font-primary text-6xl text-[hsl(var(--primary))]">
+                  <CountUp value={10} prefix="+" suffix="K" />
+                </p>
                 <p className="text-sm text-muted-foreground mt-2">traders actifs</p>
               </div>
               <div className="grid grid-cols-3 gap-3 text-center">
-                {[{ v: '2M+', l: 'Trades analysés' }, { v: '98%', l: 'Satisfaction' }, { v: '24/7', l: 'Synchronisation' }].map(({ v, l }) => (
+                {[
+                  { node: <CountUp value={2} suffix="M+" />, l: 'Trades analysés' },
+                  { node: <CountUp value={98} suffix="%" />, l: 'Satisfaction' },
+                  { node: '24/7', l: 'Synchronisation' },
+                ].map(({ node, l }) => (
                   <div key={l} className="rounded-sm border border-border bg-section-alt p-3">
-                    <p className="font-mono text-xl font-bold text-foreground">{v}</p>
+                    <p className="tabular-nums text-xl font-bold text-foreground">{node}</p>
                     <p className="text-[10px] text-muted-foreground mt-1">{l}</p>
                   </div>
                 ))}
@@ -922,6 +1144,37 @@ function CommunitySection() {
         </div>
       </div>
     </div>
+  )
+}
+
+/* ─── Final CTA — section sombre "glow", écho au bandeau final FundedNext ── */
+
+function FinalCta() {
+  return (
+    <section className="glow-section py-20 md:py-28">
+      <Reveal className="container mx-auto px-4 text-center">
+        <h2 className="font-primary text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-4">
+          Commencez votre analyse MERKURE
+        </h2>
+        <p className="mx-auto max-w-[560px] text-white/70 text-base md:text-lg mb-8">
+          Rejoignez les traders qui utilisent la data pour progresser, pas l&apos;instinct.
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <MagneticButton
+            href="/sign-up"
+            className="inline-flex min-w-48 h-12 items-center justify-center gap-2 rounded-full bg-gradient-brand px-9 text-base font-semibold text-white transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97] motion-reduce:active:scale-100"
+          >
+            Démarrer gratuitement →
+          </MagneticButton>
+          <a
+            href="#tarifs"
+            className="inline-flex h-12 min-w-48 items-center justify-center gap-2 rounded-full border border-white/25 px-9 text-base font-medium text-white/85 transition-all duration-200 hover:border-white hover:text-white active:scale-[0.97] motion-reduce:active:scale-100"
+          >
+            Voir les tarifs
+          </a>
+        </div>
+      </Reveal>
+    </section>
   )
 }
 
@@ -953,13 +1206,14 @@ function Footer() {
             <div className="flex items-center gap-2">
               <BrandLogo
                 className="gap-2 text-foreground"
-                iconClassName="h-7 w-7 text-[hsl(var(--sidebar-primary))]"
-                textClassName="text-lg font-black tracking-[0.12em]"
+                iconClassName="h-7 w-7"
+                iconVariant="gradient"
+                textClassName="text-lg font-semibold tracking-tight"
               />
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">La plateforme de performance trading qui transforme vos donnees en edge durable.</p>
+            <p className="text-sm text-muted-foreground">La plateforme de performance trading qui transforme vos donnees en edge durable.</p>
             <div className="flex space-x-6">
-              <a href="https://discord.gg/merkure" className="text-gray-400 hover:text-gray-300" target="_blank" rel="noopener noreferrer">
+              <a href="https://discord.gg/merkure" className="text-muted-foreground transition-colors hover:text-foreground" target="_blank" rel="noopener noreferrer">
                 <span className="sr-only">Discord</span>
                 <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z" />
@@ -973,7 +1227,7 @@ function Footer() {
                 <h4 className="text-sm font-semibold leading-6 text-foreground">Produit</h4>
                 <ul className="mt-6 space-y-4">
                   {nav.product.map((item) => (
-                    <li key={item.name}><a href={item.href} className="text-sm leading-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">{item.name}</a></li>
+                    <li key={item.name}><a href={item.href} className="text-sm leading-6 text-muted-foreground transition-colors hover:text-foreground">{item.name}</a></li>
                   ))}
                 </ul>
               </div>
@@ -981,7 +1235,7 @@ function Footer() {
                 <h4 className="text-sm font-semibold leading-6 text-foreground">Entreprise</h4>
                 <ul className="mt-6 space-y-4">
                   {nav.company.map((item) => (
-                    <li key={item.name}><a href={item.href} className="text-sm leading-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">{item.name}</a></li>
+                    <li key={item.name}><a href={item.href} className="text-sm leading-6 text-muted-foreground transition-colors hover:text-foreground">{item.name}</a></li>
                   ))}
                 </ul>
               </div>
@@ -990,7 +1244,7 @@ function Footer() {
               <h4 className="text-sm font-semibold leading-6 text-foreground">Legal</h4>
               <ul className="mt-6 space-y-4">
                 {nav.legal.map((item) => (
-                  <li key={item.name}><Link href={item.href} className="text-sm leading-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">{item.name}</Link></li>
+                  <li key={item.name}><Link href={item.href} className="text-sm leading-6 text-muted-foreground transition-colors hover:text-foreground">{item.name}</Link></li>
                 ))}
               </ul>
             </div>
@@ -1009,12 +1263,19 @@ function Footer() {
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-background">
+    <MotionConfig reducedMotion="user">
+    <div className="site-dark min-h-screen bg-background">
+      <ScrollProgress />
       <Navbar />
 
       {/* Hero — fond blanc avec grille de points, full-bleed */}
       <section className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden">
         <Hero />
+      </section>
+
+      {/* Stats bar — preuve sociale, fond blanc (suite du hero) */}
+      <section className="w-full bg-background">
+        <StatsBar />
       </section>
 
       {/* Partners — fond beige */}
@@ -1052,10 +1313,14 @@ export default function App() {
         </div>
       </section>
 
+      {/* CTA final — section sombre "glow" */}
+      <FinalCta />
+
       {/* Footer — fond beige */}
       <div className="bg-section-alt border-t border-border">
         <Footer />
       </div>
     </div>
+    </MotionConfig>
   )
 }
