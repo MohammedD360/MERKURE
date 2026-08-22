@@ -58,7 +58,7 @@ export function BrokerLogo({ broker, size = 40 }: { broker: BrokerType; size?: n
     const fb = BROKER_FALLBACK[broker]
     return (
       <span
-        className="flex shrink-0 items-center justify-center rounded-lg border border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.18)] text-white font-black"
+        className="flex shrink-0 items-center justify-center rounded-lg border border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.18)] text-white font-semibold"
         style={{ width: size, height: size, background: fb?.color ?? '#6366f1', fontSize: size * 0.3 }}
         aria-label={broker}
       >
@@ -72,7 +72,7 @@ export function BrokerLogo({ broker, size = 40 }: { broker: BrokerType; size?: n
 
   return (
     <span
-      className="flex shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white p-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+      className="flex shrink-0 items-center justify-center rounded-lg border border-white/10 bg-card p-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
       style={{ width: boxWidth, height: size }}
       aria-label={logo.alt}
     >

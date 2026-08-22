@@ -17,6 +17,7 @@ export type Page =
   | 'alerts'
   | 'settings'
   | 'profile'
+  | 'iaHome'
   | 'iaBiais'
   | 'iaCoach'
   | 'iaSimulation'

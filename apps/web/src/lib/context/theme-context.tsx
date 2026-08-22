@@ -1,38 +1,56 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 
-type Theme = 'dark' | 'light'
+import { APP_THEME_STORAGE_KEY, type AppTheme } from '@/lib/hooks/use-app-theme'
 
 interface ThemeContextValue {
-  theme:       Theme
+  theme:       AppTheme
   toggleTheme: () => void
+  /** false au premier rendu : ne pas afficher d'élément orienté par le thème. */
+  mounted:     boolean
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
   theme:       'dark',
   toggleTheme: () => {},
+  mounted:     false,
 })
 
+function currentTheme(): AppTheme {
+  if (typeof document === 'undefined') return 'dark'
+  return document.documentElement.dataset.appTheme === 'light' ? 'light' : 'dark'
+}
+
+/**
+ * Source unique du thème de l'app.
+ * L'attribut `data-app-theme` est posé sur <html> avant l'hydratation par
+ * APP_THEME_INIT_SCRIPT ; ce provider ne fait que le refléter et le basculer,
+ * de sorte que le bouton du header et le réglage « Affichage » des Paramètres
+ * pilotent exactement la même chose.
+ */
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark')
+  const [theme, setTheme] = useState<AppTheme>('dark')
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    const stored = localStorage.getItem('merkure_theme') as Theme | null
-    const initial = stored === 'light' ? 'light' : 'dark'
-    setTheme(initial)
-    document.documentElement.setAttribute('data-theme', initial)
+    setTheme(currentTheme())
+    setMounted(true)
   }, [])
 
-  const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark'
+  const toggleTheme = useCallback(() => {
+    const next: AppTheme = currentTheme() === 'dark' ? 'light' : 'dark'
+    document.documentElement.dataset.appTheme = next
+    try {
+      window.localStorage.setItem(APP_THEME_STORAGE_KEY, next)
+    } catch {
+      /* stockage indisponible : le thème reste actif pour la session */
+    }
     setTheme(next)
-    localStorage.setItem('merkure_theme', next)
-    document.documentElement.setAttribute('data-theme', next)
-  }
+  }, [])
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, mounted }}>
       {children}
     </ThemeContext.Provider>
   )

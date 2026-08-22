@@ -2,19 +2,26 @@
 
 import { useState, useRef, useEffect, useMemo, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, Bell, LogOut, User, ChevronDown, Menu, RefreshCw, Upload, Command } from 'lucide-react'
+import { Search, Bell, LogOut, User, ChevronDown, Menu, Moon, RefreshCw, Sun, Command } from 'lucide-react'
 import { useCurrentUser } from '@/lib/hooks/use-current-user'
 import { clearToken } from '@/lib/api-client'
 import { getPlanDisplayLabel } from '@/lib/plans'
 import { useAlerts } from '@/lib/hooks/use-alerts'
 import { useAccounts, useSyncAccount } from '@/lib/hooks/use-accounts'
+import { useKpiSummary } from '@/lib/hooks/use-kpis'
+import { useCurrency } from '@/lib/hooks/use-currency'
+import { formatMoney, formatPercent } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { CsvImportModal } from '@/features/trades/components/CsvImportModal'
+import type { AppTheme } from '@/lib/hooks/use-app-theme'
 
 interface HeaderProps {
   title:       string
   description: string
   onMenuClick?: () => void
+  theme?:         AppTheme
+  onToggleTheme?: () => void
+  /** false pendant le rendu serveur : on n'affiche pas encore d'icône orientée */
+  themeReady?:    boolean
 }
 
 const SEARCH_ITEMS = [
@@ -46,11 +53,40 @@ const SEARCH_ITEMS = [
   { title: "Profil", description: "Identité, photo et sécurité", href: "/app/profile", keywords: ["avatar", 'mot de passe'] },
 ]
 
-export function Header({ title, description, onMenuClick }: HeaderProps) {
+/** Pastille façon ticker de marché : libellé + valeur + variation. */
+function TickerPill({
+  label,
+  value,
+  delta,
+  deltaTone = 'neutral',
+}: {
+  label: string
+  value: string
+  delta?: string | undefined
+  deltaTone?: 'up' | 'down' | 'neutral'
+}) {
+  return (
+    <div className="flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-md border border-border px-4">
+      <span className="text-sm font-medium text-foreground">{label}</span>
+      <span className="text-sm text-muted-foreground">{value}</span>
+      {delta && (
+        <span
+          className={cn(
+            'text-sm',
+            deltaTone === 'up' ? 'text-green-500' : deltaTone === 'down' ? 'text-red-500' : 'text-muted-foreground',
+          )}
+        >
+          {delta}
+        </span>
+      )}
+    </div>
+  )
+}
+
+export function Header({ title, onMenuClick, theme = 'dark', onToggleTheme, themeReady = false }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [csvOpen, setCsvOpen] = useState(false)
   const menuRef        = useRef<HTMLDivElement>(null)
   const searchRef      = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -60,6 +96,8 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
   const sync = useSyncAccount()
   const { data: unreadAlertsData } = useAlerts(true)
   const unreadAlertsCount = unreadAlertsData?.total ?? 0
+  const { data: kpis } = useKpiSummary('30d')
+  const currency = useCurrency()
 
   const displayName = user?.firstName
     ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ''}`
@@ -144,15 +182,18 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
   }
 
   const iconBtn = cn(
-    'flex h-10 w-10 items-center justify-center rounded-md border border-[hsl(var(--border))]',
-    'bg-white text-[hsl(var(--foreground-soft))] transition-colors hover:bg-[hsl(var(--accent))] hover:text-foreground',
+    'flex h-9 w-9 items-center justify-center rounded-md border border-border',
+    'bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground',
   )
 
-  return (
-    <header className="sticky top-0 z-40 flex min-h-20 shrink-0 items-center justify-between gap-5 border-b border-[hsl(var(--border))] bg-white/90 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
+  const pnl = kpis?.totalPnl ?? null
+  const winRate = kpis ? kpis.winRate * 100 : null
 
-      {/* Left: hamburger + page title */}
-      <div className="flex min-w-0 items-center gap-3">
+  return (
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b border-border bg-background px-4 lg:h-16 lg:px-6">
+
+      {/* Gauche : menu mobile + recherche */}
+      <div className="flex min-w-0 flex-1 items-center gap-3">
         <button
           type="button"
           onClick={onMenuClick}
@@ -161,43 +202,25 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
         >
           <Menu className="h-4 w-4" />
         </button>
-        <div className="min-w-0">
-          <h1 className="truncate text-2xl font-black leading-none tracking-tight text-foreground">
-            {title}
-          </h1>
-          {description && (
-            <p className="mt-2 hidden truncate text-sm font-medium text-[hsl(var(--foreground-soft))] sm:block">
-              {description}
-            </p>
-          )}
-        </div>
-      </div>
 
-      {/* Right: actions */}
-      <div className="flex shrink-0 items-center gap-2">
-
-        {/* Search */}
-        <div ref={searchRef} className="relative">
+        <div ref={searchRef} className="relative min-w-0 flex-1 sm:max-w-[340px]">
           <button
             type="button"
             onClick={() => setSearchOpen((open) => !open)}
-            className={cn(
-              iconBtn,
-              'w-10 justify-center gap-3 px-0 lg:w-64 lg:justify-start lg:px-4',
-            )}
+            className="flex h-10 w-10 min-w-0 max-w-full items-center justify-center overflow-hidden rounded-md border border-border text-muted-foreground transition-colors hover:text-foreground sm:w-full sm:justify-start sm:gap-3 sm:px-4"
             aria-label="Rechercher une page"
             aria-expanded={searchOpen}
-            title="Rechercher (Ctrl K)"
+            title="Rechercher (⌘K)"
           >
-            <Search className="h-4 w-4" />
-            <span className="hidden flex-1 text-left text-sm font-medium text-[hsl(var(--foreground-soft))] lg:block">Rechercher...</span>
-            <span className="hidden items-center gap-1 rounded border border-[hsl(var(--border))] px-1.5 py-0.5 font-mono text-[11px] font-bold text-[hsl(var(--foreground-soft))] lg:inline-flex">
+            <Search className="h-4 w-4 shrink-0" />
+            <span className="hidden min-w-0 flex-1 truncate text-left text-sm sm:block">Rechercher une page, un trade…</span>
+            <span className="hidden shrink-0 items-center gap-1 rounded border border-border px-1.5 py-0.5 text-xs font-medium sm:inline-flex">
               <Command className="h-3 w-3" /> K
             </span>
           </button>
 
           {searchOpen && (
-            <div className="absolute right-0 top-full z-50 mt-2 w-[min(360px,calc(100vw-2rem))] overflow-hidden rounded-lg border border-border bg-card shadow-[0_20px_60px_rgba(0,0,0,0.4)]">
+            <div className="absolute left-0 top-full z-50 mt-2 w-[min(400px,calc(100vw-2rem))] overflow-hidden rounded-lg border border-border bg-popover shadow-lg">
               <form onSubmit={handleSearchSubmit} className="border-b border-border p-3">
                 <div className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2">
                   <Search className="h-4 w-4 text-muted-foreground" />
@@ -206,7 +229,7 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
                     value={searchQuery}
                     onChange={(event) => setSearchQuery(event.target.value)}
                     placeholder="Rechercher une page…"
-                    className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/50"
+                    className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
                   />
                 </div>
               </form>
@@ -224,7 +247,7 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
                         <span className="block truncate text-sm font-medium text-foreground">{item.title}</span>
                         <span className="mt-0.5 block truncate text-xs text-muted-foreground">{item.description}</span>
                       </span>
-                      <span className="text-xs text-muted-foreground/40 transition-colors group-hover:text-[hsl(var(--primary))]">↵</span>
+                      <span className="text-xs text-muted-foreground transition-colors group-hover:text-primary">↵</span>
                     </button>
                   ))
                 ) : (
@@ -237,27 +260,47 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
             </div>
           )}
         </div>
+      </div>
 
-        <button
-          type="button"
-          onClick={() => setCsvOpen(true)}
-          className="hidden h-10 items-center gap-2 rounded-md border border-[hsl(var(--border))] bg-white px-4 text-sm font-black text-foreground transition-colors hover:bg-[hsl(var(--accent))] xl:inline-flex"
-        >
-          <Upload className="h-4 w-4" />
-          Importer CSV
-        </button>
+      {/* Centre : tickers de performance — masqués tant que la place manque */}
+      <div className="hidden shrink-0 items-center gap-3 2xl:flex">
+        <TickerPill
+          label="P&L 30J"
+          value={pnl == null ? '—' : formatMoney(pnl, { currency, signed: true })}
+          delta={kpis && kpis.nbTrades > 0 ? `${kpis.nbTrades} trades` : undefined}
+          deltaTone={pnl == null ? 'neutral' : pnl >= 0 ? 'up' : 'down'}
+        />
+        <TickerPill
+          label="Win rate"
+          value={winRate == null ? '—' : formatPercent(winRate)}
+          delta={winRate == null ? undefined : winRate >= 50 ? '▲' : '▼'}
+          deltaTone={winRate == null ? 'neutral' : winRate >= 50 ? 'up' : 'down'}
+        />
+      </div>
 
-        <button
-          type="button"
-          onClick={handleSync}
-          disabled={sync.isPending}
-          className="hidden h-10 items-center gap-2 rounded-md bg-[hsl(var(--primary))] px-4 text-sm font-black text-white shadow-[0_4px_14px_hsl(244_42%_51%/0.25)] transition-colors hover:bg-[hsl(244_42%_44%)] disabled:cursor-not-allowed disabled:opacity-70 sm:inline-flex"
-        >
-          <RefreshCw className={cn("h-4 w-4", sync.isPending && "animate-spin")} />
-          Synchroniser
-        </button>
+      {/* Droite : actions */}
+      <div className="flex shrink-0 items-center gap-2">
+        {/* Fond sombre / clair */}
+        {onToggleTheme && (
+          <button
+            type="button"
+            onClick={onToggleTheme}
+            className={iconBtn}
+            aria-label={theme === 'dark' ? 'Passer en thème clair' : 'Passer en thème sombre'}
+            aria-pressed={theme === 'light'}
+            title={theme === 'dark' ? 'Thème clair' : 'Thème sombre'}
+          >
+            {!themeReady ? (
+              <span className="h-4 w-4" />
+            ) : theme === 'dark' ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
+          </button>
+        )}
 
-        {/* Bell */}
+        {/* Cloche */}
         <button
           type="button"
           onClick={() => router.push('/app/alerts')}
@@ -266,53 +309,62 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
         >
           <Bell className="h-4 w-4" />
           {unreadAlertsCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[hsl(var(--primary))] px-1 text-[9px] font-bold text-white">
+            <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-semibold text-primary-foreground">
               {unreadAlertsCount > 9 ? '9+' : unreadAlertsCount}
             </span>
           )}
         </button>
 
-        <div className="mx-2 hidden h-7 w-px bg-[hsl(var(--border))] sm:block" />
+        <button
+          type="button"
+          onClick={handleSync}
+          disabled={sync.isPending}
+          className="hidden h-9 items-center gap-2 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70 sm:inline-flex"
+        >
+          <RefreshCw className={cn('h-4 w-4', sync.isPending && 'animate-spin')} />
+          Synchroniser
+        </button>
 
-        {/* User menu */}
+        {/* Menu utilisateur */}
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setMenuOpen(v => !v)}
-            className="flex items-center gap-2 rounded-md px-1 py-1 transition-colors hover:bg-[hsl(var(--accent))]"
+            className="flex items-center gap-2 rounded-md px-1 py-1 transition-colors hover:bg-accent"
+            aria-label={`Profil de ${displayName}`}
           >
             <div
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[hsl(var(--primary)/0.25)] bg-[hsl(var(--primary)/0.1)] bg-cover bg-center text-sm font-black text-[hsl(var(--primary))]"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary bg-cover bg-center text-xs font-semibold text-foreground"
               style={avatarStyle}
-              aria-label={`Profil de ${displayName}`}
             >
               {!user?.avatarUrl && initials}
             </div>
+            <span className="hidden max-w-[140px] truncate text-sm font-medium text-foreground lg:block">{displayName}</span>
             <ChevronDown
-              className="hidden h-3.5 w-3.5 text-[hsl(var(--foreground-soft))] transition-transform duration-200 sm:block"
+              className="hidden h-4 w-4 text-muted-foreground transition-transform duration-200 sm:block"
               style={{ transform: menuOpen ? 'rotate(180deg)' : undefined }}
             />
           </button>
 
           {menuOpen && (
-            <div className="absolute right-0 top-full z-50 mt-2 w-52 max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-border bg-card shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+            <div className="absolute right-0 top-full z-50 mt-2 w-56 max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-border bg-popover shadow-lg">
               <div className="border-b border-border px-4 py-3">
-                <div className="truncate text-[11px] font-medium text-foreground">{user?.email ?? '—'}</div>
-                <div className="mt-0.5 text-[10px] text-muted-foreground">{modeLabel}</div>
+                <div className="truncate text-sm font-medium text-foreground">{displayName}</div>
+                <div className="mt-0.5 truncate text-xs text-muted-foreground">{user?.email ?? modeLabel}</div>
               </div>
 
               <div className="p-1">
                 <button
                   onClick={() => { setMenuOpen(false); router.push('/app/profile') }}
-                  className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 >
-                  <User className="h-3.5 w-3.5" />
+                  <User className="h-4 w-4" />
                   Mon profil
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-xs text-red-500 transition-colors hover:bg-red-50 hover:text-red-600"
+                  className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-red-500 transition-colors hover:bg-accent"
                 >
-                  <LogOut className="h-3.5 w-3.5" />
+                  <LogOut className="h-4 w-4" />
                   Se déconnecter
                 </button>
               </div>
@@ -321,7 +373,7 @@ export function Header({ title, description, onMenuClick }: HeaderProps) {
         </div>
       </div>
 
-      <CsvImportModal open={csvOpen} onClose={() => setCsvOpen(false)} />
+      <span className="sr-only">{title}</span>
     </header>
   )
 }

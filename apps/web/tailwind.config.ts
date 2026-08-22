@@ -56,6 +56,11 @@ const config: Config = {
         /* ── Chart colors ─────────────────────────────────────────────── */
         'chart-win':  'hsl(var(--chart-win))',
         'chart-loss': 'hsl(var(--chart-loss))',
+        /* ── Accent CTA — vert neon, gradient de marque (voir index.css) ── */
+        'accent-cta': {
+          DEFAULT:    'hsl(var(--accent-cta))',
+          foreground: 'hsl(var(--accent-cta-foreground))',
+        },
         /* ── Keep old MERKURE direct colors for landing page ──────────── */
         profit: '#22c55e',
         loss:   '#ef4444',
@@ -68,7 +73,8 @@ const config: Config = {
       },
 
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-body)', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['var(--font-primary)', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
         mono: [
           'ui-monospace',
           'SFMono-Regular',

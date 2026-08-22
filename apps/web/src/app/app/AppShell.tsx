@@ -4,9 +4,11 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
 
 import type { Page } from '@/lib/navigation'
+import { cn } from '@/lib/utils'
 import { Header } from '@/shared/components/Header'
 import { Sidebar } from '@/shared/components/Sidebar'
 import { useWebSocket } from '@/lib/hooks/use-websocket'
+import { useAppTheme } from '@/lib/hooks/use-app-theme'
 
 const pageToPath: Partial<Record<Page, string>> = {
   dashboard:     '/app/dashboard',
@@ -22,6 +24,7 @@ const pageToPath: Partial<Record<Page, string>> = {
   settings:      '/app/settings',
   profile:       '/app/profile',
   rapports:      '/app/reports',
+  iaHome:        '/app/ia',
   iaBiais:       '/app/ia/biais',
   iaCoach:       '/app/ia/coach',
   iaSimulation:  '/app/ia/simulation',
@@ -49,8 +52,10 @@ const headerCopy: Record<KnownPage, { title: string; description: string }> = {
     description: 'Positions ouvertes, exposition et historique equity',
   },
   dashboard: {
+    // La ligne d'état de HeadlineKpis affiche la vraie synchro et le vrai
+    // nombre de comptes — pas de sous-titre codé en dur qui la contredise.
     title:       'Vue d’ensemble',
-    description: 'Dernière synchro : il y a 2 min  •  3 comptes connectés',
+    description: '',
   },
   comptes: {
     title:       'Comptes',
@@ -91,6 +96,10 @@ const headerCopy: Record<KnownPage, { title: string; description: string }> = {
   rapports: {
     title:       'Rapports',
     description: 'Rapports hebdomadaires PDF',
+  },
+  iaHome: {
+    title:       'Intelligence artificielle',
+    description: 'Score, biais détectés et recommandations issues de vos trades',
   },
   iaBiais: {
     title:       'Biais comportementaux',
@@ -192,6 +201,7 @@ function getCurrentPage(pathname: string): KnownPage {
   if (pathname.startsWith('/app/ia/benchmark'))  return 'iaBenchmark'
   if (pathname.startsWith('/app/ia/propfirm'))     return 'iaPropfirm'
   if (pathname.startsWith('/app/trading-plan'))    return 'tradingPlan'
+  if (pathname.startsWith('/app/ia'))              return 'iaHome'
   return 'dashboard'
 }
 
@@ -204,7 +214,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname    = usePathname()
   const router      = useRouter()
   const currentPage = getCurrentPage(pathname)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)   // tiroir mobile
+  const [railExpanded, setRailExpanded] = useState(false) // rail desktop 72px ↔ 256px
+  const { theme, toggleTheme, mounted } = useAppTheme()
+  const copy = headerCopy[currentPage]
 
   const navigate = (page: Page) => {
     router.push(pageToPath[page] ?? '/app/dashboard')
@@ -212,13 +225,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="app-shell min-h-screen bg-background text-foreground">
       <WebSocketProvider />
       {sidebarOpen && (
         <button
           type="button"
           aria-label="Fermer la navigation"
-          className="fixed inset-0 z-20 bg-black/60 lg:hidden"
+          className="fixed inset-0 z-30 bg-black/60 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -227,10 +240,33 @@ export function AppShell({ children }: { children: ReactNode }) {
         onNavigate={navigate}
         mobileOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        expanded={railExpanded}
+        onToggleExpanded={() => setRailExpanded((value) => !value)}
       />
-      <div className="min-h-screen lg:pl-64">
-        <Header {...headerCopy[currentPage]} onMenuClick={() => setSidebarOpen(true)} />
-        <main className="min-w-0">{children}</main>
+      <div
+        className={cn(
+          'min-h-screen transition-[padding] duration-300 ease-in-out',
+          railExpanded ? 'lg:pl-64' : 'lg:pl-[72px]',
+        )}
+      >
+        <Header
+          {...copy}
+          onMenuClick={() => setSidebarOpen(true)}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+          themeReady={mounted}
+        />
+        <main className="min-w-0 px-2 py-3 sm:px-4 md:p-6">
+          {/* Titre de page — la référence place le titre dans le contenu,
+              pas dans la barre supérieure. */}
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">{copy.title}</h1>
+            {copy.description && (
+              <p className="mt-1.5 text-sm text-muted-foreground">{copy.description}</p>
+            )}
+          </div>
+          {children}
+        </main>
       </div>
     </div>
   )
