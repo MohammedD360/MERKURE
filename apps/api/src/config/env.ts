@@ -38,6 +38,19 @@ const envSchema = z.object({
   // MetaAPI (broker MT4/MT5)
   META_API_TOKEN: z.string().optional(),
   METAAPI_TOKEN:  z.string().optional(),
+  // 'regular' suffit pour lire un historique ; 'high' duplique les serveurs
+  // (exécution temps réel / copy-trading) et exige un compte MetaAPI crédité.
+  METAAPI_RELIABILITY: z.enum(['regular', 'high']).default('regular'),
+  // MetaAPI facture les comptes déployés : on éteint le terminal après chaque
+  // synchro. À désactiver seulement si on a besoin d'un flux temps réel.
+  METAAPI_UNDEPLOY_AFTER_SYNC: z.coerce.boolean().default(true),
+  // Cadence de la synchro automatique, en minutes. Voir le commentaire dans
+  // broker-sync.worker.ts : ce réglage pilote directement la facture MetaAPI.
+  BROKER_SYNC_INTERVAL_MINUTES: z.coerce.number().int().min(5).default(60),
+  // La réconciliation signale par défaut les comptes orphelins facturés sans les
+  // supprimer : une suppression automatique chez un fournisseur payant doit être
+  // un choix explicite, jamais un effet de bord d'un déploiement.
+  PROVIDER_RECONCILE_DELETE: z.coerce.boolean().default(false),
 
   // MTConnectAPI (MT4 broker sync)
   MTCONNECT_API_KEY: z.string().optional(),
@@ -76,6 +89,10 @@ const envSchema = z.object({
 
   // Bot Trading — fréquence des ticks de l'agent (ms)
   BOT_TRADING_TICK_MS: z.coerce.number().default(120_000),
+
+  // Bot Trading — fréquence de vérification de résolution des marchés (ms) —
+  // moins fréquent que le tick de trading, un marché ne se résout pas en 2 min.
+  BOT_SETTLEMENT_TICK_MS: z.coerce.number().default(600_000),
 })
 
 const parsed = envSchema.safeParse(process.env)

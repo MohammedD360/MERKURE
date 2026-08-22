@@ -36,6 +36,25 @@ function token(): string {
   return t
 }
 
+/** Traduit les erreurs MetaAPI en messages actionnables affichables au client. */
+function translateMetaApiError(status: number, msg: string): string {
+  const m = msg.toLowerCase()
+
+  if (m.includes('top up')) {
+    return "Le quota MetaAPI est épuisé : le compte MetaAPI doit être crédité pour connecter un compte supplémentaire."
+  }
+  if (status === 401 || status === 403) {
+    return "Accès MetaAPI refusé : vérifiez le jeton d'API MetaAPI."
+  }
+  if (m.includes('invalid account credentials') || m.includes('authentication failed')) {
+    return "Identifiants refusés par le broker : vérifiez le numéro de compte, le mot de passe investisseur et le nom du serveur."
+  }
+  if (m.includes('server') && m.includes('not found')) {
+    return "Serveur broker introuvable : le nom doit être identique à celui affiché dans votre terminal MT4/MT5."
+  }
+  return `MetaAPI ${status}: ${msg}`
+}
+
 async function metaFetch(url: string, init?: RequestInit) {
   const res = await fetch(url, {
     ...init,
@@ -45,9 +64,42 @@ async function metaFetch(url: string, init?: RequestInit) {
   if (!res.ok) {
     let msg = text
     try { msg = JSON.parse(text).message ?? text } catch { /* raw */ }
-    throw new Error(`MetaAPI ${res.status}: ${msg}`)
+    // Le client ne voit qu'un message traduit : on garde le brut côté serveur.
+    console.error(`[metaapi] ${init?.method ?? 'GET'} ${url} → ${res.status}: ${text.slice(0, 500)}`)
+    throw new Error(translateMetaApiError(res.status, msg))
   }
   return text ? JSON.parse(text) : null
+}
+
+export interface MetaApiAccount {
+  _id:    string
+  login:  string
+  server: string
+  state?: string
+  name?:  string
+}
+
+/**
+ * Liste tous les comptes du parc MetaAPI, page par page.
+ *
+ * L'API plafonne chaque réponse : sans pagination, un parc de plus de 100 comptes
+ * renverrait une liste tronquée, un compte existant passerait pour absent, et on
+ * en provisionnerait un doublon — facturé.
+ */
+export async function listAllAccounts(): Promise<MetaApiAccount[]> {
+  const PAGE = 100
+  const all: MetaApiAccount[] = []
+
+  for (let offset = 0; ; offset += PAGE) {
+    const page: MetaApiAccount[] = await metaFetch(
+      `${PROVISION_URL}/users/current/accounts?limit=${PAGE}&offset=${offset}`,
+    )
+    if (!page?.length) break
+    all.push(...page)
+    if (page.length < PAGE) break
+  }
+
+  return all
 }
 
 export class MetaApiAdapter implements BrokerAdapter {
@@ -99,8 +151,38 @@ export class MetaApiAdapter implements BrokerAdapter {
     return this.dealsToTrades(deals ?? [])
   }
 
-  disconnect(): void {
+  providerAccountId(): string | null {
+    return this.metaApiId
+  }
+
+  /**
+   * Supprime définitivement le compte chez MetaAPI. Appelé quand le client
+   * déconnecte son broker : sans cela le compte reste provisionné et facturé.
+   */
+  async deleteRemoteAccount(providerAccountId: string): Promise<void> {
+    await metaFetch(`${PROVISION_URL}/users/current/accounts/${providerAccountId}`, {
+      method: 'DELETE',
+    })
+  }
+
+  /**
+   * MetaAPI facture les comptes *déployés* : on éteint le terminal dès la
+   * synchronisation terminée. Le compte reste provisionné, donc la prochaine
+   * synchro le redéploie sans le recréer.
+   */
+  async disconnect(): Promise<void> {
+    const id = this.metaApiId
     this.metaApiId = null
+    if (!id || !env.METAAPI_UNDEPLOY_AFTER_SYNC) return
+
+    try {
+      await metaFetch(`${PROVISION_URL}/users/current/accounts/${id}/undeploy`, {
+        method: 'POST', body: '{}',
+      })
+    } catch (err) {
+      // Un undeploy raté ne doit jamais faire échouer une synchro réussie.
+      console.error(`[metaapi] undeploy ${id} a échoué :`, err instanceof Error ? err.message : err)
+    }
   }
 
   // ── Private helpers ──────────────────────────────────────────────────────────
@@ -108,10 +190,9 @@ export class MetaApiAdapter implements BrokerAdapter {
   private async findOrProvision(
     login: string, password: string, server: string, platform: string,
   ): Promise<string> {
-    // MetaAPI returns _id (MongoDB convention), not id
-    const accounts: { _id: string; login: string; server: string }[] = await metaFetch(
-      `${PROVISION_URL}/users/current/accounts?limit=100`,
-    )
+    // Ce balayage n'a lieu qu'au tout premier rattachement : ensuite l'identifiant
+    // est persisté en base et passé directement dans les credentials.
+    const accounts = await listAllAccounts()
 
     // Try exact match first, then fall back to login-only (server name format may differ)
     const byLoginServer = accounts.find(a => a.login === login && a.server === server)
@@ -131,6 +212,7 @@ export class MetaApiAdapter implements BrokerAdapter {
         server,
         platform,
         magic:    0,
+        reliability: env.METAAPI_RELIABILITY,
       }),
     })
     return created._id ?? created.id

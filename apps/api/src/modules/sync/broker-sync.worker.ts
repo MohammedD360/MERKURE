@@ -10,6 +10,8 @@ import { BinanceAdapter } from '../brokers/adapters/binance-adapter.js'
 import { TradovateAdapter } from '../brokers/adapters/tradovate-adapter.js'
 import type { BrokerAdapter } from '../brokers/adapters/broker-adapter.js'
 import { wsNotify } from '../../websocket/ws.handler.js'
+import { env } from '../../config/env.js'
+import { reconcileProviderAccounts } from './provider-reconcile.js'
 import { recalculateKpiSnapshots } from '../kpis/kpi-snapshots.js'
 
 async function createAlertIfNew(
@@ -60,10 +62,16 @@ function resolveAdapter(brokerType: BrokerSyncJob['brokerType']): BrokerAdapter 
 async function loadCredentials(accountId: string): Promise<Record<string, string>> {
   const row = await prisma.brokerAccount.findUnique({
     where: { id: accountId },
-    select: { credentialsEnc: true },
+    select: { credentialsEnc: true, providerAccountId: true },
   })
-  if (!row?.credentialsEnc) return {}
-  return decrypt(row.credentialsEnc)
+  if (!row) return {}
+
+  const credentials = row.credentialsEnc ? decrypt(row.credentialsEnc) : {}
+
+  // Déjà rattaché au fournisseur : on court-circuite la recherche du compte.
+  if (row.providerAccountId) credentials['metaApiId'] = row.providerAccountId
+
+  return credentials
 }
 
 export function startBrokerSyncWorker() {
@@ -88,6 +96,17 @@ export function startBrokerSyncWorker() {
         return
       }
 
+      // ─── Réconciliation : traque les comptes facturés par le fournisseur mais
+      //     inconnus de MERKURE (suppression échouée, provisioning hors app) ───
+      if (job.name === 'reconcile-provider') {
+        const report = await reconcileProviderAccounts()
+        await job.log(
+          `${report.providerAccounts} comptes chez le fournisseur, ${report.knownAccounts} connus, ` +
+          `${report.orphans.length} orphelin(s), ${report.deleted.length} supprimé(s)`,
+        )
+        return
+      }
+
       const { accountId, userId, brokerType, fullSync = false } = job.data
 
       // ─── Step 1: Acquire sync lock (prevents double-sync on same account) ───────
@@ -107,12 +126,21 @@ export function startBrokerSyncWorker() {
         const credentials = await loadCredentials(accountId)
         await adapter.connect(credentials)
 
+        // Le fournisseur vient peut-être de provisionner le compte : on retient son
+        // identifiant, seul moyen de le supprimer chez lui quand le client partira.
+        const providerId = adapter.providerAccountId?.() ?? null
+        if (providerId && providerId !== credentials['metaApiId']) {
+          await prisma.brokerAccount.update({
+            where: { id: accountId },
+            data:  { providerAccountId: providerId },
+          })
+        }
+
         const syncFrom = fullSync
           ? new Date(Date.now() - 365 * 24 * 3_600_000) // full year on first sync
           : new Date(Date.now() - 7 * 24 * 3_600_000)   // last 7 days on incremental
 
         const trades = await adapter.getTradeHistory(syncFrom, new Date())
-        adapter.disconnect()
 
         if (trades.length === 0) {
           await cache.del(lockKey)
@@ -193,21 +221,39 @@ export function startBrokerSyncWorker() {
         ).catch(() => {})
         wsNotify(userId, { type: 'sync:error', data: { accountId, error: message } })
         throw err // BullMQ will retry with exponential backoff
+      } finally {
+        // Toujours libérer le terminal distant, succès comme échec : un compte
+        // laissé déployé continue d'être facturé par le broker cloud.
+        await Promise.resolve(adapter.disconnect()).catch(() => {})
       }
     },
     3, // concurrency: process 3 accounts simultaneously
   )
 }
 
-// Register the hourly dispatch cron job (idempotent — safe to call on every restart)
+// Register the dispatch cron job (idempotent — safe to call on every restart)
 export async function scheduleBrokerSyncCron(): Promise<void> {
-  await brokerSyncQueue.add(
-    'dispatch-all',
-    {} as BrokerSyncJob,
-    {
-      repeat: { every: 5 * 60 * 1_000 }, // every 5 minutes
-      jobId: 'dispatch-all-cron',
-    },
+  // Purge le job répétable historique : il était indexé sur sa cadence, donc
+  // changer l'intervalle en créait un second sans supprimer l'ancien.
+  for (const job of await brokerSyncQueue.getRepeatableJobs()) {
+    if (job.name === 'dispatch-all') await brokerSyncQueue.removeRepeatableByKey(job.key)
+  }
+
+  // Chaque synchro déploie puis éteint un terminal distant facturé à l'usage.
+  // La cadence fixe donc directement la facture : à N comptes, le nombre de
+  // terminaux allumés en moyenne vaut N × (durée d'un cycle / cet intervalle).
+  // Les clients gardent la synchro manuelle pour un rafraîchissement immédiat.
+  await brokerSyncQueue.upsertJobScheduler(
+    'dispatch-all-cron',
+    { every: env.BROKER_SYNC_INTERVAL_MINUTES * 60 * 1_000 },
+    { name: 'dispatch-all', data: {} as BrokerSyncJob },
+  )
+
+  // Une fois par jour suffit : on traque une dérive de facturation, pas un incident.
+  await brokerSyncQueue.upsertJobScheduler(
+    'reconcile-provider-cron',
+    { every: 24 * 60 * 60 * 1_000 },
+    { name: 'reconcile-provider', data: {} as BrokerSyncJob },
   )
 }
 
