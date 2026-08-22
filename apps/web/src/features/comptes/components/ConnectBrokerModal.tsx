@@ -5,6 +5,8 @@ import { X, ChevronRight, ArrowLeft, Eye, EyeOff, Check, Lock, AlertCircle } fro
 import { brokerMeta } from '@/lib/broker-config'
 import { useCreateAccount, type BrokerType, type AccountType } from '@/lib/hooks/use-accounts'
 import { BrokerLogo } from '@/shared/components/BrokerLogo'
+import { FirmLogo } from '@/features/prop-firm/components/StepFirmSelect'
+import { getPropFirm } from '@/features/prop-firm/data/prop-firms'
 
 interface Props {
   open:    boolean
@@ -15,6 +17,13 @@ type Step = 'choose' | 'form' | 'success'
 
 const BROKERS: BrokerType[] = ['TRADOVATE', 'MT5', 'MT4', 'IB', 'CTRADER']
 const COMING_SOON: BrokerType[] = ['BINANCE']
+
+// Prop firms sans plateforme technique dédiée : on les connecte via un broker
+// existant (ici MT5) tout en gardant leur identité visuelle et un rappel
+// contextuel dans le formulaire.
+const PROP_FIRM_SHORTCUTS: { id: string; broker: BrokerType; prefillLabel: string }[] = [
+  { id: 'fundingpips', broker: 'MT5', prefillLabel: 'FundingPips – Challenge' },
+]
 
 
 interface FormState {
@@ -103,8 +112,9 @@ function AccountTypeSelect({ value, onChange }: { value: AccountType; onChange: 
   )
 }
 
-function BrokerFormFields({ broker, form, setForm }: {
+function BrokerFormFields({ broker, propFirmId, form, setForm }: {
   broker: BrokerType
+  propFirmId: string | null
   form: FormState
   setForm: React.Dispatch<React.SetStateAction<FormState>>
 }) {
@@ -119,7 +129,7 @@ function BrokerFormFields({ broker, form, setForm }: {
 
   if (broker === 'TRADOVATE') return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-orange-200 bg-orange-50 p-3">
+      <div className="rounded-lg border border-orange-500/30 bg-orange-500/10 p-3">
         <p className="text-xs font-semibold leading-relaxed text-orange-700">
           Connexion à votre compte <span className="font-bold">Apex Trader Funding</span> via Tradovate.
           Utilisez vos identifiants Tradovate (reçus par Apex par email).
@@ -145,7 +155,7 @@ function BrokerFormFields({ broker, form, setForm }: {
               onClick={() => setForm(f => ({ ...f, tvEnv: e }))}
               className={`rounded-lg border py-2 text-xs font-black transition-colors ${
                 form.tvEnv === e
-                  ? 'border-orange-300 bg-orange-50 text-orange-600'
+                  ? 'border-orange-300 bg-orange-500/10 text-orange-600'
                   : 'border-[hsl(var(--border))] bg-[hsl(var(--accent))] text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -162,12 +172,21 @@ function BrokerFormFields({ broker, form, setForm }: {
 
   if (broker === 'MT4' || broker === 'MT5') return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary)/0.08)] p-3">
-        <p className="text-xs font-semibold leading-relaxed text-[hsl(var(--primary))]">
-          Vos identifiants sont chiffrés AES-256 et servent uniquement à lire votre historique.
-          Utilisez le <span className="font-semibold">mot de passe investisseur</span> en lecture seule de préférence.
-        </p>
-      </div>
+      {propFirmId === 'fundingpips' ? (
+        <div className="rounded-lg border border-orange-500/30 bg-orange-500/10 p-3">
+          <p className="text-xs font-semibold leading-relaxed text-orange-700">
+            Connexion à votre compte <span className="font-bold">FundingPips</span> via MetaTrader.
+            Utilisez les identifiants MT4/MT5 reçus par email lors de l&apos;activation de votre challenge.
+          </p>
+        </div>
+      ) : (
+        <div className="rounded-lg border border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary)/0.08)] p-3">
+          <p className="text-xs font-semibold leading-relaxed text-[hsl(var(--primary))]">
+            Vos identifiants sont chiffrés AES-256 et servent uniquement à lire votre historique.
+            Utilisez le <span className="font-semibold">mot de passe investisseur</span> en lecture seule de préférence.
+          </p>
+        </div>
+      )}
       {common}
       <Field label={`Numéro de compte ${broker}`} value={form.accountId} onChange={set('accountId')} placeholder="Ex : 1234567" />
       <Field label="Mot de passe investisseur" value={form.password} onChange={set('password')} placeholder="••••••••" showToggle hint={`Utilisez le mot de passe investisseur en lecture seule de votre compte ${broker}.`} />
@@ -177,8 +196,8 @@ function BrokerFormFields({ broker, form, setForm }: {
 
   if (broker === 'BINANCE') return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
-        <p className="text-xs font-semibold leading-relaxed text-amber-600">
+      <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
+        <p className="text-xs font-semibold leading-relaxed text-amber-500">
           Créez une clé API Binance en <span className="font-semibold">lecture seule</span> depuis Paramètres → Gestion des API.
         </p>
       </div>
@@ -191,8 +210,8 @@ function BrokerFormFields({ broker, form, setForm }: {
 
   if (broker === 'IB') return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-        <p className="text-xs font-semibold leading-relaxed text-emerald-600">
+      <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-3">
+        <p className="text-xs font-semibold leading-relaxed text-green-500">
           Connexion via l'API TWS. Assurez-vous que TWS ou IB Gateway est ouvert et que l'accès API est activé.
         </p>
       </div>
@@ -239,16 +258,17 @@ function buildCredentials(broker: BrokerType, form: FormState): Record<string, s
 }
 
 export function ConnectBrokerModal({ open, onClose }: Props) {
-  const [step,     setStep]     = useState<Step>('choose')
-  const [selected, setSelected] = useState<BrokerType | null>(null)
-  const [form,     setForm]     = useState<FormState>(DEFAULT_FORM)
+  const [step,       setStep]       = useState<Step>('choose')
+  const [selected,   setSelected]   = useState<BrokerType | null>(null)
+  const [propFirmId, setPropFirmId] = useState<string | null>(null)
+  const [form,       setForm]       = useState<FormState>(DEFAULT_FORM)
 
   const { mutate: createAccount, isPending, error } = useCreateAccount()
 
   if (!open) return null
 
   const handleClose = () => {
-    setStep('choose'); setSelected(null); setForm(DEFAULT_FORM); onClose()
+    setStep('choose'); setSelected(null); setPropFirmId(null); setForm(DEFAULT_FORM); onClose()
   }
 
   const isFormValid = (): boolean => {
@@ -286,7 +306,7 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
         <div className="flex items-center justify-between border-b border-[hsl(var(--border))] px-6 py-4">
           <div className="flex items-center gap-2">
             {step === 'form' && (
-              <button onClick={() => setStep('choose')}
+              <button onClick={() => { setStep('choose'); setPropFirmId(null) }}
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))] text-muted-foreground transition-colors hover:bg-[hsl(var(--accent))] hover:text-foreground">
                 <ArrowLeft className="w-4 h-4" />
               </button>
@@ -294,7 +314,7 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
             <div>
               <h2 className="text-sm font-bold text-foreground">
                 {step === 'choose'  && 'Connecter un broker'}
-                {step === 'form'    && selected && `Connexion ${brokerMeta[selected].name}`}
+                {step === 'form'    && selected && `Connexion ${propFirmId ? getPropFirm(propFirmId)?.name : brokerMeta[selected].name}`}
                 {step === 'success' && 'Compte connecté !'}
               </h2>
               <p className="mt-0.5 text-[11px] font-semibold text-muted-foreground">
@@ -315,10 +335,33 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
           {/* Étape 1 */}
           {step === 'choose' && (
             <div className="space-y-2">
+              {PROP_FIRM_SHORTCUTS.map(({ id, broker, prefillLabel }) => {
+                const firm = getPropFirm(id)
+                if (!firm) return null
+                return (
+                  <button key={id}
+                    onClick={() => {
+                      setSelected(broker)
+                      setPropFirmId(id)
+                      setForm(f => ({ ...f, label: f.label || prefillLabel }))
+                      setStep('form')
+                    }}
+                    className="group flex w-full items-center gap-4 rounded-xl border border-[hsl(var(--border))] bg-background p-3.5 text-left transition-colors hover:border-[hsl(var(--primary)/0.3)] hover:bg-[hsl(var(--primary)/0.06)]"
+                  >
+                    <FirmLogo id={id} />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-black text-foreground">{firm.name}</div>
+                      <div className="mt-0.5 text-xs font-semibold text-muted-foreground">{firm.tagline}</div>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground/60 transition-colors group-hover:text-[hsl(var(--primary))]" />
+                  </button>
+                )
+              })}
               {BROKERS.map(broker => (
                 <button key={broker}
                   onClick={() => {
                     setSelected(broker)
+                    setPropFirmId(null)
                     // Pre-remplir le libellé selon le broker si vide
                     setForm(f => ({
                       ...f,
@@ -357,17 +400,19 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
           {step === 'form' && selected && (
             <div className="space-y-5">
               <div className="flex items-center gap-3 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--accent))] p-3">
-                <BrokerLogo broker={selected} />
+                {propFirmId ? <FirmLogo id={propFirmId} size="sm" /> : <BrokerLogo broker={selected} />}
                 <div>
-                  <p className="text-sm font-black text-foreground">{brokerMeta[selected].name}</p>
-                  <p className="text-[11px] font-semibold text-muted-foreground">{brokerMeta[selected].desc}</p>
+                  <p className="text-sm font-black text-foreground">{propFirmId ? getPropFirm(propFirmId)?.name : brokerMeta[selected].name}</p>
+                  <p className="text-[11px] font-semibold text-muted-foreground">
+                    {propFirmId ? `via ${brokerMeta[selected].name}` : brokerMeta[selected].desc}
+                  </p>
                 </div>
               </div>
 
-              <BrokerFormFields broker={selected} form={form} setForm={setForm} />
+              <BrokerFormFields broker={selected} propFirmId={propFirmId} form={form} setForm={setForm} />
 
               {error && (
-                <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2">
+                <div className="flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2">
                   <AlertCircle className="w-3.5 h-3.5 text-red-500 flex-shrink-0 mt-0.5" />
                   <p className="text-xs font-semibold leading-6 text-red-500">
                     {error instanceof Error && error.message.includes('account_already_exists')
@@ -413,7 +458,7 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
                 Annuler
               </button>
               <button onClick={handleConnect} disabled={isPending || !isFormValid()}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] py-2.5 text-sm font-black text-white transition-colors hover:bg-[hsl(244_42%_44%)] disabled:cursor-not-allowed disabled:opacity-50">
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] py-2.5 text-sm font-black text-white transition-colors hover:bg-[hsl(243_90%_58%)] disabled:cursor-not-allowed disabled:opacity-50">
                 {isPending ? (
                   <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Connexion…</>
                 ) : 'Connecter le compte'}
@@ -433,7 +478,7 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
         {step === 'success' && (
           <div className="border-t border-[hsl(var(--border))] px-6 py-4">
             <button onClick={handleClose}
-              className="w-full rounded-lg bg-[hsl(var(--primary))] py-2.5 text-sm font-black text-white transition-colors hover:bg-[hsl(244_42%_44%)]">
+              className="w-full rounded-lg bg-[hsl(var(--primary))] py-2.5 text-sm font-black text-white transition-colors hover:bg-[hsl(243_90%_58%)]">
               Voir mes comptes
             </button>
           </div>
