@@ -4,43 +4,44 @@ import { useAiScore } from '@/lib/hooks/use-kpis'
 import type { KpiPeriod } from '@/lib/hooks/use-kpis'
 import { cn } from '@/lib/utils'
 
-const BREAKDOWN_LABELS: Record<string, { label: string; weight: string }> = {
-  winRate:      { label: 'Win Rate',      weight: '25%' },
-  profitFactor: { label: 'Profit Factor', weight: '20%' },
-  drawdown:     { label: 'Drawdown',      weight: '20%' },
-  rrMoyen:      { label: 'R/R moyen',     weight: '15%' },
-  discipline:   { label: 'Discipline',    weight: '10%' },
-  consistency:  { label: 'Régularité',    weight: '10%' },
+const BREAKDOWN_LABELS: Record<string, { label: string; weight: number }> = {
+  winRate:      { label: 'Win Rate',      weight: 25 },
+  profitFactor: { label: 'Profit Factor', weight: 20 },
+  drawdown:     { label: 'Drawdown',      weight: 20 },
+  rrMoyen:      { label: 'R/R moyen',     weight: 15 },
+  discipline:   { label: 'Discipline',    weight: 10 },
+  consistency:  { label: 'Régularité',    weight: 10 },
 }
 
-function scoreColor(score: number) {
-  if (score >= 85) return { ring: '#10b981', text: 'text-emerald-500', bg: 'bg-emerald-50 border-emerald-200' }
-  if (score >= 70) return { ring: '#6366f1', text: 'text-indigo-500',  bg: 'bg-indigo-50 border-indigo-200' }
-  if (score >= 50) return { ring: '#f59e0b', text: 'text-amber-500',   bg: 'bg-amber-50 border-amber-200' }
-  return              { ring: '#ef4444', text: 'text-red-500',      bg: 'bg-red-50 border-red-200' }
+/**
+ * Trois paliers sémantiques, alignés sur le reste du dashboard :
+ * vert = bon, ambre = à surveiller, rouge = insuffisant.
+ * Pas de quatrième teinte décorative — la couleur ne sert qu'à porter du sens.
+ */
+function tier(value: number): { stroke: string; text: string; pill: string } {
+  if (value >= 70) {
+    return { stroke: '#22c55e', text: 'text-green-500', pill: 'border-green-500/30 bg-green-500/10 text-green-500' }
+  }
+  if (value >= 45) {
+    return { stroke: '#f59e0b', text: 'text-amber-500', pill: 'border-amber-500/30 bg-amber-500/10 text-amber-500' }
+  }
+  return { stroke: '#ef4444', text: 'text-red-500', pill: 'border-red-500/30 bg-red-500/10 text-red-500' }
 }
 
-function barColor(val: number) {
-  if (val >= 80) return 'bg-emerald-400'
-  if (val >= 60) return 'bg-indigo-400'
-  if (val >= 40) return 'bg-amber-400'
-  return 'bg-red-400'
-}
-
-// Cercle SVG progress ring
+/** Anneau de progression — piste sur le token `secondary`, pas un gris figé. */
 function ScoreRing({ score, color }: { score: number; color: string }) {
-  const r = 40
+  const r = 44
   const circ = 2 * Math.PI * r
-  const offset = circ - (score / 100) * circ
+  const offset = circ - (Math.max(0, Math.min(score, 100)) / 100) * circ
 
   return (
-    <svg width="108" height="108" viewBox="0 0 108 108" className="rotate-[-90deg]">
-      <circle cx="54" cy="54" r={r} fill="none" stroke="#e5e7eb" strokeWidth="9" />
+    <svg width="112" height="112" viewBox="0 0 112 112" className="-rotate-90" aria-hidden="true">
+      <circle cx="56" cy="56" r={r} fill="none" stroke="hsl(var(--secondary))" strokeWidth="8" />
       <circle
-        cx="54" cy="54" r={r}
+        cx="56" cy="56" r={r}
         fill="none"
         stroke={color}
-        strokeWidth="9"
+        strokeWidth="8"
         strokeLinecap="round"
         strokeDasharray={circ}
         strokeDashoffset={offset}
@@ -50,78 +51,99 @@ function ScoreRing({ score, color }: { score: number; color: string }) {
   )
 }
 
-interface Props {
-  period?: KpiPeriod
+function CardFrame({ children, bare }: { children: React.ReactNode; bare?: boolean }) {
+  if (bare) return <div>{children}</div>
+  return <section className="rounded-lg border border-border bg-card p-6">{children}</section>
 }
 
-export function AiScoreCard({ period = '30d' }: Props) {
+function CardTitle({ subtitle }: { subtitle?: string }) {
+  return (
+    <div className="space-y-1.5">
+      <h3 className="text-2xl font-semibold leading-none tracking-tight text-foreground">Score IA</h3>
+      <p className="text-sm text-muted-foreground">{subtitle ?? 'Note globale de votre trading'}</p>
+    </div>
+  )
+}
+
+interface Props {
+  period?: KpiPeriod
+  /** Rendu sans cadre ni titre : la carte à onglets les fournit. */
+  bare?: boolean
+}
+
+export function AiScoreCard({ period = '30d', bare = false }: Props) {
   const { data, isLoading } = useAiScore(period)
-  const colors = scoreColor(data?.score ?? 0)
 
   if (isLoading) {
     return (
-      <section className="rounded-lg border border-border bg-white p-5 shadow-sm">
-        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Score IA</p>
-        <div className="mt-4 flex animate-pulse flex-col items-center gap-3">
-          <div className="h-[108px] w-[108px] rounded-full bg-[hsl(var(--accent))]" />
-          <div className="h-4 w-24 rounded bg-[hsl(var(--accent))]" />
+      <CardFrame bare={bare}>
+        {!bare && <CardTitle />}
+        <div className="mt-6 flex animate-pulse flex-col items-center gap-4">
+          <div className="h-28 w-28 rounded-full bg-secondary" />
+          <div className="h-4 w-32 rounded bg-secondary" />
         </div>
-      </section>
+      </CardFrame>
     )
   }
 
   if (!data || data.nbTrades === 0) {
     return (
-      <section className="rounded-lg border border-border bg-white p-5 shadow-sm">
-        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Score IA</p>
-        <p className="mt-4 text-center text-xs text-muted-foreground">
+      <CardFrame bare={bare}>
+        {!bare && <CardTitle />}
+        <p className="mt-6 text-sm text-muted-foreground">
           Importez des trades pour obtenir votre score.
         </p>
-      </section>
+      </CardFrame>
     )
   }
 
+  const t = tier(data.score)
+
   return (
-    <section className="rounded-lg border border-border bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Score Global IA</p>
-          <p className="mt-0.5 text-xs text-muted-foreground">{data.nbTrades} trades analysés</p>
-        </div>
-        <span className={cn('rounded-md border px-2.5 py-1 text-[11px] font-bold', colors.bg, colors.text)}>
+    <CardFrame bare={bare}>
+      <div className={cn('mb-6 flex items-start gap-3', bare ? 'justify-end' : 'justify-between')}>
+        {!bare && <CardTitle subtitle={`${data.nbTrades} trades analysés`} />}
+        <span className={cn('shrink-0 rounded-md border px-2.5 py-1 text-xs font-medium', t.pill)}>
           {data.label}
         </span>
       </div>
 
       {/* Anneau + score */}
-      <div className="relative flex items-center justify-center">
-        <ScoreRing score={data.score} color={colors.ring} />
+      <div className="relative flex items-center justify-center py-2">
+        <ScoreRing score={data.score} color={t.stroke} />
         <div className="absolute flex flex-col items-center">
-          <span className={cn('text-3xl font-black tabular-nums', colors.text)}>{data.score}</span>
-          <span className="text-[10px] font-bold text-muted-foreground">/100</span>
+          <span className={cn('text-3xl font-bold tabular-nums leading-none', t.text)}>{data.score}</span>
+          <span className="mt-1 text-xs text-muted-foreground">/ 100</span>
         </div>
       </div>
 
-      {/* Breakdown */}
-      <div className="mt-4 space-y-2">
+      {/* Détail par critère — une seule couleur d'accent pour les barres,
+          la valeur porte la lecture bon / à surveiller / insuffisant. */}
+      <div className="mt-6 space-y-3">
         {Object.entries(data.breakdown).map(([key, val]) => {
           const meta = BREAKDOWN_LABELS[key]
           if (!meta) return null
+          const vt = tier(val)
           return (
-            <div key={key} className="flex items-center gap-2">
-              <span className="w-[88px] shrink-0 text-[10px] font-semibold text-muted-foreground">{meta.label}</span>
-              <div className="min-w-0 flex-1 overflow-hidden rounded-full bg-[hsl(var(--accent))]" style={{ height: 5 }}>
+            <div key={key} className="flex items-center gap-3">
+              <span className="w-24 shrink-0 truncate text-sm text-muted-foreground">{meta.label}</span>
+              <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-secondary">
                 <div
-                  className={cn('h-full rounded-full transition-all duration-500', barColor(val))}
-                  style={{ width: `${val}%` }}
+                  className="h-full rounded-full bg-primary transition-[width] duration-500"
+                  style={{ width: `${Math.max(0, Math.min(val, 100))}%` }}
                 />
               </div>
-              <span className="w-7 text-right text-[10px] font-bold tabular-nums text-muted-foreground">{val}</span>
-              <span className="w-6 text-right text-[9px] text-muted-foreground/60">{meta.weight}</span>
+              <span className={cn('w-8 shrink-0 text-right text-sm font-medium tabular-nums', vt.text)}>{val}</span>
+              <span
+                className="w-10 shrink-0 text-right text-xs tabular-nums text-muted-foreground"
+                title={`Pondération dans le score global : ${meta.weight} %`}
+              >
+                {meta.weight} %
+              </span>
             </div>
           )
         })}
       </div>
-    </section>
+    </CardFrame>
   )
 }

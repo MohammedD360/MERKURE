@@ -96,10 +96,10 @@ export function useAiScore(period: KpiPeriod = '30d') {
   })
 }
 
-export function usePropFirmCompliance(accountSize: number, from?: string) {
+export function usePropFirmCompliance(accountSize: number, from?: string, accountId?: string) {
   return useQuery({
-    queryKey: ['prop-firm', 'compliance', accountSize, from ?? 'all'],
-    queryFn:  () => api.propFirm.compliance(accountSize, from),
+    queryKey: ['prop-firm', 'compliance', accountSize, from ?? 'all', accountId ?? 'all-accounts'],
+    queryFn:  () => api.propFirm.compliance(accountSize, from, accountId),
     enabled:  accountSize > 0,
     refetchInterval: 2 * 60 * 1000,
   })
