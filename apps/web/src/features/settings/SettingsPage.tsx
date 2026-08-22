@@ -37,7 +37,7 @@ function isDashboardPeriod(value: string | null): value is DashboardPeriod {
 
 function SuccessBanner({ children }: { children: string }) {
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-600">
+    <div className="flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm font-semibold text-green-500">
       <CheckCircle2 className="h-4 w-4 shrink-0" />
       {children}
     </div>
@@ -46,7 +46,7 @@ function SuccessBanner({ children }: { children: string }) {
 
 function ErrorBanner({ children }: { children: string }) {
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-500">
+    <div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-500">
       <AlertCircle className="h-4 w-4 shrink-0" />
       {children}
     </div>
@@ -67,9 +67,9 @@ function SectionCard({
   children:    React.ReactNode
 }) {
   const iconClass = {
-    green: 'border-emerald-200 bg-emerald-50 text-emerald-600',
+    green: 'border-green-500/30 bg-green-500/10 text-green-500',
     blue:  'border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary)/0.08)] text-[hsl(var(--primary))]',
-    amber: 'border-amber-200 bg-amber-50 text-amber-600',
+    amber: 'border-amber-500/30 bg-amber-500/10 text-amber-500',
   }[tone]
 
   return (
@@ -79,7 +79,7 @@ function SectionCard({
           <Icon className="h-5 w-5" />
         </div>
         <div>
-          <h2 className="text-base font-black text-foreground">{title}</h2>
+          <h2 className="text-base font-semibold text-foreground">{title}</h2>
           <p className="mt-1 text-sm font-medium leading-6 text-muted-foreground">{description}</p>
         </div>
       </div>
@@ -100,9 +100,9 @@ function ToggleRow({
   onChange:    (enabled: boolean) => void
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-white p-4">
+    <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-card p-4">
       <div>
-        <p className="text-sm font-black text-foreground">{label}</p>
+        <p className="text-sm font-semibold text-foreground">{label}</p>
         <p className="mt-1 text-xs font-semibold leading-5 text-muted-foreground">{description}</p>
       </div>
       <button
@@ -116,7 +116,7 @@ function ToggleRow({
         aria-pressed={enabled}
       >
         <span
-          className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-transform ${
+          className={`absolute top-1 h-5 w-5 rounded-full bg-card transition-transform ${
             enabled ? 'translate-x-5' : 'translate-x-1'
           }`}
         />
@@ -152,10 +152,10 @@ function RiskSettingsCard() {
       description="Définissez le risque maximum par trade utilisé dans les alertes et les lectures de discipline."
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="rounded-lg border border-border bg-white p-4">
+        <div className="rounded-lg border border-border bg-card p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-black text-foreground">Risque par trade</p>
+              <p className="text-sm font-semibold text-foreground">Risque par trade</p>
               <p className="mt-1 text-xs font-semibold text-muted-foreground">Valeur acceptée entre 0,1 % et 10 %.</p>
             </div>
             <div className="flex items-center gap-2">
@@ -167,9 +167,9 @@ function RiskSettingsCard() {
                 value={riskPerTrade}
                 disabled={isLoading}
                 onChange={(event) => setRiskPerTrade(event.target.value)}
-                className="w-24 rounded-lg border border-border bg-background px-3 py-2 text-right font-mono text-sm font-black text-foreground outline-none transition-colors focus:border-[hsl(var(--primary)/0.6)]"
+                className="w-24 rounded-lg border border-border bg-background px-3 py-2 text-right tabular-nums text-sm font-semibold text-foreground outline-none transition-colors focus:border-[hsl(var(--primary)/0.6)]"
               />
-              <span className="text-sm font-black text-muted-foreground">%</span>
+              <span className="text-sm font-semibold text-muted-foreground">%</span>
             </div>
           </div>
 
@@ -183,7 +183,7 @@ function RiskSettingsCard() {
             onChange={(event) => setRiskPerTrade(event.target.value)}
             className="mt-5 h-1.5 w-full cursor-pointer rounded-full accent-[hsl(var(--primary))]"
           />
-          <div className="mt-2 flex justify-between text-[10px] font-bold text-muted-foreground/60">
+          <div className="mt-2 flex justify-between text-xs font-bold text-muted-foreground/60">
             <span>0,1 %</span>
             <span>10 %</span>
           </div>
@@ -196,7 +196,7 @@ function RiskSettingsCard() {
         <button
           type="submit"
           disabled={isLoading || updateRisk.isPending || riskInvalid}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-5 py-3 text-sm font-black text-white transition-colors hover:bg-[hsl(244_42%_44%)] disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[hsl(243_90%_58%)] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {updateRisk.isPending ? 'Enregistrement...' : 'Enregistrer le risque'}
         </button>
@@ -227,11 +227,11 @@ function AppearanceSettingsCard() {
           className={`rounded-lg border p-4 text-left transition-colors ${
             isDark
               ? 'border-[hsl(var(--primary)/0.45)] bg-[hsl(var(--primary)/0.1)]'
-              : 'border-border bg-white hover:border-border'
+              : 'border-border bg-card hover:border-border'
           }`}
         >
           <Moon className="h-5 w-5 text-[hsl(var(--primary))]" />
-          <p className="mt-3 text-sm font-black text-foreground">Sombre</p>
+          <p className="mt-3 text-sm font-semibold text-foreground">Sombre</p>
           <p className="mt-1 text-xs font-semibold text-muted-foreground">Lecture dense, adaptée au suivi quotidien.</p>
         </button>
         <button
@@ -240,11 +240,11 @@ function AppearanceSettingsCard() {
           className={`rounded-lg border p-4 text-left transition-colors ${
             !isDark
               ? 'border-[hsl(var(--primary)/0.45)] bg-[hsl(var(--primary)/0.1)]'
-              : 'border-border bg-white hover:border-border'
+              : 'border-border bg-card hover:border-border'
           }`}
         >
-          <Sun className="h-5 w-5 text-amber-600" />
-          <p className="mt-3 text-sm font-black text-foreground">Clair</p>
+          <Sun className="h-5 w-5 text-amber-500" />
+          <p className="mt-3 text-sm font-semibold text-foreground">Clair</p>
           <p className="mt-1 text-xs font-semibold text-muted-foreground">Pratique pour rapports, captures et revues.</p>
         </button>
       </div>
@@ -284,16 +284,16 @@ function DashboardSettingsCard() {
       description="Réglez le comportement d'ouverture du tableau de bord sur cet appareil."
     >
       <div className="space-y-4">
-        <div className="rounded-lg border border-border bg-white p-4">
+        <div className="rounded-lg border border-border bg-card p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-black text-foreground">Période par défaut</p>
+              <p className="text-sm font-semibold text-foreground">Période par défaut</p>
               <p className="mt-1 text-xs font-semibold text-muted-foreground">Le dashboard s'ouvrira sur {selectedPeriodLabel}.</p>
             </div>
             <select
               value={defaultPeriod}
               onChange={(event) => setDefaultPeriod(event.target.value as DashboardPeriod)}
-              className="rounded-lg border border-border bg-background px-3 py-2 text-sm font-black text-foreground outline-none transition-colors focus:border-[hsl(var(--primary)/0.6)]"
+              className="rounded-lg border border-border bg-background px-3 py-2 text-sm font-semibold text-foreground outline-none transition-colors focus:border-[hsl(var(--primary)/0.6)]"
             >
               {DASHBOARD_PERIODS.map(period => (
                 <option key={period} value={period}>{DASHBOARD_PERIOD_LABELS[period]}</option>
@@ -314,7 +314,7 @@ function DashboardSettingsCard() {
         <button
           type="button"
           onClick={savePreferences}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-5 py-3 text-sm font-black text-white transition-colors hover:bg-[hsl(244_42%_44%)]"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[hsl(243_90%_58%)]"
         >
           Enregistrer l'affichage
         </button>
@@ -328,8 +328,8 @@ export function SettingsPage() {
     <div className="space-y-5 px-4 py-5 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-4 border-b border-border pb-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Compte</p>
-          <h1 className="mt-1 text-xl font-black text-foreground">Paramètres produit</h1>
+          <p className="text-xs text-muted-foreground">Compte</p>
+          <h1 className="mt-1 text-xl font-semibold text-foreground">Paramètres produit</h1>
           <p className="mt-1 max-w-2xl text-sm font-medium leading-6 text-muted-foreground">
             Configurez l'expérience MERKURE sans dupliquer la page Profil, qui reste dédiée à votre identité et à la sécurité.
           </p>
@@ -337,7 +337,7 @@ export function SettingsPage() {
 
         <Link
           href="/app/profile"
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-black text-foreground/80 transition-colors hover:border-border hover:text-foreground"
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground/80 transition-colors hover:border-border hover:text-foreground"
         >
           <User className="h-4 w-4" />
           Ouvrir le profil

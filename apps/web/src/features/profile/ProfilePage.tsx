@@ -109,7 +109,7 @@ async function createAvatarDataUrl(file: File) {
 
 function SuccessBanner({ children }: { children: string }) {
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-600">
+    <div className="flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm font-semibold text-green-500">
       <CheckCircle2 className="h-4 w-4 shrink-0" />
       {children}
     </div>
@@ -118,7 +118,7 @@ function SuccessBanner({ children }: { children: string }) {
 
 function ErrorBanner({ children }: { children: string }) {
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-500">
+    <div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-500">
       <AlertCircle className="h-4 w-4 shrink-0" />
       {children}
     </div>
@@ -136,7 +136,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.12em] text-muted-foreground">
+      <span className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
         <Icon className="h-3.5 w-3.5" />
         {label}
       </span>
@@ -146,7 +146,7 @@ function Field({
 }
 
 function inputClass() {
-  return 'w-full rounded-lg border border-[hsl(var(--border))] bg-white px-4 py-3 text-sm font-semibold text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-[hsl(var(--primary)/0.6)] focus:ring-1 focus:ring-[hsl(var(--primary)/0.2)]'
+  return 'w-full rounded-lg border border-[hsl(var(--border))] bg-card px-4 py-3 text-sm font-semibold text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-[hsl(var(--primary)/0.6)] focus:ring-1 focus:ring-[hsl(var(--primary)/0.2)]'
 }
 
 function ProfileSkeleton() {
@@ -205,7 +205,7 @@ function PasswordCard() {
           <Lock className="h-5 w-5" />
         </div>
         <div>
-          <h2 className="text-base font-black text-foreground">Sécurité</h2>
+          <h2 className="text-base font-semibold text-foreground">Sécurité</h2>
           <p className="mt-1 text-sm font-medium text-muted-foreground">Mettez à jour votre mot de passe local.</p>
         </div>
       </div>
@@ -251,7 +251,7 @@ function PasswordCard() {
           <button
             type="submit"
             disabled={mutation.isPending}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-5 py-3 text-sm font-black text-white transition-colors hover:bg-[hsl(244_42%_44%)] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[hsl(243_90%_58%)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {mutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
             Mettre à jour
@@ -364,8 +364,8 @@ export function ProfilePage() {
         <div className="relative border-b border-[hsl(var(--border))] px-6 py-6">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_8%_0%,hsl(var(--primary)/0.06),transparent_32%),radial-gradient(circle_at_78%_5%,hsl(var(--primary)/0.04),transparent_34%)]" />
           <div className="relative">
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[hsl(var(--primary))]">Profil utilisateur</p>
-          <h1 className="mt-2 text-2xl font-black text-foreground">Gérez votre identité MERKURE</h1>
+          <p className="text-xs text-[hsl(var(--primary))]">Profil utilisateur</p>
+          <h1 className="mt-2 text-2xl font-semibold text-foreground">Gérez votre identité MERKURE</h1>
           <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-muted-foreground">
             Votre photo et vos informations apparaissent dans l'espace connecté. Gardez un profil clair pour identifier rapidement votre compte.
           </p>
@@ -376,7 +376,7 @@ export function ProfilePage() {
           <aside className="border-b border-[hsl(var(--border))] p-6 xl:border-b-0 xl:border-r">
             <div className="flex flex-col items-center text-center">
               <div
-                className="relative flex h-32 w-32 items-center justify-center rounded-full border border-border bg-[hsl(var(--accent))] bg-cover bg-center text-3xl font-black text-foreground shadow-sm"
+                className="relative flex h-32 w-32 items-center justify-center rounded-full border border-border bg-[hsl(var(--accent))] bg-cover bg-center text-3xl font-semibold text-foreground shadow-sm"
                 style={avatarStyle}
                 aria-label={`Photo de profil de ${displayName}`}
               >
@@ -384,7 +384,7 @@ export function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="absolute -bottom-1 -right-1 flex h-10 w-10 items-center justify-center rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--primary))] text-white shadow-sm transition-colors hover:bg-[hsl(244_42%_44%)]"
+                  className="absolute -bottom-1 -right-1 flex h-10 w-10 items-center justify-center rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--primary))] text-white shadow-sm transition-colors hover:bg-[hsl(243_90%_58%)]"
                   aria-label="Changer la photo de profil"
                 >
                   {avatarMutation.isPending && avatarPreview ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
@@ -399,7 +399,7 @@ export function ProfilePage() {
                 onChange={onAvatarChange}
               />
 
-              <h2 className="mt-5 text-xl font-black text-foreground">{displayName}</h2>
+              <h2 className="mt-5 text-xl font-semibold text-foreground">{displayName}</h2>
               <p className="mt-1 text-sm font-semibold text-muted-foreground">{profile?.email ?? '—'}</p>
 
               <div className="mt-6 grid w-full gap-3">
@@ -407,7 +407,7 @@ export function ProfilePage() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={avatarMutation.isPending}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-4 py-3 text-sm font-black text-foreground/80 transition-colors hover:bg-[hsl(var(--accent))] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-4 py-3 text-sm font-semibold text-foreground/80 transition-colors hover:bg-[hsl(var(--accent))] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {avatarMutation.isPending && avatarPreview ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                   Importer une photo
@@ -417,7 +417,7 @@ export function ProfilePage() {
                     type="button"
                     onClick={removeAvatar}
                     disabled={avatarMutation.isPending}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 px-4 py-3 text-sm font-black text-red-500 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-500/30 px-4 py-3 text-sm font-semibold text-red-500 transition-colors hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {avatarMutation.isPending && !avatarPreview ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                     Supprimer la photo
@@ -433,13 +433,13 @@ export function ProfilePage() {
             </div>
 
             <div className="mt-8 grid gap-3 text-left">
-              <div className="rounded-lg border border-[hsl(var(--border))] bg-white p-4">
-                <p className="text-xs font-black uppercase tracking-[0.14em] text-muted-foreground/60">Plan actif</p>
-                <p className="mt-2 text-sm font-black text-foreground">{planLabel(profile?.subscription?.plan)}</p>
+              <div className="rounded-lg border border-[hsl(var(--border))] bg-card p-4">
+                <p className="text-xs font-medium text-muted-foreground/60">Plan actif</p>
+                <p className="mt-2 text-sm font-semibold text-foreground">{planLabel(profile?.subscription?.plan)}</p>
               </div>
-              <div className="rounded-lg border border-[hsl(var(--border))] bg-white p-4">
-                <p className="text-xs font-black uppercase tracking-[0.14em] text-muted-foreground/60">Inscription</p>
-                <p className="mt-2 text-sm font-black text-foreground">{formatDate(profile?.createdAt)}</p>
+              <div className="rounded-lg border border-[hsl(var(--border))] bg-card p-4">
+                <p className="text-xs font-medium text-muted-foreground/60">Inscription</p>
+                <p className="mt-2 text-sm font-semibold text-foreground">{formatDate(profile?.createdAt)}</p>
               </div>
             </div>
           </aside>
@@ -493,8 +493,8 @@ export function ProfilePage() {
                 </select>
               </Field>
 
-              <div className="rounded-lg border border-[hsl(var(--border))] bg-white p-4">
-                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.12em] text-muted-foreground">
+              <div className="rounded-lg border border-[hsl(var(--border))] bg-card p-4">
+                <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                   <CalendarDays className="h-3.5 w-3.5" />
                   Préférences
                 </div>
@@ -511,7 +511,7 @@ export function ProfilePage() {
               <button
                 type="submit"
                 disabled={profileMutation.isPending}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-5 py-3 text-sm font-black text-white transition-colors hover:bg-[hsl(244_42%_44%)] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[hsl(243_90%_58%)] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {profileMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 Enregistrer le profil

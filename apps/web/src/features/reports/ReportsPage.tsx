@@ -29,8 +29,8 @@ export function ReportsPage() {
   return (
     <div className="space-y-5 px-4 py-5 sm:px-6 lg:px-8">
       <div className="border-b border-border pb-4">
-        <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Analyse</p>
-        <h1 className="mt-1 text-xl font-black text-foreground">Rapports</h1>
+        <p className="text-xs text-muted-foreground">Analyse</p>
+        <h1 className="mt-1 text-xl font-semibold text-foreground">Rapports</h1>
         <p className="mt-1 text-sm font-medium text-muted-foreground">Téléchargez votre rapport hebdomadaire au format PDF.</p>
       </div>
 
@@ -47,19 +47,19 @@ export function ReportsPage() {
           </div>
 
           {error && (
-            <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-xs text-red-500">{error}</p>
+            <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-xs text-red-500">{error}</p>
           )}
 
           <button
             onClick={handleDownload}
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-6 py-3 text-sm font-black text-white shadow-sm transition-colors hover:bg-[hsl(244_42%_44%)] disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-[hsl(var(--primary))] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[hsl(243_90%_58%)] disabled:opacity-50"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
             {loading ? 'Génération…' : 'Télécharger le rapport PDF'}
           </button>
 
-          <p className="text-[11px] text-muted-foreground/60">Plan Pro requis · Rapport généré à la demande</p>
+          <p className="text-xs text-muted-foreground/60">Plan Pro requis · Rapport généré à la demande</p>
         </div>
       </div>
     </div>

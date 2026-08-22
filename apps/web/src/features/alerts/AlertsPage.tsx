@@ -7,8 +7,8 @@ import type { Alert } from '@/lib/api-client'
 
 function severityConfig(severity: Alert['severity']) {
   switch (severity) {
-    case 'CRITICAL': return { icon: ShieldAlert, color: 'text-red-500', bg: 'bg-red-50', border: 'border-red-200' }
-    case 'WARNING':  return { icon: AlertTriangle, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' }
+    case 'CRITICAL': return { icon: ShieldAlert, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/30' }
+    case 'WARNING':  return { icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-500/10', border: 'border-amber-500/30' }
     default:         return { icon: Info, color: 'text-[hsl(var(--primary))]', bg: 'bg-[hsl(var(--primary)/0.08)]', border: 'border-[hsl(var(--primary)/0.2)]' }
   }
 }
@@ -38,7 +38,7 @@ function AlertCard({ alert }: { alert: Alert }) {
       <div className="min-w-0 flex-1 pr-6">
         <p className={`text-sm font-bold ${alert.isRead ? 'text-muted-foreground' : 'text-foreground'}`}>{alert.title}</p>
         {alert.body && <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{alert.body}</p>}
-        <p className="mt-2 text-[11px] text-muted-foreground/60">
+        <p className="mt-2 text-xs text-muted-foreground/60">
           {new Date(alert.triggeredAt).toLocaleDateString('fr-FR', {
             day: 'numeric', month: 'long', year: 'numeric',
             hour: '2-digit', minute: '2-digit',
@@ -79,12 +79,12 @@ export function AlertsPage() {
     <div className="space-y-5 px-4 py-5 sm:px-6 lg:px-8">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md border border-amber-200 bg-amber-50">
-            <Bell className="h-5 w-5 text-amber-600" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-md border border-amber-500/30 bg-amber-500/10">
+            <Bell className="h-5 w-5 text-amber-500" />
           </div>
           <div>
-            <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Compte</p>
-            <h1 className="mt-1 text-xl font-black text-foreground">Alertes</h1>
+            <p className="text-xs text-muted-foreground">Compte</p>
+            <h1 className="mt-1 text-xl font-semibold text-foreground">Alertes</h1>
             <p className="mt-1 text-sm font-medium text-muted-foreground">{total} alerte{total !== 1 ? 's' : ''} au total</p>
           </div>
           {unreadCount > 0 && (
@@ -95,7 +95,7 @@ export function AlertsPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="inline-flex overflow-hidden rounded-md border border-border bg-white p-1">
+          <div className="inline-flex overflow-hidden rounded-md border border-border bg-card p-1">
             <button
               onClick={() => setUnreadOnly(false)}
               className={`rounded-lg px-4 py-2 text-xs font-semibold transition-colors ${
@@ -118,7 +118,7 @@ export function AlertsPage() {
             <button
               onClick={() => markAll.mutate()}
               disabled={markAll.isPending}
-              className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-xs font-black text-muted-foreground transition-colors hover:bg-[hsl(var(--accent))] hover:text-foreground/80 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-[hsl(var(--accent))] hover:text-foreground/80 disabled:opacity-50"
             >
               <CheckCheck className="h-3.5 w-3.5" />
               Tout marquer comme lu
@@ -130,7 +130,7 @@ export function AlertsPage() {
       {isLoading ? (
         <Skeleton />
       ) : alerts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-white py-20 text-center">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-card py-20 text-center">
           <BellOff className="mb-4 h-10 w-10 text-muted-foreground/60" />
           <p className="text-sm font-semibold text-muted-foreground">
             {unreadOnly ? 'Aucune alerte non lue' : 'Aucune alerte'}
