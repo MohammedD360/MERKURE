@@ -35,6 +35,7 @@ import { usersRoutes } from './modules/users/users.routes.js'
 import { portfolioRoutes } from './modules/portfolio/portfolio.routes.js'
 import { statsRoutes } from './modules/stats/stats.routes.js'
 import { journalRoutes } from './modules/journal/journal.routes.js'
+import { tradingPlanRoutes } from './modules/trading-plan/trading-plan.routes.js'
 import { propFirmRoutes } from './modules/prop-firm/prop-firm.routes.js'
 import { botsRoutes } from './modules/bots/bots.routes.js'
 
@@ -202,6 +203,7 @@ export function buildApp(): FastifyInstance {
   void app.register(portfolioRoutes,    { prefix: '/api/v1/portfolio' })
   void app.register(statsRoutes,        { prefix: '/api/v1/stats' })
   void app.register(journalRoutes,      { prefix: '/api/v1/journal' })
+  void app.register(tradingPlanRoutes,  { prefix: '/api/v1/trading-plan' })
   void app.register(propFirmRoutes,     { prefix: '/api/v1/prop-firm' })
   void app.register(botsRoutes,         { prefix: '/api/v1/bots' })
 
