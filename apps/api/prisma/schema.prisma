@@ -65,6 +65,7 @@ model User {
   tradingPlan         TradingPlan?
   auditLogs           AuditLog[]
   tradingBots         TradingBot[]
+  strategyAnalyses    StrategyAnalysis[]
 
   @@index([orgId])
   @@index([clerkId])
@@ -124,6 +125,11 @@ model BrokerAccount {
   accountId      String // ID externe chez le broker
   label          String
   credentialsEnc Bytes? // AES-256-GCM via pgcrypto
+  // Identifiant du compte chez le fournisseur de données (ex. MetaAPI), qui
+  // facture à l'usage. Le conserver évite de rechercher le compte à chaque
+  // synchro, et surtout permet de le supprimer chez le fournisseur quand le
+  // client se déconnecte — sinon il reste provisionné et facturé indéfiniment.
+  providerAccountId String?
   isActive       Boolean     @default(true)
   lastSyncAt     DateTime?
   syncStatus     SyncStatus  @default(PENDING)
@@ -138,6 +144,7 @@ model BrokerAccount {
 
   @@unique([userId, brokerType, accountId])
   @@index([userId])
+  @@index([providerAccountId]) // réconciliation : détecter les orphelins côté fournisseur
   @@map("broker_accounts")
 }
 
@@ -278,6 +285,34 @@ model AiJournalEntry {
 
   @@index([userId])
   @@map("ai_journal_entries")
+}
+
+model StrategyAnalysis {
+  id           String   @id @default(uuid())
+  userId       String
+  instrument   String
+  timeframe    String
+  direction    String
+  style        String
+  entryPrice   Decimal? @db.Decimal(18, 6)
+  stopLoss     Decimal? @db.Decimal(18, 6)
+  takeProfit   Decimal? @db.Decimal(18, 6)
+  thesis       String?
+  score        Int // 0-100
+  headline     String
+  aiReading    String
+  controls     Json // [{ title, description, status: 'valid'|'warning'|'error' }]
+  criteria     Json // [{ label, value: 0-100 }]
+  advice       Json // [{ title, text, impact }]
+  decision     Json // { recommendation, action, conditions }
+  inputTokens  Int?
+  outputTokens Int?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("strategy_analyses")
 }
 
 // ─────────────────────────────────────────────
