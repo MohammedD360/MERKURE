@@ -68,7 +68,7 @@ export function TradesPage() {
       {/* Titre + compteur */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-base font-bold text-foreground">Transactions</h1>
+          <h1 className="text-2xl font-semibold leading-none tracking-tight text-foreground">Transactions</h1>
           <p className="text-xs text-[hsl(var(--foreground-soft))] mt-0.5">
             {isLoading ? '…' : `${data?.total ?? 0} trade${(data?.total ?? 0) > 1 ? 's' : ''}`}
           </p>
@@ -83,7 +83,7 @@ export function TradesPage() {
           </button>
           <button
             onClick={() => setAddOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[hsl(var(--primary))] hover:bg-[hsl(244_42%_44%)] text-white text-xs font-medium rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[hsl(var(--primary))] hover:bg-[hsl(243_90%_58%)] text-white text-xs font-medium rounded-lg transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             Ajouter
@@ -106,7 +106,7 @@ export function TradesPage() {
             <thead>
               <tr className="border-b border-[hsl(var(--border))]">
                 {['Instrument', 'Direction', 'Ouverture', 'Fermeture', 'Lots', 'P&L', 'Stratégie'].map(h => (
-                  <th key={h} className="text-left text-[11px] font-semibold text-[hsl(var(--foreground-soft))] px-4 py-3 uppercase tracking-wider whitespace-nowrap">
+                  <th key={h} className="text-left text-xs font-semibold text-[hsl(var(--foreground-soft))] px-4 py-3 whitespace-nowrap">
                     {h}
                   </th>
                 ))}
@@ -143,12 +143,12 @@ export function TradesPage() {
                       {/* Instrument */}
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-md bg-[hsl(var(--accent))] group-hover:bg-[hsl(var(--accent))] flex items-center justify-center text-[10px] font-bold text-[hsl(var(--foreground-soft))] transition-colors flex-shrink-0">
+                          <div className="w-7 h-7 rounded-md bg-[hsl(var(--accent))] group-hover:bg-[hsl(var(--accent))] flex items-center justify-center text-xs font-bold text-[hsl(var(--foreground-soft))] transition-colors flex-shrink-0">
                             {trade.symbol.slice(0, 2)}
                           </div>
                           <span className="font-medium text-foreground whitespace-nowrap">{trade.symbol}</span>
                           {isOpen && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] border border-[hsl(var(--primary)/0.25)]">
+                            <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] border border-[hsl(var(--primary)/0.25)]">
                               Live
                             </span>
                           )}
@@ -157,14 +157,14 @@ export function TradesPage() {
 
                       {/* Direction */}
                       <td className="px-4 py-3">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${trade.direction === 'LONG' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'}`}>
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${trade.direction === 'LONG' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
                           {trade.direction === 'LONG' ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                           {trade.direction}
                         </span>
                       </td>
 
                       {/* Ouverture */}
-                      <td className="px-4 py-3 text-[hsl(var(--foreground-soft))] font-mono text-xs whitespace-nowrap">
+                      <td className="px-4 py-3 text-[hsl(var(--foreground-soft))] tabular-nums text-xs whitespace-nowrap">
                         {fmtDate(trade.openTime)}
                       </td>
 
@@ -178,25 +178,25 @@ export function TradesPage() {
                       </td>
 
                       {/* Lots */}
-                      <td className="px-4 py-3 text-[hsl(var(--foreground-soft))] font-mono text-xs">
+                      <td className="px-4 py-3 text-[hsl(var(--foreground-soft))] tabular-nums text-xs">
                         {Number(trade.lotSize).toFixed(2)}
                       </td>
 
                       {/* P&L */}
                       <td className="px-4 py-3">
                         {pnl != null ? (
-                          <div className={`font-mono font-semibold text-sm ${isPos ? 'text-emerald-600' : 'text-red-500'}`}>
+                          <div className={`tabular-nums font-semibold text-sm ${isPos ? 'text-green-500' : 'text-red-500'}`}>
                             {isPos ? '+' : ''}{pnl.toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}
                           </div>
                         ) : (
-                          <span className="text-[hsl(var(--foreground-soft))] font-mono text-xs">{fmtPrice(null)}</span>
+                          <span className="text-[hsl(var(--foreground-soft))] tabular-nums text-xs">{fmtPrice(null)}</span>
                         )}
                       </td>
 
                       {/* Stratégie */}
                       <td className="px-4 py-3">
                         {trade.strategyTag ? (
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-[hsl(var(--accent))] text-[hsl(var(--foreground-soft))] border border-[hsl(var(--border))]">
+                          <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-[hsl(var(--accent))] text-[hsl(var(--foreground-soft))] border border-[hsl(var(--border))]">
                             {trade.strategyTag}
                           </span>
                         ) : (

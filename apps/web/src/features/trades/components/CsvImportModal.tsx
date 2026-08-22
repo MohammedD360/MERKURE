@@ -109,16 +109,16 @@ export function CsvImportModal({ open, onClose, preselectedAccountId }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={handleClose} />
 
-      <div className="relative bg-white border border-[hsl(var(--border))] rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col">
+      <div className="relative bg-card border border-[hsl(var(--border))] rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-[hsl(var(--border))]">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
-              <Upload className="w-4 h-4 text-emerald-600" />
+            <div className="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center">
+              <Upload className="w-4 h-4 text-green-500" />
             </div>
             <div>
               <h2 className="text-sm font-bold text-foreground">Importer un CSV</h2>
-              <p className="text-[11px] text-[hsl(var(--foreground-soft))]">Tradovate, MT4/MT5, cTrader, format libre</p>
+              <p className="text-xs text-[hsl(var(--foreground-soft))]">Tradovate, MT4/MT5, cTrader, format libre</p>
             </div>
           </div>
           <button onClick={handleClose} className="p-1.5 rounded-lg hover:bg-[hsl(var(--accent))] text-[hsl(var(--foreground-soft))] hover:text-foreground transition-colors">
@@ -138,9 +138,9 @@ export function CsvImportModal({ open, onClose, preselectedAccountId }: Props) {
                 onClick={() => fileInputRef.current?.click()}
                 className={`relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
                   dragging
-                    ? 'border-emerald-400 bg-emerald-50'
+                    ? 'border-emerald-400 bg-green-500/10'
                     : file
-                    ? 'border-emerald-300 bg-emerald-50/50'
+                    ? 'border-emerald-300 bg-green-500/10/50'
                     : 'border-[hsl(var(--border))] hover:border-[hsl(var(--primary)/0.4)] hover:bg-[hsl(var(--accent))]'
                 }`}
               >
@@ -158,7 +158,7 @@ export function CsvImportModal({ open, onClose, preselectedAccountId }: Props) {
                     <p className="text-xs text-[hsl(var(--foreground-soft))]">{(file.size / 1024).toFixed(1)} KB</p>
                     <button
                       onClick={e => { e.stopPropagation(); reset() }}
-                      className="text-[11px] text-red-400 hover:text-red-600 underline"
+                      className="text-xs text-red-400 hover:text-red-500 underline"
                     >
                       Changer de fichier
                     </button>
@@ -174,13 +174,13 @@ export function CsvImportModal({ open, onClose, preselectedAccountId }: Props) {
 
               {/* Compte broker */}
               <div>
-                <label className="text-[11px] font-semibold text-[hsl(var(--foreground-soft))] uppercase tracking-wider block mb-1.5">
+                <label className="text-xs font-semibold text-[hsl(var(--foreground-soft))] block mb-1.5">
                   Rattacher à un compte (optionnel)
                 </label>
                 <select
                   value={accountId}
                   onChange={e => setAccountId(e.target.value)}
-                  className="w-full bg-white border border-[hsl(var(--border))] rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none focus:border-[hsl(var(--primary))]"
+                  className="w-full bg-card border border-[hsl(var(--border))] rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none focus:border-[hsl(var(--primary))]"
                 >
                   <option value="">Aucun compte sélectionné</option>
                   {accounts.map(a => (
@@ -202,11 +202,11 @@ export function CsvImportModal({ open, onClose, preselectedAccountId }: Props) {
 
                 {showFormat && (
                   <div className="px-4 pb-4 space-y-3 border-t border-[hsl(var(--border))]">
-                    <p className="text-[11px] text-[hsl(var(--foreground-soft))] pt-3">
+                    <p className="text-xs text-[hsl(var(--foreground-soft))] pt-3">
                       Le parser accepte n'importe quel ordre de colonnes et détecte automatiquement le délimiteur (virgule, point-virgule, tabulation).
                     </p>
                     <div className="overflow-x-auto">
-                      <table className="w-full text-[10px]">
+                      <table className="w-full text-xs">
                         <thead>
                           <tr className="border-b border-[hsl(var(--border))]">
                             <th className="text-left py-1.5 pr-3 font-semibold text-[hsl(var(--foreground-soft))] uppercase tracking-wide">Colonne</th>
@@ -216,14 +216,14 @@ export function CsvImportModal({ open, onClose, preselectedAccountId }: Props) {
                         <tbody className="divide-y divide-[hsl(var(--border))]/50">
                           {TRADOVATE_COLUMNS.map(({ col, ex }) => (
                             <tr key={col}>
-                              <td className="py-1.5 pr-3 font-mono font-semibold text-foreground">{col}</td>
+                              <td className="py-1.5 pr-3 tabular-nums font-semibold text-foreground">{col}</td>
                               <td className="py-1.5 text-[hsl(var(--foreground-soft))]">{ex}</td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     </div>
-                    <p className="text-[10px] text-[hsl(var(--foreground-soft))]/70">
+                    <p className="text-xs text-[hsl(var(--foreground-soft))]/70">
                       Colonnes obligatoires : <span className="font-semibold text-foreground">Symbol, Direction, Open Time, Open Price</span>. Toutes les autres sont optionnelles.
                     </p>
                   </div>
@@ -231,9 +231,9 @@ export function CsvImportModal({ open, onClose, preselectedAccountId }: Props) {
               </div>
 
               {error && (
-                <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2.5">
+                <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2.5">
                   <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-red-600">{error}</p>
+                  <p className="text-xs text-red-500">{error}</p>
                 </div>
               )}
             </>
@@ -242,11 +242,11 @@ export function CsvImportModal({ open, onClose, preselectedAccountId }: Props) {
           {/* Résultat */}
           {result && (
             <div className="space-y-3">
-              <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+              <div className="flex items-center gap-3 bg-green-500/10 border border-green-500/30 rounded-xl p-4">
                 <CheckCircle2 className="w-8 h-8 text-emerald-500 flex-shrink-0" />
                 <div>
-                  <p className="text-sm font-bold text-emerald-700">Import terminé</p>
-                  <p className="text-xs text-emerald-600 mt-0.5">
+                  <p className="text-sm font-bold text-green-400">Import terminé</p>
+                  <p className="text-xs text-green-500 mt-0.5">
                     <span className="font-semibold">{result.imported} trade{result.imported > 1 ? 's' : ''}</span> importé{result.imported > 1 ? 's' : ''}
                     {result.skipped > 0 && ` · ${result.skipped} ignoré${result.skipped > 1 ? 's' : ''}`}
                   </p>
@@ -254,13 +254,13 @@ export function CsvImportModal({ open, onClose, preselectedAccountId }: Props) {
               </div>
 
               {result.errors.length > 0 && (
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-1">
-                  <p className="text-[11px] font-semibold text-amber-700">Avertissements ({result.errors.length})</p>
+                <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 space-y-1">
+                  <p className="text-xs font-semibold text-amber-400">Avertissements ({result.errors.length})</p>
                   {result.errors.slice(0, 5).map((e, i) => (
-                    <p key={i} className="text-[11px] text-amber-600">{e}</p>
+                    <p key={i} className="text-xs text-amber-500">{e}</p>
                   ))}
                   {result.errors.length > 5 && (
-                    <p className="text-[11px] text-amber-500">…et {result.errors.length - 5} autres</p>
+                    <p className="text-xs text-amber-500">…et {result.errors.length - 5} autres</p>
                   )}
                 </div>
               )}
@@ -292,7 +292,7 @@ export function CsvImportModal({ open, onClose, preselectedAccountId }: Props) {
         )}
         {result && (
           <div className="px-5 pb-5 border-t border-[hsl(var(--border))] pt-4">
-            <button onClick={handleClose} className="w-full py-2 rounded-lg text-xs font-medium bg-[hsl(var(--primary))] hover:bg-[hsl(244_42%_44%)] text-white transition-colors">
+            <button onClick={handleClose} className="w-full py-2 rounded-lg text-xs font-medium bg-[hsl(var(--primary))] hover:bg-[hsl(243_90%_58%)] text-white transition-colors">
               Voir mes trades
             </button>
           </div>

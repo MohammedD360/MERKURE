@@ -13,7 +13,7 @@ interface Props {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <label className="text-[11px] font-semibold text-[hsl(var(--foreground-soft))] uppercase tracking-wider">
+      <label className="text-xs font-semibold text-[hsl(var(--foreground-soft))]">
         {label}
       </label>
       {children}
@@ -21,7 +21,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   )
 }
 
-const inputCls = 'w-full bg-white border border-[hsl(var(--border))] rounded-lg px-3 py-2 text-xs text-foreground placeholder-[hsl(var(--foreground-soft))]/50 focus:outline-none focus:border-[hsl(var(--primary))]'
+const inputCls = 'w-full bg-card border border-[hsl(var(--border))] rounded-lg px-3 py-2 text-xs text-foreground placeholder-[hsl(var(--foreground-soft))]/50 focus:outline-none focus:border-[hsl(var(--primary))]'
 
 function toIso(local: string) {
   if (!local) return ''
@@ -96,7 +96,7 @@ export function AddTradeModal({ open, onClose }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative bg-white border border-[hsl(var(--border))] rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col">
+      <div className="relative bg-card border border-[hsl(var(--border))] rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-[hsl(var(--border))]">
           <div className="flex items-center gap-2">
@@ -160,7 +160,7 @@ export function AddTradeModal({ open, onClose }: Props) {
                     className={`flex-1 py-2 rounded-lg text-xs font-medium border transition-colors ${
                       form.status === s
                         ? 'bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))]'
-                        : 'bg-white text-[hsl(var(--foreground-soft))] border-[hsl(var(--border))] hover:border-[hsl(var(--primary))]'
+                        : 'bg-card text-[hsl(var(--foreground-soft))] border-[hsl(var(--border))] hover:border-[hsl(var(--primary))]'
                     }`}
                   >
                     {s === 'CLOSED' ? 'Clôturé' : 'En cours'}
@@ -280,7 +280,7 @@ export function AddTradeModal({ open, onClose }: Props) {
             </Field>
 
             {error && (
-              <p className="text-xs text-red-500 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              <p className="text-xs text-red-500 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">
                 {String(error)}
               </p>
             )}
@@ -298,7 +298,7 @@ export function AddTradeModal({ open, onClose }: Props) {
             <button
               type="submit"
               disabled={isPending}
-              className="px-4 py-2 rounded-lg text-xs font-medium bg-[hsl(var(--primary))] hover:bg-[hsl(244_42%_44%)] text-white transition-colors disabled:opacity-50"
+              className="px-4 py-2 rounded-lg text-xs font-medium bg-[hsl(var(--primary))] hover:bg-[hsl(243_90%_58%)] text-white transition-colors disabled:opacity-50"
             >
               {isPending ? 'Ajout…' : 'Ajouter le trade'}
             </button>
