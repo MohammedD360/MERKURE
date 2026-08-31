@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────
 # Stage 1 — deps : installation des dépendances de production
 # ─────────────────────────────────────────────
-FROM node:20-alpine AS deps
+FROM node:20-alpine@sha256:afdf98210b07b586eb71fa22ba2e432e058e4cd1304d31ed60888755b8c865fb AS deps
 
 # Installer pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
@@ -23,7 +23,7 @@ RUN pnpm install --frozen-lockfile --prod --filter @merkure/api...
 # ─────────────────────────────────────────────
 # Stage 2 — build : compilation TypeScript
 # ─────────────────────────────────────────────
-FROM node:20-alpine AS build
+FROM node:20-alpine@sha256:afdf98210b07b586eb71fa22ba2e432e058e4cd1304d31ed60888755b8c865fb AS build
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
@@ -55,7 +55,7 @@ RUN pnpm --filter @merkure/api build
 # ─────────────────────────────────────────────
 # Stage 3 — runtime : image de production minimale
 # ─────────────────────────────────────────────
-FROM node:20-alpine AS runtime
+FROM node:20-alpine@sha256:afdf98210b07b586eb71fa22ba2e432e058e4cd1304d31ed60888755b8c865fb AS runtime
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 

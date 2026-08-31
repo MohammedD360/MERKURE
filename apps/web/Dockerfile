@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────
 # Stage 1 — deps : installation des dépendances
 # ─────────────────────────────────────────────
-FROM node:20-alpine AS deps
+FROM node:20-alpine@sha256:afdf98210b07b586eb71fa22ba2e432e058e4cd1304d31ed60888755b8c865fb AS deps
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
@@ -22,7 +22,7 @@ RUN pnpm install --frozen-lockfile --filter @merkure/web...
 # ─────────────────────────────────────────────
 # Stage 2 — build : compilation Next.js
 # ─────────────────────────────────────────────
-FROM node:20-alpine AS build
+FROM node:20-alpine@sha256:afdf98210b07b586eb71fa22ba2e432e058e4cd1304d31ed60888755b8c865fb AS build
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
@@ -61,7 +61,7 @@ RUN pnpm --filter @merkure/web build
 # ─────────────────────────────────────────────
 # Stage 3 — runtime : image de production minimale
 # ─────────────────────────────────────────────
-FROM node:20-alpine AS runtime
+FROM node:20-alpine@sha256:afdf98210b07b586eb71fa22ba2e432e058e4cd1304d31ed60888755b8c865fb AS runtime
 
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
