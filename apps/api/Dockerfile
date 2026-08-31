@@ -1,29 +1,13 @@
 # ─────────────────────────────────────────────
-# Stage 1 — deps : installation des dépendances de production
-# ─────────────────────────────────────────────
-FROM node:20-alpine@sha256:afdf98210b07b586eb71fa22ba2e432e058e4cd1304d31ed60888755b8c865fb AS deps
-
-# Installer pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-WORKDIR /app
-
-# Copier les manifestes du workspace pnpm
-COPY pnpm-workspace.yaml ./
-COPY pnpm-lock.yaml ./
-COPY package.json ./
-
-# Copier les package.json de chaque package nécessaire
-COPY apps/api/package.json ./apps/api/
-COPY packages/shared-types/package.json ./packages/shared-types/
-
-# Installer uniquement les dépendances de production
-RUN pnpm install --frozen-lockfile --prod --filter @merkure/api...
-
-# ─────────────────────────────────────────────
-# Stage 2 — build : compilation TypeScript
+# Stage 1 — build : compilation TypeScript + assemblage prod
 # ─────────────────────────────────────────────
 FROM node:20-alpine@sha256:afdf98210b07b586eb71fa22ba2e432e058e4cd1304d31ed60888755b8c865fb AS build
+
+# Sans openssl installé, Prisma ne peut pas interroger la version réelle et devine
+# à tort "1.1.x" (visible dans le warning "Prisma failed to detect the libssl/
+# openssl version") — les deux moteurs sont bien générés (voir binaryTargets dans
+# schema.prisma) mais la sélection au runtime se trompait quand même de fichier.
+RUN apk add --no-cache openssl
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
@@ -35,8 +19,14 @@ COPY pnpm-lock.yaml ./
 COPY package.json ./
 COPY tsconfig.base.json ./
 
-# Copier les package.json de chaque package
+# Copier le package.json de CHAQUE membre du workspace (pas seulement @merkure/api) :
+# pnpm-workspace.yaml déclare apps/* et packages/* — avec --frozen-lockfile, pnpm
+# doit voir tout le graphe pour résoudre correctement les devDependencies (ex.
+# le binaire prisma, jamais importé en TS, seulement invoqué en CLI, qui finissait
+# mal lié quand seul un sous-ensemble du workspace était visible dans le contexte).
 COPY apps/api/package.json ./apps/api/
+COPY apps/web/package.json ./apps/web/
+COPY apps/mobile/package.json ./apps/mobile/
 COPY packages/shared-types/package.json ./packages/shared-types/
 
 # Installer toutes les dépendances (dev inclus pour la compilation)
@@ -53,11 +43,13 @@ RUN pnpm --filter @merkure/api db:generate
 RUN pnpm --filter @merkure/api build
 
 # ─────────────────────────────────────────────
-# Stage 3 — runtime : image de production minimale
+# Stage 2 — runtime : image de production minimale
 # ─────────────────────────────────────────────
 FROM node:20-alpine@sha256:afdf98210b07b586eb71fa22ba2e432e058e4cd1304d31ed60888755b8c865fb AS runtime
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Nécessaire pour que le client Prisma détecte correctement OpenSSL 3.x au
+# démarrage et charge le bon moteur (voir le commentaire équivalent au stage build).
+RUN apk add --no-cache openssl
 
 # Créer un utilisateur non-root pour la sécurité
 RUN addgroup --system --gid 1001 nodejs && \
@@ -65,20 +57,14 @@ RUN addgroup --system --gid 1001 nodejs && \
 
 WORKDIR /app
 
-# Copier les node_modules de production depuis le stage deps
-COPY --from=deps --chown=merkure:nodejs /app/node_modules ./node_modules
-COPY --from=deps --chown=merkure:nodejs /app/apps/api/node_modules ./apps/api/node_modules
-
-# Copier le code compilé
+# `pnpm deploy` a été essayé ici et abandonné : il reconstruit node_modules depuis
+# le lockfile et perd les fichiers que `prisma generate` écrit après coup dans le
+# store pnpm. On recopie donc directement l'arborescence du stage build telle
+# quelle (devDependencies incluses — image plus grosse, mais fiable).
+COPY --from=build --chown=merkure:nodejs /app/node_modules ./node_modules
+COPY --from=build --chown=merkure:nodejs /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=build --chown=merkure:nodejs /app/apps/api/dist ./apps/api/dist
-
-# Copier le schema Prisma et les migrations (nécessaires pour prisma migrate deploy)
 COPY --from=build --chown=merkure:nodejs /app/apps/api/prisma ./apps/api/prisma
-
-# Copier le client Prisma généré
-COPY --from=build --chown=merkure:nodejs /app/apps/api/node_modules/.prisma ./apps/api/node_modules/.prisma
-
-# Copier le package.json pour la résolution des modules
 COPY --from=build --chown=merkure:nodejs /app/apps/api/package.json ./apps/api/package.json
 COPY --from=build --chown=merkure:nodejs /app/package.json ./package.json
 

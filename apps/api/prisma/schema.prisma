@@ -2,7 +2,12 @@
 // Source de vérité du modèle de données
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // "native" pour le dev local (Windows/macOS) ; linux-musl-openssl-3.0.x pour le
+  // runtime Docker (node:20-alpine récent = musl + OpenSSL 3.x, pas 1.1.x — sans
+  // ça Prisma génère un moteur pour la mauvaise version d'OpenSSL et le binaire
+  // ne charge pas du tout en prod : "Error loading shared library libssl.so.1.1").
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
