@@ -14,7 +14,7 @@ export const botTradingQueue = new Queue('bot-trading-cycle', { connection })
 export type BrokerSyncJob = {
   accountId: string
   userId: string
-  brokerType: 'mt4' | 'mt5' | 'binance' | 'ib' | 'ctrader' | 'tradovate'
+  brokerType: 'mt4' | 'mt5'
   fullSync?: boolean
 }
 

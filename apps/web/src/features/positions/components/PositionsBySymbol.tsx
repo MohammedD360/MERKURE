@@ -127,7 +127,7 @@ function SymbolGroup({ symbol, positions, balance }: {
 export function PositionsBySymbol() {
   const { data: positions = [], isLoading } = useOpenPositions()
   const { data: summary }                   = usePortfolioSummary()
-  const balance = summary?.balance ?? 10_000
+  const balance = summary?.balance ?? 0
 
   // Group by symbol
   const groups = new Map<string, OpenPosition[]>()

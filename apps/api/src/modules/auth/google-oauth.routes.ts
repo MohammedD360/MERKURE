@@ -2,6 +2,12 @@ import type { FastifyInstance } from 'fastify'
 import crypto from 'node:crypto'
 import { prisma } from '../../infrastructure/database/client.js'
 import { env } from '../../config/env.js'
+import { cache } from '../../infrastructure/cache/redis.js'
+
+const EXCHANGE_TTL_SECONDS = 60
+function exchangeKey(code: string): string {
+  return `oauth:exchange:${code}`
+}
 
 const GOOGLE_AUTH_URL    = 'https://accounts.google.com/o/oauth2/v2/auth'
 const GOOGLE_TOKEN_URL   = 'https://oauth2.googleapis.com/token'
@@ -152,12 +158,43 @@ export async function googleOAuthRoutes(app: FastifyInstance) {
           { expiresIn: '7d' },
         )
 
+        // Le JWT ne transite jamais par l'URL (historique navigateur, logs serveur/
+        // proxy, Referer) : on redirige avec un code opaque à usage unique et durée
+        // de vie courte, que le front échange contre le vrai jeton via un POST.
+        const exchangeCode = crypto.randomBytes(32).toString('hex')
+        await cache.set(
+          exchangeKey(exchangeCode),
+          { token, user: { id: user.id, email: user.email, plan } },
+          EXCHANGE_TTL_SECONDS,
+        )
+
         return reply.redirect(
-          `${env.FRONTEND_URL}/auth/google/callback?token=${encodeURIComponent(token)}`,
+          `${env.FRONTEND_URL}/auth/google/callback?code=${exchangeCode}`,
         )
       } catch {
         return reply.redirect(`${env.FRONTEND_URL}/sign-in?error=google_failed`)
       }
+    },
+  )
+
+  // ─── Step 3: Front échange le code opaque contre le vrai JWT ─────────────────
+  app.post<{ Body: { code?: string } }>(
+    '/google/exchange',
+    { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } },
+    async (req, reply) => {
+      const { code } = req.body ?? {}
+      if (!code || typeof code !== 'string') {
+        return reply.code(400).send({ error: 'missing_code' })
+      }
+
+      const key = exchangeKey(code)
+      const payload = await cache.get<{ token: string; user: { id: string; email: string | null; plan: string } }>(key)
+      if (!payload) {
+        return reply.code(400).send({ error: 'code_invalid_or_expired' })
+      }
+      await cache.del(key) // usage unique
+
+      return payload
     },
   )
 }

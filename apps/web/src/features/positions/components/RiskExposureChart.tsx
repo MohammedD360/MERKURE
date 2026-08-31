@@ -14,7 +14,7 @@ export function RiskExposureChart() {
   const { data: summary,          isLoading: sLoading } = usePortfolioSummary()
 
   const loading = pLoading || sLoading
-  const balance = summary?.balance ?? 10_000
+  const balance = summary?.balance ?? 0
 
   // Aggregate lots by symbol
   const bySymbol = new Map<string, { lots: number; pnl: number }>()

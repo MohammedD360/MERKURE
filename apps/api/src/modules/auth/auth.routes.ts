@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { prisma } from '../../infrastructure/database/client.js'
 import { env } from '../../config/env.js'
 import { emailService } from '../../infrastructure/email/email.service.js'
-import { authenticate } from '../../middleware/auth.js'
+import { authenticate, revokeAllSessions } from '../../middleware/auth.js'
 
 const LoginSchema = z.object({
   email:    z.string().email(),
@@ -19,8 +19,31 @@ const RegisterSchema = z.object({
   lastName:  z.string().min(1).max(50).optional(),
 })
 
+// Hash bidon comparé même quand l'email n'existe pas, pour que /login prenne le
+// même temps dans les deux cas — sinon l'absence de bcrypt.compare() sur un email
+// inconnu rend la réponse mesurablement plus rapide, ce qui permet d'énumérer les
+// comptes existants par timing (là où /forgot-password s'en protège déjà).
+const DUMMY_PASSWORD_HASH = await bcrypt.hash('not-a-real-password', 12)
+
+/**
+ * Ces routes créent/authentifient des comptes via un mot de passe local — elles
+ * n'ont de sens qu'en AUTH_MODE=demo. En AUTH_MODE=clerk, le JWT qu'elles
+ * délivreraient ne passerait de toute façon jamais `authenticate()` (qui n'accepte
+ * que des jetons Clerk dans ce mode), mais les laisser ouvertes permettrait à
+ * n'importe qui de créer des lignes arbitraires dans `users`/`subscriptions` sans
+ * authentification, ou de faire de l'énumération d'emails via /register.
+ */
+function requireDemoAuth(reply: import('fastify').FastifyReply): boolean {
+  if (env.AUTH_MODE !== 'demo') {
+    reply.code(404).send({ error: 'not_found' })
+    return false
+  }
+  return true
+}
+
 export async function authRoutes(app: FastifyInstance) {
   app.post('/register', { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (req, reply) => {
+    if (!requireDemoAuth(reply)) return
     const parsed = RegisterSchema.safeParse(req.body)
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_body' })
 
@@ -30,7 +53,7 @@ export async function authRoutes(app: FastifyInstance) {
     const existing = await prisma.user.findFirst({ where: { email } })
     if (existing) return reply.code(409).send({ error: 'email_already_exists' })
 
-    const passwordHash = await bcrypt.hash(password, 10)
+    const passwordHash = await bcrypt.hash(password, 12)
 
     const user = await prisma.$transaction(async (tx) => {
       const created = await tx.user.create({
@@ -71,6 +94,7 @@ export async function authRoutes(app: FastifyInstance) {
     '/login',
     { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } },
     async (req, reply) => {
+      if (!requireDemoAuth(reply)) return
       const parsed = LoginSchema.safeParse(req.body)
       if (!parsed.success) return reply.code(400).send({ error: 'invalid_body' })
 
@@ -83,6 +107,7 @@ export async function authRoutes(app: FastifyInstance) {
       })
 
       if (!user?.passwordHash) {
+        await bcrypt.compare(password, DUMMY_PASSWORD_HASH) // égalise le temps de réponse
         return reply.code(401).send({ error: 'invalid_credentials' })
       }
 
@@ -106,10 +131,17 @@ export async function authRoutes(app: FastifyInstance) {
     },
   )
 
-  app.post('/logout', async () => ({ ok: true }))
+  // Révoque le JWT courant (et tout autre émis avant maintenant) — sans ça,
+  // "se déconnecter" ne faisait que supprimer le jeton côté client, qui restait
+  // valable jusqu'à 7 jours s'il avait fuité entretemps.
+  app.post('/logout', { preHandler: authenticate }, async (req) => {
+    await revokeAllSessions(req.user.id)
+    return { ok: true }
+  })
 
   // POST /api/v1/auth/forgot-password
   app.post<{ Body: { email: string } }>('/forgot-password', { config: { rateLimit: { max: 5, timeWindow: '5 minutes' } } }, async (req, reply) => {
+    if (!requireDemoAuth(reply)) return
     const { email } = req.body ?? {}
     if (!email || typeof email !== 'string') {
       return reply.code(400).send({ error: 'invalid_body' })
@@ -142,6 +174,7 @@ export async function authRoutes(app: FastifyInstance) {
 
   // POST /api/v1/auth/reset-password
   app.post<{ Body: { token: string; password: string } }>('/reset-password', { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (req, reply) => {
+    if (!requireDemoAuth(reply)) return
     const { token, password } = req.body ?? {}
     if (!token || !password || password.length < 8) {
       return reply.code(400).send({ error: 'invalid_body' })
@@ -158,7 +191,7 @@ export async function authRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: 'token_invalid_or_expired' })
     }
 
-    const passwordHash = await bcrypt.hash(password, 10)
+    const passwordHash = await bcrypt.hash(password, 12)
 
     await prisma.$transaction([
       prisma.user.update({
@@ -170,6 +203,10 @@ export async function authRoutes(app: FastifyInstance) {
         data: { usedAt: new Date() },
       }),
     ])
+
+    // Un reset de mot de passe est souvent déclenché après un vol de compte —
+    // toute session existante (potentiellement celle de l'attaquant) est tuée.
+    await revokeAllSessions(resetToken.userId)
 
     return { ok: true }
   })

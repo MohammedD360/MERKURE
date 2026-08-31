@@ -4,10 +4,7 @@ import { prisma } from '../../infrastructure/database/client.js'
 import { cache, CacheKeys } from '../../infrastructure/cache/redis.js'
 import { decrypt } from '../../infrastructure/crypto/encryption.js'
 import { accountsRepository } from '../accounts/accounts.repository.js'
-import { DemoAdapter } from '../brokers/adapters/demo-adapter.js'
 import { MetaApiAdapter } from '../brokers/adapters/meta-api-adapter.js'
-import { BinanceAdapter } from '../brokers/adapters/binance-adapter.js'
-import { TradovateAdapter } from '../brokers/adapters/tradovate-adapter.js'
 import type { BrokerAdapter } from '../brokers/adapters/broker-adapter.js'
 import { wsNotify } from '../../websocket/ws.handler.js'
 import { env } from '../../config/env.js'
@@ -50,12 +47,10 @@ function resolveAdapter(brokerType: BrokerSyncJob['brokerType']): BrokerAdapter 
     case 'mt4':
     case 'mt5':
       return new MetaApiAdapter()
-    case 'binance':
-      return new BinanceAdapter()
-    case 'tradovate':
-      return new TradovateAdapter()
     default:
-      return new DemoAdapter()
+      // Aucun autre broker n'a d'adapter en service : échouer proprement plutôt
+      // que de renvoyer des données fictives dans un compte réel.
+      throw new Error(`Type de courtier non supporté par la synchro : ${brokerType}`)
   }
 }
 
@@ -119,10 +114,11 @@ export function startBrokerSyncWorker() {
       await cache.set(lockKey, true, 30)
       await accountsRepository.updateSyncStatus(accountId, 'SYNCING')
 
-      const adapter = resolveAdapter(brokerType)
+      let adapter: BrokerAdapter | undefined
 
       try {
         // ─── Step 2: Fetch trade history from broker ─────────────────────────────
+        adapter = resolveAdapter(brokerType)
         const credentials = await loadCredentials(accountId)
         await adapter.connect(credentials)
 
@@ -223,8 +219,9 @@ export function startBrokerSyncWorker() {
         throw err // BullMQ will retry with exponential backoff
       } finally {
         // Toujours libérer le terminal distant, succès comme échec : un compte
-        // laissé déployé continue d'être facturé par le broker cloud.
-        await Promise.resolve(adapter.disconnect()).catch(() => {})
+        // laissé déployé continue d'être facturé par le broker cloud. `adapter`
+        // peut rester undefined si resolveAdapter() a levé (type non supporté).
+        if (adapter) await Promise.resolve(adapter.disconnect()).catch(() => {})
       }
     },
     3, // concurrency: process 3 accounts simultaneously

@@ -14,9 +14,12 @@ export const accountsRepository = {
     return prisma.brokerAccount.findFirst({ where: { id, userId } })
   },
 
+  // Seuls MT4/MT5 passent par la synchro broker automatique : les comptes
+  // POLYMARKET (wallets de bots) ont leur propre cycle (bot-trading-cycle) et
+  // ne doivent jamais atterrir dans broker-sync, faute d'adapter dédié.
   findAllActive() {
     return prisma.brokerAccount.findMany({
-      where: { isActive: true },
+      where: { isActive: true, brokerType: { in: ['MT4', 'MT5'] } },
       select: { id: true, userId: true, brokerType: true },
     })
   },

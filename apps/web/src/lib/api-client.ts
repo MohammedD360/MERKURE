@@ -302,5 +302,7 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ currentPassword, newPassword }),
       }),
+    exportData: () => apiFetch<Record<string, unknown>>('/api/v1/users/me/export'),
+    deleteAccount: () => apiFetch<{ ok: boolean }>('/api/v1/users/me', { method: 'DELETE' }),
   },
 }

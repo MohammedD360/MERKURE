@@ -31,7 +31,7 @@ export const portfolioRepository = {
 
     const totalExposureLots = openTrades.reduce((s, t) => s + Number(t.lotSize), 0)
     const totalPnlOpen      = openTrades.reduce((s, t) => s + Number(t.pnl ?? 0), 0)
-    const balance           = Number(latestSnapshot?.balance ?? 10_000)
+    const balance           = Number(latestSnapshot?.balance ?? 0)
     const equity            = Number(latestSnapshot?.equity  ?? balance)
 
     return {

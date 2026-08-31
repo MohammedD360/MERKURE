@@ -46,6 +46,10 @@ model User {
   timezone         String   @default("Europe/Paris")
   currency         String   @default("EUR")
   riskPerTrade     Decimal  @default(1.00) @db.Decimal(5, 2)
+  // Tout JWT local émis avant cette date est rejeté par authenticate() — seul
+  // moyen de révoquer une session avant son expiration (JWT à plat, sans état).
+  // Rempli par /logout et par un changement de mot de passe.
+  sessionsRevokedAt DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -124,7 +128,7 @@ model BrokerAccount {
   accountType    AccountType @default(DEMO)
   accountId      String // ID externe chez le broker
   label          String
-  credentialsEnc Bytes? // AES-256-GCM via pgcrypto
+  credentialsEnc Bytes? // AES-256-GCM chiffré côté app (infrastructure/crypto/encryption.ts), pas en base
   // Identifiant du compte chez le fournisseur de données (ex. MetaAPI), qui
   // facture à l'usage. Le conserver évite de rechercher le compte à chaque
   // synchro, et surtout permet de le supprimer chez le fournisseur quand le

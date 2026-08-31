@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
+import { useRouter } from 'next/navigation'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   AlertCircle,
@@ -8,18 +9,20 @@ import {
   CalendarDays,
   Camera,
   CheckCircle2,
+  Download,
   Globe2,
   Loader2,
   Lock,
   Mail,
   Save,
+  ShieldAlert,
   ShieldCheck,
   Trash2,
   Upload,
   User,
 } from 'lucide-react'
 
-import { api, type UserProfile } from '@/lib/api-client'
+import { api, clearToken, type UserProfile } from '@/lib/api-client'
 import { getPlanDisplayName } from '@/lib/plans'
 
 const CURRENCIES = ["EUR", "USD", "GBP", "CHF", 'CAD'] as const
@@ -258,6 +261,129 @@ function PasswordCard() {
           </button>
         </div>
       </form>
+    </section>
+  )
+}
+
+function PrivacyCard({ email }: { email: string | null | undefined }) {
+  const router = useRouter()
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [confirmEmail, setConfirmEmail] = useState('')
+  const [exportError, setExportError] = useState<string | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+
+  const exportMutation = useMutation({
+    mutationFn: api.users.exportData,
+    onSuccess: (data) => {
+      setExportError(null)
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `merkure-donnees-${new Date().toISOString().slice(0, 10)}.json`
+      a.click()
+      URL.revokeObjectURL(url)
+    },
+    onError: () => setExportError("Impossible de générer l'export pour le moment."),
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: api.users.deleteAccount,
+    onSuccess: () => {
+      clearToken()
+      router.push('/sign-in')
+    },
+    onError: (err: Error) => {
+      setDeleteError(
+        err.message.includes('demo_account_protected')
+          ? 'Le compte de démonstration ne peut pas être supprimé.'
+          : 'Impossible de supprimer le compte pour le moment. Réessayez plus tard.',
+      )
+    },
+  })
+
+  const canConfirmDelete = email != null && confirmEmail.trim().toLowerCase() === email.toLowerCase()
+
+  return (
+    <section className="rounded-xl border border-[hsl(var(--border))] bg-background p-6 shadow-sm">
+      <div className="flex items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary)/0.08)] text-[hsl(var(--primary))]">
+          <ShieldAlert className="h-5 w-5" />
+        </div>
+        <div>
+          <h2 className="text-base font-semibold text-foreground">Vos données</h2>
+          <p className="mt-1 text-sm font-medium text-muted-foreground">
+            Exercez vos droits RGPD : téléchargez une copie de vos données ou supprimez définitivement votre compte.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={() => exportMutation.mutate()}
+          disabled={exportMutation.isPending}
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-4 py-3 text-sm font-semibold text-foreground/80 transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {exportMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+          Exporter mes données (JSON)
+        </button>
+
+        {!confirmOpen && (
+          <button
+            type="button"
+            onClick={() => setConfirmOpen(true)}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-500/30 px-4 py-3 text-sm font-semibold text-red-500 transition-colors hover:bg-red-500/10"
+          >
+            <Trash2 className="h-4 w-4" />
+            Supprimer mon compte
+          </button>
+        )}
+      </div>
+
+      {exportError && <div className="mt-4"><ErrorBanner>{exportError}</ErrorBanner></div>}
+
+      {confirmOpen && (
+        <div className="mt-5 rounded-lg border border-red-500/30 bg-red-500/5 p-4">
+          <p className="text-sm font-semibold text-foreground">
+            Cette action est définitive. Vos trades, comptes broker, journal, analyses IA et abonnement seront effacés — aucune récupération possible.
+          </p>
+          <label className="mt-4 block">
+            <span className="mb-2 block text-xs font-medium text-muted-foreground">
+              Tapez votre email ({email ?? '—'}) pour confirmer
+            </span>
+            <input
+              type="email"
+              value={confirmEmail}
+              onChange={(event) => setConfirmEmail(event.target.value)}
+              placeholder={email ?? ''}
+              className={inputClass()}
+            />
+          </label>
+
+          {deleteError && <div className="mt-3"><ErrorBanner>{deleteError}</ErrorBanner></div>}
+
+          <div className="mt-4 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => deleteMutation.mutate()}
+              disabled={!canConfirmDelete || deleteMutation.isPending}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-500 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {deleteMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+              Supprimer définitivement
+            </button>
+            <button
+              type="button"
+              onClick={() => { setConfirmOpen(false); setConfirmEmail(''); setDeleteError(null) }}
+              disabled={deleteMutation.isPending}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-[hsl(var(--border))] px-4 py-3 text-sm font-semibold text-foreground/80 transition-colors hover:bg-[hsl(var(--accent))]"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   )
 }
@@ -522,6 +648,7 @@ export function ProfilePage() {
       </section>
 
       <PasswordCard />
+      <PrivacyCard email={profile?.email} />
     </div>
   )
 }

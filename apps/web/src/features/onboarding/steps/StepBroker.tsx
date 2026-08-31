@@ -5,18 +5,13 @@ import { ChevronRight, ArrowLeft, Eye, EyeOff, Lock, SkipForward } from 'lucide-
 import type { BrokerPayload } from '../api'
 import { BrokerLogo } from '@/shared/components/BrokerLogo'
 
-type BrokerType = 'MT5' | 'MT4' | 'BINANCE' | 'IB' | 'CTRADER' | 'TRADOVATE'
+type BrokerType = 'MT5' | 'MT4'
 
+// Seuls MT4/MT5 disposent d'une synchronisation automatique fiable (MetaAPI) —
+// voir l'audit de la synchro par compte.
 const BROKERS: { id: BrokerType; name: string; desc: string }[] = [
-  { id: 'TRADOVATE', name: 'Tradovate',           desc: 'Futures — Apex Trader Funding' },
-  { id: 'MT5',       name: 'MetaTrader 5',         desc: 'Forex, indices, matières premières' },
-  { id: 'MT4',       name: 'MetaTrader 4',          desc: 'Forex classique' },
-  { id: 'IB',        name: 'Interactive Brokers',   desc: 'Actions, options, obligations' },
-  { id: 'CTRADER',   name: 'cTrader',               desc: 'Forex, CFDs' },
-]
-
-const COMING_SOON: { id: BrokerType; name: string; desc: string }[] = [
-  { id: 'BINANCE', name: 'Binance', desc: 'Crypto spot & futures' },
+  { id: 'MT5', name: 'MetaTrader 5', desc: 'Forex, indices, matières premières' },
+  { id: 'MT4', name: 'MetaTrader 4', desc: 'Forex classique' },
 ]
 
 interface FormState {
@@ -24,15 +19,6 @@ interface FormState {
   accountId: string
   password:  string
   server:    string
-  apiKey:    string
-  apiSecret: string
-  port:      string
-  clientId:     string
-  clientSecret: string
-  tvUsername:  string
-  tvPassword:  string
-  tvAccountId: string
-  tvEnv:       'demo' | 'live'
 }
 
 interface Props {
@@ -79,45 +65,23 @@ export function StepBroker({ onConnect, onSkip, loading }: Props) {
   const [selected, setSelected] = useState<BrokerType | null>(null)
   const [form, setForm] = useState<FormState>({
     label: '', accountId: '', password: '', server: '',
-    apiKey: '', apiSecret: '', port: '',
-    clientId: '', clientSecret: '',
-    tvUsername: '', tvPassword: '', tvAccountId: '', tvEnv: 'demo',
   })
 
   const set = (k: keyof FormState) => (v: string) => setForm((f) => ({ ...f, [k]: v }))
 
   const handleConnect = () => {
     if (!selected) return
-    const credentials: Record<string, string> = {}
-    let accountId = form.accountId
-    let accountType: 'LIVE' | 'DEMO' | 'PROP_CHALLENGE' = 'LIVE'
-
-    if (selected === 'TRADOVATE') {
-      credentials.username    = form.tvUsername
-      credentials.password    = form.tvPassword
-      credentials.accountId   = form.tvAccountId
-      credentials.environment = form.tvEnv
-      accountId   = form.tvAccountId || form.tvUsername
-      accountType = 'PROP_CHALLENGE'
-    } else if (selected === 'MT4' || selected === 'MT5') {
-      credentials.password = form.password
-      credentials.server   = form.server
-    } else if (selected === 'BINANCE') {
-      credentials.apiKey    = form.apiKey
-      credentials.apiSecret = form.apiSecret
-    } else if (selected === 'IB') {
-      credentials.port = form.port
-    } else {
-      credentials.clientId     = form.clientId
-      credentials.clientSecret = form.clientSecret
-    }
-
     onConnect({
       brokerType:  selected,
-      accountType,
-      accountId,
+      accountType: 'LIVE',
+      accountId:   form.accountId,
       label:       form.label || `${selected} — compte principal`,
-      credentials,
+      credentials: {
+        accountId:   form.accountId,
+        upass:       form.password,
+        tradeserver: form.server,
+        platform:    selected.toLowerCase(),
+      },
     })
   }
 
@@ -142,21 +106,6 @@ export function StepBroker({ onConnect, onSkip, loading }: Props) {
             <ChevronRight className="w-4 h-4 text-muted-foreground/60 group-hover:text-muted-foreground transition-colors" />
           </button>
         ))}
-        {COMING_SOON.map((b) => (
-          <div
-            key={b.id}
-            className="w-full flex items-center gap-4 p-3.5 rounded-xl border border-[hsl(var(--border))] bg-background opacity-50 cursor-not-allowed"
-          >
-            <BrokerLogo broker={b.id} />
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-muted-foreground">{b.name}</div>
-              <div className="text-xs text-muted-foreground/60 mt-0.5">{b.desc}</div>
-            </div>
-            <span className="rounded border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-2 py-0.5 text-xs text-muted-foreground">
-              Bientôt
-            </span>
-          </div>
-        ))}
         <button
           onClick={onSkip}
           className="w-full flex items-center justify-center gap-2 py-3 text-xs font-semibold text-muted-foreground/60 hover:text-muted-foreground transition-colors mt-2"
@@ -168,7 +117,7 @@ export function StepBroker({ onConnect, onSkip, loading }: Props) {
     )
   }
 
-  const broker = [...BROKERS, ...COMING_SOON].find((b) => b.id === selected)!
+  const broker = BROKERS.find((b) => b.id === selected)!
 
   return (
     <div className="space-y-5">
@@ -190,76 +139,10 @@ export function StepBroker({ onConnect, onSkip, loading }: Props) {
       <Field label="Libellé du compte" value={form.label} onChange={set('label')}
         placeholder={`Ex : ${broker.name} Principal`} />
 
-      {selected === 'TRADOVATE' && (
-        <>
-          <div className="rounded-lg border border-orange-500/30 bg-orange-500/10 p-3">
-            <p className="text-xs font-semibold leading-relaxed text-orange-700">
-              Connexion à votre compte <span className="font-bold">Apex Trader Funding</span> via Tradovate.
-              Utilisez vos identifiants Tradovate reçus par email d&apos;Apex.
-            </p>
-          </div>
-          <Field label="Email Tradovate" value={form.tvUsername} onChange={set('tvUsername')} placeholder="votre@email.com" />
-          <Field label="Mot de passe Tradovate" value={form.tvPassword} onChange={set('tvPassword')} placeholder="••••••••" type="password" />
-          <Field
-            label="ID du compte Tradovate"
-            value={form.tvAccountId}
-            onChange={set('tvAccountId')}
-            placeholder="Ex : 12345678"
-            hint="Visible dans Tradovate → Account → votre numéro de compte."
-          />
-          <div>
-            <label className="block text-xs text-muted-foreground mb-1.5">Environnement</label>
-            <div className="grid grid-cols-2 gap-1.5">
-              {(['demo', 'live'] as const).map((e) => (
-                <button
-                  key={e}
-                  type="button"
-                  onClick={() => setForm((f) => ({ ...f, tvEnv: e }))}
-                  className={`rounded-lg border py-2.5 text-xs font-semibold transition-colors ${
-                    form.tvEnv === e
-                      ? 'border-orange-300 bg-orange-500/10 text-orange-600'
-                      : 'border-[hsl(var(--border))] bg-[hsl(var(--accent))] text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {e === 'demo' ? 'Sim / Demo (Apex)' : 'Live'}
-                </button>
-              ))}
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground/60">Les challenges Apex utilisent l&apos;environnement Sim (Demo).</p>
-          </div>
-        </>
-      )}
-
-      {(selected === 'MT4' || selected === 'MT5') && (
-        <>
-          <Field label="Numéro de compte MT" value={form.accountId} onChange={set('accountId')} placeholder="Ex : 1234567" />
-          <Field label="Mot de passe" value={form.password} onChange={set('password')} placeholder="••••••••" type="password"
-            hint="Utilisez le mot de passe en lecture seule pour plus de sécurité." />
-          <Field label="Serveur MetaTrader" value={form.server} onChange={set('server')} placeholder="Ex : Pepperstone-MT5" />
-        </>
-      )}
-
-      {selected === 'BINANCE' && (
-        <>
-          <Field label="API Key" value={form.apiKey} onChange={set('apiKey')} placeholder="Clé API Binance" />
-          <Field label="API Secret" value={form.apiSecret} onChange={set('apiSecret')} placeholder="Secret API" type="password"
-            hint="Créez une clé en lecture seule depuis Paramètres → Gestion des API." />
-        </>
-      )}
-
-      {selected === 'IB' && (
-        <>
-          <Field label="Numéro de compte IB" value={form.accountId} onChange={set('accountId')} placeholder="Ex : U1234567" />
-          <Field label="Port TWS/Gateway" value={form.port} onChange={set('port')} placeholder="7497 (live) ou 7496 (paper)" />
-        </>
-      )}
-
-      {selected === 'CTRADER' && (
-        <>
-          <Field label="Client ID" value={form.clientId} onChange={set('clientId')} placeholder="ID cTrader Open API" />
-          <Field label="Client Secret" value={form.clientSecret} onChange={set('clientSecret')} placeholder="••••••••" type="password" />
-        </>
-      )}
+      <Field label="Numéro de compte MT" value={form.accountId} onChange={set('accountId')} placeholder="Ex : 1234567" />
+      <Field label="Mot de passe" value={form.password} onChange={set('password')} placeholder="••••••••" type="password"
+        hint="Utilisez le mot de passe en lecture seule pour plus de sécurité." />
+      <Field label="Serveur MetaTrader" value={form.server} onChange={set('server')} placeholder="Ex : Pepperstone-MT5" />
 
       <div className="flex items-start gap-2">
         <Lock className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[hsl(var(--primary))]" />

@@ -64,34 +64,40 @@ export async function billingRoutes(app: FastifyInstance) {
         })
       }
 
-      const stripe = getStripe()
-
       const user = await prisma.user.findUnique({
         where:  { id: request.user.id },
         select: { email: true, stripeCustomerId: true },
       })
       if (!user) return reply.code(404).send({ error: 'user_not_found' })
 
-      let customerId = user.stripeCustomerId
-      if (!customerId) {
-        const customer = await stripe.customers.create({
-          email:    user.email ?? undefined,
-          metadata: { userId: request.user.id },
-        })
-        customerId = customer.id
-        await prisma.user.update({
-          where: { id: request.user.id },
-          data:  { stripeCustomerId: customerId },
-        })
-      }
-
-      const baseUrl     = env.FRONTEND_URL.replace(/\/$/, '')
-      const successUrl  = `${baseUrl}/app/dashboard?checkout=success`
-      const cancelUrl   = `${baseUrl}/app/billing?checkout=cancelled`
-
-      request.log.info({ plan: body.data.plan, priceId: planConfig.stripePriceId }, 'creating checkout session')
-
+      // Tout appel Stripe (création du customer comme de la session) est dans ce
+      // même try/catch : une erreur Stripe non interceptée porte son propre
+      // `statusCode` (ex. 401 sur une clé API invalide), et Fastify renvoyait ce
+      // code tel quel au client — un 401 que le front interprète comme une
+      // session expirée, déconnectant l'utilisateur pour un problème qui n'a
+      // rien à voir avec son authentification.
       try {
+        const stripe = getStripe()
+
+        let customerId = user.stripeCustomerId
+        if (!customerId) {
+          const customer = await stripe.customers.create({
+            email:    user.email ?? undefined,
+            metadata: { userId: request.user.id },
+          })
+          customerId = customer.id
+          await prisma.user.update({
+            where: { id: request.user.id },
+            data:  { stripeCustomerId: customerId },
+          })
+        }
+
+        const baseUrl     = env.FRONTEND_URL.replace(/\/$/, '')
+        const successUrl  = `${baseUrl}/app/dashboard?checkout=success`
+        const cancelUrl   = `${baseUrl}/app/billing?checkout=cancelled`
+
+        request.log.info({ plan: body.data.plan, priceId: planConfig.stripePriceId }, 'creating checkout session')
+
         const session = await stripe.checkout.sessions.create({
           mode:       'subscription',
           customer:   customerId,
@@ -106,7 +112,7 @@ export async function billingRoutes(app: FastifyInstance) {
         request.log.info({ sessionId: session.id }, 'checkout session created')
         return { url: session.url }
       } catch (err) {
-        request.log.error({ err }, 'stripe checkout session creation failed')
+        request.log.error({ err }, 'stripe checkout failed')
         return reply.code(502).send({
           error:  'stripe_error',
           detail: err instanceof Error ? err.message : String(err),
@@ -129,13 +135,20 @@ export async function billingRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: 'no_stripe_customer' })
       }
 
-      const stripe   = getStripe()
-      const session  = await stripe.billingPortal.sessions.create({
-        customer:   user.stripeCustomerId,
-        return_url: `${env.FRONTEND_URL}/app/billing`,
-      })
-
-      return { url: session.url }
+      try {
+        const stripe  = getStripe()
+        const session = await stripe.billingPortal.sessions.create({
+          customer:   user.stripeCustomerId,
+          return_url: `${env.FRONTEND_URL}/app/billing`,
+        })
+        return { url: session.url }
+      } catch (err) {
+        request.log.error({ err }, 'stripe portal session creation failed')
+        return reply.code(502).send({
+          error:  'stripe_error',
+          detail: err instanceof Error ? err.message : String(err),
+        })
+      }
     },
   )
 }

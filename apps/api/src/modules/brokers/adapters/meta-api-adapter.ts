@@ -202,20 +202,54 @@ export class MetaApiAdapter implements BrokerAdapter {
     if (byLogin) return byLogin._id
 
     // Provision new account — use the broker server name as-is
-    const created = await metaFetch(`${PROVISION_URL}/users/current/accounts`, {
-      method: 'POST',
-      body: JSON.stringify({
-        name:     `${login}@${server}`,
-        type:     'cloud',
-        login,
-        password,
-        server,
-        platform,
-        magic:    0,
-        reliability: env.METAAPI_RELIABILITY,
-      }),
+    return this.createAccountWithRetry(login, password, server, platform)
+  }
+
+  /**
+   * MetaAPI valide les identifiants auprès du serveur broker de façon
+   * asynchrone : le POST de création répond en 202 avec
+   * {"error":"AcceptedError", ...} tant que la validation n'est pas terminée.
+   * C'est un statut 2xx, donc metaFetch() ne lève pas — sans ce garde-fou, on
+   * prenait ce champ `id` (un ticket de validation temporaire, ex: 2030,
+   * 14793…) pour un vrai identifiant de compte MetaAPI, et le GET suivant
+   * échouait systématiquement en 404 ("Trading account with id X not found").
+   */
+  private async createAccountWithRetry(
+    login: string, password: string, server: string, platform: string,
+  ): Promise<string> {
+    const MAX_ATTEMPTS = 6
+    const RETRY_DELAY_MS = 20_000
+
+    const body = JSON.stringify({
+      name:     `${login}@${server}`,
+      type:     'cloud',
+      login,
+      password,
+      server,
+      platform,
+      magic:    0,
+      reliability: env.METAAPI_RELIABILITY,
     })
-    return created._id ?? created.id
+
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      const created = await metaFetch(`${PROVISION_URL}/users/current/accounts`, { method: 'POST', body })
+
+      if (created?.error === 'AcceptedError') {
+        if (attempt === MAX_ATTEMPTS) {
+          throw new Error(
+            'MetaAPI met plus de temps que prévu à valider ces identifiants. Réessayez la synchronisation dans une minute.',
+          )
+        }
+        await new Promise(r => setTimeout(r, RETRY_DELAY_MS))
+        continue
+      }
+
+      const id = created?._id ?? created?.id
+      if (!id) throw new Error('MetaAPI : réponse de création de compte inattendue')
+      return String(id)
+    }
+
+    throw new Error('MetaAPI : délai de validation du compte dépassé')
   }
 
   private async deploy(): Promise<void> {

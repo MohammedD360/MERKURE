@@ -71,7 +71,7 @@ export function StrategyPerformance({
     : 1
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6">
+    <div className="h-full rounded-lg border border-border bg-card p-6">
       <SectionHeader
         className="mb-5"
         eyebrow="Edges"

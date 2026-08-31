@@ -13,12 +13,12 @@ import {
 import { useAccounts, useSyncAccount } from '@/lib/hooks/use-accounts'
 import { useChartExport } from '@/lib/hooks/use-chart-export'
 import { HeadlineKpis } from '@/features/dashboard/components/HeadlineKpis'
+import { MarketTicker } from '@/features/dashboard/components/MarketTicker'
 import { EquityChart } from '@/features/dashboard/components/EquityChart'
 import { RiskPanel } from '@/features/dashboard/components/RiskPanel'
 import { TradesTable } from '@/features/dashboard/components/TradesTable'
 import { AssetBreakdown } from '@/features/dashboard/components/AssetBreakdown'
 import { StatsCles, StrategyPerformance } from '@/features/dashboard/components/StatsAndStrategy'
-import { AiPanel } from '@/features/dashboard/components/AiPanel'
 
 const PERIODS: Array<{ label: string; value: ChartPeriod; description: string }> = [
   { label: '7J',  value: '7J',  description: 'court terme' },
@@ -135,6 +135,9 @@ export function DashboardPage() {
         }
       />
 
+      {/* ── Cours live (Or, Nasdaq) ──────────────────────────────────────── */}
+      <MarketTicker />
+
       {/* ── Performance, pleine largeur ─────────────────────────────────── */}
       <div className="border-t border-border pt-6">
         <EquityChart
@@ -151,14 +154,16 @@ export function DashboardPage() {
         side={<AssetBreakdown data={breakdownQuery.data} isLoading={breakdownQuery.isLoading} />}
       />
 
-      {/* ── Stratégies + gestion du risque ──────────────────────────────── */}
+      {/* ── Stratégies (gauche) + risque et statistiques clés (droite, empilés) ── */}
       <SplitRow
         main={<StrategyPerformance data={breakdownQuery.data} isLoading={breakdownQuery.isLoading} />}
-        side={<RiskPanel />}
+        side={
+          <div className="space-y-4">
+            <RiskPanel />
+            <StatsCles period={kpiPeriod} />
+          </div>
+        }
       />
-
-      {/* ── IA (onglets) + statistiques clés ────────────────────────────── */}
-      <SplitRow main={<AiPanel period={kpiPeriod} />} side={<StatsCles period={kpiPeriod} />} />
     </div>
   )
 }

@@ -15,8 +15,10 @@ interface Props {
 
 type Step = 'choose' | 'form' | 'success'
 
-const BROKERS: BrokerType[] = ['TRADOVATE', 'MT5', 'MT4', 'IB', 'CTRADER']
-const COMING_SOON: BrokerType[] = ['BINANCE']
+// Seuls MT4/MT5 disposent d'une synchronisation automatique fiable (MetaAPI).
+// Les autres brokers restent désactivés tant que leur adapter n'est pas remis
+// en service — voir l'audit de la synchro par compte.
+const BROKERS: BrokerType[] = ['MT5', 'MT4']
 
 // Prop firms sans plateforme technique dédiée : on les connecte via un broker
 // existant (ici MT5) tout en gardant leur identité visuelle et un rappel
@@ -27,29 +29,16 @@ const PROP_FIRM_SHORTCUTS: { id: string; broker: BrokerType; prefillLabel: strin
 
 
 interface FormState {
-  label:        string
-  accountId:    string
-  accountType:  AccountType
-  password:     string
-  server:       string
-  apiKey:       string
-  apiSecret:    string
-  port:         string
-  clientId:     string
-  clientSecret: string
-  tvUsername:   string
-  tvPassword:   string
-  tvAccountId:  string
-  tvEnv:        'demo' | 'live'
+  label:       string
+  accountId:   string
+  accountType: AccountType
+  password:    string
+  server:      string
 }
 
 const DEFAULT_FORM: FormState = {
   label: '', accountId: '', accountType: 'PROP_CHALLENGE',
   password: '', server: '',
-  apiKey: '', apiSecret: '',
-  port: '7497',
-  clientId: '', clientSecret: '',
-  tvUsername: '', tvPassword: '', tvAccountId: '', tvEnv: 'demo',
 }
 
 function Field({
@@ -127,50 +116,7 @@ function BrokerFormFields({ broker, propFirmId, form, setForm }: {
     </>
   )
 
-  if (broker === 'TRADOVATE') return (
-    <div className="space-y-4">
-      <div className="rounded-lg border border-orange-500/30 bg-orange-500/10 p-3">
-        <p className="text-xs font-semibold leading-relaxed text-orange-700">
-          Connexion à votre compte <span className="font-bold">Apex Trader Funding</span> via Tradovate.
-          Utilisez vos identifiants Tradovate (reçus par Apex par email).
-        </p>
-      </div>
-      {common}
-      <Field label="Email Tradovate" value={form.tvUsername} onChange={set('tvUsername')} placeholder="votre@email.com" />
-      <Field label="Mot de passe Tradovate" value={form.tvPassword} onChange={set('tvPassword')} placeholder="••••••••" showToggle />
-      <Field
-        label="ID du compte Tradovate"
-        value={form.tvAccountId}
-        onChange={set('tvAccountId')}
-        placeholder="Ex : 12345678"
-        hint="Visible dans Tradovate → Account → votre numéro de compte (entier)."
-      />
-      <div>
-        <label className="mb-1.5 block text-xs font-black text-muted-foreground">Environnement</label>
-        <div className="grid grid-cols-2 gap-1.5">
-          {(['demo', 'live'] as const).map(e => (
-            <button
-              key={e}
-              type="button"
-              onClick={() => setForm(f => ({ ...f, tvEnv: e }))}
-              className={`rounded-lg border py-2 text-xs font-black transition-colors ${
-                form.tvEnv === e
-                  ? 'border-orange-300 bg-orange-500/10 text-orange-600'
-                  : 'border-[hsl(var(--border))] bg-[hsl(var(--accent))] text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {e === 'demo' ? 'Sim / Demo (Apex)' : 'Live'}
-            </button>
-          ))}
-        </div>
-        <p className="mt-1 text-[10px] font-semibold text-muted-foreground/60">
-          Les challenges Apex utilisent l'environnement Sim (Demo).
-        </p>
-      </div>
-    </div>
-  )
-
-  if (broker === 'MT4' || broker === 'MT5') return (
+  return (
     <div className="space-y-4">
       {propFirmId === 'fundingpips' ? (
         <div className="rounded-lg border border-orange-500/30 bg-orange-500/10 p-3">
@@ -193,68 +139,15 @@ function BrokerFormFields({ broker, propFirmId, form, setForm }: {
       <Field label="Serveur du broker" value={form.server} onChange={set('server')} placeholder="Ex : PepperstoneUK-Demo03" hint={`Nom du serveur ${broker} tel qu'il apparaît dans votre terminal (ex: PepperstoneUK-Demo03, ICMarkets-Demo).`} />
     </div>
   )
-
-  if (broker === 'BINANCE') return (
-    <div className="space-y-4">
-      <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
-        <p className="text-xs font-semibold leading-relaxed text-amber-500">
-          Créez une clé API Binance en <span className="font-semibold">lecture seule</span> depuis Paramètres → Gestion des API.
-        </p>
-      </div>
-      {common}
-      <Field label="Account ID / UID"   value={form.accountId} onChange={set('accountId')} placeholder="Votre UID Binance" />
-      <Field label="API Key"            value={form.apiKey}    onChange={set('apiKey')}    placeholder="Collez votre clé API ici" />
-      <Field label="API Secret"         value={form.apiSecret} onChange={set('apiSecret')} placeholder="Collez votre secret API ici" showToggle />
-    </div>
-  )
-
-  if (broker === 'IB') return (
-    <div className="space-y-4">
-      <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-3">
-        <p className="text-xs font-semibold leading-relaxed text-green-500">
-          Connexion via l'API TWS. Assurez-vous que TWS ou IB Gateway est ouvert et que l'accès API est activé.
-        </p>
-      </div>
-      {common}
-      <Field label="Numéro de compte IB" value={form.accountId} onChange={set('accountId')} placeholder="Ex : U1234567" />
-      <Field label="Port TWS"            value={form.port}      onChange={set('port')}       placeholder="7497 (live) ou 7496 (paper)" />
-    </div>
-  )
-
-  return (
-    <div className="space-y-4">
-      {common}
-      <Field label="Account ID"    value={form.accountId}    onChange={set('accountId')}    placeholder="Votre identifiant cTrader" />
-      <Field label="Client ID"     value={form.clientId}     onChange={set('clientId')}     placeholder="Open API Client ID" />
-      <Field label="Client Secret" value={form.clientSecret} onChange={set('clientSecret')} placeholder="••••••••" showToggle />
-    </div>
-  )
 }
 
 function buildCredentials(broker: BrokerType, form: FormState): Record<string, string> {
-  if (broker === 'TRADOVATE') {
-    return {
-      username:    form.tvUsername,
-      password:    form.tvPassword,
-      accountId:   form.tvAccountId,
-      environment: form.tvEnv,
-    }
+  return {
+    accountId:   form.accountId,
+    upass:       form.password,
+    tradeserver: form.server,
+    platform:    broker.toLowerCase(),
   }
-  if (broker === 'MT4' || broker === 'MT5') {
-    return {
-      accountId:   form.accountId,
-      upass:       form.password,
-      tradeserver: form.server,
-      platform:    broker.toLowerCase(),
-    }
-  }
-  if (broker === 'BINANCE') {
-    return { apiKey: form.apiKey, apiSecret: form.apiSecret }
-  }
-  if (broker === 'IB') {
-    return { port: form.port }
-  }
-  return { clientId: form.clientId, clientSecret: form.clientSecret }
 }
 
 export function ConnectBrokerModal({ open, onClose }: Props) {
@@ -274,12 +167,8 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
   const isFormValid = (): boolean => {
     if (!selected) return false
     if (!form.label.trim()) return false
-    if (selected === 'TRADOVATE') {
-      return Boolean(form.tvUsername.trim() && form.tvPassword.trim())
-    }
     if (!form.accountId.trim()) return false
-    if ((selected === 'MT4' || selected === 'MT5') && !form.password.trim()) return false
-    if (selected === 'BINANCE' && (!form.apiKey.trim() || !form.apiSecret.trim())) return false
+    if (!form.password.trim()) return false
     return true
   }
 
@@ -289,7 +178,7 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
       {
         brokerType:  selected,
         accountType: form.accountType,
-        accountId:   selected === 'TRADOVATE' ? (form.tvAccountId.trim() || form.tvUsername.trim()) : form.accountId.trim(),
+        accountId:   form.accountId.trim(),
         label:       form.label.trim(),
         credentials: buildCredentials(selected, form),
       },
@@ -362,11 +251,6 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
                   onClick={() => {
                     setSelected(broker)
                     setPropFirmId(null)
-                    // Pre-remplir le libellé selon le broker si vide
-                    setForm(f => ({
-                      ...f,
-                      label: f.label || (broker === 'TRADOVATE' ? 'Apex – Challenge $25K' : ''),
-                    }))
                     setStep('form')
                   }}
                   className="group flex w-full items-center gap-4 rounded-xl border border-[hsl(var(--border))] bg-background p-3.5 text-left transition-colors hover:border-[hsl(var(--primary)/0.3)] hover:bg-[hsl(var(--primary)/0.06)]"
@@ -378,20 +262,6 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground/60 transition-colors group-hover:text-[hsl(var(--primary))]" />
                 </button>
-              ))}
-              {COMING_SOON.map(broker => (
-                <div key={broker}
-                  className="flex w-full items-center gap-4 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--accent))] p-3.5 opacity-50 cursor-not-allowed"
-                >
-                  <BrokerLogo broker={broker} />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-black text-muted-foreground">{brokerMeta[broker].name}</div>
-                    <div className="mt-0.5 text-xs font-semibold text-muted-foreground/60">{brokerMeta[broker].desc}</div>
-                  </div>
-                  <span className="rounded border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                    Bientôt
-                  </span>
-                </div>
               ))}
             </div>
           )}
@@ -468,8 +338,6 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
               <p className="text-center text-[11px] font-semibold text-muted-foreground/70">
                 {!form.label.trim()
                   ? 'Renseignez le libellé du compte pour continuer'
-                  : selected === 'TRADOVATE' && (!form.tvUsername.trim() || !form.tvPassword.trim())
-                  ? 'Email et mot de passe Tradovate requis'
                   : 'Remplissez tous les champs requis'}
               </p>
             )}

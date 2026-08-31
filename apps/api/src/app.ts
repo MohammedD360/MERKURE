@@ -38,6 +38,7 @@ import { journalRoutes } from './modules/journal/journal.routes.js'
 import { tradingPlanRoutes } from './modules/trading-plan/trading-plan.routes.js'
 import { propFirmRoutes } from './modules/prop-firm/prop-firm.routes.js'
 import { botsRoutes } from './modules/bots/bots.routes.js'
+import { marketDataRoutes } from './modules/market-data/market-data.routes.js'
 
 function getBearerToken(request: FastifyRequest): string | null {
   const auth = request.headers.authorization
@@ -72,9 +73,11 @@ export function buildApp(): FastifyInstance {
     credentials: true,
   })
   void app.register(fastifyCookie)
+  // Le JWT ne voyage que dans l'en-tête Authorization : aucune route ne pose de
+  // cookie 'access_token', donc l'option `cookie` d'@fastify/jwt ne servirait
+  // jamais de source de repli — mieux vaut ne pas suggérer un mécanisme inexistant.
   void app.register(fastifyJwt, {
     secret: env.JWT_SECRET,
-    cookie: { cookieName: 'access_token', signed: false },
   })
   void app.register(fastifyRateLimit, {
     global: true,
@@ -206,6 +209,7 @@ export function buildApp(): FastifyInstance {
   void app.register(tradingPlanRoutes,  { prefix: '/api/v1/trading-plan' })
   void app.register(propFirmRoutes,     { prefix: '/api/v1/prop-firm' })
   void app.register(botsRoutes,         { prefix: '/api/v1/bots' })
+  void app.register(marketDataRoutes,   { prefix: '/api/v1/market-data' })
 
   // ─── WebSocket ────────────────────────────────────────────────────────────────
   void app.register(registerWsHandler)
