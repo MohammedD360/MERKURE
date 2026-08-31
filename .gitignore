@@ -58,8 +58,5 @@ prisma/dev.db-journal
 .mypy_cache/
 .ruff_cache/
 
-# Docker volumes (si montés localement)
-data/
-
 # Documents confidentiels
 *.pdf
