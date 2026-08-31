@@ -46,11 +46,16 @@ COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
 COPY apps/web/ ./apps/web/
 COPY packages/shared-types/ ./packages/shared-types/
 
-# Build arg pour l'URL de l'API (injectée au moment du build pour les variables NEXT_PUBLIC_*)
+# Build args injectés au moment du build pour les variables NEXT_PUBLIC_*
+# (Next.js les grave dans le bundle client à la compilation, pas à l'exécution)
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_WS_URL
+ARG NEXT_PUBLIC_AUTH_MODE
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL}
+ENV NEXT_PUBLIC_AUTH_MODE=${NEXT_PUBLIC_AUTH_MODE}
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
 
 # Désactiver la télémétrie Next.js
 ENV NEXT_TELEMETRY_DISABLED=1
