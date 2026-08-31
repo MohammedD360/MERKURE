@@ -27,6 +27,11 @@ const envSchema = z.object({
 
   // CORS
   FRONTEND_URL: z.string().url().default('http://localhost:3000'),
+  // Origines CORS additionnelles (virgule-séparées) — utile en transition de
+  // domaine, ex. le sous-domaine *.onrender.com le temps que le DNS du domaine
+  // final soit branché. FRONTEND_URL reste la seule URL "canonique" utilisée
+  // pour les liens (emails, redirection Stripe/OAuth) : ceci ne sert qu'au CORS.
+  CORS_EXTRA_ORIGINS: z.string().optional(),
 
   // Email (Resend)
   RESEND_API_KEY: z.string().optional(),

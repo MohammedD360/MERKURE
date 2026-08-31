@@ -67,9 +67,13 @@ export function buildApp(): FastifyInstance {
       ? { maxAge: 31_536_000, includeSubDomains: true, preload: true }
       : false,
   })
+  const allowedOrigins = [
+    env.FRONTEND_URL,
+    ...(env.CORS_EXTRA_ORIGINS?.split(',').map(o => o.trim()).filter(Boolean) ?? []),
+  ]
   void app.register(fastifyCors, {
-    // En prod, seul le frontend connu est autorisé
-    origin: env.NODE_ENV === 'production' ? env.FRONTEND_URL : true,
+    // En prod, seuls les frontends connus sont autorisés
+    origin: env.NODE_ENV === 'production' ? allowedOrigins : true,
     credentials: true,
   })
   void app.register(fastifyCookie)
