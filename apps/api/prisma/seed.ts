@@ -1,3 +1,4 @@
+import './assert-not-production.js'
 import { PrismaClient, Plan, BrokerType, Direction, TradeStatus, AccountType } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 

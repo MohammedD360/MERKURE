@@ -36,27 +36,27 @@ model Organization {
 // UTILISATEURS
 // ─────────────────────────────────────────────
 model User {
-  id               String   @id @default(uuid())
-  clerkId          String   @unique
-  orgId            String?
-  email            String   @unique
-  passwordHash     String?
-  firstName        String?
-  lastName         String?
-  avatarUrl        String?
-  role             UserRole @default(TRADER)
-  onboarded        Boolean  @default(false)
-  emailVerified    Boolean  @default(false)
-  emailVerifyToken String?  @unique
-  timezone         String   @default("Europe/Paris")
-  currency         String   @default("EUR")
-  riskPerTrade     Decimal  @default(1.00) @db.Decimal(5, 2)
+  id                String    @id @default(uuid())
+  clerkId           String    @unique
+  orgId             String?
+  email             String    @unique
+  passwordHash      String?
+  firstName         String?
+  lastName          String?
+  avatarUrl         String?
+  role              UserRole  @default(TRADER)
+  onboarded         Boolean   @default(false)
+  emailVerified     Boolean   @default(false)
+  emailVerifyToken  String?   @unique
+  timezone          String    @default("Europe/Paris")
+  currency          String    @default("EUR")
+  riskPerTrade      Decimal   @default(1.00) @db.Decimal(5, 2)
   // Tout JWT local émis avant cette date est rejeté par authenticate() — seul
   // moyen de révoquer une session avant son expiration (JWT à plat, sans état).
   // Rempli par /logout et par un changement de mot de passe.
   sessionsRevokedAt DateTime?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   stripeCustomerId String? @unique
 
@@ -127,25 +127,29 @@ model PasswordResetToken {
 // COMPTES BROKERS
 // ─────────────────────────────────────────────
 model BrokerAccount {
-  id             String      @id @default(uuid())
-  userId         String
-  brokerType     BrokerType
-  accountType    AccountType @default(DEMO)
-  accountId      String // ID externe chez le broker
-  label          String
-  credentialsEnc Bytes? // AES-256-GCM chiffré côté app (infrastructure/crypto/encryption.ts), pas en base
+  id                String      @id @default(uuid())
+  userId            String
+  brokerType        BrokerType
+  accountType       AccountType @default(DEMO)
+  accountId         String // ID externe chez le broker
+  label             String
+  credentialsEnc    Bytes? // AES-256-GCM chiffré côté app (infrastructure/crypto/encryption.ts), pas en base
   // Identifiant du compte chez le fournisseur de données (ex. MetaAPI), qui
   // facture à l'usage. Le conserver évite de rechercher le compte à chaque
   // synchro, et surtout permet de le supprimer chez le fournisseur quand le
   // client se déconnecte — sinon il reste provisionné et facturé indéfiniment.
   providerAccountId String?
-  isActive       Boolean     @default(true)
-  lastSyncAt     DateTime?
-  syncStatus     SyncStatus  @default(PENDING)
-  syncError      String?
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-  deletedAt      DateTime? // null = actif ; set = soft-deleted (RGPD)
+  // Capital de départ déclaré par l'utilisateur. Seule source de solde pour
+  // les comptes MANUAL (pas de sync broker live) : le portefeuille se calcule
+  // ensuite comme startingBalance + P&L cumulé des trades (voir portfolio.repository.ts).
+  startingBalance   Decimal?    @db.Decimal(18, 4)
+  isActive          Boolean     @default(true)
+  lastSyncAt        DateTime?
+  syncStatus        SyncStatus  @default(PENDING)
+  syncError         String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  deletedAt         DateTime? // null = actif ; set = soft-deleted (RGPD)
 
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   trades      Trade[]
@@ -216,23 +220,6 @@ model KpiSnapshot {
   @@unique([userId, date])
   @@index([userId])
   @@map("kpi_snapshots")
-}
-
-// ─────────────────────────────────────────────
-// STRATEGIES
-// ─────────────────────────────────────────────
-model Strategy {
-  id          String   @id @default(uuid())
-  userId      String
-  name        String
-  description String?
-  tags        String[]
-  isPublic    Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([userId])
-  @@map("strategies")
 }
 
 // ─────────────────────────────────────────────
@@ -348,11 +335,14 @@ model AuditLog {
   entityType  String // "trade" | "broker_account"
   entityId    String
   action      String // "soft_delete" | "restore"
-  performedBy String
+  // Nullable + SetNull : la trace d'audit doit survivre à la suppression de
+  // l'utilisateur (c'est tout son intérêt RGPD). En Cascade, supprimer un
+  // compte effaçait aussi son propre historique d'audit.
+  performedBy String?
   performedAt DateTime @default(now())
   metadata    Json? // snapshot JSON de l'entité au moment de l'action
 
-  performer User @relation(fields: [performedBy], references: [id], onDelete: Cascade)
+  performer User? @relation(fields: [performedBy], references: [id], onDelete: SetNull)
 
   @@index([entityType, entityId])
   @@index([performedBy])
@@ -479,6 +469,7 @@ enum BrokerType {
   CTRADER
   TRADOVATE
   POLYMARKET
+  MANUAL // Compte sans synchro : alimenté uniquement par import CSV
 }
 
 enum AccountType {

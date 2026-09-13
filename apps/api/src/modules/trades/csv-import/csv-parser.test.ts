@@ -78,4 +78,20 @@ describe('parseCsvTrades', () => {
     const { trades } = parseCsvTrades(csv)
     expect(trades[0]!.pnl).toBeCloseTo(1234.56)
   })
+
+  it('interprète une date XX/XX/YYYY ambiguë en MM/DD (Tradovate), pas DD/MM', () => {
+    // "04/09/2026" doit être le 9 avril (mois=04, jour=09), pas le 4 septembre.
+    const csv = `symbol,direction,open time,open price\nMNQU6,buy,04/09/2026 09:00:00,21450.50`
+    const { trades } = parseCsvTrades(csv)
+    expect(trades[0]!.openTime.getUTCMonth()).toBe(3) // avril = index 3
+    expect(trades[0]!.openTime.getUTCDate()).toBe(9)
+  })
+
+  it('résout correctement un jour/mois non ambigu même en MM/DD (ex. 25/12)', () => {
+    // "25/12/2026" : 25 > 12 ne peut être un mois → jour=25, mois=12 (25 décembre)
+    const csv = `symbol,direction,open time,open price\nEURUSD,buy,25/12/2026 09:00:00,1.0850`
+    const { trades } = parseCsvTrades(csv)
+    expect(trades[0]!.openTime.getUTCMonth()).toBe(11) // décembre = index 11
+    expect(trades[0]!.openTime.getUTCDate()).toBe(25)
+  })
 })

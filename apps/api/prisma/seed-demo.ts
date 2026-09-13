@@ -3,6 +3,7 @@
  * Remplit TOUTES les pages avec des données réalistes :
  * dashboard, trades, KPIs, journal, IA, alertes, profil, comptes brokers
  */
+import './assert-not-production.js'
 import { PrismaClient, Plan, Direction, TradeStatus, BrokerType, AccountType, SyncStatus } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 

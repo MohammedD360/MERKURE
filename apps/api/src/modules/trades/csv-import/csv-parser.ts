@@ -56,13 +56,15 @@ function parseDirection(raw: string): 'LONG' | 'SHORT' | null {
 // g1/g2 peuvent être DD/MM (Europe) ou MM/DD (US) selon le broker — le format
 // seul (2 chiffres/2 chiffres) ne permet pas de trancher. On utilise la magnitude
 // quand c'est possible (un des deux > 12 ne peut être un mois), et on retombe
-// sur DD/MM par défaut (cohérent avec le format MT4/MT5 DD.MM.YYYY ci-dessous et
-// la base d'utilisateurs francophone/européenne de MERKURE) en cas d'ambiguïté totale.
+// sur MM/DD par défaut en cas d'ambiguïté totale : c'est le format Tradovate
+// (Apex Trader Funding), le broker futures documenté et promu par MERKURE pour
+// l'import CSV — pas DD/MM, qui swappait silencieusement jour et mois sur la
+// moitié des dates Tradovate (ex. "04/09/2026" = 9 avril, pas le 4 septembre).
 function resolveDayMonth(g1: number, g2: number): { day: number; month: number } | null {
   if (g1 > 12 && g2 > 12) return null
   if (g1 > 12) return { day: g1, month: g2 }
   if (g2 > 12) return { day: g2, month: g1 }
-  return { day: g1, month: g2 }
+  return { day: g2, month: g1 }
 }
 
 // ── Parse une date — supporte ISO, DD.MM.YYYY HH:mm:ss, DD/MM/YYYY ──────────

@@ -2,6 +2,7 @@
  * Crée ou met à jour l'espace de connexion Laura
  * Usage: pnpm exec tsx prisma/seed-laura-account.ts
  */
+import './assert-not-production.js'
 import { PrismaClient, Plan, BrokerType, AccountType, Direction, TradeStatus } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 

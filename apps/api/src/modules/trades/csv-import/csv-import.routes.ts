@@ -13,7 +13,9 @@ export async function csvImportRoutes(app: FastifyInstance) {
    * POST /api/v1/trades/import/csv
    * Body: multipart/form-data
    *   - file     : fichier CSV (obligatoire)
-   *   - accountId: string UUID (optionnel — rattache les trades à un compte broker)
+   *   - accountId: string UUID (obligatoire — rattache les trades à un compte broker précis ;
+   *                pas de repli implicite sur "le premier compte" pour éviter de relier
+   *                silencieusement des trades au mauvais compte)
    *   - delimiter: ',' | ';' | '\t' (optionnel — auto-détecté si absent)
    */
   app.post('/import/csv', { preHandler: [authenticate] }, async (req, reply) => {
@@ -52,28 +54,23 @@ export async function csvImportRoutes(app: FastifyInstance) {
     }
 
     // ── Résout le compte broker ───────────────────────────────────────────
-    if (accountId) {
-      const account = await prisma.brokerAccount.findFirst({
-        where: { id: accountId, userId: req.user.id },
-        select: { id: true },
+    // Obligatoire : un import CSV sans compte explicite atterrirait autrefois
+    // sur "le premier compte créé" — un trader avec plusieurs comptes se
+    // retrouvait avec des trades reliés au mauvais challenge/broker sans le
+    // savoir. Mieux vaut échouer clairement que deviner.
+    if (!accountId) {
+      return reply.code(400).send({
+        error:  'account_required',
+        detail: 'Sélectionnez le compte auquel rattacher ces trades.',
       })
-      if (!account) {
-        return reply.code(404).send({ error: 'account_not_found' })
-      }
-    } else {
-      // Pas de compte fourni : on prend le premier compte de l'utilisateur
-      const fallback = await prisma.brokerAccount.findFirst({
-        where:   { userId: req.user.id },
-        orderBy: { createdAt: 'asc' },
-        select:  { id: true },
-      })
-      if (!fallback) {
-        return reply.code(400).send({
-          error:  'no_account',
-          detail: 'Aucun compte broker trouvé. Créez un compte avant d\'importer.',
-        })
-      }
-      accountId = fallback.id
+    }
+
+    const account = await prisma.brokerAccount.findFirst({
+      where:  { id: accountId, userId: req.user.id, deletedAt: null },
+      select: { id: true },
+    })
+    if (!account) {
+      return reply.code(404).send({ error: 'account_not_found' })
     }
 
     // ── Parse le CSV ──────────────────────────────────────────────────────
@@ -99,7 +96,7 @@ export async function csvImportRoutes(app: FastifyInstance) {
           },
           create: {
             userId:          req.user.id,
-            brokerAccountId: accountId ?? req.user.id,
+            brokerAccountId: accountId,
             externalId:      trade.externalId,
             symbol:          trade.symbol,
             direction:       trade.direction,
@@ -134,8 +131,15 @@ export async function csvImportRoutes(app: FastifyInstance) {
         trades[0]!.openTime,
       )
       await recalculateKpiSnapshots(req.user.id, oldest)
-      await cache.delPattern(`kpis:${req.user.id}:*`)
-      await cache.delPattern(`trades:${req.user.id}:*`)
+      await Promise.all([
+        cache.delPattern(`kpis:${req.user.id}:*`),
+        cache.delPattern(`trades:${req.user.id}:*`),
+        cache.delPattern(`stats:*:${req.user.id}:*`),
+        cache.delPattern(`propfirm:compliance:${req.user.id}:*`),
+        cache.del(`portfolio:summary:${req.user.id}`),
+        cache.del(`portfolio:breakdown:${req.user.id}`),
+        cache.del(`portfolio:equity:${req.user.id}`),
+      ])
     }
 
     return reply.code(201).send({

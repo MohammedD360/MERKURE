@@ -17,29 +17,41 @@ function symbolColor(symbol: string): string {
 
 export const portfolioRepository = {
   async getSummary(userId: string) {
-    const [openTrades, latestSnapshot] = await Promise.all([
+    // Le solde ne vient pas de kpi_snapshots : ce champ n'est jamais renseigné
+    // (recalculateKpiSnapshots ne calcule que le P&L, pas balance/equity — et
+    // aucun broker sync ne branche l'appel getAccountInfo() qui le fournirait).
+    // On calcule donc directement : capital de départ déclaré par compte actif
+    // (seule source pour les comptes MANUAL, sans sync broker live) + P&L
+    // réalisé cumulé des trades clôturés. L'équité ajoute le P&L flottant des
+    // positions ouvertes.
+    const [openTrades, closedAgg, accounts] = await Promise.all([
       prisma.trade.findMany({
         where:  { userId, status: 'OPEN' },
         select: { lotSize: true, pnl: true, openPrice: true },
       }),
-      prisma.kpiSnapshot.findFirst({
-        where:   { userId },
-        orderBy: { date: 'desc' },
-        select:  { balance: true, equity: true },
+      prisma.trade.aggregate({
+        where: { userId, status: 'CLOSED' },
+        _sum:  { pnl: true },
+      }),
+      prisma.brokerAccount.findMany({
+        where:  { userId, isActive: true, deletedAt: null },
+        select: { startingBalance: true },
       }),
     ])
 
     const totalExposureLots = openTrades.reduce((s, t) => s + Number(t.lotSize), 0)
     const totalPnlOpen      = openTrades.reduce((s, t) => s + Number(t.pnl ?? 0), 0)
-    const balance           = Number(latestSnapshot?.balance ?? 0)
-    const equity            = Number(latestSnapshot?.equity  ?? balance)
+    const startingCapital   = accounts.reduce((s, a) => s + Number(a.startingBalance ?? 0), 0)
+    const realizedPnl       = Number(closedAgg._sum.pnl ?? 0)
+    const balance           = startingCapital + realizedPnl
+    const equity            = balance + totalPnlOpen
 
     return {
       openPositionsCount: openTrades.length,
       totalExposureLots:  parseFloat(totalExposureLots.toFixed(2)),
       totalPnlOpen:       parseFloat(totalPnlOpen.toFixed(2)),
-      balance,
-      equity,
+      balance:            parseFloat(balance.toFixed(2)),
+      equity:             parseFloat(equity.toFixed(2)),
       riskPct: balance > 0 ? parseFloat((Math.abs(totalPnlOpen) / balance * 100).toFixed(2)) : 0,
     }
   },
@@ -140,17 +152,38 @@ export const portfolioRepository = {
   },
 
   async getEquityCurve(userId: string) {
+    // Même raison qu'au-dessus : kpi_snapshots.balance/equity ne sont jamais
+    // renseignés, on reconstruit donc la courbe depuis le capital de départ
+    // des comptes actifs + le P&L réalisé jour par jour.
     const from = new Date(Date.now() - 90 * 86_400_000)
-    const snapshots = await prisma.kpiSnapshot.findMany({
-      where:   { userId, date: { gte: from } },
-      orderBy: { date: 'asc' },
-      select:  { date: true, balance: true, equity: true },
-    })
 
-    return snapshots.map(s => ({
-      date:    s.date.toISOString().slice(0, 10),
-      balance: Number(s.balance ?? 0),
-      equity:  Number(s.equity  ?? 0),
-    }))
+    const [accounts, trades] = await Promise.all([
+      prisma.brokerAccount.findMany({
+        where:  { userId, isActive: true, deletedAt: null },
+        select: { startingBalance: true },
+      }),
+      prisma.trade.findMany({
+        where:   { userId, status: 'CLOSED', closeTime: { gte: from } },
+        select:  { closeTime: true, pnl: true },
+        orderBy: { closeTime: 'asc' },
+      }),
+    ])
+
+    const startingCapital = accounts.reduce((s, a) => s + Number(a.startingBalance ?? 0), 0)
+
+    const byDay = new Map<string, number>()
+    for (const t of trades) {
+      if (!t.closeTime) continue
+      const day = t.closeTime.toISOString().slice(0, 10)
+      byDay.set(day, (byDay.get(day) ?? 0) + Number(t.pnl ?? 0))
+    }
+
+    let cumul = startingCapital
+    return Array.from(byDay.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, dayPnl]) => {
+        cumul += dayPnl
+        return { date, balance: parseFloat(cumul.toFixed(2)), equity: parseFloat(cumul.toFixed(2)) }
+      })
   },
 }

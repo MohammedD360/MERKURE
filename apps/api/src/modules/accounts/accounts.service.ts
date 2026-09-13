@@ -2,7 +2,7 @@ import { accountsRepository } from './accounts.repository.js'
 import { encrypt } from '../../infrastructure/crypto/encryption.js'
 import { prisma } from '../../infrastructure/database/client.js'
 import { writeAuditLog } from '../../infrastructure/database/audit.js'
-import type { CreateAccountInput } from './accounts.types.js'
+import type { CreateAccountInput, UpdateAccountInput } from './accounts.types.js'
 import { cache } from '../../infrastructure/cache/redis.js'
 import { MetaApiAdapter } from '../brokers/adapters/meta-api-adapter.js'
 
@@ -53,6 +53,23 @@ export const accountsService = {
     return { ...account, credentialsEnc: undefined }
   },
 
+  async update(id: string, userId: string, input: UpdateAccountInput) {
+    const result = await accountsRepository.update(id, userId, input)
+    if (result.count === 0) {
+      const err = new Error('account_not_found')
+      Object.assign(err, { status: 404 })
+      throw err
+    }
+    // Le capital de départ entre dans le calcul du solde du portefeuille :
+    // sans purge, la carte "Valeur du portefeuille" resterait figée sur le
+    // montant caché jusqu'à expiration du TTL.
+    await Promise.all([
+      cache.del(`portfolio:summary:${userId}`),
+      cache.del(`portfolio:equity:${userId}`),
+    ])
+    return accountsRepository.findById(id, userId)
+  },
+
   async delete(id: string, userId: string) {
     const account = await accountsRepository.findById(id, userId)
     if (!account) {
@@ -65,11 +82,11 @@ export const accountsService = {
     // trace côté MERKURE permettant de le retrouver.
     await releaseProviderAccount(account)
 
-    await accountsRepository.hardDelete(id, userId)
+    await accountsRepository.softDelete(id, userId)
 
-    // La cascade Prisma supprime les trades et les bots du compte, mais les
-    // agrégats restent en cache jusqu'à expiration : sans purge, le dashboard
-    // continuerait d'afficher le P&L d'un compte qui n'existe plus.
+    // Les trades et bots du compte survivent (soft-delete), mais les agrégats
+    // restent en cache jusqu'à expiration : sans purge, le dashboard
+    // continuerait d'afficher le P&L d'un compte qui vient d'être déconnecté.
     await Promise.all([
       cache.delPattern(`trades:${userId}:*`),
       cache.delPattern(`kpis:${userId}:*`),
@@ -84,7 +101,7 @@ export const accountsService = {
     await writeAuditLog({
       entityType:  'broker_account',
       entityId:    id,
-      action:      'hard_delete',
+      action:      'soft_delete',
       performedBy: userId,
       metadata: {
         brokerType:  account.brokerType,
