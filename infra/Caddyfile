@@ -1,0 +1,16 @@
+# Reverse-proxy + TLS automatique (Let's Encrypt) pour le VPS.
+# DOMAIN_WEB / DOMAIN_API viennent du .env chargé par docker-compose.prod.yml.
+# Caddy émet et renouvelle les certificats tout seul dès que le DNS des deux
+# domaines pointe vers l'IP du VPS — aucune configuration TLS supplémentaire.
+
+{$DOMAIN_WEB} {
+	reverse_proxy web:3000
+	encode gzip
+}
+
+{$DOMAIN_API} {
+	# reverse_proxy gère nativement l'upgrade WebSocket (route /ws de l'API) —
+	# aucune directive supplémentaire n'est nécessaire.
+	reverse_proxy api:3001
+	encode gzip
+}

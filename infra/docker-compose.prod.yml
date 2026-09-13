@@ -1,0 +1,176 @@
+# Orchestration de production pour un VPS auto-géré (OVH ou autre).
+#
+# Différences volontaires avec infra/docker-compose.yml (dev local) :
+#   - aucun port publié pour postgres/redis/ai-service — seul le réseau Docker
+#     interne y accède, jamais l'IP publique du VPS ;
+#   - un reverse-proxy (Caddy) termine le TLS et expose 80/443 ;
+#   - restart policies, limites mémoire/CPU et rotation de logs partout ;
+#   - pas de mot de passe par défaut : POSTGRES_PASSWORD doit venir du .env,
+#     sinon `docker compose` refuse de démarrer (${VAR:?message}).
+#
+# Usage : toujours depuis le dossier infra/, avec un fichier .env à côté de ce
+# fichier (jamais commité — voir infra/DEPLOY-VPS.md pour sa création) :
+#   cd infra && docker compose -f docker-compose.prod.yml up -d
+#
+# Les images api/web/ai-service sont buildées depuis la racine du monorepo
+# (context: ..) car leurs Dockerfiles copient pnpm-workspace.yaml et les
+# packages partagés — ne pas lancer ce fichier depuis un autre répertoire.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: merkure_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER manquant dans .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD manquant dans .env — jamais de valeur par défaut en prod}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB manquant dans .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [merkure_network]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+    deploy:
+      resources:
+        limits: { memory: 1g }
+
+  redis:
+    image: redis:7-alpine
+    container_name: merkure_redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD manquant dans .env}
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --appendfsync everysec
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "--no-auth-warning", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [merkure_network]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+    deploy:
+      resources:
+        limits: { memory: 320m }
+
+  api:
+    # image: présent en plus de build: pour que `docker compose pull` (utilisé
+    # par le déploiement CI, voir .github/workflows/deploy-vps.yml) récupère
+    # l'image déjà construite sur GHCR au lieu de rebuilder sur le VPS.
+    image: ${GHCR_IMAGE_PREFIX:-merkure}/api:latest
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    container_name: merkure_api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?connection_limit=10
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      # Nom de service Docker Compose — remplace le DNS interne Railway
+      # (ai-service.railway.internal) qui n'existe pas hors de cette plateforme.
+      AI_SERVICE_URL: http://ai-service:8000
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis:    { condition: service_healthy }
+    networks: [merkure_network]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+    deploy:
+      resources:
+        limits: { memory: 768m }
+
+  web:
+    image: ${GHCR_IMAGE_PREFIX:-merkure}/web:latest
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?NEXT_PUBLIC_API_URL manquant — figé au build, pas au runtime}
+        NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:?NEXT_PUBLIC_WS_URL manquant}
+        NEXT_PUBLIC_AUTH_MODE: ${NEXT_PUBLIC_AUTH_MODE:-clerk}
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+    container_name: merkure_web
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      api: { condition: service_healthy }
+    networks: [merkure_network]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+    deploy:
+      resources:
+        limits: { memory: 512m }
+
+  ai-service:
+    image: ${GHCR_IMAGE_PREFIX:-merkure}/ai-service:latest
+    build:
+      context: ../apps/ai-service
+      dockerfile: Dockerfile
+    container_name: merkure_ai_service
+    restart: unless-stopped
+    environment:
+      APP_ENV: production
+      AI_SERVICE_SECRET: ${AI_SERVICE_SECRET:?AI_SERVICE_SECRET manquant dans .env}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY manquant dans .env}
+      CLAUDE_MODEL: ${CLAUDE_MODEL:-claude-sonnet-4-6}
+    networks: [merkure_network]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+    deploy:
+      resources:
+        limits: { memory: 768m }
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: merkure_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN_WEB: ${DOMAIN_WEB:?DOMAIN_WEB manquant — ex. merkure360.com}
+      DOMAIN_API: ${DOMAIN_API:?DOMAIN_API manquant — ex. api.merkure360.com}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web: { condition: service_healthy }
+      api: { condition: service_healthy }
+    networks: [merkure_network]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+volumes:
+  postgres_data:
+    name: merkure_postgres_data
+  redis_data:
+    name: merkure_redis_data
+  caddy_data:
+    name: merkure_caddy_data
+  caddy_config:
+    name: merkure_caddy_config
+
+networks:
+  merkure_network:
+    name: merkure_network
+    driver: bridge
