@@ -11,9 +11,16 @@ import { CAN_EXPORT_TRADES, TRADE_HISTORY_DAYS, upgradeRequired } from '../../mi
 
 const CACHE_TTL = 60 * 2 // 2 minutes (trades changent plus souvent que les KPIs)
 
+// Un champ libre (note) commençant par =, +, -, @, tab ou CR est interprété
+// comme une formule par Excel/Sheets/LibreOffice à l'ouverture — neutralisé
+// en le préfixant d'une apostrophe (mitigation OWASP standard pour la CSV
+// injection), avant l'échappement structurel habituel des virgules/guillemets.
 function escapeCsv(value: unknown): string {
   if (value == null) return ''
-  const str = String(value)
+  let str = String(value)
+  if (/^[=+\-@\t\r]/.test(str)) {
+    str = `'${str}`
+  }
   if (str.includes(',') || str.includes('"') || str.includes('\n')) {
     return `"${str.replace(/"/g, '""')}"`
   }

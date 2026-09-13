@@ -6,6 +6,7 @@ import { prisma } from '../../infrastructure/database/client.js'
 import { env } from '../../config/env.js'
 import { emailService } from '../../infrastructure/email/email.service.js'
 import { authenticate, revokeAllSessions } from '../../middleware/auth.js'
+import { isLoginLocked, recordFailedLogin, clearFailedLogins } from './login-lockout.js'
 
 const LoginSchema = z.object({
   email:    z.string().email(),
@@ -101,6 +102,16 @@ export async function authRoutes(app: FastifyInstance) {
       const { email: rawEmail, password } = parsed.data
       const email = rawEmail.toLowerCase().trim()
 
+      // Complète le rate-limit par IP (10/min) : un credential stuffing
+      // distribué sur beaucoup d'IPs viserait le même compte sans jamais
+      // déclencher cette limite-là.
+      if (await isLoginLocked(email)) {
+        return reply.code(423).send({
+          error:  'account_locked',
+          detail: 'Trop de tentatives échouées. Réessayez dans 15 minutes.',
+        })
+      }
+
       const user = await prisma.user.findFirst({
         where: { email },
         select: { id: true, email: true, passwordHash: true },
@@ -108,13 +119,17 @@ export async function authRoutes(app: FastifyInstance) {
 
       if (!user?.passwordHash) {
         await bcrypt.compare(password, DUMMY_PASSWORD_HASH) // égalise le temps de réponse
+        await recordFailedLogin(email)
         return reply.code(401).send({ error: 'invalid_credentials' })
       }
 
       const valid = await bcrypt.compare(password, user.passwordHash)
       if (!valid) {
+        await recordFailedLogin(email)
         return reply.code(401).send({ error: 'invalid_credentials' })
       }
+
+      await clearFailedLogins(email)
 
       const subscription = await prisma.subscription.findUnique({
         where: { userId: user.id },

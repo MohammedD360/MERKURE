@@ -8,6 +8,26 @@ import { recalculateKpiSnapshots } from '../../kpis/kpi-snapshots.js'
 const MAX_FILE_SIZE = 5 * 1024 * 1024  // 5 MB
 const ALLOWED_TYPES = new Set(['text/csv', 'text/plain', 'application/csv', 'application/octet-stream'])
 
+// Le contrôle MIME est contournable par un simple renommage en .csv — un CSV
+// n'a pas de signature binaire propre (c'est du texte brut), mais on peut au
+// moins rejeter les formats binaires connus qu'on ne veut jamais faire
+// transiter par ce endpoint (xlsx/docx/zip, xls/doc legacy, PDF, exécutables).
+const BINARY_SIGNATURES: { bytes: number[]; label: string }[] = [
+  { bytes: [0x50, 0x4b, 0x03, 0x04], label: 'ZIP/Office (xlsx, docx…)' },
+  { bytes: [0xd0, 0xcf, 0x11, 0xe0], label: 'OLE (xls, doc legacy)' },
+  { bytes: [0x25, 0x50, 0x44, 0x46], label: 'PDF' },
+  { bytes: [0x4d, 0x5a],             label: 'exécutable Windows' },
+]
+
+function hasKnownBinarySignature(buf: Buffer): string | null {
+  for (const sig of BINARY_SIGNATURES) {
+    if (buf.length >= sig.bytes.length && sig.bytes.every((b, i) => buf[i] === b)) {
+      return sig.label
+    }
+  }
+  return null
+}
+
 export async function csvImportRoutes(app: FastifyInstance) {
   /**
    * POST /api/v1/trades/import/csv
@@ -35,7 +55,15 @@ export async function csvImportRoutes(app: FastifyInstance) {
           }
           const chunks: Buffer[] = []
           for await (const chunk of part.file) chunks.push(chunk)
-          csvContent = Buffer.concat(chunks).toString('utf-8')
+          const buffer = Buffer.concat(chunks)
+          const binarySignature = hasKnownBinarySignature(buffer)
+          if (binarySignature) {
+            return reply.code(400).send({
+              error:  'invalid_file_type',
+              detail: `Fichier détecté comme ${binarySignature}, pas un CSV — vérifiez l'extension.`,
+            })
+          }
+          csvContent = buffer.toString('utf-8')
         } else {
           // champ texte
           if (part.fieldname === 'accountId') accountId = part.value as string
