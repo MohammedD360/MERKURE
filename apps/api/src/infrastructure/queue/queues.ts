@@ -9,6 +9,7 @@ export const alertProcessQueue = new Queue('alert-process', { connection })
 export const aiRequestQueue = new Queue('ai-request', { connection })
 export const emailQueue = new Queue('email-send', { connection })
 export const botTradingQueue = new Queue('bot-trading-cycle', { connection })
+export const dataRetentionQueue = new Queue('data-retention', { connection })
 
 // Job type definitions
 export type BrokerSyncJob = {

@@ -109,6 +109,11 @@ const envSchema = z.object({
 
   // Market Data — Twelve Data (cotations XAU/USD, indices…), non configuré = feature désactivée
   TWELVE_DATA_API_KEY: z.string().optional(),
+
+  // Rétention des tables opérationnelles à croissance illimitée (pas de politique
+  // de rétention côté audit_logs ici — c'est une décision légale/RGPD, pas
+  // technique : à trancher explicitement, jamais purgée automatiquement par défaut).
+  BOT_EVENT_RETENTION_DAYS: z.coerce.number().int().positive().default(90),
 })
 
 const parsed = envSchema.safeParse(process.env)

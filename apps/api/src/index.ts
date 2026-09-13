@@ -8,6 +8,7 @@ import { redis } from './infrastructure/cache/redis.js'
 import { startBrokerSyncWorker, scheduleBrokerSyncCron } from './modules/sync/broker-sync.worker.js'
 import { startAlertsWorker } from './modules/alerts/alerts.worker.js'
 import { startBotTradingWorker, scheduleBotTradingCron } from './modules/bots/bot-trading.worker.js'
+import { startDataRetentionWorker, scheduleDataRetentionCron } from './modules/maintenance/data-retention.worker.js'
 
 const app = buildApp()
 
@@ -15,6 +16,7 @@ const app = buildApp()
 const syncWorker      = startBrokerSyncWorker()
 const alertsWorker    = startAlertsWorker()
 const botTradingWorker = startBotTradingWorker()
+const dataRetentionWorker = startDataRetentionWorker()
 
 const gracefulShutdown = async (signal: string) => {
   app.log.info(`[${signal}] Shutting down...`)
@@ -24,7 +26,7 @@ const gracefulShutdown = async (signal: string) => {
   const forceExit = setTimeout(() => process.exit(1), 8_000)
   forceExit.unref()
   try {
-    await Promise.all([syncWorker.close(), alertsWorker.close(), botTradingWorker.close()])
+    await Promise.all([syncWorker.close(), alertsWorker.close(), botTradingWorker.close(), dataRetentionWorker.close()])
     await app.close()
     await prisma.$disconnect()
     await redis.quit()
@@ -63,6 +65,9 @@ try {
 
   await scheduleBotTradingCron()
   app.log.info(`Bot trading cron scheduled (every ${env.BOT_TRADING_TICK_MS / 1000}s)`)
+
+  await scheduleDataRetentionCron()
+  app.log.info(`Data retention cron scheduled (bot_events > ${env.BOT_EVENT_RETENTION_DAYS}d, daily)`)
 } catch (err) {
   const { Sentry } = await import('./infrastructure/monitoring/sentry.js')
   Sentry.captureException(err)
