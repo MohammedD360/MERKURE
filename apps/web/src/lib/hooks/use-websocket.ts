@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { resolveAuthToken } from '@/lib/api-client'
 
 const WS_URL = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001')
   .replace(/^http/, 'ws') + '/ws'
@@ -16,17 +17,21 @@ export function useWebSocket() {
   const queryClient = useQueryClient()
   const wsRef       = useRef<WebSocket | null>(null)
   const retryRef    = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const attemptRef  = useRef(0)
 
   useEffect(() => {
     let mounted = true
 
-    function connect() {
+    async function connect() {
       if (!mounted) return
 
-      const token = (window as unknown as Record<string, unknown>).__clerkToken as string | undefined
-      const url   = token ? `${WS_URL}?token=${token}` : WS_URL
-      const ws    = new WebSocket(url)
+      const token = await resolveAuthToken()
+      if (!mounted) return
+      const url = token ? `${WS_URL}?token=${token}` : WS_URL
+      const ws  = new WebSocket(url)
       wsRef.current = ws
+
+      ws.onopen = () => { attemptRef.current = 0 }
 
       ws.onmessage = (ev) => {
         try {
@@ -47,13 +52,18 @@ export function useWebSocket() {
 
       ws.onclose = () => {
         if (mounted) {
-          // Reconnexion avec backoff exponentiel (max 30s)
-          retryRef.current = setTimeout(connect, Math.min(30_000, 3_000))
+          // Backoff exponentiel avec jitter (1s, 2s, 4s... plafonné à 30s) : évite
+          // qu'un incident API fasse retenter toutes les connexions ouvertes en
+          // boucle serrée pendant que le service redémarre.
+          const attempt = attemptRef.current++
+          const base    = Math.min(30_000, 1_000 * 2 ** attempt)
+          const jitter  = Math.random() * base * 0.3
+          retryRef.current = setTimeout(() => { void connect() }, base + jitter)
         }
       }
     }
 
-    connect()
+    void connect()
 
     return () => {
       mounted = false

@@ -87,4 +87,7 @@ USER nextjs
 
 EXPOSE 3000
 
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD wget --spider -q http://localhost:3000/ || exit 1
+
 CMD ["node", "apps/web/server.js"]

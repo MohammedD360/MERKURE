@@ -1,3 +1,5 @@
+import { isClerkEnabled } from './auth-mode'
+
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
 const TOKEN_KEY = 'merkure_token'
@@ -17,9 +19,24 @@ export function clearToken(): void {
   document.cookie = 'merkure_session=; path=/; max-age=0'
 }
 
+// En mode démo, le token JWT vit en localStorage (setToken ci-dessus). En mode
+// Clerk, rien ne l'y écrit jamais : Clerk gère sa propre session côté client.
+// window.Clerk est l'échappatoire officielle de Clerk pour récupérer un jeton
+// en dehors d'un composant React (ici : un simple appel fetch, pas un hook).
+export async function resolveAuthToken(): Promise<string | null> {
+  if (isClerkEnabled) {
+    if (typeof window === 'undefined') return null
+    const clerk = (window as unknown as {
+      Clerk?: { session?: { getToken(): Promise<string | null> } }
+    }).Clerk
+    return (await clerk?.session?.getToken()) ?? null
+  }
+  return getToken()
+}
+
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-  const token = getToken()
+  const token = await resolveAuthToken()
   if (token) headers['Authorization'] = `Bearer ${token}`
 
   const method = init?.method?.toUpperCase()
@@ -52,7 +69,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
 
 export async function apiFetchBlob(path: string): Promise<Blob> {
   const headers: Record<string, string> = {}
-  const token = getToken()
+  const token = await resolveAuthToken()
   if (token) headers['Authorization'] = `Bearer ${token}`
 
   const res = await fetch(`${API}${path}`, { headers })
