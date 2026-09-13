@@ -38,11 +38,17 @@ export interface CoachingResult {
   cache_read_tokens:  number
 }
 
+// Sans timeout, un service IA bloqué (Anthropic lent, pandas sur un gros
+// import) laisse la requête API appelante pendre indéfiniment.
+const KPIS_TIMEOUT_MS     = 15_000
+const COACHING_TIMEOUT_MS = 45_000 // appel LLM — nettement plus lent qu'un calcul pandas
+
 export async function computeKpis(trades: Trade[]): Promise<KpisResult> {
   const res = await fetch(`${BASE_URL}/api/v1/kpis`, {
     method:  'POST',
     headers: HEADERS,
     body:    JSON.stringify({ trades }),
+    signal:  AbortSignal.timeout(KPIS_TIMEOUT_MS),
   })
   if (!res.ok) throw new Error(`AI service KPIs error: ${res.status}`)
   return res.json() as Promise<KpisResult>
@@ -58,6 +64,7 @@ export async function getCoaching(payload: {
     method:  'POST',
     headers: HEADERS,
     body:    JSON.stringify(payload),
+    signal:  AbortSignal.timeout(COACHING_TIMEOUT_MS),
   })
   if (!res.ok) {
     const body = await res.text().catch(() => '')

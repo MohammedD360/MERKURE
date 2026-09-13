@@ -2,11 +2,19 @@
 Coaching IA — utilise Claude API avec prompt caching.
 """
 
+import logging
+import time
+
 import anthropic
 from ..core.config import settings
 
+logger = logging.getLogger("merkure.coaching")
 
-client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
+# Timeout + retries explicites plutôt que de dépendre des défauts du SDK : un
+# service à un seul worker uvicorn ne doit pas rester bloqué indéfiniment sur
+# un appel Claude lent, et les erreurs 429/5xx (retryable) doivent être
+# retentées automatiquement sans faire échouer la requête pour un incident transitoire.
+client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY, timeout=30.0, max_retries=2)
 
 SYSTEM_PROMPT = """Tu es MERKURE AI, un coach de trading expert, précis et bienveillant.
 Tu analyses les performances d'un trader et fournis des conseils actionnables et personnalisés.
@@ -75,6 +83,7 @@ async def get_coaching_analysis(
         question=question,
     )
 
+    started = time.monotonic()
     response = await client.messages.create(
         model=settings.CLAUDE_MODEL,
         max_tokens=1024,
@@ -87,10 +96,19 @@ async def get_coaching_analysis(
         ],
         messages=[{"role": "user", "content": prompt}],
     )
+    latency_ms = round((time.monotonic() - started) * 1000)
 
-    return {
+    result = {
         "analysis": response.content[0].text,
         "input_tokens": response.usage.input_tokens,
         "output_tokens": response.usage.output_tokens,
         "cache_read_tokens": getattr(response.usage, "cache_read_input_tokens", 0),
     }
+    # Jamais le contenu du prompt ni de la réponse dans les logs — uniquement
+    # des métriques de coût/latence, seule observabilité disponible aujourd'hui
+    # sur ce service (pas de dashboard Anthropic par utilisateur).
+    logger.info(
+        "coaching_completed latency_ms=%d input_tokens=%d output_tokens=%d cache_read_tokens=%d",
+        latency_ms, result["input_tokens"], result["output_tokens"], result["cache_read_tokens"],
+    )
+    return result

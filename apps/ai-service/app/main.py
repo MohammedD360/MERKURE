@@ -1,5 +1,4 @@
 from fastapi import FastAPI, Depends
-from fastapi.middleware.cors import CORSMiddleware
 
 from .core.config import settings
 from .core.security import verify_service_secret
@@ -12,13 +11,10 @@ app = FastAPI(
     redoc_url=None,
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3001"],  # Backend Node.js uniquement
-    allow_credentials=True,
-    allow_methods=["POST", "GET"],
-    allow_headers=["*"],
-)
+# Pas de CORSMiddleware : ce service n'est jamais appelé depuis un navigateur
+# (CORS ne s'applique qu'aux requêtes cross-origin émises par du JS client),
+# uniquement server-to-server par l'API Node via X-AI-Service-Secret. En
+# garder un ici ne protège rien et documente un scénario qui n'existe pas.
 
 app.include_router(
     kpis.router,
