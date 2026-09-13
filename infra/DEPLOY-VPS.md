@@ -91,6 +91,10 @@ STRIPE_PRICE_ELITE=price_...
 FRONTEND_URL=https://merkure360.com
 NODE_ENV=production
 AUTH_MODE=clerk
+
+# Resend (obligatoire en production — voir config/env.ts, le boot échoue sans elle)
+RESEND_API_KEY=re_...
+RESEND_FROM=noreply@merkure360.com
 ```
 
 Génération des secrets aléatoires :
