@@ -4,6 +4,7 @@ import { authenticate } from '../../middleware/auth.js'
 import { requirePlan } from '../../middleware/require-plan.js'
 import { prisma } from '../../infrastructure/database/client.js'
 import { env } from '../../config/env.js'
+import { isOriginAllowed } from '../../config/cors.js'
 import { analyzeTradesForDay } from './ai.service.js'
 import { runStrategyAnalysis, listStrategyAnalyses } from './strategy-validator.service.js'
 import { getCoaching, computeKpis } from '../../infrastructure/ai-python/ai-python-client.js'
@@ -30,10 +31,14 @@ export async function aiRoutes(app: FastifyInstance) {
       if (!env.ANTHROPIC_API_KEY) return reply.code(503).send({ error: 'ai_unavailable' })
 
       // reply.hijack() court-circuite le hook onSend de @fastify/cors — sans ces
-      // deux lignes, le fetch streaming du navigateur est bloqué par CORS.
+      // lignes, le fetch streaming du navigateur est bloqué par CORS. On rejoue
+      // ici la même liste blanche que le plugin CORS global : ne jamais réfléchir
+      // une origine non autorisée, sous peine de contourner toute la politique CORS.
       const origin = req.headers.origin
-      if (origin) reply.raw.setHeader('Access-Control-Allow-Origin', origin)
-      reply.raw.setHeader('Access-Control-Allow-Credentials', 'true')
+      if (isOriginAllowed(origin)) {
+        reply.raw.setHeader('Access-Control-Allow-Origin', origin!)
+        reply.raw.setHeader('Access-Control-Allow-Credentials', 'true')
+      }
       reply.raw.setHeader('Content-Type', 'text/plain; charset=utf-8')
       reply.raw.setHeader('Cache-Control', 'no-cache')
       reply.hijack()

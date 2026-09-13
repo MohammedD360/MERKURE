@@ -17,10 +17,17 @@ const botTradingWorker = startBotTradingWorker()
 
 const gracefulShutdown = async (signal: string) => {
   console.log(`[worker] [${signal}] Arrêt en cours...`)
-  await botTradingWorker.close()
-  await prisma.$disconnect()
-  await redis.quit()
-  process.exit(0)
+  const forceExit = setTimeout(() => process.exit(1), 8_000)
+  forceExit.unref()
+  try {
+    await botTradingWorker.close()
+    await prisma.$disconnect()
+    await redis.quit()
+    process.exit(0)
+  } catch (err) {
+    console.error('[worker] Erreur pendant l\'arrêt :', err)
+    process.exit(1)
+  }
 }
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))

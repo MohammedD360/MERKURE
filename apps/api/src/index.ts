@@ -18,11 +18,21 @@ const botTradingWorker = startBotTradingWorker()
 
 const gracefulShutdown = async (signal: string) => {
   app.log.info(`[${signal}] Shutting down...`)
-  await Promise.all([syncWorker.close(), alertsWorker.close(), botTradingWorker.close()])
-  await app.close()
-  await prisma.$disconnect()
-  await redis.quit()
-  process.exit(0)
+  // Filet de sécurité : sur un VPS, Docker envoie SIGKILL après stop_grace_period
+  // (10s par défaut) — mieux vaut sortir proprement à 8s que subir un kill brutal
+  // en pleine fermeture de connexions.
+  const forceExit = setTimeout(() => process.exit(1), 8_000)
+  forceExit.unref()
+  try {
+    await Promise.all([syncWorker.close(), alertsWorker.close(), botTradingWorker.close()])
+    await app.close()
+    await prisma.$disconnect()
+    await redis.quit()
+    process.exit(0)
+  } catch (err) {
+    app.log.error(err, 'Error during graceful shutdown')
+    process.exit(1)
+  }
 }
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))

@@ -6,6 +6,7 @@ import { z } from 'zod'
 const DEV_DEFAULT_JWT_SECRET = 'merkure_dev_jwt_secret_change_me_64_bytes_minimum'
 const DEV_DEFAULT_JWT_REFRESH_SECRET = 'merkure_dev_refresh_secret_change_me_64_bytes_minimum'
 const DEV_DEFAULT_ENCRYPTION_KEY = '0000000000000000000000000000000000000000000000000000000000000000'
+const DEV_DEFAULT_AI_SERVICE_SECRET = 'merkure_dev_ai_secret'
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -42,7 +43,7 @@ const envSchema = z.object({
 
   // AI Service
   AI_SERVICE_URL: z.string().url().default('http://localhost:8000'),
-  AI_SERVICE_SECRET: z.string().min(16).default('merkure_dev_ai_secret'),
+  AI_SERVICE_SECRET: z.string().min(16).default(DEV_DEFAULT_AI_SERVICE_SECRET),
 
   // Anthropic
   ANTHROPIC_API_KEY: z.string().startsWith('sk-ant-').optional(),
@@ -129,6 +130,7 @@ if (parsed.data.NODE_ENV === 'production') {
   if (parsed.data.ENCRYPTION_KEY === DEV_DEFAULT_ENCRYPTION_KEY)     insecure.push('ENCRYPTION_KEY')
   if (parsed.data.JWT_SECRET === DEV_DEFAULT_JWT_SECRET)             insecure.push('JWT_SECRET')
   if (parsed.data.JWT_REFRESH_SECRET === DEV_DEFAULT_JWT_REFRESH_SECRET) insecure.push('JWT_REFRESH_SECRET')
+  if (parsed.data.AI_SERVICE_SECRET === DEV_DEFAULT_AI_SERVICE_SECRET) insecure.push('AI_SERVICE_SECRET')
   if (insecure.length > 0) {
     console.error(`[env] Secrets encore sur leur valeur de développement en production : ${insecure.join(', ')}`)
     process.exit(1)

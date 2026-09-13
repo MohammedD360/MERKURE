@@ -11,6 +11,7 @@ import { verifyToken } from '@clerk/backend'
 import type { FastifyInstance, FastifyRequest } from 'fastify'
 
 import { env } from './config/env.js'
+import { allowedOrigins } from './config/cors.js'
 import { prisma } from './infrastructure/database/client.js'
 import { getDemoUser } from './modules/auth/demo-user.js'
 import { redis } from './infrastructure/cache/redis.js'
@@ -67,10 +68,6 @@ export function buildApp(): FastifyInstance {
       ? { maxAge: 31_536_000, includeSubDomains: true, preload: true }
       : false,
   })
-  const allowedOrigins = [
-    env.FRONTEND_URL,
-    ...(env.CORS_EXTRA_ORIGINS?.split(',').map(o => o.trim()).filter(Boolean) ?? []),
-  ]
   void app.register(fastifyCors, {
     // En prod, seuls les frontends connus sont autorisés
     origin: env.NODE_ENV === 'production' ? allowedOrigins : true,
@@ -90,8 +87,11 @@ export function buildApp(): FastifyInstance {
     // En prod : stockage Redis partagé entre instances (scale horizontal Railway)
     // En dev/test : mémoire locale
     ...(env.NODE_ENV === 'production' ? { redis } : {}),
-    // allowList retourne true → la requête n'est pas comptabilisée
-    allowList: () => env.NODE_ENV === 'test',
+    // allowList retourne true → la requête n'est pas comptabilisée. Les webhooks
+    // Clerk/Stripe sont déjà protégés par vérification de signature : un 429 sur
+    // une rafale légitime (replay après incident) serait interprété comme un échec
+    // par ces fournisseurs et retenté selon leur propre backoff.
+    allowList: (req) => env.NODE_ENV === 'test' || req.url.startsWith('/api/webhooks/'),
     // Retourner 429 explicite avec message francophone
     errorResponseBuilder: (_req, context) => ({
       statusCode: 429,
@@ -102,13 +102,48 @@ export function buildApp(): FastifyInstance {
   void app.register(fastifyWebsocket)
   void app.register(fastifyMultipart)
 
-  // ─── Health check ─────────────────────────────────────────────────────────────
-  const healthHandler = async () => ({
-    status: 'ok',
-    service: 'merkure-api',
-    version: '0.1.0',
-    timestamp: new Date().toISOString(),
+  // ─── Global error handler ─────────────────────────────────────────────────────
+  // Filet de sécurité pour tout ce qui échappe aux try/catch des routes (déjà
+  // responsables de traduire Zod / erreurs métier `.status` en réponses propres) :
+  // ne jamais renvoyer error.message au client pour une erreur non anticipée —
+  // une panne Postgres révélerait sinon le nom d'hôte interne dans la réponse HTTP.
+  app.setErrorHandler((error, request, reply) => {
+    const err = error as Error & { statusCode?: number }
+    if (err.statusCode && err.statusCode < 500) {
+      return reply.code(err.statusCode).send({ error: err.message })
+    }
+    request.log.error({ err: error }, 'Unhandled error')
+    return reply.code(500).send({ error: 'internal_server_error' })
   })
+
+  // ─── Health check ─────────────────────────────────────────────────────────────
+  function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+    return Promise.race([
+      promise,
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), ms)),
+    ])
+  }
+
+  const healthHandler = async (request: FastifyRequest, reply: import('fastify').FastifyReply) => {
+    const [dbOk, redisOk] = await Promise.all([
+      withTimeout(prisma.$queryRaw`SELECT 1`, 2000).then(() => true).catch(() => false),
+      withTimeout(redis.ping(), 2000).then(() => true).catch(() => false),
+    ])
+    const healthy = dbOk && redisOk
+    // Le détail db/redis reste dans les logs serveur uniquement : un appelant non
+    // authentifié ne doit pas pouvoir cartographier quelle dépendance interne est
+    // en panne (reconnaissance / fenêtre d'attaque pendant un incident).
+    if (!healthy) {
+      request.log.warn({ db: dbOk, redis: redisOk }, 'Health check degraded')
+    }
+    const body = {
+      status: healthy ? 'ok' : 'degraded',
+      service: 'merkure-api',
+      version: '0.1.0',
+      timestamp: new Date().toISOString(),
+    }
+    return reply.code(healthy ? 200 : 503).send(body)
+  }
   app.get('/health', healthHandler)
   app.get('/api/health', healthHandler)
 
