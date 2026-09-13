@@ -4,7 +4,6 @@ import { z } from 'zod'
 // surcharger ne doit jamais démarrer silencieusement avec ces valeurs connues.
 // Voir la vérification de production plus bas, qui compare contre ces mêmes constantes.
 const DEV_DEFAULT_JWT_SECRET = 'merkure_dev_jwt_secret_change_me_64_bytes_minimum'
-const DEV_DEFAULT_JWT_REFRESH_SECRET = 'merkure_dev_refresh_secret_change_me_64_bytes_minimum'
 const DEV_DEFAULT_ENCRYPTION_KEY = '0000000000000000000000000000000000000000000000000000000000000000'
 const DEV_DEFAULT_AI_SERVICE_SECRET = 'merkure_dev_ai_secret'
 
@@ -26,10 +25,11 @@ const envSchema = z.object({
   // Auth
   AUTH_MODE: z.enum(['demo', 'clerk']).default('demo'),
   CLERK_SECRET_KEY: z.string().optional(),
+  // Durée de session fixe (voir auth.routes.ts, expiresIn: '7d' sur chaque
+  // app.jwt.sign) : il n'existe pas de flux de refresh token distinct malgré
+  // le modèle RefreshToken en base — JWT_REFRESH_SECRET/JWT_*_EXPIRES_IN ont
+  // été retirés car ils ne pilotaient jamais rien.
   JWT_SECRET: z.string().min(32).default(DEV_DEFAULT_JWT_SECRET),
-  JWT_REFRESH_SECRET: z.string().min(32).default(DEV_DEFAULT_JWT_REFRESH_SECRET),
-  JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
-  JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
 
   // CORS
   FRONTEND_URL: z.string().url().default('http://localhost:3000'),
@@ -38,6 +38,11 @@ const envSchema = z.object({
   // final soit branché. FRONTEND_URL reste la seule URL "canonique" utilisée
   // pour les liens (emails, redirection Stripe/OAuth) : ceci ne sert qu'au CORS.
   CORS_EXTRA_ORIGINS: z.string().optional(),
+
+  // Reverse-proxy de confiance pour X-Forwarded-For (voir app.ts) — CIDR ou IP,
+  // virgule-séparés. Laisser vide fait confiance à n'importe quelle IP (adapté
+  // tant qu'on est derrière Railway/Vercel), à restreindre à l'IP du Caddy VPS.
+  TRUSTED_PROXY_CIDRS: z.string().optional(),
 
   // Email (Resend)
   RESEND_API_KEY: z.string().optional(),
@@ -134,7 +139,6 @@ if (parsed.data.NODE_ENV === 'production') {
   const insecure: string[] = []
   if (parsed.data.ENCRYPTION_KEY === DEV_DEFAULT_ENCRYPTION_KEY)     insecure.push('ENCRYPTION_KEY')
   if (parsed.data.JWT_SECRET === DEV_DEFAULT_JWT_SECRET)             insecure.push('JWT_SECRET')
-  if (parsed.data.JWT_REFRESH_SECRET === DEV_DEFAULT_JWT_REFRESH_SECRET) insecure.push('JWT_REFRESH_SECRET')
   if (parsed.data.AI_SERVICE_SECRET === DEV_DEFAULT_AI_SERVICE_SECRET) insecure.push('AI_SERVICE_SECRET')
   if (insecure.length > 0) {
     console.error(`[env] Secrets encore sur leur valeur de développement en production : ${insecure.join(', ')}`)

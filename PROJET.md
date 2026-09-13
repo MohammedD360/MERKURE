@@ -898,9 +898,6 @@ AUTH_MODE=demo
 
 # Auth JWT — générer avec: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 JWT_SECRET=<64 bytes hex>
-JWT_REFRESH_SECRET=<64 bytes hex>
-JWT_ACCESS_EXPIRES_IN=15m
-JWT_REFRESH_EXPIRES_IN=7d
 
 # CORS
 FRONTEND_URL=http://localhost:3000

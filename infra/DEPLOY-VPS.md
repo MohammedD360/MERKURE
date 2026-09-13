@@ -79,7 +79,6 @@ NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_...
 CLERK_SECRET_KEY=sk_live_...
 CLERK_WEBHOOK_SECRET=whsec_...
 JWT_SECRET=<openssl rand -hex 64>
-JWT_REFRESH_SECRET=<openssl rand -hex 64>
 ENCRYPTION_KEY=<openssl rand -hex 32>
 AI_SERVICE_SECRET=<openssl rand -hex 32>
 ANTHROPIC_API_KEY=sk-ant-...
@@ -99,7 +98,7 @@ RESEND_FROM=noreply@merkure360.com
 
 Génération des secrets aléatoires :
 ```bash
-openssl rand -hex 64   # JWT_SECRET, JWT_REFRESH_SECRET
+openssl rand -hex 64   # JWT_SECRET
 openssl rand -hex 32   # ENCRYPTION_KEY, AI_SERVICE_SECRET
 ```
 

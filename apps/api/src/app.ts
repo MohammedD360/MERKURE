@@ -49,12 +49,20 @@ function getBearerToken(request: FastifyRequest): string | null {
 
 function buildLoggerConfig() {
   if (env.NODE_ENV === 'test') return false
-  return { level: env.NODE_ENV === 'production' ? 'warn' : 'info' }
+  // 'warn' en prod ne laissait aucune trace des requêtes traitées normalement,
+  // rendant un diagnostic post-incident impossible sans logs agrégés Railway.
+  return { level: 'info' }
 }
 
 export function buildApp(): FastifyInstance {
-  // trustProxy: true → X-Forwarded-For lu correctement derrière Railway / Vercel
-  const app = Fastify({ logger: buildLoggerConfig(), trustProxy: true })
+  // trustProxy: true fait confiance à n'importe quel X-Forwarded-For — correct
+  // tant que l'IP/CIDR du reverse-proxy réel n'est pas connue (Railway/Vercel),
+  // mais à restreindre via TRUSTED_PROXY_CIDRS dès que le VPS et son Caddy sont
+  // en place (sinon le rate-limiting par IP redevient contournable).
+  const trustProxy = env.TRUSTED_PROXY_CIDRS
+    ? env.TRUSTED_PROXY_CIDRS.split(',').map(s => s.trim())
+    : true
+  const app = Fastify({ logger: buildLoggerConfig(), trustProxy, bodyLimit: 1_048_576 /* 1 MiB — défaut Fastify rendu explicite */ })
 
   // ─── Raw body (required for webhook signature verification) ─────────────────
   void app.register(fastifyRawBody, { global: false, encoding: 'utf8', runFirst: true })
