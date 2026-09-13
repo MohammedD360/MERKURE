@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiFetch } from '@/lib/api-client'
 
-export type BrokerType  = 'MT4' | 'MT5' | 'BINANCE' | 'IB' | 'CTRADER' | 'TRADOVATE' | 'POLYMARKET'
+export type BrokerType  = 'MT4' | 'MT5' | 'BINANCE' | 'IB' | 'CTRADER' | 'TRADOVATE' | 'POLYMARKET' | 'MANUAL'
 export type AccountType = 'LIVE' | 'DEMO' | 'PROP_FUNDED' | 'PROP_CHALLENGE'
 export type SyncStatus  = 'PENDING' | 'SYNCING' | 'SUCCESS' | 'ERROR'
 
@@ -18,6 +18,8 @@ export interface BrokerAccount {
   syncError:   string | null
   lastSyncAt:  string | null
   createdAt:   string
+  /** Décimal sérialisé en chaîne par l'API (comme les autres champs Decimal). */
+  startingBalance: string | null
 }
 
 export interface CreateAccountBody {
@@ -26,6 +28,7 @@ export interface CreateAccountBody {
   accountId:   string
   label:       string
   credentials?: Record<string, string>
+  startingBalance?: number
 }
 
 export function useAccounts() {
@@ -42,6 +45,18 @@ export function useCreateAccount() {
       apiFetch<BrokerAccount>('/api/v1/accounts', {
         method: 'POST',
         body:   JSON.stringify(body),
+      }),
+    onSuccess: () => qc.invalidateQueries(),
+  })
+}
+
+export function useUpdateAccount() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, startingBalance }: { id: string; startingBalance: number | null }) =>
+      apiFetch<BrokerAccount>(`/api/v1/accounts/${id}`, {
+        method: 'PATCH',
+        body:   JSON.stringify({ startingBalance }),
       }),
     onSuccess: () => qc.invalidateQueries(),
   })

@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import {
-  AlertTriangle, ArrowLeftRight, ChevronDown, Loader2, RefreshCw, Trophy, Unlink, Upload,
+  AlertTriangle, ArrowLeftRight, Check, ChevronDown, Loader2, RefreshCw, Trophy, Unlink, Upload, Wallet, X,
 } from 'lucide-react'
 import { brokerMeta } from '@/lib/broker-config'
 import {
   useDeleteAccount,
   useSyncAccount,
+  useUpdateAccount,
   type BrokerAccount,
   type SyncStatus,
 } from '@/lib/hooks/use-accounts'
@@ -44,6 +45,81 @@ function SyncState({ status, lastSyncAt }: { status: SyncStatus; lastSyncAt: str
       <span className={cn('h-2 w-2 shrink-0 rounded-full', c.dot)} />
       <span className="truncate">{c.text}</span>
     </span>
+  )
+}
+
+/** Un compte manuel n'a pas de synchro : pas de pastille d'erreur/attente trompeuse. */
+function ManualState() {
+  return (
+    <span className="flex items-center gap-2 text-sm text-muted-foreground">
+      <span className="h-2 w-2 shrink-0 rounded-full bg-muted-foreground/40" />
+      <span className="truncate">Alimenté par import CSV</span>
+    </span>
+  )
+}
+
+/**
+ * Capital de départ, éditable en ligne. C'est la seule source de solde pour
+ * un compte MANUAL (pas de sync broker) — sans lui, "Valeur du portefeuille"
+ * reste à 0 sur la vue d'ensemble.
+ */
+function StartingBalanceEditor({ accountId, startingBalance }: { accountId: string; startingBalance: string | null }) {
+  const { mutate: update, isPending } = useUpdateAccount()
+  const [editing, setEditing] = useState(false)
+  const [value, setValue]     = useState(startingBalance ?? '')
+
+  const save = () => {
+    const trimmed = value.trim()
+    const parsed  = trimmed ? Number(trimmed) : null
+    if (trimmed && (parsed === null || Number.isNaN(parsed) || parsed < 0)) return
+    update({ id: accountId, startingBalance: parsed }, { onSuccess: () => setEditing(false) })
+  }
+
+  if (editing) {
+    return (
+      <div className="flex items-center gap-1">
+        <input
+          type="number"
+          min="0"
+          autoFocus
+          value={value}
+          onChange={e => setValue(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter') save()
+            if (e.key === 'Escape') { setValue(startingBalance ?? ''); setEditing(false) }
+          }}
+          placeholder="Ex : 25000"
+          className="h-7 w-28 rounded-md border border-input bg-background px-2 text-xs text-foreground outline-none focus:border-[hsl(var(--primary))]"
+        />
+        <button type="button" onClick={save} disabled={isPending} title="Enregistrer"
+          className="flex h-7 w-7 items-center justify-center rounded-md text-green-500 hover:bg-green-500/10 disabled:opacity-50">
+          {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+        </button>
+        <button type="button" onClick={() => { setValue(startingBalance ?? ''); setEditing(false) }} title="Annuler"
+          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent">
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => setEditing(true)}
+      title="Définir le capital de départ (base du calcul de la valeur du portefeuille)"
+      className={cn(
+        'inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium transition-colors',
+        startingBalance
+          ? 'border-transparent text-muted-foreground hover:border-border hover:bg-accent'
+          : 'border-dashed border-amber-500/40 text-amber-600 hover:bg-amber-500/10',
+      )}
+    >
+      <Wallet className="h-3 w-3" />
+      {startingBalance
+        ? `Capital : $${Number(startingBalance).toLocaleString('fr-FR')}`
+        : 'Capital non défini'}
+    </button>
   )
 }
 
@@ -101,7 +177,8 @@ export function CompteRow({
   const { mutate: remove, isPending: deleting } = useDeleteAccount()
   const [confirmDelete, setConfirmDelete] = useState(false)
 
-  const hasError = compte.syncStatus === 'ERROR'
+  const isManual = compte.brokerType === 'MANUAL'
+  const hasError = !isManual && compte.syncStatus === 'ERROR'
   const initials = compte.brokerType.startsWith('MT') ? 'MT' : compte.brokerType.slice(0, 2)
 
   const handleDelete = () => {
@@ -142,8 +219,11 @@ export function CompteRow({
         </div>
 
         {/* État */}
-        <div className="min-w-[220px] shrink-0">
-          <SyncState status={compte.syncStatus} lastSyncAt={compte.lastSyncAt} />
+        <div className="min-w-[220px] shrink-0 space-y-1.5">
+          {isManual
+            ? <ManualState />
+            : <SyncState status={compte.syncStatus} lastSyncAt={compte.lastSyncAt} />}
+          <StartingBalanceEditor accountId={compte.id} startingBalance={compte.startingBalance} />
         </div>
 
         {/* Actions */}
@@ -165,15 +245,17 @@ export function CompteRow({
               <ChevronDown className={cn('h-4 w-4 transition-transform', propFirmOpen && 'rotate-180')} />
             </button>
           )}
-          <IconAction
-            onClick={() => sync(compte.id)}
-            disabled={syncing || compte.syncStatus === 'SYNCING'}
-            title="Synchroniser maintenant"
-          >
-            {syncing || compte.syncStatus === 'SYNCING'
-              ? <Loader2 className="h-4 w-4 animate-spin" />
-              : <RefreshCw className="h-4 w-4" />}
-          </IconAction>
+          {!isManual && (
+            <IconAction
+              onClick={() => sync(compte.id)}
+              disabled={syncing || compte.syncStatus === 'SYNCING'}
+              title="Synchroniser maintenant"
+            >
+              {syncing || compte.syncStatus === 'SYNCING'
+                ? <Loader2 className="h-4 w-4 animate-spin" />
+                : <RefreshCw className="h-4 w-4" />}
+            </IconAction>
+          )}
           <IconAction onClick={() => onNavigateToTrades(compte.id)} title="Voir les trades de ce compte">
             <ArrowLeftRight className="h-4 w-4" />
           </IconAction>

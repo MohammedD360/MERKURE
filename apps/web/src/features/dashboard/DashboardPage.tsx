@@ -72,7 +72,7 @@ function SplitRow({ main, side }: { main: React.ReactNode; side?: React.ReactNod
 }
 
 export function DashboardPage() {
-  const [chartPeriod, setChartPeriod] = useState<ChartPeriod>('1M')
+  const [chartPeriod, setChartPeriod] = useState<ChartPeriod>('ALL')
   const kpiPeriod = chartPeriodToApiPeriod(chartPeriod)
   const breakdownQuery = useKpiBreakdown(kpiPeriod)
 

@@ -177,12 +177,16 @@ function NextStepItem({ done, label, value }: { done: boolean; label: string; va
 
 type ComplianceSnapshot = { consistencyPct: number; dailyDdPct: number; maxDdPct: number } | null
 
+function getHiddenRuleValue(rule: HiddenRule, c: ComplianceSnapshot): number | null {
+  if (!c || !rule.metric) return null
+  return rule.metric === 'consistency' ? c.consistencyPct :
+         rule.metric === 'daily_dd'    ? c.dailyDdPct :
+         rule.metric === 'max_dd'      ? c.maxDdPct : null
+}
+
 function computeHiddenStatus(rule: HiddenRule, c: ComplianceSnapshot): 'ok' | 'warning' | 'breach' | null {
-  if (!c || !rule.metric || rule.threshold === undefined) return null
-  const value =
-    rule.metric === 'consistency' ? c.consistencyPct :
-    rule.metric === 'daily_dd'    ? c.dailyDdPct :
-    rule.metric === 'max_dd'      ? c.maxDdPct : null
+  if (rule.threshold === undefined) return null
+  const value = getHiddenRuleValue(rule, c)
   if (value === null) return null
   if (value >= rule.threshold)        return 'breach'
   if (value >= rule.threshold * 0.75) return 'warning'
@@ -259,10 +263,16 @@ function HiddenRuleCard({ rule, compliance }: { rule: HiddenRule; compliance: Co
       <div className="mt-auto pt-3">
         {rtStatus !== null ? (
           <div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-[hsl(var(--accent))]">
+            <div className="flex items-baseline justify-between">
+              <span className="tabular-nums text-lg font-bold text-foreground">
+                {(getHiddenRuleValue(rule, compliance) ?? 0).toFixed(1)}%
+              </span>
+              <span className="text-xs text-muted-foreground">Max autorisé {rule.threshold}%</span>
+            </div>
+            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[hsl(var(--accent))]">
               <div
                 className={cn('h-full rounded-full transition-all duration-700', rtColor)}
-                style={{ width: `${Math.min((rule.metric === 'consistency' ? (compliance?.consistencyPct ?? 0) : rule.metric === 'daily_dd' ? (compliance?.dailyDdPct ?? 0) : (compliance?.maxDdPct ?? 0)) / rule.threshold! * 100, 100)}%` }}
+                style={{ width: `${Math.min((getHiddenRuleValue(rule, compliance) ?? 0) / rule.threshold! * 100, 100)}%` }}
               />
             </div>
             <p className={cn('mt-1 text-xs font-bold',

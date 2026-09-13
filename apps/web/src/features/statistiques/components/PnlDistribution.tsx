@@ -27,7 +27,7 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: { payl
 }
 
 export function PnlDistribution() {
-  const [period, setPeriod] = useState<KpiPeriod>('30d')
+  const [period, setPeriod] = useState<KpiPeriod>('all')
   const { data: buckets = [], isLoading } = usePnlDistribution(period)
   const { ref, download, isExporting } = useChartExport('distribution-pnl')
 

@@ -23,7 +23,7 @@ function StatCard({ label, value, sub, color }: { label: string; value: string |
 }
 
 export function StreakAnalysis() {
-  const [period, setPeriod] = useState<KpiPeriod>('30d')
+  const [period, setPeriod] = useState<KpiPeriod>('all')
   const { data, isLoading } = useStreaks(period)
 
   const currentColor = data?.currentType === 'win'

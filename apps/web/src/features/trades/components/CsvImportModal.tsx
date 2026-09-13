@@ -2,10 +2,11 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { X, Upload, FileText, CheckCircle2, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react'
+import { X, Upload, FileText, CheckCircle2, AlertCircle, ChevronDown, ChevronUp, Lock } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { getToken } from '@/lib/api-client'
 import { useAccounts } from '@/lib/hooks/use-accounts'
+import { brokerMeta } from '@/lib/broker-config'
 
 interface Props {
   open:                 boolean
@@ -47,6 +48,16 @@ export function CsvImportModal({ open, onClose, preselectedAccountId }: Props) {
   const [showFormat, setShowFormat] = useState(false)
   const [error,      setError]      = useState<string | null>(null)
 
+  // Verrouillé sur le compte d'origine : ouvert depuis la ligne d'un compte,
+  // l'import ne doit jamais pouvoir dériver silencieusement vers un autre —
+  // c'est la garantie que les trades importés se relient au bon compte.
+  const locked = Boolean(preselectedAccountId)
+  const lockedAccount = accounts.find(a => a.id === preselectedAccountId)
+  // Pas de compte présélectionné (import générique) : une sélection reste
+  // obligatoire, sans repli implicite côté serveur — on affiche donc le
+  // premier compte par défaut plutôt que de laisser un état vide trompeur.
+  const selectedAccountId = accountId || accounts[0]?.id || ''
+
   useEffect(() => { setMounted(true) }, [])
   useEffect(() => { if (preselectedAccountId) setAccountId(preselectedAccountId) }, [preselectedAccountId])
 
@@ -71,13 +82,13 @@ export function CsvImportModal({ open, onClose, preselectedAccountId }: Props) {
   }, [])
 
   const handleImport = async () => {
-    if (!file) return
+    if (!file || !selectedAccountId) return
     setLoading(true); setResult(null); setError(null)
 
     try {
       const form = new FormData()
       form.append('file', file)
-      if (accountId) form.append('accountId', accountId)
+      form.append('accountId', selectedAccountId)
 
       const token = getToken()
       const res = await fetch(`${API}/api/v1/trades/import/csv`, {
@@ -172,21 +183,34 @@ export function CsvImportModal({ open, onClose, preselectedAccountId }: Props) {
                 )}
               </div>
 
-              {/* Compte broker */}
+              {/* Compte broker — toujours obligatoire, verrouillé si on vient d'une ligne de compte */}
               <div>
                 <label className="text-xs font-semibold text-[hsl(var(--foreground-soft))] block mb-1.5">
-                  Rattacher à un compte (optionnel)
+                  Compte de rattachement
                 </label>
-                <select
-                  value={accountId}
-                  onChange={e => setAccountId(e.target.value)}
-                  className="w-full bg-card border border-[hsl(var(--border))] rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none focus:border-[hsl(var(--primary))]"
-                >
-                  <option value="">Aucun compte sélectionné</option>
-                  {accounts.map(a => (
-                    <option key={a.id} value={a.id}>{a.label}</option>
-                  ))}
-                </select>
+                {locked && lockedAccount ? (
+                  <div className="flex items-center gap-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))] px-3 py-2">
+                    <Lock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    <span className="text-xs font-semibold text-foreground truncate">{lockedAccount.label}</span>
+                    <span className="text-xs text-[hsl(var(--foreground-soft))] shrink-0">
+                      · {brokerMeta[lockedAccount.brokerType]?.name ?? lockedAccount.brokerType}
+                    </span>
+                  </div>
+                ) : accounts.length > 0 ? (
+                  <select
+                    value={selectedAccountId}
+                    onChange={e => setAccountId(e.target.value)}
+                    className="w-full bg-card border border-[hsl(var(--border))] rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none focus:border-[hsl(var(--primary))]"
+                  >
+                    {accounts.map(a => (
+                      <option key={a.id} value={a.id}>{a.label}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <p className="text-xs text-amber-500">
+                    Aucun compte disponible — créez d'abord un compte avant d'importer.
+                  </p>
+                )}
               </div>
 
               {/* Format Tradovate */}
@@ -283,7 +307,7 @@ export function CsvImportModal({ open, onClose, preselectedAccountId }: Props) {
             </button>
             <button
               onClick={handleImport}
-              disabled={!file || loading}
+              disabled={!file || !selectedAccountId || loading}
               className="px-4 py-2 rounded-lg text-xs font-medium bg-emerald-600 hover:bg-emerald-700 text-white transition-colors disabled:opacity-50"
             >
               {loading ? 'Import en cours…' : 'Importer'}

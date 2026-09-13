@@ -8,4 +8,5 @@ export const brokerMeta: Record<BrokerType, { name: string; color: string; bg: s
   CTRADER:   { name: 'cTrader',             color: '#06b6d4', bg: '#0e7490/10', desc: 'Open API cTrader' },
   TRADOVATE: { name: 'Tradovate',           color: '#f97316', bg: '#7c2d1220', desc: 'Futures — Apex Trader Funding' },
   POLYMARKET:{ name: 'Polymarket',          color: '#a855f7', bg: '#6b21a820', desc: 'Marchés prédictifs — CLOB API' },
+  MANUAL:    { name: 'Compte manuel',       color: '#64748b', bg: '#47556920', desc: 'Alimenté par import CSV' },
 }

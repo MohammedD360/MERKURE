@@ -18,6 +18,7 @@ const PERIODS: { label: string; value: KpiPeriod }[] = [
   { label: '30j', value: '30d' },
   { label: '90j', value: '90d' },
   { label: '1an', value: '1y' },
+  { label: 'Tout', value: 'all' },
 ]
 
 function kpiPeriodToDates(p: KpiPeriod): { from: string; to: string } {
@@ -28,7 +29,8 @@ function kpiPeriodToDates(p: KpiPeriod): { from: string; to: string } {
     case '30d': from = subDays(to, 30);  break
     case '90d': from = subDays(to, 90);  break
     case '1y':  from = subDays(to, 365); break
-    default:    from = new Date('2020-01-01')
+    case 'all': from = new Date('2000-01-01'); break
+    default:    from = new Date('2000-01-01')
   }
   return {
     from: format(from, 'yyyy-MM-dd'),
@@ -52,7 +54,7 @@ async function downloadWeeklyPdf() {
 }
 
 export function PerformancePage() {
-  const [period,         setPeriod]         = useState<KpiPeriod>('30d')
+  const [period,         setPeriod]         = useState<KpiPeriod>('all')
   const [accountId,      setAccountId]      = useState<string | undefined>(undefined)
   const [downloading,    setDownloading]    = useState(false)
 

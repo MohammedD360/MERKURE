@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { ArrowUpRight, ArrowDownRight, Clock, ChevronLeft, ChevronRight, Download, Plus } from 'lucide-react'
 import { useTrades, type TradesFilters, buildQs } from '@/lib/hooks/use-trades'
 import { useAccounts } from '@/lib/hooks/use-accounts'
+import { apiFetchBlob } from '@/lib/api-client'
 import { TradesFilters as FiltersBar } from './components/TradesFilters'
 import { TradeDetailModal } from './components/TradeDetailModal'
 import { AddTradeModal } from './components/AddTradeModal'
@@ -43,11 +44,8 @@ export function TradesPage() {
 
   const handleExport = () => {
     const { page: _page, limit: _limit, ...exportFilters } = filters
-    const qs    = buildQs(exportFilters)
-    const token = (window as unknown as Record<string, unknown>).__clerkToken as string | undefined
-    const url   = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'}/api/v1/trades/export?${qs}`
-    fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
-      .then(r => r.blob())
+    const qs = buildQs(exportFilters)
+    apiFetchBlob(`/api/v1/trades/export?${qs}`)
       .then(blob => {
         const a     = document.createElement('a')
         a.href      = URL.createObjectURL(blob)

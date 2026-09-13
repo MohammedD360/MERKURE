@@ -22,7 +22,7 @@ const PERIODS: { value: KpiPeriod; label: string }[] = [
 
 export function StatistiquesPage() {
   const qc = useQueryClient()
-  const [period, setPeriod] = useState<KpiPeriod>('30d')
+  const [period, setPeriod] = useState<KpiPeriod>('all')
 
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: ['stats'] })

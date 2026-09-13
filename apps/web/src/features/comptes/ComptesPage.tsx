@@ -106,7 +106,7 @@ export function ComptesPage() {
             </button>
             <button type="button" onClick={() => setModalOpen(true)} className={btnPrimary}>
               <Plus className="h-4 w-4" />
-              Connecter un broker
+              Ajouter un compte
             </button>
           </div>
         </div>
@@ -177,7 +177,7 @@ export function ComptesPage() {
             </p>
             <button type="button" onClick={() => setModalOpen(true)} className={cn(btnPrimary, 'mt-5')}>
               <Plus className="h-4 w-4" />
-              Connecter un broker
+              Ajouter un compte
             </button>
           </div>
         )}
@@ -191,7 +191,11 @@ export function ComptesPage() {
         onSubmit={config => { if (wizardFor) handleSaveConfig(wizardFor, config) }}
       />
 
-      <ConnectBrokerModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <ConnectBrokerModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onManualAccountCreated={id => setCsvAccountId(id)}
+      />
       <CsvImportModal
         open={csvAccountId !== undefined}
         preselectedAccountId={csvAccountId}

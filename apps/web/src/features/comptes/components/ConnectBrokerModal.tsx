@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { X, ChevronRight, ArrowLeft, Eye, EyeOff, Check, Lock, AlertCircle } from 'lucide-react'
+import { X, ChevronRight, ArrowLeft, Eye, EyeOff, Check, Lock, AlertCircle, Upload } from 'lucide-react'
 import { brokerMeta } from '@/lib/broker-config'
 import { useCreateAccount, type BrokerType, type AccountType } from '@/lib/hooks/use-accounts'
 import { BrokerLogo } from '@/shared/components/BrokerLogo'
@@ -11,6 +11,8 @@ import { getPropFirm } from '@/features/prop-firm/data/prop-firms'
 interface Props {
   open:    boolean
   onClose: () => void
+  /** Compte manuel créé avec succès : la page ouvre l'import CSV dessus. */
+  onManualAccountCreated?: (accountId: string) => void
 }
 
 type Step = 'choose' | 'form' | 'success'
@@ -34,23 +36,27 @@ interface FormState {
   accountType: AccountType
   password:    string
   server:      string
+  startingBalance: string
 }
 
 const DEFAULT_FORM: FormState = {
   label: '', accountId: '', accountType: 'PROP_CHALLENGE',
-  password: '', server: '',
+  password: '', server: '', startingBalance: '',
 }
 
 function Field({
-  label, value, onChange, placeholder, type = 'text', hint, showToggle,
+  label, value, onChange, placeholder, type = 'text', hint, showToggle, optional,
 }: {
   label: string; value: string; onChange: (v: string) => void
-  placeholder: string; type?: string; hint?: string; showToggle?: boolean
+  placeholder: string; type?: string; hint?: string; showToggle?: boolean; optional?: boolean
 }) {
   const [show, setShow] = useState(false)
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-black text-muted-foreground">{label}</label>
+      <label className="mb-1.5 block text-xs font-black text-muted-foreground">
+        {label}
+        {optional && <span className="ml-1 font-normal text-muted-foreground/60">(optionnel)</span>}
+      </label>
       <div className="relative">
         <input
           type={showToggle ? (show ? 'text' : 'password') : type}
@@ -113,8 +119,30 @@ function BrokerFormFields({ broker, propFirmId, form, setForm }: {
     <>
       <Field label="Libellé du compte"   value={form.label}     onChange={set('label')}     placeholder="Ex : Compte Principal Forex" />
       <AccountTypeSelect value={form.accountType} onChange={v => setForm(f => ({ ...f, accountType: v }))} />
+      <Field
+        label="Capital de départ"
+        value={form.startingBalance}
+        onChange={v => set('startingBalance')(v.replace(/[^0-9.]/g, ''))}
+        placeholder="Ex : 25000"
+        hint="Sert de base au calcul de la valeur du portefeuille. Modifiable plus tard."
+        optional
+      />
     </>
   )
+
+  if (broker === 'MANUAL') {
+    return (
+      <div className="space-y-4">
+        <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--accent))] p-3">
+          <p className="text-xs font-semibold leading-relaxed text-muted-foreground">
+            Aucun identifiant requis. Une fois le compte créé, importez votre historique
+            via un fichier CSV (Tradovate, MT4/MT5, cTrader, format libre).
+          </p>
+        </div>
+        {common}
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">
@@ -150,23 +178,25 @@ function buildCredentials(broker: BrokerType, form: FormState): Record<string, s
   }
 }
 
-export function ConnectBrokerModal({ open, onClose }: Props) {
+export function ConnectBrokerModal({ open, onClose, onManualAccountCreated }: Props) {
   const [step,       setStep]       = useState<Step>('choose')
   const [selected,   setSelected]   = useState<BrokerType | null>(null)
   const [propFirmId, setPropFirmId] = useState<string | null>(null)
   const [form,       setForm]       = useState<FormState>(DEFAULT_FORM)
+  const [createdId,  setCreatedId]  = useState<string | null>(null)
 
   const { mutate: createAccount, isPending, error } = useCreateAccount()
 
   if (!open) return null
 
   const handleClose = () => {
-    setStep('choose'); setSelected(null); setPropFirmId(null); setForm(DEFAULT_FORM); onClose()
+    setStep('choose'); setSelected(null); setPropFirmId(null); setForm(DEFAULT_FORM); setCreatedId(null); onClose()
   }
 
   const isFormValid = (): boolean => {
     if (!selected) return false
     if (!form.label.trim()) return false
+    if (selected === 'MANUAL') return true
     if (!form.accountId.trim()) return false
     if (!form.password.trim()) return false
     return true
@@ -174,15 +204,21 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
 
   const handleConnect = () => {
     if (!selected || !isFormValid()) return
+
+    const isManual = selected === 'MANUAL'
+    const startingBalance = form.startingBalance.trim() ? Number(form.startingBalance) : undefined
     createAccount(
       {
         brokerType:  selected,
         accountType: form.accountType,
-        accountId:   form.accountId.trim(),
+        // Compte manuel : pas d'identifiant broker réel, on en génère un
+        // interne uniquement pour respecter la contrainte d'unicité.
+        accountId:   isManual ? `manual-${crypto.randomUUID()}` : form.accountId.trim(),
         label:       form.label.trim(),
-        credentials: buildCredentials(selected, form),
+        ...(isManual ? {} : { credentials: buildCredentials(selected, form) }),
+        ...(startingBalance !== undefined ? { startingBalance } : {}),
       },
-      { onSuccess: () => setStep('success') },
+      { onSuccess: account => { setCreatedId(account.id); setStep('success') } },
     )
   }
 
@@ -202,14 +238,14 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
             )}
             <div>
               <h2 className="text-sm font-bold text-foreground">
-                {step === 'choose'  && 'Connecter un broker'}
-                {step === 'form'    && selected && `Connexion ${propFirmId ? getPropFirm(propFirmId)?.name : brokerMeta[selected].name}`}
-                {step === 'success' && 'Compte connecté !'}
+                {step === 'choose'  && 'Ajouter un compte'}
+                {step === 'form'    && selected && `${selected === 'MANUAL' ? 'Compte manuel' : `Connexion ${propFirmId ? getPropFirm(propFirmId)?.name : brokerMeta[selected].name}`}`}
+                {step === 'success' && (selected === 'MANUAL' ? 'Compte créé !' : 'Compte connecté !')}
               </h2>
               <p className="mt-0.5 text-[11px] font-semibold text-muted-foreground">
-                {step === 'choose'  && 'Choisissez votre broker pour commencer'}
-                {step === 'form'    && 'Renseignez vos identifiants'}
-                {step === 'success' && 'La synchronisation démarre…'}
+                {step === 'choose'  && 'Connectez un broker ou ajoutez un compte manuel'}
+                {step === 'form'    && (selected === 'MANUAL' ? 'Donnez un nom à votre compte' : 'Renseignez vos identifiants')}
+                {step === 'success' && (selected === 'MANUAL' ? 'Importez votre historique pour commencer.' : 'La synchronisation démarre…')}
               </p>
             </div>
           </div>
@@ -263,6 +299,26 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
                   <ChevronRight className="h-4 w-4 text-muted-foreground/60 transition-colors group-hover:text-[hsl(var(--primary))]" />
                 </button>
               ))}
+
+              <div className="flex items-center gap-3 py-1">
+                <div className="h-px flex-1 bg-[hsl(var(--border))]" />
+                <span className="text-[10px] font-black uppercase tracking-wide text-muted-foreground/60">ou</span>
+                <div className="h-px flex-1 bg-[hsl(var(--border))]" />
+              </div>
+
+              <button
+                onClick={() => { setSelected('MANUAL'); setPropFirmId(null); setStep('form') }}
+                className="group flex w-full items-center gap-4 rounded-xl border border-dashed border-[hsl(var(--border))] bg-background p-3.5 text-left transition-colors hover:border-[hsl(var(--primary)/0.3)] hover:bg-[hsl(var(--primary)/0.06)]"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--accent))] text-muted-foreground">
+                  <Upload className="h-4 w-4" />
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-black text-foreground">Compte manuel</div>
+                  <div className="mt-0.5 text-xs font-semibold text-muted-foreground">Sans broker — alimenté par import CSV</div>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground/60 transition-colors group-hover:text-[hsl(var(--primary))]" />
+              </button>
             </div>
           )}
 
@@ -270,7 +326,11 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
           {step === 'form' && selected && (
             <div className="space-y-5">
               <div className="flex items-center gap-3 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--accent))] p-3">
-                {propFirmId ? <FirmLogo id={propFirmId} size="sm" /> : <BrokerLogo broker={selected} />}
+                {propFirmId ? <FirmLogo id={propFirmId} size="sm" /> : selected === 'MANUAL' ? (
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-background text-muted-foreground">
+                    <Upload className="h-4 w-4" />
+                  </span>
+                ) : <BrokerLogo broker={selected} />}
                 <div>
                   <p className="text-sm font-black text-foreground">{propFirmId ? getPropFirm(propFirmId)?.name : brokerMeta[selected].name}</p>
                   <p className="text-[11px] font-semibold text-muted-foreground">
@@ -292,10 +352,12 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
                 </div>
               )}
 
-              <div className="flex items-start gap-2 text-[11px] font-semibold leading-5 text-muted-foreground">
-                <Lock className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[hsl(var(--primary))]" />
-                Vos identifiants sont chiffrés AES-256. MERKURE ne peut jamais placer d'ordres.
-              </div>
+              {selected !== 'MANUAL' && (
+                <div className="flex items-start gap-2 text-[11px] font-semibold leading-5 text-muted-foreground">
+                  <Lock className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[hsl(var(--primary))]" />
+                  Vos identifiants sont chiffrés AES-256. MERKURE ne peut jamais placer d'ordres.
+                </div>
+              )}
             </div>
           )}
 
@@ -305,16 +367,27 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-[hsl(var(--primary)/0.25)] bg-[hsl(var(--primary)/0.10)]">
                 <Check className="h-8 w-8 text-[hsl(var(--primary))]" />
               </div>
-              <div>
-                <p className="mb-1 text-base font-black text-foreground">Compte connecté !</p>
-                <p className="text-sm font-medium leading-6 text-muted-foreground">
-                  La synchronisation de l'historique est en cours.<br />
-                  Cela peut prendre 1 à 2 minutes.
-                </p>
-              </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-[hsl(var(--accent))]">
-                <div className="h-full w-1/2 animate-pulse rounded-full bg-[hsl(var(--primary))]" />
-              </div>
+              {selected === 'MANUAL' ? (
+                <div>
+                  <p className="mb-1 text-base font-black text-foreground">Compte créé !</p>
+                  <p className="text-sm font-medium leading-6 text-muted-foreground">
+                    Importez votre historique CSV pour voir vos trades apparaître.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <p className="mb-1 text-base font-black text-foreground">Compte connecté !</p>
+                    <p className="text-sm font-medium leading-6 text-muted-foreground">
+                      La synchronisation de l'historique est en cours.<br />
+                      Cela peut prendre 1 à 2 minutes.
+                    </p>
+                  </div>
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-[hsl(var(--accent))]">
+                    <div className="h-full w-1/2 animate-pulse rounded-full bg-[hsl(var(--primary))]" />
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -330,8 +403,8 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
               <button onClick={handleConnect} disabled={isPending || !isFormValid()}
                 className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] py-2.5 text-sm font-black text-white transition-colors hover:bg-[hsl(243_90%_58%)] disabled:cursor-not-allowed disabled:opacity-50">
                 {isPending ? (
-                  <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Connexion…</>
-                ) : 'Connecter le compte'}
+                  <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{selected === 'MANUAL' ? 'Création…' : 'Connexion…'}</>
+                ) : selected === 'MANUAL' ? 'Créer le compte' : 'Connecter le compte'}
               </button>
             </div>
             {!isFormValid() && !isPending && (
@@ -344,11 +417,26 @@ export function ConnectBrokerModal({ open, onClose }: Props) {
           </div>
         )}
         {step === 'success' && (
-          <div className="border-t border-[hsl(var(--border))] px-6 py-4">
-            <button onClick={handleClose}
-              className="w-full rounded-lg bg-[hsl(var(--primary))] py-2.5 text-sm font-black text-white transition-colors hover:bg-[hsl(243_90%_58%)]">
-              Voir mes comptes
-            </button>
+          <div className="border-t border-[hsl(var(--border))] px-6 py-4 space-y-2">
+            {selected === 'MANUAL' && createdId ? (
+              <>
+                <button
+                  onClick={() => { const id = createdId; handleClose(); onManualAccountCreated?.(id) }}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-[hsl(var(--primary))] py-2.5 text-sm font-black text-white transition-colors hover:bg-[hsl(243_90%_58%)]">
+                  <Upload className="h-4 w-4" />
+                  Importer mon historique CSV
+                </button>
+                <button onClick={handleClose}
+                  className="w-full py-2 text-center text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">
+                  Plus tard
+                </button>
+              </>
+            ) : (
+              <button onClick={handleClose}
+                className="w-full rounded-lg bg-[hsl(var(--primary))] py-2.5 text-sm font-black text-white transition-colors hover:bg-[hsl(243_90%_58%)]">
+                Voir mes comptes
+              </button>
+            )}
           </div>
         )}
       </div>

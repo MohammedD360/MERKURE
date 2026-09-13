@@ -17,7 +17,7 @@ function pnlColor(v: number) {
 }
 
 export function SymbolStatsTable() {
-  const [period, setPeriod] = useState<KpiPeriod>('30d')
+  const [period, setPeriod] = useState<KpiPeriod>('all')
   const { data: rows = [], isLoading } = useSymbolStats(period)
 
   return (
