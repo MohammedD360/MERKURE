@@ -15,6 +15,38 @@ env:
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
 jobs:
+  security:
+    name: Secrets & vulnerability scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # gitleaks scanne l'historique complet, pas seulement le diff
+
+      - name: Scan for leaked secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Seuil "critical" uniquement : les vulnérabilités élevées/moyennes actuelles
+      # viennent de metaapi.cloud-sdk (SDK tiers non maintenu, sans patch disponible)
+      # — les bloquer casserait toute PR sans qu'on puisse les corriger nous-mêmes.
+      - name: Block on critical dependency vulnerabilities
+        run: pnpm audit --audit-level=critical
+
   quality:
     name: Lint & Typecheck
     runs-on: ubuntu-latest
