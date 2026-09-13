@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class TradeIn(BaseModel):
@@ -13,7 +13,9 @@ class TradeIn(BaseModel):
 
 
 class KpisRequest(BaseModel):
-    trades: list[TradeIn]
+    # Borne défensive : un DataFrame pandas construit à partir d'une liste non
+    # bornée peut saturer la RAM d'un conteneur VPS à ressources limitées.
+    trades: list[TradeIn] = Field(max_length=5000)
 
 
 class BestDay(BaseModel):

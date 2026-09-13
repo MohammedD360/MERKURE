@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class TraderContext(BaseModel):
@@ -21,8 +21,11 @@ class KpisContext(BaseModel):
 class CoachingRequest(BaseModel):
     trader_context: TraderContext
     kpis: KpisContext
-    recent_trades_summary: str = ""
-    question: Optional[str] = None
+    # Bornes défensives : sans elles, un bug côté Node (ou un abus si le secret
+    # inter-services fuite) peut faire exploser le coût Anthropic en entrée sans
+    # jamais dépasser la limite de sortie (max_tokens côté service Claude).
+    recent_trades_summary: str = Field(default="", max_length=8000)
+    question: Optional[str] = Field(default=None, max_length=2000)
 
 
 class CoachingResponse(BaseModel):

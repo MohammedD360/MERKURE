@@ -3,7 +3,9 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     # App
-    APP_ENV: str = "development"
+    # Défaut volontairement "production" (fail-safe) : un déploiement qui oublie
+    # de positionner APP_ENV ne doit jamais exposer /docs publiquement.
+    APP_ENV: str = "production"
     PORT: int = 8000
 
     # Security
