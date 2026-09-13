@@ -160,6 +160,27 @@ services:
       driver: json-file
       options: { max-size: "10m", max-file: "5" }
 
+  # Monitoring léger auto-hébergé (checks HTTP + Docker, alerting) — seul
+  # équivalent au dashboard Railway qui prévenait déjà d'un service down.
+  # Volontairement PAS derrière Caddy/exposé publiquement : accès via tunnel
+  # SSH (voir DEPLOY-VPS.md) pour ne pas exiger un sous-domaine supplémentaire
+  # avant la première mise en prod.
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: merkure_uptime_kuma
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3011:3001"
+    volumes:
+      - uptime_kuma_data:/app/data
+    networks: [merkure_network]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+    deploy:
+      resources:
+        limits: { memory: 256m }
+
 volumes:
   postgres_data:
     name: merkure_postgres_data
@@ -169,6 +190,8 @@ volumes:
     name: merkure_caddy_data
   caddy_config:
     name: merkure_caddy_config
+  uptime_kuma_data:
+    name: merkure_uptime_kuma_data
 
 networks:
   merkure_network:

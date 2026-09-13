@@ -140,6 +140,21 @@ gunzip -c infra/backups/merkure_<date>.sql.gz | \
   docker compose -f docker-compose.prod.yml exec -T postgres psql -U merkure -d merkure_db
 ```
 
+## 4bis. Monitoring
+
+Uptime Kuma démarre avec le reste du compose (`docker-compose.prod.yml`), mais
+n'est **jamais exposé publiquement** — accès uniquement via tunnel SSH depuis
+ton poste, pour ne pas exiger un sous-domaine avant la première mise en prod :
+
+```bash
+ssh -L 3011:localhost:3011 deploy@<vps-ip>
+# puis ouvrir http://localhost:3011 dans le navigateur
+```
+
+Premier accès : créer le compte admin, ajouter un check HTTP(S) sur
+`https://<DOMAIN_WEB>/` et `https://<DOMAIN_API>/health`, configurer une
+notification (email, Discord…) sur passage en échec.
+
 ## 5. CI/CD
 
 `.github/workflows/deploy-vps.yml` build les 3 images, les pousse sur GHCR,
