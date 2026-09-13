@@ -8,6 +8,13 @@ const FETCH_TIMEOUT_MS = 30_000
 
 const TOKEN_KEY = 'merkure_token'
 
+// Risque XSS accepté en connaissance de cause : ce jeton n'est posé que par le
+// flux JWT local (/api/v1/auth/login), lui-même actif uniquement en
+// AUTH_MODE=demo — mode que config/env.ts (API) fait échouer au démarrage en
+// production (process.exit si AUTH_MODE ≠ 'clerk'). En production réelle,
+// cette fonction ne reçoit jamais de jeton. Migrer vers un cookie httpOnly
+// reste la bonne cible si ce mode est un jour proposé en prod, mais toucher à
+// l'auth pour un chemin aujourd'hui inatteignable n'est pas prioritaire.
 export function getToken(): string | null {
   if (typeof window === 'undefined') return null
   return localStorage.getItem(TOKEN_KEY)
