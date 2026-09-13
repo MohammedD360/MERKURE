@@ -14,6 +14,11 @@ const envSchema = z.object({
 
   // Database
   DATABASE_URL: z.string().min(1).default('postgresql://merkure:merkure_dev_password@localhost:5432/merkure_db'),
+  // Pool Prisma par processus (API et worker en ont chacun un). Sans limite
+  // explicite, chaque processus ouvre ~nb CPU×2+1 connexions par défaut —
+  // sur un Postgres à ressources fixes (VPS), ça épuise vite max_connections
+  // (100 par défaut) une fois les deux process + les scripts ponctuels cumulés.
+  DATABASE_CONNECTION_LIMIT: z.coerce.number().int().positive().default(10),
 
   // Redis
   REDIS_URL: z.string().url().default('redis://localhost:6379'),

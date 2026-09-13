@@ -9,8 +9,18 @@ import { env } from '../../config/env.js'
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient }
 
+// N'ajoute connection_limit que si l'URL ne le précise pas déjà — une valeur
+// explicite dans DATABASE_URL (ex. via PgBouncer) reste prioritaire sur le
+// défaut de ce process.
+function withConnectionLimit(url: string): string {
+  if (/[?&]connection_limit=/.test(url)) return url
+  const separator = url.includes('?') ? '&' : '?'
+  return `${url}${separator}connection_limit=${env.DATABASE_CONNECTION_LIMIT}`
+}
+
 function createClient(): PrismaClient {
   const client = new PrismaClientImpl({
+    datasources: { db: { url: withConnectionLimit(env.DATABASE_URL) } },
     log: env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   })
 

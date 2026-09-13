@@ -81,13 +81,21 @@ export async function csvImportRoutes(app: FastifyInstance) {
     }
 
     // ── Upsert idempotent (même logique que le sync broker) ───────────────
+    // Lots de 100 exécutés en parallèle plutôt qu'un aller-retour DB séquentiel
+    // par ligne : un import de plusieurs milliers de trades ne doit pas tenir
+    // une connexion pendant toute la durée de la requête et dégrader la latence
+    // des autres requêtes concurrentes sur un VPS à CPU limité. Chaque ligne
+    // reste individuellement catchée (Promise.allSettled) pour ne pas faire
+    // échouer tout un lot à cause d'une seule ligne invalide.
+    const BATCH_SIZE = 100
     let imported = 0
     let dbSkipped = 0
     const importErrors: string[] = [...errors]
 
-    for (const trade of trades) {
-      try {
-        await prisma.trade.upsert({
+    for (let i = 0; i < trades.length; i += BATCH_SIZE) {
+      const batch = trades.slice(i, i + BATCH_SIZE)
+      const results = await Promise.allSettled(
+        batch.map(trade => prisma.trade.upsert({
           where: {
             brokerAccountId_externalId: {
               brokerAccountId: accountId,
@@ -116,12 +124,16 @@ export async function csvImportRoutes(app: FastifyInstance) {
             ...(trade.pnl !== null ? { pnl: trade.pnl } : {}),
             status:     trade.status,
           },
-        })
-        imported++
-      } catch {
-        importErrors.push(`Impossible d'importer le trade ${trade.externalId}`)
-        dbSkipped++
-      }
+        })),
+      )
+      results.forEach((result, idx) => {
+        if (result.status === 'fulfilled') {
+          imported++
+        } else {
+          importErrors.push(`Impossible d'importer le trade ${batch[idx]!.externalId}`)
+          dbSkipped++
+        }
+      })
     }
 
     // Recalcule les KPI snapshots et invalide le cache Redis avant de répondre
