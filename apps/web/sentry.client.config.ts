@@ -8,4 +8,9 @@ Sentry.init({
   replaysOnErrorSampleRate: process.env.NODE_ENV === 'production' ? 1.0 : 0,
   replaysSessionSampleRate: 0,
   enabled: process.env.NODE_ENV === 'production',
+  // Masquage explicite plutôt que de dépendre du comportement par défaut de la
+  // version du SDK : le dashboard affiche des données financières (P&L, soldes)
+  // et des identifiants broker qu'un enregistrement de session ne doit jamais
+  // exposer en clair dans Sentry.
+  integrations: [Sentry.replayIntegration({ maskAllText: true, blockAllMedia: true })],
 })

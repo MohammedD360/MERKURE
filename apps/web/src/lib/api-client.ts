@@ -2,6 +2,10 @@ import { isClerkEnabled } from './auth-mode'
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
+// Sans timeout, une API bloquée (panne réseau, service down) laisse l'UI en
+// chargement indéfiniment — le navigateur seul n'a pas de délai par défaut.
+const FETCH_TIMEOUT_MS = 30_000
+
 const TOKEN_KEY = 'merkure_token'
 
 export function getToken(): string | null {
@@ -43,11 +47,20 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   const needsBody = method === 'POST' || method === 'PUT' || method === 'PATCH'
   const body: BodyInit | null = init?.body != null ? init.body as BodyInit : needsBody ? '{}' : null
 
-  const res = await fetch(`${API}${path}`, {
-    ...init,
-    ...(body !== null ? { body } : {}),
-    headers: { ...headers, ...init?.headers },
-  })
+  let res: Response
+  try {
+    res = await fetch(`${API}${path}`, {
+      ...init,
+      ...(body !== null ? { body } : {}),
+      headers: { ...headers, ...init?.headers },
+      signal: init?.signal ?? AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    })
+  } catch (err) {
+    if (err instanceof Error && err.name === 'TimeoutError') {
+      throw new Error(`timeout ${path}`)
+    }
+    throw err
+  }
 
   if (res.status === 401) {
     // Session expirée ou invalide : on nettoie et on renvoie vers la connexion
@@ -72,7 +85,15 @@ export async function apiFetchBlob(path: string): Promise<Blob> {
   const token = await resolveAuthToken()
   if (token) headers['Authorization'] = `Bearer ${token}`
 
-  const res = await fetch(`${API}${path}`, { headers })
+  let res: Response
+  try {
+    res = await fetch(`${API}${path}`, { headers, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })
+  } catch (err) {
+    if (err instanceof Error && err.name === 'TimeoutError') {
+      throw new Error(`timeout ${path}`)
+    }
+    throw err
+  }
 
   if (!res.ok) {
     const body = await res.text().catch(() => '')
