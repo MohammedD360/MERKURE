@@ -12,7 +12,12 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-merkure_db}
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
     ports:
-      - "5432:5432"
+      # Paramétrable : le port hôte réellement utilisé en dev sur cette machine
+      # (5433) évite un conflit avec d'autres projets locaux tournant sur 5432.
+      # Ce fichier doit rester la seule source de vérité — ne jamais démarrer
+      # les conteneurs autrement qu'avec `docker compose up` pour éviter une
+      # divergence silencieuse avec le .env comme celle corrigée ici.
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
@@ -38,7 +43,8 @@ services:
       --appendonly yes
       --appendfsync everysec
     ports:
-      - "6379:6379"
+      # Même raison que Postgres ci-dessus : 6380 est le port réellement utilisé.
+      - "${REDIS_PORT:-6380}:6379"
     volumes:
       - redis_data:/data
     healthcheck:
