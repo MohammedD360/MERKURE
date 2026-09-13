@@ -16,6 +16,12 @@ const CHAT_SYSTEM_PROMPT =
   "Tu n'as pas accès en direct aux trades de l'utilisateur dans cette conversation — si une question " +
   "en dépend, invite-le à consulter son Journal IA ou son Coach personnel pour une analyse chiffrée."
 
+// Le rate-limit global (100/min/IP) couvre toute l'API sans distinction de
+// coût — appliqué tel quel aux routes IA, il autoriserait 100 appels Claude
+// par minute et par IP. Limite dédiée, plus stricte, sur les routes qui
+// facturent réellement de l'Anthropic.
+const AI_RATE_LIMIT = { max: 10, timeWindow: '1 minute' }
+
 export async function aiRoutes(app: FastifyInstance) {
   /**
    * POST /api/v1/ai/chat
@@ -24,7 +30,7 @@ export async function aiRoutes(app: FastifyInstance) {
    */
   app.post<{ Body: { messages: { role: 'user' | 'assistant'; content: string }[] } }>(
     '/chat',
-    { preHandler: [authenticate, requirePlan('PRO')] },
+    { preHandler: [authenticate, requirePlan('PRO')], config: { rateLimit: AI_RATE_LIMIT } },
     async (req, reply) => {
       const messages = req.body?.messages ?? []
       if (messages.length === 0) return reply.code(400).send({ error: 'messages_required' })
@@ -69,7 +75,7 @@ export async function aiRoutes(app: FastifyInstance) {
    */
   app.post<{ Body: { date?: string; context?: string } }>(
     '/analysis',
-    { preHandler: [authenticate, requirePlan('PRO')] },
+    { preHandler: [authenticate, requirePlan('PRO')], config: { rateLimit: AI_RATE_LIMIT } },
     async (req, reply) => {
       const date = req.body?.date ? new Date(req.body.date) : new Date()
       if (isNaN(date.getTime())) {
@@ -116,7 +122,7 @@ export async function aiRoutes(app: FastifyInstance) {
    */
   app.post<{ Body: { period?: string; question?: string } }>(
     '/coaching',
-    { preHandler: [authenticate, requirePlan('PRO')] },
+    { preHandler: [authenticate, requirePlan('PRO')], config: { rateLimit: AI_RATE_LIMIT } },
     async (req, reply) => {
       const userId = req.user.id
       const since  = buildSince(req.body?.period ?? '30d')
@@ -225,7 +231,7 @@ export async function aiRoutes(app: FastifyInstance) {
     }
   }>(
     '/strategy-validator',
-    { preHandler: [authenticate, requirePlan('PRO')] },
+    { preHandler: [authenticate, requirePlan('PRO')], config: { rateLimit: AI_RATE_LIMIT } },
     async (req, reply) => {
       const { instrument, timeframe, direction, style } = req.body ?? {}
       if (!instrument || !timeframe || !direction || !style) {
