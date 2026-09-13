@@ -17,6 +17,18 @@ interface Props {
 
 type Step = 'choose' | 'form' | 'success'
 
+// crypto.randomUUID() n'existe que dans un contexte sécurisé (HTTPS ou
+// localhost) — un premier déploiement servi en HTTP le temps de configurer
+// Let's Encrypt ferait planter la création de compte manuel. Pas besoin
+// d'un UUID cryptographique ici : juste un identifiant interne unique pour
+// respecter la contrainte d'unicité côté API.
+function generateManualAccountId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`
+}
+
 // Seuls MT4/MT5 disposent d'une synchronisation automatique fiable (MetaAPI).
 // Les autres brokers restent désactivés tant que leur adapter n'est pas remis
 // en service — voir l'audit de la synchro par compte.
@@ -213,7 +225,7 @@ export function ConnectBrokerModal({ open, onClose, onManualAccountCreated }: Pr
         accountType: form.accountType,
         // Compte manuel : pas d'identifiant broker réel, on en génère un
         // interne uniquement pour respecter la contrainte d'unicité.
-        accountId:   isManual ? `manual-${crypto.randomUUID()}` : form.accountId.trim(),
+        accountId:   isManual ? `manual-${generateManualAccountId()}` : form.accountId.trim(),
         label:       form.label.trim(),
         ...(isManual ? {} : { credentials: buildCredentials(selected, form) }),
         ...(startingBalance !== undefined ? { startingBalance } : {}),

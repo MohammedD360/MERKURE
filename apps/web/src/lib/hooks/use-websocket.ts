@@ -4,7 +4,11 @@ import { useEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { resolveAuthToken } from '@/lib/api-client'
 
-const WS_URL = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001')
+// NEXT_PUBLIC_WS_URL est déjà exposée par next.config.mjs (avec un défaut
+// 'ws://localhost:3001' en dev) et passée en build-arg Docker — elle n'était
+// jusqu'ici jamais lue ici, un piège de maintenance si son domaine diverge un
+// jour de celui de l'API (ex. WebSocket derrière un sous-domaine dédié).
+const WS_URL = (process.env.NEXT_PUBLIC_WS_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001')
   .replace(/^http/, 'ws') + '/ws'
 
 type WsEvent =
