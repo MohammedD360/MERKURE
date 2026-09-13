@@ -23,6 +23,26 @@ export type WsEvent = {
 // One connection per user (last one wins on reconnect)
 const connections = new Map<string, WebSocket>()
 
+// Une connexion coupée sans frame de fermeture propre (câble débranché, mise
+// en veille du poste client) ne déclenche jamais l'événement 'close' côté
+// serveur : sans ping/pong, `connections` accumule des sockets zombies que
+// wsNotify() croit à tort pouvoir joindre.
+const HEARTBEAT_INTERVAL_MS = 30_000
+const alive = new WeakMap<WebSocket, boolean>()
+
+const heartbeat = setInterval(() => {
+  for (const [userId, ws] of connections) {
+    if (alive.get(ws) === false) {
+      ws.terminate()
+      connections.delete(userId)
+      continue
+    }
+    alive.set(ws, false)
+    ws.ping()
+  }
+}, HEARTBEAT_INTERVAL_MS)
+heartbeat.unref()
+
 export function wsNotify(userId: string, event: WsEvent): void {
   const ws = connections.get(userId)
   if (ws?.readyState === 1 /* OPEN */) {
@@ -52,8 +72,10 @@ export async function registerWsHandler(app: FastifyInstance): Promise<void> {
     }
 
     connections.set(userId, socket)
+    alive.set(socket, true)
     socket.send(JSON.stringify({ type: 'connected', data: { userId } } satisfies WsEvent))
 
+    socket.on('pong', () => alive.set(socket, true))
     socket.on('close', () => connections.delete(userId))
   })
 }

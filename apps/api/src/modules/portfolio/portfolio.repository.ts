@@ -1,4 +1,13 @@
+import { Decimal } from '@prisma/client/runtime/library'
 import { prisma } from '../../infrastructure/database/client.js'
+
+// Additionne des montants Prisma Decimal sans jamais repasser par Number()
+// tant que le calcul n'est pas terminé — sur un compte avec des milliers de
+// trades, cumuler des Number() en JS peut faire dériver un total de quelques
+// centimes ; Decimal.js (déjà la représentation native de Prisma) ne dérive pas.
+function sumDecimal(values: (Decimal | number | string | null | undefined)[]): Decimal {
+  return values.reduce<Decimal>((acc, v) => acc.plus(v ?? 0), new Decimal(0))
+}
 
 const SYMBOL_COLORS: Record<string, string> = {
   EURUSD:  '#6366f1',
@@ -40,19 +49,21 @@ export const portfolioRepository = {
     ])
 
     const totalExposureLots = openTrades.reduce((s, t) => s + Number(t.lotSize), 0)
-    const totalPnlOpen      = openTrades.reduce((s, t) => s + Number(t.pnl ?? 0), 0)
-    const startingCapital   = accounts.reduce((s, a) => s + Number(a.startingBalance ?? 0), 0)
-    const realizedPnl       = Number(closedAgg._sum.pnl ?? 0)
-    const balance           = startingCapital + realizedPnl
-    const equity            = balance + totalPnlOpen
+    const totalPnlOpen      = sumDecimal(openTrades.map(t => t.pnl))
+    const startingCapital   = sumDecimal(accounts.map(a => a.startingBalance))
+    const realizedPnl       = new Decimal(closedAgg._sum.pnl ?? 0)
+    const balance           = startingCapital.plus(realizedPnl)
+    const equity            = balance.plus(totalPnlOpen)
 
     return {
       openPositionsCount: openTrades.length,
       totalExposureLots:  parseFloat(totalExposureLots.toFixed(2)),
-      totalPnlOpen:       parseFloat(totalPnlOpen.toFixed(2)),
-      balance:            parseFloat(balance.toFixed(2)),
-      equity:             parseFloat(equity.toFixed(2)),
-      riskPct: balance > 0 ? parseFloat((Math.abs(totalPnlOpen) / balance * 100).toFixed(2)) : 0,
+      totalPnlOpen:       totalPnlOpen.toDecimalPlaces(2).toNumber(),
+      balance:            balance.toDecimalPlaces(2).toNumber(),
+      equity:             equity.toDecimalPlaces(2).toNumber(),
+      riskPct: balance.greaterThan(0)
+        ? totalPnlOpen.abs().dividedBy(balance).times(100).toDecimalPlaces(2).toNumber()
+        : 0,
     }
   },
 
@@ -109,11 +120,11 @@ export const portfolioRepository = {
     }
 
     // By symbol
-    const symbolMap = new Map<string, { lots: number; pnl: number; count: number }>()
+    const symbolMap = new Map<string, { lots: number; pnl: Decimal; count: number }>()
     for (const t of trades) {
-      const s = symbolMap.get(t.symbol) ?? { lots: 0, pnl: 0, count: 0 }
+      const s = symbolMap.get(t.symbol) ?? { lots: 0, pnl: new Decimal(0), count: 0 }
       s.lots  += Number(t.lotSize)
-      s.pnl   += Number(t.pnl ?? 0)
+      s.pnl   = s.pnl.plus(t.pnl ?? 0)
       s.count += 1
       symbolMap.set(t.symbol, s)
     }
@@ -122,7 +133,7 @@ export const portfolioRepository = {
       .map(([symbol, v]) => ({
         symbol,
         lots:  parseFloat(v.lots.toFixed(2)),
-        pnl:   parseFloat(v.pnl.toFixed(2)),
+        pnl:   v.pnl.toDecimalPlaces(2).toNumber(),
         count: v.count,
         pct:   totalLots > 0 ? parseFloat((v.lots / totalLots * 100).toFixed(1)) : 0,
         color: symbolColor(symbol),
@@ -130,11 +141,11 @@ export const portfolioRepository = {
       .sort((a, b) => b.lots - a.lots)
 
     // By strategy
-    const stratMap = new Map<string, { pnl: number; count: number }>()
+    const stratMap = new Map<string, { pnl: Decimal; count: number }>()
     for (const t of trades) {
       const key = t.strategyTag ?? 'Sans stratégie'
-      const s   = stratMap.get(key) ?? { pnl: 0, count: 0 }
-      s.pnl   += Number(t.pnl ?? 0)
+      const s   = stratMap.get(key) ?? { pnl: new Decimal(0), count: 0 }
+      s.pnl   = s.pnl.plus(t.pnl ?? 0)
       s.count += 1
       stratMap.set(key, s)
     }
@@ -142,7 +153,7 @@ export const portfolioRepository = {
     const byStrategy  = Array.from(stratMap.entries())
       .map(([strategy, v]) => ({
         strategy,
-        pnl:   parseFloat(v.pnl.toFixed(2)),
+        pnl:   v.pnl.toDecimalPlaces(2).toNumber(),
         count: v.count,
         pct:   totalCount > 0 ? parseFloat((v.count / totalCount * 100).toFixed(1)) : 0,
       }))
@@ -169,21 +180,22 @@ export const portfolioRepository = {
       }),
     ])
 
-    const startingCapital = accounts.reduce((s, a) => s + Number(a.startingBalance ?? 0), 0)
+    const startingCapital = sumDecimal(accounts.map(a => a.startingBalance))
 
-    const byDay = new Map<string, number>()
+    const byDay = new Map<string, Decimal>()
     for (const t of trades) {
       if (!t.closeTime) continue
       const day = t.closeTime.toISOString().slice(0, 10)
-      byDay.set(day, (byDay.get(day) ?? 0) + Number(t.pnl ?? 0))
+      byDay.set(day, (byDay.get(day) ?? new Decimal(0)).plus(t.pnl ?? 0))
     }
 
     let cumul = startingCapital
     return Array.from(byDay.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([date, dayPnl]) => {
-        cumul += dayPnl
-        return { date, balance: parseFloat(cumul.toFixed(2)), equity: parseFloat(cumul.toFixed(2)) }
+        cumul = cumul.plus(dayPnl)
+        const value = cumul.toDecimalPlaces(2).toNumber()
+        return { date, balance: value, equity: value }
       })
   },
 }

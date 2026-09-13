@@ -34,7 +34,7 @@ async function releaseProviderAccount(account: {
 
 export const accountsService = {
   count(userId: string) {
-    return prisma.brokerAccount.count({ where: { userId, isActive: true } })
+    return prisma.brokerAccount.count({ where: { userId, isActive: true, deletedAt: null } })
   },
 
   list(userId: string) {
