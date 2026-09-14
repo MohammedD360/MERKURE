@@ -39,7 +39,7 @@ services:
       options: { max-size: "10m", max-file: "5" }
     deploy:
       resources:
-        limits: { memory: 1g }
+        limits: { memory: 1g, cpus: '1.0' }
 
   redis:
     image: redis:7-alpine
@@ -65,7 +65,7 @@ services:
       options: { max-size: "10m", max-file: "5" }
     deploy:
       resources:
-        limits: { memory: 320m }
+        limits: { memory: 320m, cpus: '0.5' }
 
   api:
     # image: présent en plus de build: pour que `docker compose pull` (utilisé
@@ -93,7 +93,7 @@ services:
       options: { max-size: "10m", max-file: "5" }
     deploy:
       resources:
-        limits: { memory: 768m }
+        limits: { memory: 768m, cpus: '1.0' }
 
   web:
     image: ${GHCR_IMAGE_PREFIX:-merkure}/web:latest
@@ -116,7 +116,7 @@ services:
       options: { max-size: "10m", max-file: "5" }
     deploy:
       resources:
-        limits: { memory: 512m }
+        limits: { memory: 512m, cpus: '1.0' }
 
   ai-service:
     image: ${GHCR_IMAGE_PREFIX:-merkure}/ai-service:latest
@@ -130,13 +130,18 @@ services:
       AI_SERVICE_SECRET: ${AI_SERVICE_SECRET:?AI_SERVICE_SECRET manquant dans .env}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY manquant dans .env}
       CLAUDE_MODEL: ${CLAUDE_MODEL:-claude-sonnet-4-6}
+      # Un seul worker uvicorn bloquait le coaching concurrent le temps d'un
+      # calcul pandas — 2 par défaut, à ajuster selon les cœurs réels du VPS
+      # (voir le cpus du bloc deploy ci-dessous, qui plafonne la consommation
+      # totale quel que soit ce nombre).
+      UVICORN_WORKERS: ${AI_SERVICE_WORKERS:-2}
     networks: [merkure_network]
     logging:
       driver: json-file
       options: { max-size: "10m", max-file: "5" }
     deploy:
       resources:
-        limits: { memory: 768m }
+        limits: { memory: 768m, cpus: '1.0' }
 
   caddy:
     image: caddy:2-alpine
@@ -179,7 +184,7 @@ services:
       options: { max-size: "10m", max-file: "5" }
     deploy:
       resources:
-        limits: { memory: 256m }
+        limits: { memory: 256m, cpus: '0.25' }
 
 volumes:
   postgres_data:

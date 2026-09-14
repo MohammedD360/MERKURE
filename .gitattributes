@@ -1,0 +1,6 @@
+# Les scripts shell tournent dans des conteneurs Linux ou directement sur le
+# VPS — un CRLF introduit par un checkout Windows (core.autocrlf=true, réglage
+# par défaut de l'installeur Git for Windows) casse le shebang au premier
+# caractère invisible et fait échouer le script silencieusement.
+*.sh text eol=lf
+Dockerfile text eol=lf
