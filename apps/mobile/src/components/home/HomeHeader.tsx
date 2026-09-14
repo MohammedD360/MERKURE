@@ -11,11 +11,23 @@ interface Props {
 export function HomeHeader({ onMenuPress, onBellPress }: Props) {
   return (
     <View style={styles.header}>
-      <Pressable onPress={onMenuPress} hitSlop={8} style={styles.iconBtn}>
+      <Pressable
+        onPress={onMenuPress}
+        hitSlop={8}
+        style={styles.iconBtn}
+        accessibilityRole="button"
+        accessibilityLabel="Ouvrir le menu"
+      >
         <Menu size={22} color={colors.foreground} />
       </Pressable>
       <BrandMark />
-      <Pressable onPress={onBellPress} hitSlop={8} style={styles.iconBtn}>
+      <Pressable
+        onPress={onBellPress}
+        hitSlop={8}
+        style={styles.iconBtn}
+        accessibilityRole="button"
+        accessibilityLabel="Notifications"
+      >
         <Bell size={20} color={colors.foreground} />
       </Pressable>
     </View>

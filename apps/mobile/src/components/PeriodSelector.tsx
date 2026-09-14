@@ -33,7 +33,7 @@ interface Props {
 
 export function PeriodSelector({ value, onChange }: Props) {
   return (
-    <View style={styles.wrap}>
+    <View style={styles.wrap} accessibilityRole="radiogroup">
       {PERIODS.map((p) => {
         const active = p.value === value
         return (
@@ -41,6 +41,9 @@ export function PeriodSelector({ value, onChange }: Props) {
             key={p.value}
             onPress={() => onChange(p.value)}
             style={[styles.chip, active && styles.chipActive]}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: active }}
+            accessibilityLabel={`Période ${p.label}`}
           >
             <Text style={[styles.label, active && styles.labelActive]}>{p.label}</Text>
           </Pressable>

@@ -17,7 +17,13 @@ export function ScreenHeader({ title, subtitle, showBack, right }: Props) {
     <View style={styles.row}>
       <View style={styles.left}>
         {showBack ? (
-          <Pressable onPress={() => router.back()} style={styles.back}>
+          <Pressable
+            onPress={() => router.back()}
+            style={styles.back}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Retour"
+          >
             <ChevronLeft size={22} color={colors.foreground} />
           </Pressable>
         ) : null}

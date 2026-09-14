@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { AccessibilityInfo, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { DemoAccountCard } from '@/src/components/DemoAccountCard'
 import { AuthShell } from '@/src/components/AuthShell'
@@ -24,7 +24,9 @@ export default function LoginScreen() {
       await login(email.trim(), password)
       router.replace('/(tabs)')
     } catch {
-      setError('Email ou mot de passe incorrect')
+      const message = 'Email ou mot de passe incorrect'
+      setError(message)
+      AccessibilityInfo.announceForAccessibility(message)
     } finally {
       setLoading(false)
     }
@@ -37,7 +39,9 @@ export default function LoginScreen() {
       await loginDemo()
       router.replace('/(tabs)')
     } catch {
-      setError('Compte démo indisponible — lancez l\'API (port 3002) puis pnpm db:seed:demo')
+      const message = 'Compte démo indisponible — lancez l\'API (port 3002) puis pnpm db:seed:demo'
+      setError(message)
+      AccessibilityInfo.announceForAccessibility(message)
     } finally {
       setDemoLoading(false)
     }
@@ -69,7 +73,7 @@ export default function LoginScreen() {
           secureTextEntry
           placeholder="••••••••"
         />
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? <Text style={styles.error} accessibilityLiveRegion="polite">{error}</Text> : null}
         <Button label="Se connecter" onPress={handleSubmit} loading={loading} disabled={demoLoading} />
       </View>
 

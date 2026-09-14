@@ -45,12 +45,15 @@ export default function OnboardingProfileScreen() {
       <Text style={styles.sub}>Personnalisez vos analyses MERKURE</Text>
 
       <Text style={styles.section}>Style de trading</Text>
-      <View style={styles.grid}>
+      <View style={styles.grid} accessibilityRole="radiogroup">
         {STYLES.map((s) => (
           <Pressable
             key={s.id}
             onPress={() => setProfile((p) => ({ ...p, style: s.id }))}
             style={[styles.tile, profile.style === s.id && styles.tileActive]}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: profile.style === s.id }}
+            accessibilityLabel={`${s.label}, ${s.desc}`}
           >
             <Text style={styles.tileLabel}>{s.label}</Text>
             <Text style={styles.tileDesc}>{s.desc}</Text>
@@ -59,12 +62,15 @@ export default function OnboardingProfileScreen() {
       </View>
 
       <Text style={styles.section}>Appétit au risque</Text>
-      <View style={styles.riskRow}>
+      <View style={styles.riskRow} accessibilityRole="radiogroup">
         {RISKS.map((r) => (
           <Pressable
             key={r.id}
             onPress={() => setProfile((p) => ({ ...p, riskAppetite: r.id }))}
             style={[styles.riskChip, profile.riskAppetite === r.id && styles.riskActive]}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: profile.riskAppetite === r.id }}
+            accessibilityLabel={r.label}
           >
             <Text style={[styles.riskText, profile.riskAppetite === r.id && styles.riskTextActive]}>
               {r.label}

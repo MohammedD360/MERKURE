@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { AccessibilityInfo, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { AuthShell } from '@/src/components/AuthShell'
 import { Button } from '@/src/components/ui/Button'
@@ -18,7 +18,9 @@ export default function RegisterScreen() {
 
   const handleSubmit = async () => {
     if (password.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caractères')
+      const message = 'Le mot de passe doit contenir au moins 8 caractères'
+      setError(message)
+      AccessibilityInfo.announceForAccessibility(message)
       return
     }
     setError(null)
@@ -27,7 +29,9 @@ export default function RegisterScreen() {
       await register({ email: email.trim(), password, firstName: firstName.trim() || undefined })
       router.replace('/(onboarding)/profile')
     } catch {
-      setError('Impossible de créer le compte. Cet email est peut-être déjà utilisé.')
+      const message = 'Impossible de créer le compte. Cet email est peut-être déjà utilisé.'
+      setError(message)
+      AccessibilityInfo.announceForAccessibility(message)
     } finally {
       setLoading(false)
     }
@@ -52,7 +56,7 @@ export default function RegisterScreen() {
           secureTextEntry
           placeholder="8 caractères minimum"
         />
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? <Text style={styles.error} accessibilityLiveRegion="polite">{error}</Text> : null}
         <Button label="Créer mon compte" onPress={handleSubmit} loading={loading} />
       </View>
 

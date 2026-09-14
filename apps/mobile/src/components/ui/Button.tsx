@@ -8,9 +8,11 @@ interface Props {
   loading?: boolean
   disabled?: boolean
   style?: ViewStyle
+  /** À fournir si `label` seul ne décrit pas l'action pour un lecteur d'écran (par défaut : `label`). */
+  accessibilityLabel?: string
 }
 
-export function Button({ label, onPress, variant = 'primary', loading, disabled, style }: Props) {
+export function Button({ label, onPress, variant = 'primary', loading, disabled, style, accessibilityLabel }: Props) {
   const isPrimary = variant === 'primary'
   const isOutline = variant === 'outline'
   const isOutlineLight = variant === 'outlineLight'
@@ -20,6 +22,9 @@ export function Button({ label, onPress, variant = 'primary', loading, disabled,
     <Pressable
       onPress={onPress}
       disabled={disabled || loading}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityState={{ disabled: disabled || loading, busy: loading }}
       style={({ pressed }) => [
         styles.base,
         isPrimary && styles.primary,

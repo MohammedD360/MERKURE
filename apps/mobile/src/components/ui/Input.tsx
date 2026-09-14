@@ -7,11 +7,15 @@ interface Props extends TextInputProps {
 }
 
 export function Input({ label, error, style, ...props }: Props) {
+  // `${colors.muted}88` (opacité 53%) faisait chuter le contraste du
+  // placeholder à ~2.3:1 sur fond blanc, bien en dessous du minimum WCAG AA
+  // (4.5:1) — colors.muted en pleine opacité tient ~6.3:1.
   return (
     <View style={styles.wrap}>
       {label ? <Text style={styles.label}>{label}</Text> : null}
       <TextInput
-        placeholderTextColor={`${colors.muted}88`}
+        placeholderTextColor={colors.muted}
+        accessibilityLabel={error ? `${label}, erreur : ${error}` : label}
         style={[styles.input, error && styles.inputError, style]}
         {...props}
       />
