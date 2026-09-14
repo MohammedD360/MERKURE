@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Trash2 } from 'lucide-react-native'
 import { Button } from '@/src/components/ui/Button'
@@ -41,13 +41,23 @@ export function JournalEditor({ date }: Props) {
   const [notes, setNotes] = useState('')
   const [dirty, setDirty] = useState(false)
 
+  // Ne resynchronise le formulaire qu'au changement de date (ou à la fin du
+  // premier chargement), jamais sur un simple refetch React Query en arrière-
+  // plan (retour d'app, invalidation croisée) — `entry` change de référence à
+  // chaque refetch même si son contenu est identique, et l'inclure dans les
+  // deps effaçait silencieusement toute saisie non sauvegardée.
+  const syncedDateRef = useRef<string | null>(null)
   useEffect(() => {
+    if (isLoading) return
+    if (syncedDateRef.current === date) return
+    syncedDateRef.current = date
     setMood(entry?.mood ?? null)
     setPlanBefore(entry?.planBefore ?? '')
     setReviewAfter(entry?.reviewAfter ?? '')
     setNotes(entry?.notes ?? '')
     setDirty(false)
-  }, [entry, date])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `entry` exclu volontairement, voir commentaire ci-dessus
+  }, [date, isLoading])
 
   const handleSave = () => {
     upsert.mutate(
@@ -93,14 +103,20 @@ export function JournalEditor({ date }: Props) {
       <View style={styles.head}>
         <Text style={styles.dateTitle}>{formatDateFr(date)}</Text>
         {entry ? (
-          <Pressable onPress={handleDelete} style={styles.deleteBtn}>
+          <Pressable
+            onPress={handleDelete}
+            style={styles.deleteBtn}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Supprimer l'entrée du journal"
+          >
             <Trash2 size={16} color={colors.loss} />
           </Pressable>
         ) : null}
       </View>
 
       <Text style={styles.label}>Humeur du jour</Text>
-      <View style={styles.moods}>
+      <View style={styles.moods} accessibilityRole="radiogroup">
         {MOODS.map((m) => (
           <Pressable
             key={m.key}
@@ -109,6 +125,9 @@ export function JournalEditor({ date }: Props) {
               setDirty(true)
             }}
             style={[styles.moodChip, mood === m.key && styles.moodChipActive]}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: mood === m.key }}
+            accessibilityLabel={m.label}
           >
             <Text style={styles.moodEmoji}>{m.emoji}</Text>
             <Text style={[styles.moodLabel, mood === m.key && styles.moodLabelActive]}>{m.label}</Text>
