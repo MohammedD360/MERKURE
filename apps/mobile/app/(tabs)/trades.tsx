@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { TradeRow } from '@/src/components/TradeRow'
-import { Screen } from '@/src/components/ui/Screen'
 import { ScreenHeader } from '@/src/components/ui/ScreenHeader'
 import { useTrades } from '@/src/hooks/use-trades'
+import type { Trade } from '@/src/lib/api-client'
 import { colors, fonts, radius } from '@/src/lib/theme'
 
 type Filter = '' | 'OPEN' | 'CLOSED'
@@ -13,38 +14,46 @@ export default function TradesScreen() {
   const { data, isLoading, refetch, isFetching } = useTrades({ limit: 50, status })
 
   return (
-    <Screen refreshing={isFetching} onRefresh={() => void refetch()}>
-      <ScreenHeader title="Trades" subtitle="Historique" />
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <FlatList
+        data={data?.items ?? []}
+        keyExtractor={(t) => t.id}
+        renderItem={({ item }: { item: Trade }) => <TradeRow trade={item} />}
+        contentContainerStyle={styles.padded}
+        refreshControl={<RefreshControl refreshing={isFetching} onRefresh={() => void refetch()} tintColor={colors.primary} />}
+        ListHeaderComponent={
+          <>
+            <ScreenHeader title="Trades" subtitle="Historique" />
 
-      <View style={styles.filters}>
-        {(['', 'OPEN', 'CLOSED'] as const).map((f) => (
-          <Pressable
-            key={f || 'all'}
-            onPress={() => setStatus(f)}
-            style={[styles.chip, status === f && styles.chipActive]}
-          >
-            <Text style={[styles.chipText, status === f && styles.chipTextActive]}>
-              {f === '' ? 'Tous' : f === 'OPEN' ? 'Ouverts' : 'Clôturés'}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
+            <View style={styles.filters} accessibilityRole="radiogroup">
+              {(['', 'OPEN', 'CLOSED'] as const).map((f) => {
+                const label = f === '' ? 'Tous' : f === 'OPEN' ? 'Ouverts' : 'Clôturés'
+                return (
+                  <Pressable
+                    key={f || 'all'}
+                    onPress={() => setStatus(f)}
+                    style={[styles.chip, status === f && styles.chipActive]}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: status === f }}
+                    accessibilityLabel={label}
+                  >
+                    <Text style={[styles.chipText, status === f && styles.chipTextActive]}>{label}</Text>
+                  </Pressable>
+                )
+              })}
+            </View>
 
-      {isLoading ? (
-        <ActivityIndicator color={colors.primary} />
-      ) : (
-        <>
-          <Text style={styles.count}>{data?.total ?? 0} trades</Text>
-          {data?.items.map((t) => (
-            <TradeRow key={t.id} trade={t} />
-          ))}
-        </>
-      )}
-    </Screen>
+            {isLoading ? <ActivityIndicator color={colors.primary} /> : <Text style={styles.count}>{data?.total ?? 0} trades</Text>}
+          </>
+        }
+      />
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.background },
+  padded: { padding: 16, paddingBottom: 32 },
   filters: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   chip: {
     paddingHorizontal: 14,

@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import type { Trade } from '@/src/lib/api-client'
@@ -13,14 +14,22 @@ function formatTime(dateStr: string): string {
   return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 }
 
-export function TradeRow({ trade }: Props) {
+export const TradeRow = memo(function TradeRow({ trade }: Props) {
   const router = useRouter()
   const pnl = trade.pnl != null ? Number(trade.pnl) : null
   const isLong = trade.direction === 'LONG'
   const directionLabel = isLong ? 'Achat' : 'Vente'
 
+  const summary = `${trade.symbol}, ${directionLabel}, ${pnl != null ? formatMoney(pnl, true).replace('€', '$') : 'position ouverte'}, ${formatTime(trade.openTime)}`
+
   return (
-    <Pressable style={styles.row} onPress={() => router.push(`/trade/${trade.id}`)}>
+    <Pressable
+      style={styles.row}
+      onPress={() => router.push(`/trade/${trade.id}`)}
+      accessible
+      accessibilityRole="button"
+      accessibilityLabel={summary}
+    >
       <View style={styles.left}>
         <Text style={styles.symbol}>{trade.symbol}</Text>
         <View style={[styles.badge, isLong ? styles.long : styles.short]}>
@@ -38,7 +47,7 @@ export function TradeRow({ trade }: Props) {
       </View>
     </Pressable>
   )
-}
+})
 
 const styles = StyleSheet.create({
   row: {
