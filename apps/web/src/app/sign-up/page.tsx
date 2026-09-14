@@ -4,7 +4,9 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { AlertCircle, Eye, EyeOff, LockKeyhole, Mail, User } from 'lucide-react'
+import { SignUp } from '@clerk/nextjs'
 
+import { isClerkEnabled } from '@/lib/auth-mode'
 import { setToken } from '@/lib/api-client'
 import { AuthShell } from '@/shared/components/AuthShell'
 import { GoogleAuthButton } from '@/shared/components/GoogleAuthButton'
@@ -32,7 +34,7 @@ const inputCls =
 
 const labelCls = 'block mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[hsl(var(--foreground-soft))]'
 
-export default function SignUpPage() {
+function PasswordRegisterForm() {
   const router = useRouter()
   const [firstName, setFirstName]       = useState('')
   const [lastName, setLastName]         = useState('')
@@ -90,11 +92,6 @@ export default function SignUpPage() {
   }
 
   return (
-    <AuthShell
-      title="Créez votre espace."
-      description="Connectez vos données et gardez une lecture claire de votre trading dès le premier jour."
-      contentClassName="sm:w-[520px]"
-    >
       <div className="space-y-4">
         {/* Google — option principale */}
         <GoogleAuthButton label="S'inscrire avec Google" variant="prominent" />
@@ -285,6 +282,25 @@ export default function SignUpPage() {
           </p>
         </form>
       </div>
+  )
+}
+
+function ClerkRegister() {
+  return (
+    <div className="rounded-xl border border-[hsl(var(--border))] bg-card p-3">
+      <SignUp />
+    </div>
+  )
+}
+
+export default function SignUpPage() {
+  return (
+    <AuthShell
+      title="Créez votre espace."
+      description="Connectez vos données et gardez une lecture claire de votre trading dès le premier jour."
+      contentClassName="sm:w-[520px]"
+    >
+      {isClerkEnabled ? <ClerkRegister /> : <PasswordRegisterForm />}
     </AuthShell>
   )
 }
