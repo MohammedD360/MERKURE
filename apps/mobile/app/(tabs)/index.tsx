@@ -66,11 +66,12 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <OverviewGrid
             isLoading={summary.isLoading}
-            totalPnl={summary.data?.totalPnl ?? 2450.75}
-            winRate={summary.data?.winRate ?? 0.624}
-            nbTrades={summary.data?.nbTrades ?? 78}
-            avgRr={advanced.data?.avgRR ?? 1.85}
-            aiScore={aiScore.data?.score ?? 78}
+            isError={summary.isError}
+            totalPnl={summary.data?.totalPnl}
+            winRate={summary.data?.winRate}
+            nbTrades={summary.data?.nbTrades}
+            avgRr={advanced.data?.avgRR}
+            aiScore={aiScore.data?.score}
             onVoirTout={() => router.push('/performance')}
           />
         </View>

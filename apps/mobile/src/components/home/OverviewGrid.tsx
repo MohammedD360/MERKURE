@@ -5,12 +5,16 @@ import { formatMoney, formatPct } from '@/src/lib/format'
 import { colors, fonts, radius } from '@/src/lib/theme'
 
 interface Props {
-  totalPnl?: number
+  totalPnl?: number | null
   winRate?: number | null
-  nbTrades?: number
+  nbTrades?: number | null
   avgRr?: number | null
   aiScore?: number | null
   isLoading?: boolean
+  // Distinct de isLoading : une requête qui a échoué ne doit jamais retomber
+  // sur des chiffres de démonstration affichés comme si c'étaient les vraies
+  // performances de l'utilisateur — un trader pourrait décider sur cette base.
+  isError?: boolean
   onVoirTout?: () => void
 }
 
@@ -44,33 +48,31 @@ function ScoreRing({ score }: { score: number }) {
 }
 
 export function OverviewGrid({
-  totalPnl = 2450.75,
-  winRate = 0.624,
-  nbTrades = 78,
-  avgRr = 1.85,
-  aiScore = 78,
+  totalPnl,
+  winRate,
+  nbTrades,
+  avgRr,
+  aiScore,
   isLoading,
+  isError,
   onVoirTout,
 }: Props) {
   const row1 = [
     {
       title: 'Profit Net',
-      value: formatPnlDisplay(totalPnl),
-      delta: '+18.7%',
-      valueColor: totalPnl >= 0 ? colors.profit : colors.loss,
+      value: totalPnl != null ? formatPnlDisplay(totalPnl) : '—',
+      valueColor: totalPnl == null ? colors.foreground : totalPnl >= 0 ? colors.profit : colors.loss,
       spark: colors.profit,
     },
     {
       title: 'Win Rate',
       value: winRate != null ? formatPct(winRate * 100) : '—',
-      delta: '+6.2%',
       valueColor: colors.foreground,
       spark: colors.primary,
     },
     {
       title: 'R:R Moyen',
       value: avgRr != null ? avgRr.toFixed(2) : '—',
-      delta: '+0.27',
       valueColor: colors.foreground,
       spark: colors.profit,
     },
@@ -79,15 +81,15 @@ export function OverviewGrid({
   const row2 = [
     {
       title: 'Trades',
-      value: String(nbTrades),
-      delta: '+12',
+      value: nbTrades != null ? String(nbTrades) : '—',
       valueColor: colors.foreground,
       spark: colors.profit,
     },
+    // Aucun hook ne fournit encore l'expectancy réelle (pas de endpoint dédié
+    // côté API) — affiché en attente plutôt qu'une valeur inventée en dur.
     {
       title: 'Expectancy',
-      value: '0.73',
-      delta: '+0.35',
+      value: '—',
       valueColor: colors.foreground,
       spark: colors.profit,
     },
@@ -104,6 +106,10 @@ export function OverviewGrid({
 
       {isLoading ? (
         <ActivityIndicator color={colors.primary} style={{ marginVertical: 24 }} />
+      ) : isError ? (
+        <View style={styles.errorBox}>
+          <Text style={styles.errorText}>Impossible de charger vos performances pour l'instant.</Text>
+        </View>
       ) : (
         <>
           <View style={styles.row}>
@@ -111,7 +117,6 @@ export function OverviewGrid({
               <View key={m.title} style={styles.card}>
                 <Text style={styles.cardTitle}>{m.title}</Text>
                 <Text style={[styles.cardValue, { color: m.valueColor }]} numberOfLines={1} adjustsFontSizeToFit>{m.value}</Text>
-                <Text style={styles.cardDelta}>{m.delta}</Text>
                 <MiniSparkline color={m.spark} width={56} height={22} />
               </View>
             ))}
@@ -121,13 +126,12 @@ export function OverviewGrid({
               <View key={m.title} style={styles.card}>
                 <Text style={styles.cardTitle}>{m.title}</Text>
                 <Text style={[styles.cardValue, { color: m.valueColor }]}>{m.value}</Text>
-                <Text style={styles.cardDelta}>{m.delta}</Text>
                 <MiniSparkline color={m.spark} width={56} height={22} />
               </View>
             ))}
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Score Global IA</Text>
-              <ScoreRing score={aiScore ?? 78} />
+              {aiScore != null ? <ScoreRing score={aiScore} /> : <Text style={styles.cardValue}>—</Text>}
             </View>
           </View>
         </>
@@ -167,9 +171,16 @@ const styles = StyleSheet.create({
   },
   cardTitle: { fontFamily: fonts.medium, fontSize: 10, color: colors.muted },
   cardValue: { fontFamily: fonts.bold, fontSize: 17, marginTop: 3, marginBottom: 1 },
-  cardDelta: { fontFamily: fonts.medium, fontSize: 10, color: colors.profit, marginBottom: 4 },
   scoreWrap: { width: 52, height: 52, alignItems: 'center', justifyContent: 'center', marginTop: 6 },
   scoreCenter: { position: 'absolute', alignItems: 'center' },
   scoreNum: { fontFamily: fonts.bold, fontSize: 13, color: colors.primary },
   scoreSub: { fontFamily: fonts.regular, fontSize: 7, color: colors.muted },
+  errorBox: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: 16,
+    alignItems: 'center',
+  },
+  errorText: { fontFamily: fonts.regular, fontSize: 13, color: colors.muted, textAlign: 'center' },
 })

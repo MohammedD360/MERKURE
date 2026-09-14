@@ -59,9 +59,12 @@ export default function AnalyseIaScreen() {
   const aiScore = useAiScore('1M')
   const summary = useKpiSummary('1M')
 
-  const score = aiScore.data?.score ?? 78
-  const totalPnl = summary.data?.totalPnl ?? 2450.75
-  const winRate = summary.data?.winRate ?? 0.624
+  // Pas de repli sur des chiffres inventés : un échec de chargement doit être
+  // visible (voir isError plus bas), jamais présenté comme une vraie performance.
+  const score = aiScore.data?.score ?? null
+  const totalPnl = summary.data?.totalPnl ?? null
+  const winRate = summary.data?.winRate ?? null
+  const hasError = aiScore.isError || summary.isError
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -91,16 +94,20 @@ export default function AnalyseIaScreen() {
 
       {/* Contenu scrollable */}
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-        {aiScore.isLoading ? (
+        {aiScore.isLoading || summary.isLoading ? (
           <ActivityIndicator color={colors.primary} style={{ marginTop: 60 }} />
+        ) : hasError ? (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>Impossible de charger votre analyse IA pour l'instant.</Text>
+          </View>
         ) : (
           <>
             {/* Score Global */}
             <View style={styles.scoreSection}>
               <View style={styles.scoreRingWrap}>
-                <ScoreRing score={score} />
+                <ScoreRing score={score ?? 0} />
                 <View style={styles.scoreCenter}>
-                  <Text style={styles.scoreNum}>{score}</Text>
+                  <Text style={styles.scoreNum}>{score ?? '—'}</Text>
                   <Text style={styles.scoreSub}>/100</Text>
                 </View>
               </View>
@@ -108,8 +115,6 @@ export default function AnalyseIaScreen() {
                 <View style={styles.scoreLabelBadge}>
                   <Text style={styles.scoreLabelText}>Bon</Text>
                 </View>
-                <Text style={styles.scoreDelta}>+12 points</Text>
-                <Text style={styles.scoreDeltaSub}>vs la semaine dernière</Text>
               </View>
             </View>
 
@@ -138,17 +143,15 @@ export default function AnalyseIaScreen() {
               <View style={styles.perfRow}>
                 <View style={styles.perfMetric}>
                   <Text style={styles.perfLabel}>Profit Net</Text>
-                  <Text style={[styles.perfValue, { color: colors.profit }]}>
-                    {formatMoney(totalPnl, true).replace('€', '$')}
+                  <Text style={[styles.perfValue, { color: totalPnl == null ? colors.foreground : totalPnl >= 0 ? colors.profit : colors.loss }]}>
+                    {totalPnl != null ? formatMoney(totalPnl, true).replace('€', '$') : '—'}
                   </Text>
-                  <Text style={styles.perfDelta}>+18.7%</Text>
                   <MiniSparkline color={colors.profit} width={90} height={28} />
                 </View>
                 <View style={styles.perfDivider} />
                 <View style={styles.perfMetric}>
                   <Text style={styles.perfLabel}>Win Rate</Text>
-                  <Text style={styles.perfValue}>{formatPct(winRate * 100)}</Text>
-                  <Text style={styles.perfDelta}>+6.2%</Text>
+                  <Text style={styles.perfValue}>{winRate != null ? formatPct(winRate * 100) : '—'}</Text>
                   <MiniSparkline color={colors.primary} width={90} height={28} />
                 </View>
               </View>
@@ -209,8 +212,15 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
   },
   scoreLabelText: { fontFamily: fonts.bold, fontSize: 14, color: '#166534' },
-  scoreDelta: { fontFamily: fonts.bold, fontSize: 14, color: '#22C55E' },
-  scoreDeltaSub: { fontFamily: fonts.regular, fontSize: 11, color: colors.muted },
+  errorBox: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: 16,
+    marginTop: 24,
+    alignItems: 'center',
+  },
+  errorText: { fontFamily: fonts.regular, fontSize: 13, color: colors.muted, textAlign: 'center' },
   sectionTitle: {
     fontFamily: fonts.bold,
     fontSize: 15,
@@ -245,6 +255,5 @@ const styles = StyleSheet.create({
   perfMetric: { flex: 1, alignItems: 'flex-start' },
   perfDivider: { width: 1, height: 80, backgroundColor: colors.border, marginHorizontal: 16 },
   perfLabel: { fontFamily: fonts.medium, fontSize: 11, color: colors.muted, marginBottom: 4 },
-  perfValue: { fontFamily: fonts.bold, fontSize: 18, color: colors.foreground, marginBottom: 2 },
-  perfDelta: { fontFamily: fonts.medium, fontSize: 11, color: '#22C55E', marginBottom: 6 },
+  perfValue: { fontFamily: fonts.bold, fontSize: 18, color: colors.foreground, marginBottom: 6 },
 })
